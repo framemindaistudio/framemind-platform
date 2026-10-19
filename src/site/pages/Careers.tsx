@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { ArrowRight, Check } from "lucide-react";
 import SEO from "@/site/components/SEO";
 import { submitLead } from "@/site/leads";
@@ -56,11 +55,10 @@ function Chips({ title, options, value, onChange }: { title: string; options: st
   );
 }
 
-export default function Careers() {
+export default function Careers({ initialRole = "" }: { initialRole?: string }) {
   const formTop = useRef<HTMLDivElement>(null);
-  // /careers?role=development chooses the role
-  const linked = useSearchParams().get("role");
-  const [role, setRole] = useState<RoleId | "">(() => (APPLY_ROLES.some((x) => x.id === linked) ? (linked as RoleId) : ""));
+  // /careers?role=development chooses the role (read by the page on the server, so the HTML is complete)
+  const [role, setRole] = useState<RoleId | "">(() => (APPLY_ROLES.some((x) => x.id === initialRole) ? (initialRole as RoleId) : ""));
   const [roleOther, setRoleOther] = useState("");
   const [f, setF] = useState({ name: "", phone: "", email: "", city: "", current: "", experience: "", links: "", message: "", startFrom: "", heardFrom: "", workMode: "", website: "" });
   const [student, setStudent] = useState(false);
