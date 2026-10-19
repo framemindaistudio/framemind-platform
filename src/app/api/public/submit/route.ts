@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { upsertRecord } from "@/lib/hq/records";
 import { apiError, clientIp, rateLimit } from "@/lib/hq/api";
 import { site } from "@/lib/site";
+import { appliedFor, cleanApplication } from "@/lib/content/careers";
 import { StoreReadOnlyError } from "@/lib/store";
 
 /**
  * Website enquiry forms → HQ "Enquiries" (data/leads.json).
- * POST { kind, name, phone, email, organisation, role, city, services[], budget, timeline, ageTrack, message, page, website(honeypot) }
+ * POST { kind, name, phone, email, organisation, role, city, services[], budget, timeline, ageTrack, message, page, application (careers form), website(honeypot) }
  *
  * The studio website lives on another address, so the browser asks first (OPTIONS): only the website's own origin
  * (NEXT_PUBLIC_WEBSITE_URL) and this portal may post.
@@ -51,6 +52,10 @@ export async function POST(req: Request) {
   if (phone && !/^[+\d][\d\s-]{7,15}$/.test(phone)) return reply({ error: "Please enter a valid phone number." }, 400);
   if (email && !/^\S+@\S+\.\S+$/.test(email)) return reply({ error: "Please enter a valid email." }, 400);
 
+  // a job application: the careers form's answers, cleaned to the known choices
+  const application = kind === "careers" ? cleanApplication(body.application) : undefined;
+  if (kind === "careers" && !phone) return reply({ error: "We call every applicant, so please share a phone number." }, 400);
+
   const services = Array.isArray(body.services) ? (body.services as unknown[]).map(String).filter((s) => SERVICES.includes(s)) : [];
 
   try {
@@ -64,7 +69,7 @@ export async function POST(req: Request) {
         phone,
         email,
         organisation: str("organisation", 160),
-        role: str("role", 80),
+        role: application ? appliedFor(application).slice(0, 80) : str("role", 80),
         city: str("city", 80),
         services,
         budget: str("budget", 60),
@@ -72,6 +77,7 @@ export async function POST(req: Request) {
         ageTrack: TRACKS.includes(str("ageTrack")) ? str("ageTrack") : undefined,
         message: str("message", 3000),
         page: str("page", 120),
+        application,
       },
       "Website",
     );

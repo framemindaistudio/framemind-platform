@@ -20,6 +20,7 @@ import { introMessage, introSubject, phoneDigits, telHref, whatsappHref } from "
 import { addDays, isWithinDays, relativeDay, str, todayIso } from "./crm";
 import { ContactButtons, Notice } from "./bits";
 import { useToday } from "./useToday";
+import { appliedFor, cleanApplication, type Application } from "@/lib/content/careers";
 
 const leadsDef = getCollection("leads")!;
 const proposalHref = (clientId: string, leadId: string) => `/hq/proposals/new?client=${encodeURIComponent(clientId)}&lead=${encodeURIComponent(leadId)}`;
@@ -143,7 +144,7 @@ export function LeadsInbox() {
         sortValue: (r) => servicesOfLead(r).length,
         render: (r) => (
           <span className="block min-w-[9rem] text-xs text-charcoal">
-            {[r.city, servicesOfLead(r).map(serviceLabel).join(", "), r.budget ? `Budget ${str(r.budget)}` : "", r.channel]
+            {(r.kind === "careers" ? applicantLine(r) : [r.city, servicesOfLead(r).map(serviceLabel).join(", "), r.budget ? `Budget ${str(r.budget)}` : "", r.channel])
               .filter(Boolean)
               .map(String)
               .join(" · ") || "—"}
@@ -462,10 +463,70 @@ function LeadDetail({ lead, canWrite }: { lead: BaseRecord; canWrite: boolean })
         )}
       </section>
 
+      {lead.kind === "careers" && cleanApplication(lead.application) && <ApplicationFacts app={cleanApplication(lead.application)!} lead={lead} />}
+
       {lead.kind === "careers" && (
         <Notice tone="info">Applications are not clients — reply, then add promising people in Team &amp; Payroll and send their offer from Documents to Sign.</Notice>
       )}
     </div>
+  );
+}
+
+/** One line for the table: the role applied for, the experience, how they want to work, and the city. */
+function applicantLine(r: BaseRecord): string[] {
+  const app = cleanApplication(r.application);
+  if (!app) return [str(r.city), str(r.channel)];
+  return [app.experience > 0 ? `${formatNumber(app.experience)} yr${app.experience === 1 ? "" : "s"}` : app.student ? "Student" : "", app.engagement.join(" / "), str(r.city)];
+}
+
+/** What the careers form asked, as the applicant answered it. */
+function ApplicationFacts({ app, lead }: { app: Application; lead: BaseRecord }) {
+  const links = app.links.split(/\s+/).filter(Boolean);
+  const rows: [string, React.ReactNode][] = [
+    ["Applying for", <strong key="r">{appliedFor(app)}</strong>],
+    [app.student ? "Student at" : "Does now", app.current || str(lead.organisation)],
+    ["Experience", `${formatNumber(app.experience)} year${app.experience === 1 ? "" : "s"}`],
+    ["Skills", app.skills.join(", ")],
+    ["Wants to work", app.engagement.join(", ")],
+    ["Where", app.workMode],
+    ["Languages", app.languages.join(", ")],
+    ["Can start", app.startFrom ? formatDate(app.startFrom) : ""],
+    ["Heard about us", app.heardFrom],
+    [
+      "Portfolio / links",
+      links.length ? (
+        <span key="l" className="flex flex-col items-end gap-1">
+          {links.map((l) =>
+            /^https?:\/\//i.test(l) ? (
+              <a key={l} href={l} target="_blank" rel="noopener noreferrer nofollow" className="break-all underline underline-offset-2">
+                {l}
+              </a>
+            ) : (
+              <span key={l} className="break-all">
+                {l}
+              </span>
+            ),
+          )}
+        </span>
+      ) : (
+        ""
+      ),
+    ],
+  ];
+  return (
+    <section aria-labelledby="lead-app">
+      <h3 id="lead-app" className="annot mb-2 text-charcoal">
+        Application
+      </h3>
+      <dl className="rounded-[var(--radius-md)] border border-graphite/12 bg-paper-50 px-4 py-2">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex items-start justify-between gap-4 border-b border-dashed border-graphite/10 py-2 text-sm last:border-0">
+            <dt className="shrink-0 text-blueprint">{k}</dt>
+            <dd className="text-right font-medium text-graphite">{v || <span className="text-blueprint/60">—</span>}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 

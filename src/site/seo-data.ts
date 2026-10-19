@@ -9,6 +9,12 @@ export interface PageSeo {
 }
 
 export const PAGE_SEO: Record<string, PageSeo> = {
+  "/careers": {
+    "title": "Careers — Work at FrameMind AI Studio",
+    "description": "Join FrameMind AI Studio in Gadag, Karnataka: designers, developers, photographers and video editors, social media and business development. Full-time, internship and freelance.",
+    "keywords": "design jobs Karnataka, web developer jobs Gadag, design internship India, video editor jobs Karnataka, FrameMind careers",
+    "ogImageAlt": "Careers at FrameMind AI Studio"
+  },
   "/": {
     "title": "Web Design, Development & AI Solutions",
     "description": "FrameMind Studio is an MSME-registered design and development studio in India. We build websites, brand systems, custom software, and AI-powered tools — delivered on time, at transparent INR pricing.",

@@ -168,10 +168,10 @@ export default function Team() {
                 Could be you.
               </p>
               <Link
-                to="/connect"
+                to="/careers"
                 className="inline-flex items-center gap-1.5 font-mono text-[9px] text-muted-foreground hover:text-foreground uppercase tracking-widest hover:underline underline-offset-4 transition-colors"
               >
-                Say hello <ArrowRight size={10} />
+                See careers <ArrowRight size={10} />
               </Link>
             </div>
           </div>

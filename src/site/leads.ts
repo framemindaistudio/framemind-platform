@@ -8,10 +8,13 @@ export interface LeadInput {
   email?: string;
   phone?: string;
   organisation?: string;
+  city?: string;
   services?: string[];
   budget?: string;
   timeline?: string;
   message?: string;
+  /** the careers form's answers (kind "careers"), checked by the server against src/lib/content/careers.ts */
+  application?: Record<string, unknown>;
   /** the hidden honeypot field: people never fill it */
   website?: string;
 }

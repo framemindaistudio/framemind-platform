@@ -19,6 +19,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   testimonials: "Testimonials",
   team: "Team",
   connect: "Contact",
+  careers: "Careers",
 };
 
 const ORG_SCHEMA = {

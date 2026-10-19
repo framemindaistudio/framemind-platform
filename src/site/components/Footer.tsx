@@ -9,6 +9,7 @@ const navLinks = [
   { to: "/jove", label: "JOVE" },
   { to: "/personal-coaching", label: "1:1 Coaching" },
   { to: "/testimonials", label: "Testimonials" },
+  { to: "/careers", label: "Careers" },
   { to: "/connect", label: "Connect" },
 ];
 
