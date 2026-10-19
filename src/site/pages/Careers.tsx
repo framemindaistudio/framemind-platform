@@ -15,9 +15,14 @@ import { APPLY_ROLES, ENGAGEMENT, HEARD, LANGUAGES, SKILLS, WORK_MODE, appliedFo
 const PROMPTS: Record<RoleId, { links: string; linksHint: string; message: string; messageHint: string }> = {
   design: { links: "Portfolio link", linksHint: "Behance, Dribbble, a Figma file or a Drive folder — student and personal work counts.", message: "Which piece of your work are you proudest of, and why?", messageHint: "What the brief was and what you decided." },
   development: { links: "GitHub, portfolio or a live project", linksHint: "Anything you built yourself, even small.", message: "What have you built?", messageHint: "The project, the stack, and the part you wrote." },
-  media: { links: "Showreel or portfolio link", linksHint: "YouTube, Instagram, Drive or Behance — student work counts.", message: "What do you shoot or edit, and with what?", messageHint: "The kind of work you make, your gear and your fastest turnaround." },
+  automation: { links: "GitHub, a workflow or a demo (optional)", linksHint: "A screenshot or video of an automation you built counts.", message: "Which automation are you proudest of?", messageHint: "What it replaced, the tools, and how much time it saved." },
+  photo: { links: "Portfolio link", linksHint: "Instagram, Behance or a Drive folder — personal work counts.", message: "What do you shoot, and with what?", messageHint: "The kind of work, your camera and lenses, and how you edit." },
+  video: { links: "Showreel or portfolio link", linksHint: "YouTube, Instagram, Drive or Behance — student work counts.", message: "What do you shoot or edit, and with what?", messageHint: "The kind of videos you make, your gear and your fastest turnaround." },
   social: { links: "Accounts or posts you have run (optional)", linksHint: "Your own page counts.", message: "Show us how you think about content", messageHint: "A post or campaign you made, and what happened." },
+  content: { links: "Writing samples", linksHint: "A blog, a website you wrote for, or a Drive folder of pieces.", message: "What do you write best?", messageHint: "The kind of writing and the languages you write in." },
+  coaching: { links: "LinkedIn or anything you have taught (optional)", linksHint: "A class, a workshop, a video or a post explaining AI.", message: "How would you teach AI to a beginner?", messageHint: "Who you have taught before, and the tools you use every day." },
   business: { links: "LinkedIn (optional)", linksHint: "", message: "Why you, and why FrameMind?", messageHint: "Any sales, client or outreach experience, and the languages you speak with confidence." },
+  operations: { links: "LinkedIn (optional)", linksHint: "", message: "Tell us about something you kept on track", messageHint: "A project, an event or a team — what you organised and how." },
   other: { links: "Links (optional)", linksHint: "", message: "What would you do at FrameMind?", messageHint: "The role you have in mind and what you would bring to it." },
 };
 
@@ -86,7 +91,8 @@ export default function Careers() {
       return;
     }
     if (role === "other" && !roleOther.trim()) return setError("Tell us the role you have in mind.");
-    if (linksRequired(role) && !f.links.trim()) return setError(`Add your ${role === "media" ? "showreel" : "portfolio"} link — for this role it is the application.`);
+    if (!engagement.length) return setError("Choose full-time, part-time, internship or freelance (one or more).");
+    if (linksRequired(role) && !f.links.trim()) return setError(`Add your ${role === "video" ? "showreel" : "portfolio"} link — for this role it is the application.`);
     setLoading(true);
     setError("");
     const application = { role, roleOther, current: f.current, student, experience: f.experience, skills, engagement, workMode: f.workMode, languages, links: f.links, startFrom: f.startFrom, heardFrom: f.heardFrom };
@@ -127,7 +133,7 @@ export default function Careers() {
         <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-4 block">Careers</span>
         <h1 className="text-3xl md:text-5xl font-semibold tracking-tight mb-5 max-w-2xl">Build real work with us.</h1>
         <p className="text-base text-muted-foreground max-w-xl leading-relaxed">
-          FrameMind is a small, founder-led studio in Gadag building websites, brands, software and media for real clients. Full-time, internship and freelance.
+          FrameMind is a small, founder-led studio in Gadag building websites, brands, software and media for real clients. We are hiring for every role below — full-time, part-time, internship or freelance.
         </p>
       </section>
 
@@ -136,20 +142,34 @@ export default function Careers() {
         <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
           <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
             <div>
-              <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-3 block">Where we hire</span>
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">The work we do, and the people it needs.</h2>
+              <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-3 block">Hiring now</span>
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Every role, open now.</h2>
             </div>
             <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-              Not every role is open at every moment. Apply anyway — every application is read.
+              Each role is open as full-time, part-time, internship or freelance. Pick what suits you in the form.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border border border-border">
             {APPLY_ROLES.map((r) => (
               <div key={r.id} className="bg-background p-6 flex flex-col">
-                <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{r.code === "R-00" ? "Open" : r.code}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{r.code === "R-00" ? "Open" : r.code}</span>
+                  {r.hiring && (
+                    <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#C8F135] px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-widest text-[#0D0D0D]">
+                      <span className="size-1.5 rounded-full bg-[#0D0D0D] animate-pulse" aria-hidden />
+                      Hiring now
+                    </span>
+                  )}
+                </div>
                 <h3 className="font-semibold text-base mt-2 mb-1.5 tracking-tight">{r.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{r.short}</p>
-                <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-4">{r.type}</p>
+                <ul className="flex flex-wrap gap-1.5 mb-4" aria-label="Open as">
+                  {ENGAGEMENT.map((e) => (
+                    <li key={e} className="border border-border rounded-sm px-2 py-0.5 font-mono text-[9px] text-muted-foreground uppercase tracking-widest">
+                      {e}
+                    </li>
+                  ))}
+                </ul>
                 <button
                   type="button"
                   onClick={() => applyFor(r.id)}
@@ -167,7 +187,7 @@ export default function Careers() {
       <section className="border-t border-border bg-[#0D0D0D]">
         <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1a1a1a] border border-[#1a1a1a]">
           {[
-            { n: "01", t: "You apply", b: "This form takes five minutes. For design and video, the portfolio is the application." },
+            { n: "01", t: "You apply", b: "This form takes five minutes. For design, photo and video, the portfolio is the application." },
             { n: "02", t: "We read it", b: "Every application is read by the founder, not filtered by software." },
             { n: "03", t: "We talk", b: "If your work fits what the studio needs, we get in touch for a conversation." },
           ].map((s) => (
@@ -222,11 +242,14 @@ export default function Careers() {
                         </span>
                         <span>
                           <span className="block text-sm font-semibold leading-snug">{r.title}</span>
-                          <span className={`block text-xs mt-0.5 ${on ? "text-[#aaa]" : "text-muted-foreground"}`}>{r.type}</span>
+                          <span className={`block text-xs mt-0.5 ${on ? "text-[#C8F135]" : "text-muted-foreground"}`}>{r.hiring ? "Hiring now" : "Tell us the role"}</span>
                         </span>
                       </label>
                     );
                   })}
+                </div>
+                <div className="mt-3">
+                  <Chips title="Full-time, part-time, internship or freelance? (pick one or more) *" options={ENGAGEMENT} value={engagement} onChange={setEngagement} />
                 </div>
                 {role === "other" && <input value={roleOther} onChange={(e) => setRoleOther(e.target.value)} maxLength={80} placeholder="Which role? e.g. 3D designer, operations intern" className={field} />}
               </fieldset>
@@ -278,9 +301,8 @@ export default function Careers() {
 
               {/* 3 · how */}
               <fieldset className="flex flex-col gap-6">
-                <legend className={`${label} mb-3`}>3 · Skills and how you want to work</legend>
+                <legend className={`${label} mb-3`}>3 · Skills and availability</legend>
                 {role && SKILLS[role].length > 0 && <Chips title="What you can do (tick all that fit)" options={SKILLS[role]} value={skills} onChange={setSkills} />}
-                <Chips title="How you want to work" options={ENGAGEMENT} value={engagement} onChange={setEngagement} />
                 <Chips title="Languages you speak with confidence" options={LANGUAGES} value={languages} onChange={setLanguages} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="flex flex-col gap-1.5">

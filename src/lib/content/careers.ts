@@ -1,18 +1,24 @@
 /**
  * Careers: the kinds of work FrameMind hires for and the application form's questions.
  * Used by the /careers page, the public form handler and HQ → Enquiries, so the role names and choices are written
- * once. These are the areas the studio hires in, not a promise that a role is open today: the page says so.
+ * once. A role with `hiring: true` shows "Hiring now" on the careers page.
  */
 
-export type RoleId = "design" | "development" | "media" | "social" | "business" | "other";
+export type RoleId = "design" | "development" | "automation" | "photo" | "video" | "social" | "content" | "coaching" | "business" | "operations" | "other";
 
-export const APPLY_ROLES: { id: RoleId; code: string; title: string; short: string; type: string }[] = [
-  { id: "design", code: "R-01", title: "UI / Brand Designer", short: "Websites, identities and product screens, from first sketch to handover", type: "Full-time · internship · freelance" },
-  { id: "development", code: "R-02", title: "Full-stack Developer", short: "Websites, web apps, dashboards and automations that ship", type: "Full-time · internship · freelance" },
-  { id: "media", code: "R-03", title: "Photographer / Video Editor", short: "Product and event shoots, brand films and reels", type: "Freelance · internship" },
-  { id: "social", code: "R-04", title: "Social Media Executive", short: "Plan, write and publish for client and studio accounts", type: "Full-time · internship" },
-  { id: "business", code: "R-05", title: "Business Development", short: "Find the right clients and look after them", type: "Full-time · part-time" },
-  { id: "other", code: "R-00", title: "Something else", short: "Tell us the role you have in mind", type: "Open" },
+/** Every role the studio is hiring for now (shown as "Hiring now" on /careers), plus an open application. */
+export const APPLY_ROLES: { id: RoleId; code: string; title: string; short: string; hiring: boolean }[] = [
+  { id: "design", code: "R-01", title: "UI/UX & Brand Designer", short: "Websites, identities and product screens, from first sketch to handover", hiring: true },
+  { id: "development", code: "R-02", title: "Full-stack Developer", short: "Websites, web apps and dashboards that ship", hiring: true },
+  { id: "automation", code: "R-03", title: "AI & Automation Engineer", short: "Workflows, integrations and AI steps that save clients hours", hiring: true },
+  { id: "photo", code: "R-04", title: "Photographer", short: "Product, brand and event shoots, edited and delivered", hiring: true },
+  { id: "video", code: "R-05", title: "Videographer / Video Editor", short: "Brand films, reels and event videos — shoot, cut and grade", hiring: true },
+  { id: "social", code: "R-06", title: "Social Media Executive", short: "Plan, design and publish for client and studio accounts", hiring: true },
+  { id: "content", code: "R-07", title: "Content Writer / Copywriter", short: "Website copy, captions, scripts and case studies", hiring: true },
+  { id: "coaching", code: "R-08", title: "AI Coach", short: "Teach AI one-to-one in the 90-day coaching programme", hiring: true },
+  { id: "business", code: "R-09", title: "Business Development Executive", short: "Find the right clients and look after them", hiring: true },
+  { id: "operations", code: "R-10", title: "Project Coordinator", short: "Keep projects, timelines and client updates on track", hiring: true },
+  { id: "other", code: "R-00", title: "Something else", short: "Tell us the role you have in mind", hiring: false },
 ];
 
 export const roleTitle = (id: unknown) => APPLY_ROLES.find((r) => r.id === id)?.title ?? "";
@@ -20,20 +26,26 @@ export const roleTitle = (id: unknown) => APPLY_ROLES.find((r) => r.id === id)?.
 /** What each role is asked to tick. */
 export const SKILLS: Record<RoleId, string[]> = {
   design: ["Figma", "UI / UX design", "Brand identity", "Typography", "Illustrator", "Photoshop", "Motion design", "Design systems"],
-  development: ["React / Next.js", "TypeScript", "Node.js", "Python", "Databases (SQL)", "Tailwind CSS", "APIs and integrations", "AI / LLM tools"],
-  media: ["Photography", "Camera operation", "Premiere Pro", "DaVinci Resolve", "After Effects", "Colour grading", "Drone (licensed)", "Lighting"],
-  social: ["Content planning", "Copywriting", "Canva", "Reels editing", "Instagram", "LinkedIn", "Analytics", "Community management"],
-  business: ["Sales calls", "Client meetings", "Proposals", "Spreadsheets or a CRM", "Networking", "Kannada with clients", "Partnerships"],
+  development: ["React / Next.js", "TypeScript", "Node.js", "Python", "Databases (SQL)", "Tailwind CSS", "APIs and integrations", "Deployment (Vercel, cloud)"],
+  automation: ["n8n / Make / Zapier", "Python", "JavaScript", "LLM APIs (OpenAI, Claude)", "Prompt engineering", "Google Workspace scripts", "WhatsApp / CRM integrations", "Webhooks and APIs"],
+  photo: ["Product photography", "Event photography", "Portraits", "Lighting", "Lightroom", "Photoshop retouching", "Studio setup", "Drone (licensed)"],
+  video: ["Camera operation", "Premiere Pro", "DaVinci Resolve", "Final Cut Pro", "After Effects", "Colour grading", "Sound and music", "Reels editing"],
+  social: ["Content planning", "Canva", "Reels editing", "Instagram", "LinkedIn", "Analytics", "Paid ads", "Community management"],
+  content: ["Website copy", "Social captions", "Video scripts", "Blogs and articles", "SEO writing", "Case studies", "Kannada writing", "Hindi writing"],
+  coaching: ["ChatGPT / Claude / Gemini", "Prompting", "AI for work tasks", "No-code AI tools", "Teaching one-to-one", "Teaching students (10–20)", "Teaching professionals", "Python / ML basics"],
+  business: ["Sales calls", "Client meetings", "Proposals and quotes", "Spreadsheets or a CRM", "Networking", "Kannada with clients", "Partnerships", "Institution sales (schools, colleges)"],
+  operations: ["Project planning", "Client communication", "Timelines and follow-ups", "Spreadsheets", "Notion / Trello / Asana", "Invoicing basics", "Shoot coordination", "Documentation"],
   other: [],
 };
 
-export const ENGAGEMENT = ["Full-time", "Part-time", "Internship", "Freelance / per project"];
+/** Every role is open as any of these: the applicant picks one or more. */
+export const ENGAGEMENT = ["Full-time", "Part-time", "Internship", "Freelance"];
 export const WORK_MODE = ["In the Gadag studio", "Remote", "Either"];
 export const LANGUAGES = ["English", "Kannada", "Hindi", "Telugu", "Marathi", "Tamil"];
 export const HEARD = ["Instagram", "LinkedIn", "WhatsApp", "A friend", "My college", "Google", "Build For Real", "Other"];
 
-/** The portfolio is the application for design and media work. */
-export const linksRequired = (role: RoleId) => role === "design" || role === "media";
+/** The portfolio is the application for design, photo and video work. */
+export const linksRequired = (role: RoleId) => role === "design" || role === "photo" || role === "video";
 
 export interface Application {
   role: RoleId;
