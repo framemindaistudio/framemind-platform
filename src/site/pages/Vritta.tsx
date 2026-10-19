@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "@/site/router";
 import { ArrowRight, Check, Minus, ChevronDown, BookOpen, FileText, Database, ArrowUpRight } from "lucide-react";
 import SEO from "@/site/components/SEO";
+import type { RateCard } from "@/lib/pricebook/types";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ const layers = [
   },
 ];
 
-const editions = [
+const BASE_EDITIONS = [
   {
     num: "I",
     label: "Essential",
@@ -95,7 +96,7 @@ const capabilities = [
   { name: "Multi-campus administration", e: false, p: false, i: true },
 ];
 
-const oneTimeCharges = [
+const BASE_ONE_TIME = [
   { item: "Implementation — School", covers: "Deployment, branding, masthead, department roster, template pass, remote training", charge: "₹35,000" },
   { item: "Implementation — College", covers: "As above, plus cell and committee configuration and a print proof with the institution's printer", charge: "₹75,000" },
   { item: "Implementation — Institutional", covers: "As above, plus criterion mapping workshop with the IQAC and multi-campus setup", charge: "₹1,50,000" },
@@ -103,6 +104,38 @@ const oneTimeCharges = [
   { item: "Additional institution, same society", covers: "Each further institution under the same trust or management", charge: "55% of licence fee" },
   { item: "Design services", covers: "Bespoke templates, hand-composed spreads, cover artwork", charge: "On request" },
 ];
+
+/** The part of HQ's rate card this page shows: Vritta's licence fees and one-time charges (prices only). */
+export type VrittaRates = Pick<RateCard, "vritta">;
+
+const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+const SEG = { schools: "school", colleges: "college" } as const;
+
+/**
+ * The editions and one-time charges with HQ's prices (HQ → Money → Rate Card → Vritta) laid over the page's own
+ * wording. Without a saved rate card the published prices above are shown.
+ */
+function vrittaPrices(rates: VrittaRates | null | undefined) {
+  const v = rates?.vritta;
+  if (!v) return { editions: BASE_EDITIONS, oneTimeCharges: BASE_ONE_TIME, groupPct: 55, amcPct: 20 };
+  const editions = BASE_EDITIONS.map((ed) => {
+    const id = ed.label.toLowerCase() as "essential" | "professional" | "institutional";
+    const priced = (seg: keyof typeof SEG, base: typeof ed.schools) => {
+      // an edition the rate card does not offer for this segment keeps the page's own entry (Institutional: colleges only)
+      const r = v.rates[SEG[seg]]?.[id];
+      return r ? { monthly: inr(r.monthly), annual: inr(r.annual), perpetual: inr(r.perpetual), amc: inr(r.amc) } : base;
+    };
+    return { ...ed, schools: priced("schools", ed.schools), colleges: priced("colleges", ed.colleges) };
+  });
+  const byId = Object.fromEntries(v.oneTime.map((o) => [o.id, o]));
+  const ids = ["impl-school", "impl-college", "impl-institutional", "onsite-week"];
+  const oneTimeCharges = BASE_ONE_TIME.map((row, k) => {
+    if (k < ids.length && byId[ids[k]]) return { ...row, charge: inr(byId[ids[k]].price) };
+    if (row.charge.includes("% of licence fee")) return { ...row, charge: `${v.groupLicencePercent}% of licence fee` };
+    return row;
+  });
+  return { editions, oneTimeCharges, groupPct: v.groupLicencePercent, amcPct: v.amcPercent };
+}
 
 const hostingOptions = [
   {
@@ -215,7 +248,10 @@ function CapCell({ value }: { value: boolean | string }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function Vritta() {
+export default function Vritta({ rates = null }: { rates?: VrittaRates | null }) {
+  const { editions, oneTimeCharges, groupPct, amcPct } = vrittaPrices(rates);
+  const pct = (text: string) => text.replace(/\b55%/g, `${groupPct}%`).replace(/\b20% of (the )?perpetual/g, (m) => m.replace("20%", `${amcPct}%`));
+  const annual = (label: string, seg: "schools" | "colleges") => (editions.find((e) => e.label === label)?.[seg]?.annual ?? "").replace(/[^\d]/g, "");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [segment, setSegment] = useState<"schools" | "colleges">("colleges");
 
@@ -238,18 +274,18 @@ export default function Vritta() {
             "creator": { "@type": "Organization", "name": "FrameMind AI Studio", "url": "https://www.framemindaistudio.com" },
             "countriesSupported": "IN",
             "offers": [
-              { "@type": "Offer", "name": "Essential — Schools", "price": "65000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
-              { "@type": "Offer", "name": "Professional — Schools", "price": "115000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
-              { "@type": "Offer", "name": "Essential — Colleges", "price": "125000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
-              { "@type": "Offer", "name": "Professional — Colleges", "price": "195000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
-              { "@type": "Offer", "name": "Institutional — Colleges", "price": "345000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
+              { "@type": "Offer", "name": "Essential — Schools", "price": annual("Essential", "schools") || "65000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
+              { "@type": "Offer", "name": "Professional — Schools", "price": annual("Professional", "schools") || "115000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
+              { "@type": "Offer", "name": "Essential — Colleges", "price": annual("Essential", "colleges") || "125000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
+              { "@type": "Offer", "name": "Professional — Colleges", "price": annual("Professional", "colleges") || "195000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
+              { "@type": "Offer", "name": "Institutional — Colleges", "price": annual("Institutional", "colleges") || "345000", "priceCurrency": "INR", "priceSpecification": { "@type": "UnitPriceSpecification", "unitText": "year" } },
             ],
           },
           {
             "@context": "https://schema.org",
             "@type": "FAQPage",
             "mainEntity": [
-              { "@type": "Question", "name": "Can we buy Vritta once and never pay again?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — the perpetual licence grants an indefinite right to run the version delivered at handover, together with all updates released during the first twelve months. After that, an annual maintenance contract (20% of the perpetual fee) covers updates and support." } },
+              { "@type": "Question", "name": "Can we buy Vritta once and never pay again?", "acceptedAnswer": { "@type": "Answer", "text": pct("Yes — the perpetual licence grants an indefinite right to run the version delivered at handover, together with all updates released during the first twelve months. After that, an annual maintenance contract (20% of the perpetual fee) covers updates and support.") } },
               { "@type": "Question", "name": "Does Vritta replace our ERP?", "acceptedAnswer": { "@type": "Answer", "text": "No. Vritta is purpose-built for activity records and newsletter production — the specific evidence and publication layer that ERPs do not address. It is complementary to your existing systems." } },
               { "@type": "Question", "name": "How quickly can Vritta go live?", "acceptedAnswer": { "@type": "Answer", "text": "Four weeks from purchase order to first published issue, assuming the institution meets the implementation dependencies." } },
             ],
@@ -596,7 +632,7 @@ export default function Vritta() {
                     { label: "Named institution", text: "The licence names one institution and is not transferable, including institutions under the same trust." },
                     { label: "Internal use only", text: "Licensed for the institution's own publications and records. Not for operating the platform as a service for third parties." },
                     { label: "No redistribution", text: "Self-hosted deployments do not carry a right to copy, share, sublicense or resell the source code." },
-                    { label: "Group licensing", text: "Trusts operating several institutions are licensed per institution at 55% of the applicable fee after the first. Ask early." },
+                    { label: "Group licensing", text: pct("Trusts operating several institutions are licensed per institution at 55% of the applicable fee after the first. Ask early.") },
                   ].map(({ label, text }) => (
                     <div key={label} className="flex gap-2.5 items-start">
                       <span className="w-1 h-1 rounded-full bg-foreground/40 mt-1.5 shrink-0" />
@@ -615,7 +651,7 @@ export default function Vritta() {
                 </p>
                 <div className="bg-background border border-border rounded-sm p-4">
                   <p className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest mb-1">Maintenance contract</p>
-                  <p className="text-sm font-bold text-foreground mb-2">20% of perpetual fee / year</p>
+                  <p className="text-sm font-bold text-foreground mb-2">{amcPct}% of perpetual fee / year</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     From year 2. Covers defect resolution, security patches, platform updates, and compatibility maintenance as underlying technologies change.
                   </p>
@@ -739,7 +775,7 @@ export default function Vritta() {
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
             <SectionLabel>09 · Questions we are always asked</SectionLabel>
             <div className="max-w-3xl mx-auto divide-y divide-border">
-              {faqs.map((faq, i) => (
+              {faqs.map((f) => ({ ...f, a: pct(f.a) })).map((faq, i) => (
                 <div key={i} className="py-5">
                   <button
                     className="w-full flex items-start justify-between gap-4 text-left group"

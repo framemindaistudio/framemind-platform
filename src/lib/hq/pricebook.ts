@@ -71,7 +71,8 @@ function cleanGroups(v: unknown, base: ServiceGroup[]): ServiceGroup[] {
           optSeen.add(oid);
           const detail = text(x.detail, 200);
           const badge = text(x.badge, 24);
-          return { id: oid, label: text(x.label, 120), price: num(x.price, 0, 0, 100_000_000), ...(detail ? { detail } : {}), ...(badge ? { badge } : {}) };
+          const unit = text(x.unit, 24);
+          return { id: oid, label: text(x.label, 120), price: num(x.price, 0, 0, 100_000_000), ...(detail ? { detail } : {}), ...(badge ? { badge } : {}), ...(x.base === true ? { base: true } : {}), ...(unit ? { unit } : {}) };
         })
         .filter((o) => o.label);
       const help = text(g.help, 300);

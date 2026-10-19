@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
@@ -24,6 +25,9 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const book = await writePriceBook(body?.book, user.name);
+    // the public website shows these prices: rebuild its pages now instead of at the next refresh
+    revalidatePath("/pricing");
+    revalidatePath("/vritta");
     return NextResponse.json({ book, exists: true, storeMode: storeMode() });
   } catch (e) {
     return apiError(e);
