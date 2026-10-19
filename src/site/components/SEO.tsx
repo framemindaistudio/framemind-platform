@@ -28,7 +28,7 @@ const ORG_SCHEMA = {
   name: SITE_NAME,
   url: SITE_URL,
   logo: `${SITE_URL}/favicon.png`,
-  image: `${SITE_URL}/og-image.png`,
+  image: `${SITE_URL}/og-image.png?v=2`,
   email: "framemindaistudio@gmail.com",
   telephone: "+918073087576",
   description: "MSME-registered design and software studio in Gadag, Karnataka — building websites, brand systems, custom software, and AI tools for Indian founders and institutions.",
