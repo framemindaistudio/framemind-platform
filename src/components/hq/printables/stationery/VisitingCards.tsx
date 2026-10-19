@@ -78,7 +78,7 @@ export function VisitingCards({ q }: { q: Q }) {
   const site0 = settings.website || (/localhost|127\.0\.0\.1/.test(site.url) ? "" : site.url);
   const contacts: Contact[] = people.map((m) => ({
     name: str(m.name),
-    title: str(m.role) === "Co-Founder & CCO" ? site.founders[1].role : str(m.role),
+    title: str(m.role),
     phone: str(m.phone) || settings.phone || site.contact.phone,
     email: str(m.email) || settings.email || site.contact.email,
     website: bare(site0),

@@ -27,7 +27,6 @@ export function CertificateSheet({ cert, qr, verifyUrl, specimen }: { cert: Omit
   const name = cert.studentName.trim();
   const nameSize = name.length > 34 ? "24pt" : name.length > 26 ? "29pt" : name.length > 19 ? "34pt" : "40pt";
   const founderA = site.founders[0];
-  const founderB = site.founders[1];
   const placeLine = (cert.detail ?? "").trim();
   const shortUrl = verifyUrl.replace(/^https?:\/\//, "");
 
@@ -87,9 +86,7 @@ export function CertificateSheet({ cert, qr, verifyUrl, specimen }: { cert: Omit
               <p className="mt-[0.4mm] text-[5.6pt] font-semibold uppercase tracking-[0.2em] text-blueprint">Scan to verify</p>
             </div>
 
-            <div className="flex justify-end pr-[4mm]">
-              <Signature name={founderB.name} role={founderB.role} />
-            </div>
+            <div aria-hidden />
           </div>
 
           <div className="mt-[4.6mm] flex w-full items-center justify-between gap-4 border-t border-graphite/30 pt-[1.8mm] text-[6pt] font-semibold uppercase tracking-[0.2em] text-blueprint">

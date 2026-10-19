@@ -8,9 +8,9 @@
  * that need something to have happened first say so in `after`. Names and roles are read from site.founders.
  */
 
-export type FounderId = "shivaprasad" | "chinmay";
+export type FounderId = "chinmay";
 /** the "Posted from" value of the content plan for a founder's own profile */
-export type FounderAccount = "Shivaprasad (personal)" | "Chinmay (personal)";
+export type FounderAccount = "Chinmay (personal)";
 
 export interface Pillar {
   id: string;
@@ -101,11 +101,12 @@ const chinmay: FounderPlan = {
   rhythm: [
     { day: "Mon", where: "LinkedIn", what: "Founder post: craft. How something was designed or built." },
     { day: "Wed", where: "LinkedIn", what: "Founder post: AI used plainly, or how we work." },
+    { day: "Fri", where: "LinkedIn", what: "Founder post: the week in the open. A lesson, a client question answered, a number that is real." },
     { day: "Thu", where: "Instagram", what: "One screen, frame or clip from this week's work, with one line on how it was made (client work only with approval)." },
     { day: "Daily", where: "All", what: "Ten minutes: answer every comment and message within 24 hours." },
     { day: "Sun", where: "HQ", what: "Choose next week's posts and put them in the plan." },
   ],
-  rhythmNote: "LinkedIn carries three founder posts a week. Monday and Wednesday are yours, Friday is Shivaprasad's. Share each other's posts. The studio's own channels keep their own cadence in the Plan tab.",
+  rhythmNote: "LinkedIn carries three founder posts a week: Monday, Wednesday and Friday. The studio's own channels keep their own cadence in the Plan tab.",
   prompts: [
     { pillar: "craft", text: "Before and after. What changed, and why: ...", after: "Only with the client's approval to show their work." },
     { pillar: "craft", text: "A design I threw away this week, and why: ..." },
@@ -136,80 +137,5 @@ const chinmay: FounderPlan = {
   ],
 };
 
-const shivaprasad: FounderPlan = {
-  id: "shivaprasad",
-  account: "Shivaprasad (personal)",
-  headline: "Head of Business Development & Client Relations, FrameMind AI Studio",
-  purpose:
-    "This is where a prospective client looks you up before agreeing to a call. It should show the person who listens first, explains the price plainly and stays in touch after the project: how you think about fit, and that you tell the truth about a studio that is young.",
-  readers: [
-    { who: "Founders and business owners", wants: "A straight answer on what they need, what it costs and how long it takes." },
-    { who: "Institutions", wants: "Someone dependable to talk to about Vritta and coaching." },
-    { who: "Partners and referrers", wants: "To know who they are sending clients to." },
-    { who: "Future team members", wants: "What it is like to work with the studio." },
-  ],
-  voice: [
-    "First person, plain words, short sentences. One idea in each.",
-    "Exact with numbers, and only real ones. A target is written as a target.",
-    "Respectful of a founder's time: what they get first, then how.",
-  ],
-  pillars: [
-    {
-      id: "fit",
-      name: "Finding the right fit",
-      about: "Plain answers to what founders ask before they start a project.",
-      posts: ["What to have ready before a discovery call", "How to read a quote", "Signs a project is not ready yet"],
-    },
-    {
-      id: "pricing",
-      name: "Prices in the open",
-      about: "Why the studio publishes its rate card, and how to read it.",
-      posts: ["The rate card explained, with GST stated", "What the Studio Bundle saves", "Why we split payments into milestones"],
-    },
-    {
-      id: "clients",
-      name: "After the handover",
-      about: "Support, follow-ups and the relationship after the project.",
-      posts: ["What support looks like after launch", "A thank-you to a client, with their permission", "A question a client asked that changed how we work"],
-    },
-    {
-      id: "honest",
-      name: "Building it honestly",
-      about: "Your own ledger: lessons, thanks, and numbers only when they are real.",
-      posts: ["A lesson from this week", "A target, and where you stand against it", "A thank-you, with the person's permission"],
-    },
-  ],
-  rhythm: [
-    { day: "Fri", where: "LinkedIn", what: "Founder post: the week in the open. A conversation, a lesson, a question answered." },
-    { day: "Daily", where: "LinkedIn", what: "Ten minutes: answer every comment and message within 24 hours." },
-    { day: "Sun", where: "HQ", what: "Choose next week's post and put it in the plan." },
-  ],
-  rhythmNote: "LinkedIn carries three founder posts a week. Friday is yours, Monday and Wednesday are Chinmay's. Share each other's posts.",
-  prompts: [
-    { pillar: "fit", text: "Three things to have ready before you call a studio: ..." },
-    { pillar: "fit", text: "How to tell if you need a website or a web app: ..." },
-    { pillar: "fit", text: "A question I could not answer well this week: ..." },
-    { pillar: "fit", text: "Why we sometimes say “not yet”: ..." },
-    { pillar: "pricing", text: "Our prices, in plain numbers: ...", tip: "Copy the numbers from the Rate Card and say ex-GST." },
-    { pillar: "pricing", text: "Why we publish our rate card: ..." },
-    { pillar: "pricing", text: "What 50% to start and 50% on delivery protects, for both sides: ..." },
-    { pillar: "clients", text: "What a client told us after launch: ...", after: "Only with a real quote that the client has approved." },
-    { pillar: "clients", text: "What support looks like in the month after launch: ..." },
-    { pillar: "clients", text: "Thank you to someone who sent a client our way: ...", tip: "Name a person only with their permission." },
-    { pillar: "honest", text: "Our target for this year, and where we stand today: ...", tip: "Write the target as a target. Count only what is real." },
-    { pillar: "honest", text: "What I changed my mind about this month: ..." },
-    { pillar: "honest", text: "A number we will not publish until it is real: ..." },
-  ],
-  avoid: [
-    "A client's name, words or logo before the client has approved it.",
-    "Anything said in a sales conversation that the other side would not want made public.",
-    "A count of clients or revenue before it is real. A target is always written as a target.",
-    "A testimonial, an award, press or a rating that does not exist.",
-    "A price that is not on the current rate card, or one without “ex-GST”.",
-    "What things cost us, margins and planning numbers. They stay in HQ.",
-    "A competitor's name, a comparison, or a superlative such as “best” or “number 1”.",
-  ],
-};
-
-export const FOUNDER_PLANS: Record<FounderId, FounderPlan> = { chinmay, shivaprasad };
-export const FOUNDER_ORDER: FounderId[] = ["chinmay", "shivaprasad"];
+export const FOUNDER_PLANS: Record<FounderId, FounderPlan> = { chinmay };
+export const FOUNDER_ORDER: FounderId[] = ["chinmay"];

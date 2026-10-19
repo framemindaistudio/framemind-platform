@@ -85,6 +85,26 @@ function RefSelect({ field, value, onChange, disabled }: { field: FieldDef; valu
   );
 }
 
+/** A text box offering the field's own suggestions plus every name in another collection (people added later included). */
+function SuggestInput({ field, value, onChange, disabled }: { field: FieldDef; value: string; onChange: (v: unknown) => void; disabled?: boolean }) {
+  const { records } = useCollection(field.suggestFrom!);
+  const names = useMemo(() => {
+    const fromRecords = records.filter((r) => r.status !== "inactive").map((r) => String(r.name ?? "").trim()).filter(Boolean);
+    return [...new Set([...(field.suggestions ?? []), ...fromRecords])];
+  }, [records, field.suggestions]);
+  const listId = `sugg-${field.key}`;
+  return (
+    <>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled} placeholder={field.placeholder} list={listId} autoComplete="off" />
+      <datalist id={listId}>
+        {names.map((o) => (
+          <option key={o} value={o} />
+        ))}
+      </datalist>
+    </>
+  );
+}
+
 function TagsInput({ value, onChange, disabled, placeholder }: { value: unknown; onChange: (v: string[]) => void; disabled?: boolean; placeholder?: string }) {
   const tags = Array.isArray(value) ? (value as string[]) : [];
   const [draft, setDraft] = useState("");
@@ -274,6 +294,7 @@ export function FieldInput({ field, value, onChange, disabled }: { field: FieldD
       return <LineItemsEditor value={value} onChange={onChange} disabled={disabled} />;
     default:
       // with suggestions: pick a common value or type your own
+      if (field.suggestFrom) return <SuggestInput field={field} value={String(v)} onChange={onChange} disabled={disabled} />;
       if (field.suggestions?.length) {
         const listId = `sugg-${field.key}`;
         return (

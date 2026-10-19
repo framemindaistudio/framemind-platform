@@ -49,6 +49,8 @@ export interface FieldDef {
   placeholder?: string;
   /** text fields: common values offered as you type; anything else may still be typed */
   suggestions?: string[];
+  /** text fields: also offer the names in this collection (e.g. "team"), so people added later appear */
+  suggestFrom?: string;
   help?: string;
   /** form layout width on md+ screens */
   width?: "full" | "half" | "third";
@@ -437,7 +439,7 @@ export const collections: CollectionDef[] = [
     read: MEDIA_SIDE,
     write: OPS_MEDIA,
     fields: [
-      { key: "account", label: "Posted from", type: "select", options: opts("FrameMind", "Chinmay (personal)", "Shivaprasad (personal)"), default: "FrameMind", table: true, width: "third" },
+      { key: "account", label: "Posted from", type: "select", options: opts("FrameMind", "Chinmay (personal)"), default: "FrameMind", table: true, width: "third" },
       { key: "date", label: "Publish date", type: "date", table: true, width: "third" },
       { key: "platform", label: "Platform", type: "select", options: opts("Instagram", "LinkedIn", "YouTube", "Facebook", "X", "Threads", "WhatsApp"), table: true, width: "third" },
       { key: "format", label: "Format", type: "select", options: opts("Reel", "Post", "Carousel", "Story", "Short", "Long video", "Article"), table: true, width: "third" },
@@ -678,7 +680,7 @@ export const collections: CollectionDef[] = [
       { key: "description", label: "Description", type: "text", required: true, table: true, width: "full" },
       { key: "vendor", label: "Paid to", type: "text", width: "half" },
       { key: "projectId", label: "Project (if a direct cost)", type: "ref", ref: "projects", width: "half" },
-      { key: "paidBy", label: "Paid by", type: "select", options: opts("Company account", "Chinmay", "Shivaprasad", "Cash box"), table: true, width: "third" },
+      { key: "paidBy", label: "Paid by", type: "text", suggestions: ["Company account", "Chinmay", "Cash box"], suggestFrom: "team", placeholder: "Company account, or who paid", table: true, width: "third" },
       { key: "mode", label: "Mode", type: "select", options: PAY_MODES, width: "third" },
       { key: "gstAmount", label: "GST in bill (₹)", type: "currency", width: "third" },
       { key: "billable", label: "Re-bill to the client", type: "boolean", width: "third" },
@@ -730,7 +732,7 @@ export const collections: CollectionDef[] = [
         key: "role",
         label: "Role",
         type: "text",
-        suggestions: ["Founder", "Head of Business Development & Client Relations", "UI/UX Designer", "Full-stack Developer", "Automation Engineer", "AI Coach", "Photographer", "Videographer / Editor", "Social Media Manager", "Operations", "Intern"],
+        suggestions: ["Founder", "Business Development Executive", "UI/UX Designer", "Full-stack Developer", "Automation Engineer", "AI Coach", "Photographer", "Videographer / Editor", "Social Media Manager", "Operations", "Intern"],
         placeholder: "e.g. UI/UX Design Intern",
         help: "Type the exact role: it is printed on offer letters and ID cards.",
         table: true,

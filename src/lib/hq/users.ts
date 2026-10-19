@@ -12,7 +12,7 @@ export interface ConfiguredUser extends SessionUser {
 
 /**
  * The built-in logins from the HQ_USERS environment variable (JSON array):
- * [{"username":"shiva","name":"Shivaprasad Reddy S S","role":"founder","password":"sha256:..."}]
+ * [{"username":"chinmay","name":"Chinmay R M","role":"founder","password":"sha256:..."}]
  * Create it with:  node scripts/make-hq-env.mjs   ·   change one login with:  node scripts/hq-user.mjs
  * An entry whose role is not recognised is ignored, so a typing mistake shows up at once as a login that does not work.
  */

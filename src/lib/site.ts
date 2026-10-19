@@ -33,6 +33,7 @@ export const site = {
     name: "FrameMind AI Studio",
     url: "https://www.framemindaistudio.com/",
   },
+  /** the founder (FrameMind has one); the rest of the team lives in HQ → Team & Payroll */
   founders: [
     {
       id: "chinmay",
@@ -42,15 +43,6 @@ export const site = {
       bio: "Chinmay founded FrameMind AI Studio with one conviction — that great design and real software should be accessible to founders who are actually building something. He leads every project end-to-end, from the first brief to the final handover.",
       initials: "CR",
       photo: "/team/chinmay.jpg",
-    },
-    {
-      id: "shivaprasad",
-      name: "Shivaprasad Reddy S S",
-      role: "Head of Business Development & Client Relations",
-      focus: "Growth · Partnerships · Revenue · Client Relations",
-      bio: "Shivaprasad drives FrameMind's growth engine — from identifying the right clients to building relationships that last well beyond the first project. He bridges studio capability and business opportunity, so every conversation turns into the right fit.",
-      initials: "SR",
-      photo: "/team/shivaprasad.jpg",
     },
   ],
 } as const;
