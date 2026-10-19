@@ -11,7 +11,7 @@
  *
  * Options
  *   --email you@example.com     public contact email shown on the website
- *   --site  https://…           HQ address (where it is deployed) [https://hq.framemindaistudio.site]
+ *   --site  https://…           HQ address (where it is deployed) [https://www.framemindaistudio.com]
  *   --repo  owner/name          private data repository    [framemindaistudio/framemind-hq-data]
  *   --local                     also add the logins to .env.local, so they work on this computer
  *   --force                     replace existing .env.vercel / .env.hq-logins (this changes the passwords)
@@ -38,7 +38,7 @@ const FOUNDERS = [
   { username: "chinmay", name: "Chinmay R M", role: "founder" },
 ];
 const DEFAULT_REPO = "framemindaistudio/framemind-hq-data";
-const DEFAULT_SITE = "https://hq.framemindaistudio.site";
+const DEFAULT_SITE = "https://www.framemindaistudio.com";
 
 function stop(message) {
   console.error(`\n${message}\n`);
@@ -81,7 +81,7 @@ const clean = {
     return value === "" || /^[^\s@#$]+@[^\s@#$]+\.[^\s@#$]+$/.test(value) ? value : null;
   },
 };
-const HINT = { site: "a web address such as https://hq.framemindaistudio.site", repo: "owner/name, for example framemindaistudio/framemind-hq-data", email: "an email address" };
+const HINT = { site: "a web address such as https://www.framemindaistudio.com", repo: "owner/name, for example framemindaistudio/framemind-hq-data", email: "an email address" };
 
 function fromFlag(name, fallback) {
   if (args[name] === undefined) return fallback;

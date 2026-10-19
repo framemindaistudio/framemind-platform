@@ -1,6 +1,11 @@
 import type { MetadataRoute } from "next";
+import { site } from "@/lib/site";
 
-/** FrameMind HQ is an internal portal: nothing here is for search engines. */
+/** The public website is for search engines; HQ, papers sent to sign, certificate checks and the APIs are not. */
 export default function robots(): MetadataRoute.Robots {
-  return { rules: [{ userAgent: "*", disallow: "/" }] };
+  return {
+    rules: [{ userAgent: "*", allow: "/", disallow: ["/hq", "/api/", "/papers/", "/verify"] }],
+    sitemap: `${site.url}/sitemap.xml`,
+    host: site.url,
+  };
 }

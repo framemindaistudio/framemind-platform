@@ -39,7 +39,7 @@ fs.writeFileSync(
     "# Paste your API key from resend.com → API Keys after the = sign:",
     "RESEND_API_KEY=",
     "# Once your domain is verified in Resend, remove the # below so the email comes from your own address:",
-    '# DIGEST_FROM="FrameMind HQ <hq@framemindaistudio.site>"',
+    '# DIGEST_FROM="FrameMind HQ <hq@framemindaistudio.com>"',
     "",
   ].join("\n"),
 );

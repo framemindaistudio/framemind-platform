@@ -2,7 +2,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  *  FRAMEMIND CATALOGUE — WHAT THE STUDIO SELLS AND THE STARTING PRICES
  * ─────────────────────────────────────────────────────────────────────────────
- *  Every service on the studio's interactive pricing page (framemind-ai-studio.figma.site/pricing), with each
+ *  Every service on the studio's interactive pricing page (framemindaistudio.com/pricing), with each
  *  configurable group and option at its published price, plus the bundle discounts, the Vritta rate card and
  *  the commercial terms the site states.
  *

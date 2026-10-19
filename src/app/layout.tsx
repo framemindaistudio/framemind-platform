@@ -18,11 +18,11 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: { default: "FrameMind HQ", template: "%s · FrameMind HQ" },
-  description: "FrameMind AI Studio's internal operations portal.",
-  applicationName: "FrameMind HQ",
-  robots: { index: false, follow: false },
+  title: { default: "FrameMind AI Studio", template: "%s | FrameMind AI Studio" },
+  description: "Design, development, and AI solutions for Indian founders and institutions.",
+  applicationName: "FrameMind AI Studio",
   manifest: "/manifest.webmanifest",
+  icons: { icon: "/favicon.png", apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {

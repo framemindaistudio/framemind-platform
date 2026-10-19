@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ───────────────────────────────────────────────────────────────────────────
-   FRAMEMIND AI STUDIO — HQ DESIGN SYSTEM (from framemind-ai-studio.figma.site)
+   FRAMEMIND AI STUDIO — HQ DESIGN SYSTEM (from the studio website)
    Ink #0D0D0D · Paper #F5F4F0 · Lime #C8F135 · Violet #7C3AED (the logo's "AI STUDIO")
    DM Sans · Radius 4 / 8 / 16 / 24
    The token names (graphite, paper, blueprint…) are the shared HQ engine's; only their values are FrameMind's.
@@ -280,4 +280,73 @@ html.lenis, html.lenis body { height: auto; }
   .doc-prose { font-size: 10.5pt; }
   .doc-prose h2 { break-after: avoid; }
   .doc-prose table, .doc-prose pre, .doc-prose blockquote { break-inside: avoid; }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   THE PUBLIC WEBSITE (src/site, from the Figma export)
+   Its own colour names, added here so Tailwind makes their utilities. The two names it shares with HQ (accent and
+   the radius scale) and its base type are set inside .fm-site only, so HQ and the website each keep their own look.
+   ─────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-background: #f5f4f0;
+  --color-foreground: #0d0d0d;
+  --color-card: #ffffff;
+  --color-card-foreground: #0d0d0d;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0d0d0d;
+  --color-primary: #0d0d0d;
+  --color-primary-foreground: #f5f4f0;
+  --color-secondary: #eceae4;
+  --color-secondary-foreground: #0d0d0d;
+  --color-muted: #eceae4;
+  --color-muted-foreground: #666666;
+  --color-accent-foreground: #0d0d0d;
+  --color-destructive: #d4183d;
+  --color-destructive-foreground: #f5f4f0;
+  --color-border: rgba(13, 13, 13, 0.1);
+  --color-input: transparent;
+  --color-input-background: #eceae4;
+  --color-ring: #0d0d0d;
+  --color-sidebar: #f5f4f0;
+  --color-sidebar-foreground: #0d0d0d;
+  --color-sidebar-primary: #0d0d0d;
+  --color-sidebar-primary-foreground: #f5f4f0;
+  --color-sidebar-accent: #eceae4;
+  --color-sidebar-accent-foreground: #0d0d0d;
+  --color-sidebar-border: #eceae4;
+  --color-sidebar-ring: #0d0d0d;
+}
+
+.fm-site {
+  --color-accent: #c8f135;
+  --radius-sm: calc(0.5rem - 4px);
+  --radius-md: calc(0.5rem - 2px);
+  --radius-lg: 0.5rem;
+  --radius-xl: calc(0.5rem + 4px);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 16px;
+}
+html:has(.fm-site) {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  .fm-site * {
+    border-color: var(--color-border);
+    outline-color: color-mix(in oklab, var(--color-ring) 50%, transparent);
+  }
+  .fm-site :is(h1, h2, h3, h4) {
+    letter-spacing: normal;
+    text-wrap: wrap;
+  }
+  .fm-site p {
+    text-wrap: wrap;
+  }
+  .fm-site h1 { font-size: var(--text-2xl); font-weight: 500; line-height: 1.5; }
+  .fm-site h2 { font-size: var(--text-xl); font-weight: 500; line-height: 1.5; }
+  .fm-site h3 { font-size: var(--text-lg); font-weight: 500; line-height: 1.5; }
+  .fm-site h4 { font-size: var(--text-base); font-weight: 500; line-height: 1.5; }
+  .fm-site label { font-size: var(--text-base); font-weight: 500; line-height: 1.5; }
+  .fm-site button { font-size: var(--text-base); font-weight: 500; line-height: 1.5; }
+  .fm-site input { font-size: var(--text-base); font-weight: 400; line-height: 1.5; }
 }

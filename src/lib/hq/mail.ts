@@ -3,7 +3,7 @@
  *
  * Vercel environment variables:
  *   RESEND_API_KEY   the API key from resend.com
- *   DIGEST_FROM      the sender, e.g. "FrameMind HQ <hq@framemindaistudio.site>", once the domain is verified in Resend. Until then
+ *   DIGEST_FROM      the sender, e.g. "FrameMind HQ <hq@framemindaistudio.com>", once the domain is verified in Resend. Until then
  *                    mail comes from onboarding@resend.dev, which Resend only delivers to the account's own address.
  */
 import "server-only";

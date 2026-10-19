@@ -55,7 +55,7 @@ export const defaultSettings: CompanySettings = {
   pincode: "",
   phone: "+91 80730 87576",
   email: "framemindaistudio@gmail.com",
-  website: "framemind-ai-studio.figma.site",
+  website: "www.framemindaistudio.com",
   gstin: "",
   pan: "",
   // IT design and development services; change it per invoice line for photo / video work if your CA advises

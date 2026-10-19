@@ -38,7 +38,7 @@ const LOGINS = file(".env.hq-logins");
 
 const ROLES = ["founder", "admin", "ops", "studio", "media", "viewer"];
 const EDITORS = ["founder", "admin"];
-const SITE = "https://hq.framemindaistudio.site";
+const SITE = "https://www.framemindaistudio.com";
 
 function stop(message) {
   console.error(`\n${message}\n`);

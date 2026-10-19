@@ -1,8 +1,8 @@
 /**
  * FrameMind AI Studio — the company profile HQ prints on documents, papers, cards and emails.
  *
- * `url` is the address THIS portal is deployed at (links in emails, QR codes and papers sent to sign point here).
- * `website` is the public studio website. Contact details come from env so they can change without a code change;
+ * `url` is the address the deployment answers on: the public website at / and HQ at /hq (links in emails, QR codes and
+ * papers sent to sign point here). `website` is the public studio website — the same deployment unless set apart. Contact details come from env so they can change without a code change;
  * the defaults are the studio's own published details. Anything left empty is hidden.
  */
 export const site = {
@@ -14,8 +14,8 @@ export const site = {
   headline: "We build what founders need — actually shipped.",
   description:
     "FrameMind AI Studio is a founder-led design and software studio: websites, brand systems, custom software, automations, photography, videography, social media, 1:1 AI coaching and Vritta for institutions.",
-  url: (process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === "production" ? "https://hq.framemindaistudio.site" : "http://localhost:3011")).replace(/\/+$/, ""),
-  website: (process.env.NEXT_PUBLIC_WEBSITE_URL || "https://framemind-ai-studio.figma.site").replace(/\/+$/, ""),
+  url: (process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === "production" ? "https://www.framemindaistudio.com" : "http://localhost:3011")).replace(/\/+$/, ""),
+  website: (process.env.NEXT_PUBLIC_WEBSITE_URL || process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === "production" ? "https://www.framemindaistudio.com" : "http://localhost:3011")).replace(/\/+$/, ""),
   location: process.env.NEXT_PUBLIC_LOCATION || "Gadag, Karnataka",
   contact: {
     email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "framemindaistudio@gmail.com",
@@ -31,7 +31,7 @@ export const site = {
   /** the studio itself (kept as its own entry because shared HQ screens credit "the studio" by this name) */
   studio: {
     name: "FrameMind AI Studio",
-    url: "https://framemind-ai-studio.figma.site/",
+    url: "https://www.framemindaistudio.com/",
   },
   founders: [
     {

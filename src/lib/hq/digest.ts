@@ -4,7 +4,7 @@
  * Set up (Vercel → Project → Settings → Environment Variables; see scripts/make-digest-env.mjs):
  *   RESEND_API_KEY   the API key from resend.com
  *   CRON_SECRET      a long random value; Vercel sends it with the daily call, so nobody else can trigger it
- *   DIGEST_FROM      optional, e.g. "FrameMind HQ <hq@framemindaistudio.site>" once the domain is verified in Resend;
+ *   DIGEST_FROM      optional, e.g. "FrameMind HQ <hq@framemindaistudio.com>" once the domain is verified in Resend;
  *                    until then Resend only delivers mail from onboarding@resend.dev to the account's own address
  * Who receives it is set in HQ → Settings → Morning email. The schedule is in vercel.json.
  */

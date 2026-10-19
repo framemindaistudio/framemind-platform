@@ -1,5 +1,5 @@
 {
-  "name": "framemind-hq",
+  "name": "framemind-platform",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -37,5 +37,5 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "description": "FrameMind HQ — the internal operations portal of FrameMind AI Studio"
+  "description": "FrameMind AI Studio — the public website and the FrameMind HQ operations portal"
 }
