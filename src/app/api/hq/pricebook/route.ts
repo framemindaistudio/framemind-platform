@@ -1,4 +1,5 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { RATECARD_TAG } from "@/site/rates";
 import { NextResponse } from "next/server";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
@@ -25,7 +26,8 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const book = await writePriceBook(body?.book, user.name);
-    // the public website shows these prices: rebuild its pages now instead of at the next refresh
+    // the public website shows these prices: the next visitor gets the new ones (no stale copy is served)
+    revalidateTag(RATECARD_TAG, { expire: 0 });
     revalidatePath("/pricing");
     revalidatePath("/vritta");
     return NextResponse.json({ book, exists: true, storeMode: storeMode() });
