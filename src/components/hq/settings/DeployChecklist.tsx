@@ -66,9 +66,9 @@ export function DeployChecklist({ sys }: { sys: SystemInfo }) {
       items: [
         { id: "repo", label: "Private GitHub repository connected", detail: "Storage reads GitHub (live) in System status.", auto: store.mode === "github" },
         { id: "secret", label: "HQ_SESSION_SECRET set (32+ random characters)", auto: env ? env.sessionSecret : null },
-        { id: "founders", label: "Both founders have a login", detail: "Add accounts in Team accounts.", auto: users ? users.filter((u) => u.role === "founder").length >= 2 : null },
+        { id: "founders", label: "The founder has a login", detail: "Add the rest of the team in Team accounts, each with their own role.", auto: users ? users.some((u) => u.role === "founder") : null },
         { id: "hashed", label: "Every password is stored as a sha256 hash", auto: users ? users.length > 0 && users.every((u) => u.passwordHashed) : null },
-        { id: "signin", label: "Each founder has signed in on the live site" },
+        { id: "signin", label: "The founder has signed in on the live site" },
       ],
     },
     {

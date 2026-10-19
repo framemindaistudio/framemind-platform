@@ -286,7 +286,7 @@ function Editor({ desk, saved, template, tab, onClose }: { desk: Desk; saved: Si
                     {f.name}, {f.title}
                   </option>
                 ))}
-                <option value="both">Both founders</option>
+                <option value="both">{FOUNDERS.map((f) => f.name).join(" and ")}</option>
               </Select>
             </Field>
           )}

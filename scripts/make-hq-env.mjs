@@ -3,7 +3,7 @@
  * FrameMind HQ — environment generator for Vercel.
  *
  *   node scripts/make-hq-env.mjs               asks for each login (you choose the passwords)
- *   node scripts/make-hq-env.mjs --generate    no questions: creates a strong password for each founder
+ *   node scripts/make-hq-env.mjs --generate    no questions: creates a strong password for the founder's login
  *
  * Both write `.env.vercel` — the block to import in Vercel → Project → Settings → Environment Variables.
  * --generate also writes `.env.hq-logins` with the new passwords, so they never appear on screen.
@@ -33,10 +33,8 @@ const LOGINS_FILE = path.join(ROOT, ".env.hq-logins");
 const LOCAL_FILE = path.join(ROOT, ".env.local");
 
 const ROLES = ["founder", "admin", "ops", "studio", "media", "viewer"];
-const FOUNDERS = [
-  { username: "shiva", name: "Shivaprasad Reddy S S", role: "founder" },
-  { username: "chinmay", name: "Chinmay R M", role: "founder" },
-];
+/** FrameMind has one founder. Everyone else is added later with their own role (node scripts/hq-user.mjs, or Settings → Team accounts). */
+const FOUNDERS = [{ username: "chinmay", name: "Chinmay R M", role: "founder" }];
 const DEFAULT_REPO = "framemindaistudio/framemind-hq-data";
 const DEFAULT_SITE = "https://www.framemindaistudio.com";
 
