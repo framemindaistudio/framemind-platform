@@ -4,6 +4,7 @@ import { apiError } from "@/lib/hq/api";
 import { LEADERSHIP } from "@/lib/hq/roles";
 import { quarterOf } from "@/lib/incentives/calc.ts";
 import {
+  autoCalculate,
   calculateBonus,
   calculateCommissions,
   dashboard,
@@ -54,6 +55,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const d = await loadData();
     switch (body.action) {
+      case "autoCalculate":
+        return NextResponse.json({ done: await autoCalculate(d, user.name) });
       case "calculateCommissions":
         return NextResponse.json({ done: await calculateCommissions(d, String(body.month ?? ""), user.name) });
       case "calculateBonus":

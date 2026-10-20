@@ -258,7 +258,7 @@ export function buildReminders(data: ReminderData, today: string, o: { signsOf?:
   /* team incentives: decisions and payments waiting on the founder, payments to reconcile */
   const HREF = "/hq/incentives";
   for (const l of data.leads ?? []) {
-    if (s(l.attribution) !== "pending") continue;
+    if (!(s(l.attribution) === "pending" || (s(l.ownerId) && ["", "none"].includes(s(l.attribution))))) continue;
     const at = day(l.registeredAt) || day(l.createdAt) || today;
     add({ key: `attr:${l.id}`, area: "incentives", level: at < addDaysIso(today, -7) ? "overdue" : "today", title: `Decide commission attribution: ${s(l.name) || "a registered lead"}`, detail: `Registered by ${s(l.registeredBy) || "a team member"} ${whenLabel(at, today)}`, href: `${HREF}?tab=leads`, date: at });
   }

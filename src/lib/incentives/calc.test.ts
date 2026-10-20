@@ -99,6 +99,10 @@ test("payout rules: no self-approval, founder approves, payment evidence", () =>
   assert.match(moveProblem({ ...base, from: "on-hold", to: "paid" }) ?? "", /cannot go/, "an on-hold payout cannot be marked paid");
   assert.match(moveProblem({ ...base, from: "initiated", to: "paid" }) ?? "", /reference/);
   assert.equal(moveProblem({ ...base, from: "initiated", to: "paid", paymentReference: "UTR123" }), null);
+  // the simple path: approve straight from Calculated, then mark paid with the bank reference
+  assert.equal(moveProblem({ ...base, from: "calculated", to: "approved" }), null);
+  assert.match(moveProblem({ ...base, from: "approved", to: "paid" }) ?? "", /reference/);
+  assert.equal(moveProblem({ ...base, from: "approved", to: "paid", paymentReference: "UTR9" }), null);
   assert.match(moveProblem({ ...base, from: "pending", to: "rejected" }) ?? "", /reason/);
 });
 

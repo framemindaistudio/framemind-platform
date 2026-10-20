@@ -5,12 +5,12 @@ import { IncentivesApp, type IncentivesTab } from "@/components/hq/incentives/In
 
 export const metadata: Metadata = { title: "Team incentives" };
 
-const TABS: IncentivesTab[] = ["overview", "leads", "payouts", "reviews", "policy", "audit"];
+const TABS: IncentivesTab[] = ["home", "leads", "payouts", "reviews", "policy", "audit"];
 
-/** /hq/incentives?tab=overview|leads|payouts|reviews|policy|audit — founder and admin only. */
+/** /hq/incentives?tab=home|leads|payouts|reviews|policy|audit — founder and admin only. */
 export default async function IncentivesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireUser(LEADERSHIP);
   const tab = (await searchParams).tab;
   const t = (Array.isArray(tab) ? tab[0] : tab) as IncentivesTab;
-  return <IncentivesApp initialTab={TABS.includes(t) ? t : "overview"} />;
+  return <IncentivesApp initialTab={TABS.includes(t) ? t : "home"} />;
 }

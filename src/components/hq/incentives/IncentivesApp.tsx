@@ -1,41 +1,53 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { RefreshCw } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Drawer } from "@/components/ui/Overlay";
-import { Tabs } from "@/components/ui/Tabs";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/form";
 import { EmptyState, KV, Loading, PageHeader, Panel, StatCard } from "@/components/hq/ui";
 import { useHq } from "@/components/hq/data";
-import { PAYOUT_LABELS, quarterOf, type PayoutStatus } from "@/lib/incentives/calc.ts";
-import { act, AttributionBadge, History, inr, Notice, num, PayoutBadge, str, useIncentives, when, type Data, type Member, type Policy, type Rec } from "./shared";
+import { PAYOUT_LABELS, type PayoutStatus } from "@/lib/incentives/calc.ts";
+import { act, AttributionBadge, History, inr, Notice, num, PayoutBadge, str, useIncentives, when, type Data, type Policy, type Rec } from "./shared";
 
-export type IncentivesTab = "overview" | "leads" | "payouts" | "reviews" | "policy" | "audit";
+export type IncentivesTab = "home" | "leads" | "payouts" | "reviews" | "policy" | "audit";
 
-const TAB_LIST: { value: IncentivesTab; label: string }[] = [
-  { value: "overview", label: "Overview" },
-  { value: "leads", label: "Lead attribution" },
-  { value: "payouts", label: "Payouts" },
+const MORE: { value: Exclude<IncentivesTab, "home">; label: string }[] = [
+  { value: "payouts", label: "All statements" },
+  { value: "leads", label: "All leads" },
   { value: "reviews", label: "Reviews" },
-  { value: "policy", label: "Policy" },
-  { value: "audit", label: "Audit trail" },
+  { value: "policy", label: "Rules" },
+  { value: "audit", label: "History" },
 ];
 
-/** HQ → Team incentives: every figure comes from Finance payments and the leads register; nothing is typed in twice. */
-export function IncentivesApp({ initialTab = "overview" }: { initialTab?: IncentivesTab }) {
+/** HQ → Team incentives: one page — what needs you, the team's progress, and who has earned what. */
+export function IncentivesApp({ initialTab = "home" }: { initialTab?: IncentivesTab }) {
   const [tab, setTab] = useState<IncentivesTab>(initialTab);
-  const [quarter, setQuarter] = useState("");
-  const { data, error, loading, reload } = useIncentives(quarter);
+  const { data, error, loading, reload } = useIncentives("");
   const [msg, setMsg] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
+
+  // figures update by themselves: on opening, bring this month's and last month's statements up to date
+  useEffect(() => {
+    let alive = true;
+    act("autoCalculate", {})
+      .then((r) => {
+        if (alive && r.done?.length) void reload();
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [reload]);
 
   /** run one action, show its outcome, refresh the figures */
   const run = async (action: string, payload: Record<string, unknown>, okText: string) => {
     try {
-      const res = await act(action, payload);
-      setMsg({ tone: "ok", text: res.done ? `${okText}${res.done.length ? `: ${res.done.join(", ")}` : " — nothing to calculate yet."}` : okText });
+      await act(action, payload);
+      // an accepted lead or a changed rule can change what people have earned
+      if (action === "decideLead" || action === "savePolicy") await act("autoCalculate", {}).catch(() => {});
+      setMsg({ tone: "ok", text: okText });
       await reload();
       return true;
     } catch (e) {
@@ -44,54 +56,45 @@ export function IncentivesApp({ initialTab = "overview" }: { initialTab?: Incent
     }
   };
 
-  const counts = data
-    ? {
-        leads: data.leads.filter((l) => str(l.attribution) === "pending").length,
-        payouts: data.payouts.filter((p) => ["calculated", "pending", "approved", "initiated"].includes(str(p.status))).length,
-        reviews: data.dashboard.reviewDue.length,
-      }
-    : { leads: 0, payouts: 0, reviews: 0 };
-
   return (
-    <div>
-      <PageHeader
-        eyebrow="Money"
-        icon="Trophy"
-        title="Team incentives"
-        description="Quarterly team bonus and 5% client-acquisition commission — worked out only from client payments recorded and reconciled in Finance. Nothing here pays anyone: payouts are made from the bank and recorded with their reference."
-        actions={
-          <Button variant="secondary" size="sm" onClick={() => void reload()} aria-label="Reload incentive figures">
-            <RefreshCw className="size-3.5" /> Refresh
-          </Button>
-        }
-      />
-      <Tabs
-        className="mb-5"
-        value={tab}
-        onChange={setTab}
-        tabs={TAB_LIST.map((t) => ({ ...t, count: (t.value === "leads" ? counts.leads : t.value === "payouts" ? counts.payouts : t.value === "reviews" ? counts.reviews : 0) || undefined }))}
-      />
+    <div className="mx-auto max-w-4xl">
+      <PageHeader eyebrow="Money" icon="Trophy" title="Team incentives" description="5% commission for bringing in clients, plus a team bonus each quarter. Figures update by themselves from client payments in Finance." />
       {msg && (
         <div className="mb-4" role="status">
           <Notice tone={msg.tone}>
-            {msg.text}{" "}
-            <button className="ml-2 underline" onClick={() => setMsg(null)}>
-              Dismiss
+            {msg.text}
+            <button className="ml-3 underline" onClick={() => setMsg(null)}>
+              OK
             </button>
           </Notice>
         </div>
       )}
       {error && <Notice tone="bad">{error}</Notice>}
       {!data && loading && <Loading label="Working out the figures…" />}
-      {data && (
-        <>
-          {tab === "overview" && <Overview data={data} quarter={quarter || data.quarter.key} setQuarter={setQuarter} run={run} goto={setTab} />}
-          {tab === "leads" && <LeadsTab data={data} run={run} />}
-          {tab === "payouts" && <PayoutsTab data={data} run={run} />}
-          {tab === "reviews" && <ReviewsTab data={data} run={run} />}
-          {tab === "policy" && <PolicyTab data={data} run={run} />}
-          {tab === "audit" && <AuditTab data={data} />}
-        </>
+      {data &&
+        (tab === "home" ? (
+          <Home data={data} run={run} />
+        ) : (
+          <div>
+            <button className="mb-4 text-sm font-semibold underline underline-offset-4" onClick={() => setTab("home")}>
+              ← Back to Team incentives
+            </button>
+            {tab === "leads" && <LeadsTab data={data} run={run} />}
+            {tab === "payouts" && <PayoutsTab data={data} run={run} />}
+            {tab === "reviews" && <ReviewsTab data={data} run={run} />}
+            {tab === "policy" && <PolicyTab data={data} run={run} />}
+            {tab === "audit" && <AuditTab data={data} />}
+          </div>
+        ))}
+      {data && tab === "home" && (
+        <p className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-graphite/10 pt-4 text-sm text-blueprint">
+          <span>More:</span>
+          {MORE.map((m) => (
+            <button key={m.value} className="underline underline-offset-4 hover:text-graphite" onClick={() => setTab(m.value)}>
+              {m.label}
+            </button>
+          ))}
+        </p>
       )}
     </div>
   );
@@ -99,209 +102,197 @@ export function IncentivesApp({ initialTab = "overview" }: { initialTab?: Incent
 
 type Run = (action: string, payload: Record<string, unknown>, okText: string) => Promise<boolean>;
 
-/* ───────────────────────────── overview: quarter, safeguards, calculations ───────────────────────────── */
-
-function quarterOptions(today: string) {
-  const out: string[] = [];
-  let key = quarterOf(today);
-  for (let i = 0; i < 6; i++) {
-    out.push(key);
-    const [y, q] = key.split("-Q").map(Number);
-    key = q === 1 ? `${y - 1}-Q4` : `${y}-Q${q - 1}`;
-  }
-  return out;
-}
-
-function monthOptions(today: string) {
-  const out: string[] = [];
-  const d = new Date(Date.parse(`${today.slice(0, 7)}-01`));
-  for (let i = 0; i < 12; i++) {
-    out.push(d.toISOString().slice(0, 7));
-    d.setUTCMonth(d.getUTCMonth() - 1);
-  }
-  return out;
-}
-
 const monthLabel = (m: string) => new Date(Date.parse(`${m}-01`)).toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+const periodText = (p: Rec) => (p.kind === "bonus" ? `team bonus ${str(p.period).replace("-", " ")}` : `commission ${/^\d{4}-\d{2}$/.test(str(p.period)) ? monthLabel(str(p.period)) : str(p.period)}`);
 
-function Overview({ data, quarter, setQuarter, run, goto }: { data: Data; quarter: string; setQuarter: (q: string) => void; run: Run; goto: (t: IncentivesTab) => void }) {
-  const { dashboard: db, quarter: q, team } = data;
-  const [month, setMonth] = useState(db.month);
-  const [excluding, setExcluding] = useState<Record<string, string>>({});
-  const [busy, setBusy] = useState("");
+/* ───────────────────────────── the one page ───────────────────────────── */
+
+function Home({ data, run }: { data: Data; run: Run }) {
+  const { user } = useHq();
+  const founder = user.role === "founder";
+  const q = data.quarter;
   const next = q.tier.next;
   const progress = next ? Math.min(100, Math.round((q.eligible / next.from) * 100)) : 100;
-  const eligibleIds = new Set(q.members.map((m) => m.id));
+  const [paying, setPaying] = useState<string | null>(null);
+  const [ref, setRef] = useState("");
+  const [open, setOpen] = useState<string | null>(null);
+  const name = (id: unknown) => data.team.find((m) => m.id === str(id))?.name ?? "Someone";
+
+  // registered by a team member, or given an owner in Enquiries and not decided yet
+  const leads = data.leads.filter((l) => str(l.attribution) === "pending" || (str(l.ownerId) && ["", "none"].includes(str(l.attribution))));
+  const toApprove = data.payouts.filter((p) => ["calculated", "pending"].includes(str(p.status)) && num(p.net) > 0);
+  const toPay = data.payouts.filter((p) => ["approved", "initiated"].includes(str(p.status)));
+  const nothing = !leads.length && !toApprove.length && !toPay.length;
+
+  const month = data.dashboard.month;
+  const people = data.team.filter((m) => str(m.status) !== "inactive" && (m.incentiveEligible || data.payouts.some((p) => p.memberId === m.id)));
+  const sumFor = (id: string, f: (p: Rec) => boolean) => data.payouts.filter((p) => p.memberId === id && str(p.status) !== "rejected" && f(p)).reduce((s, p) => s + num(p.net), 0);
 
   return (
-    <div className="space-y-5">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard tone="dark" label="Eligible collections this quarter" value={inr(q.eligible)} sub={next ? `${inr(q.nextGap)} to the ${inr(next.amount)} milestone` : "Top milestone reached"} progress={progress} />
-        <StatCard label="Milestone reached (per member)" value={q.tier.amount ? inr(q.tier.amount) : "Not yet"} sub={`${q.members.length} eligible · pool ${inr(q.pool)}`} />
-        <StatCard label={`Commission — ${monthLabel(db.month)}`} value={inr(db.commissionsThisMonth.amount)} sub={`${db.commissionsThisMonth.count} statement${db.commissionsThisMonth.count === 1 ? "" : "s"}`} />
-        <StatCard label="Approved, not yet paid" value={inr(db.approvedUnpaid.amount)} sub={`${db.awaiting.count} awaiting approval (${inr(db.awaiting.amount)})`} />
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
-        <Panel
-          title="Quarter safeguards"
-          subtitle={q.range.label}
-          action={
-            <Select value={quarter} onChange={(e) => setQuarter(e.target.value)} aria-label="Quarter" className="w-auto">
-              {quarterOptions(db.today).map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              ))}
-            </Select>
-          }
-        >
-          <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
-            <KV k="Payments counted" v={`${q.counted}`} />
-            <KV k="GST left out" v={inr(q.gst)} />
-            <KV k="Not reconciled (not counted)" v={`${q.unreconciled} · ${inr(q.unreconciledAmount)}`} />
-            <KV k="Refunded (not counted)" v={inr(q.refunds)} />
-            <KV k="Direct project costs (ex-GST)" v={inr(q.directCosts)} />
-            <KV k="Margin after direct costs" v={`${q.margin}%`} />
-            <KV k="Payroll still due this quarter" v={inr(q.payrollDue)} />
-            <KV k="Tools & vendors, per month" v={inr(q.vendorMonthly)} />
-            <KV k="Commission calculated, unapproved" v={inr(q.pendingCommission)} />
-            <KV k="Cash reserve to keep" v={inr(q.reserve)} />
-          </div>
-          <div className="mt-4 space-y-2">
-            {q.flags.length ? q.flags.map((f, i) => <Notice key={i} tone="warn">{f}</Notice>) : <Notice tone="ok">No issues found for this quarter.</Notice>}
-            <p className="text-xs text-blueprint">{db.payoutReadiness}</p>
-          </div>
-        </Panel>
-
-        <div className="space-y-5">
-          <Panel title="Commission statements" subtitle="5% of the eligible service fee collected, for accepted leads only">
-            <div className="flex flex-wrap items-end gap-2">
-              <Field label="Month" className="min-w-40 flex-1">
-                <Select value={month} onChange={(e) => setMonth(e.target.value)}>
-                  {monthOptions(db.today).map((m) => (
-                    <option key={m} value={m}>
-                      {monthLabel(m)}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              <Button
-                size="sm"
-                disabled={busy === "c"}
-                onClick={async () => {
-                  setBusy("c");
-                  await run("calculateCommissions", { month }, `Commission calculated for ${monthLabel(month)}`);
-                  setBusy("");
-                }}
-              >
-                Calculate
-              </Button>
-            </div>
-            <p className="mt-2 text-xs text-blueprint">Approved or paid statements are never recalculated. Running this again only updates drafts, and each change is logged.</p>
-          </Panel>
-
-          <Panel title="Quarterly team bonus" subtitle={`${q.key} · ${q.tier.amount ? `${inr(q.tier.amount)} per eligible member` : "no milestone reached yet"}`}>
-            {q.members.length ? (
-              <ul className="space-y-2 text-sm">
-                {q.members.map((m) => (
-                  <li key={m.id} className="flex flex-wrap items-center gap-2">
-                    <span className="min-w-32 font-medium">{m.name}</span>
-                    {m.share < 1 && <Badge tone="info">{Math.round(m.share * 100)}% of quarter</Badge>}
-                    <Checkbox label="Exclude" checked={m.id in excluding} onChange={(e) => setExcluding((x) => { const n = { ...x }; if (e.target.checked) n[m.id] = ""; else delete n[m.id]; return n; })} />
-                    {m.id in excluding && <Input className="flex-1" placeholder="Reason (kept on record)" value={excluding[m.id]} onChange={(e) => setExcluding((x) => ({ ...x, [m.id]: e.target.value }))} />}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-blueprint">
-                Nobody is marked as taking part yet. Tick “Takes part in team incentives” on each person in{" "}
-                <Link className="underline" href="/hq/team">
-                  Team &amp; Payroll
-                </Link>
-                .
-              </p>
-            )}
-            <div className="mt-3 flex items-center gap-2">
-              <Button
-                size="sm"
-                disabled={busy === "b" || !q.members.length || Object.values(excluding).some((r) => !r.trim())}
-                onClick={async () => {
-                  setBusy("b");
-                  await run("calculateBonus", { quarter: q.key, exclusions: Object.entries(excluding).map(([memberId, reason]) => ({ memberId, reason })) }, `Bonus calculated for ${q.key}`);
-                  setBusy("");
-                }}
-              >
-                Calculate bonus
-              </Button>
-              <span className="text-xs text-blueprint">Tiers are not stacked: the highest milestone reached is the total per person.</span>
-            </div>
-          </Panel>
+    <div className="space-y-6">
+      {/* 1 · team progress */}
+      <section className="rounded-[var(--radius)] bg-graphite p-5 text-paper">
+        <p className="text-xs uppercase tracking-[0.18em] text-paper/60">Team bonus · {q.range.label}</p>
+        <p className="mt-2 text-2xl font-semibold">{inr(q.eligible)} collected</p>
+        <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-paper/15">
+          <div className="h-full rounded-full bg-lime" style={{ width: `${progress}%` }} />
         </div>
-      </div>
+        <p className="mt-2 text-sm text-paper/80">
+          {q.tier.amount ? `Reached: ${inr(q.tier.amount)} for each person. ` : ""}
+          {next ? `${inr(q.nextGap)} more → ${inr(next.amount)} for each person.` : "Top milestone reached."}
+        </p>
+      </section>
 
-      <div className="grid gap-5 lg:grid-cols-2">
-        <Panel title="Needs attention">
-          {!(data.leads.some((l) => str(l.attribution) === "pending") || db.awaiting.count || db.approvedUnpaid.count || db.reviewDue.length || db.overdueInvoices || q.unreconciled) && <p className="text-sm text-blueprint">Nothing is waiting.</p>}
-          <ul className="space-y-2 text-sm">
-            <Todo n={data.leads.filter((l) => str(l.attribution) === "pending").length} text="lead(s) waiting for your attribution decision" onClick={() => goto("leads")} />
-            <Todo n={db.awaiting.count} text="payout(s) pending approval" onClick={() => goto("payouts")} />
-            <Todo n={db.approvedUnpaid.count} text="approved payout(s) not yet paid" onClick={() => goto("payouts")} />
-            <Todo n={db.reviewDue.length} text={`monthly review(s) due for ${monthLabel(db.reviewMonth)}: ${db.reviewDue.join(", ")}`} onClick={() => goto("reviews")} />
-            <Todo n={db.overdueInvoices} text="overdue invoice(s) — collections drive every incentive" href="/hq/finance?tab=invoices" />
-            <Todo n={q.unreconciled} text="payment(s) to reconcile in Finance" href="/hq/finance?tab=invoices" />
+      {/* 2 · what needs the founder */}
+      <section>
+        <h2 className="mb-2 text-base font-semibold">Needs you</h2>
+        {nothing ? (
+          <p className="flex items-center gap-2 rounded-[var(--radius)] border border-graphite/10 bg-white px-4 py-3 text-sm text-charcoal">
+            <CheckCircle2 className="size-4 text-ok" /> Nothing to do right now.
+          </p>
+        ) : (
+          <ul className="divide-y divide-graphite/10 rounded-[var(--radius)] border border-graphite/10 bg-white">
+            {leads.map((l) => (
+              <li key={l.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
+                <span className="flex-1">
+                  <strong>{name(l.ownerId)}</strong> brought in <strong>{str(l.name)}</strong>
+                  {str(l.organisation) && <span className="text-blueprint"> · {str(l.organisation)}</span>}
+                  {str(l.evidence) && <span className="block text-xs text-blueprint">{str(l.evidence)}</span>}
+                </span>
+                {founder && (
+                  <span className="flex gap-2">
+                    <Button size="sm" onClick={() => void run("decideLead", { leadId: l.id, decision: "accepted", reason: "" }, `Accepted — ${name(l.ownerId)} earns commission when ${str(l.name)} pays.`)}>
+                      Accept
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        const reason = window.prompt(`Why reject ${str(l.name)}? ${name(l.ownerId)} will see this.`);
+                        if (reason?.trim()) void run("decideLead", { leadId: l.id, decision: "rejected", reason }, "Lead rejected.");
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </span>
+                )}
+              </li>
+            ))}
+            {toApprove.map((p) => (
+              <li key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
+                <span className="flex-1">
+                  Approve <strong>{inr(p.net)}</strong> for <strong>{str(p.memberName)}</strong> <span className="text-blueprint">· {periodText(p)}</span>
+                </span>
+                <span className="flex gap-2">
+                  <Button size="sm" variant="ghost" onClick={() => setOpen(p.id)}>
+                    Details
+                  </Button>
+                  {founder && (
+                    <Button size="sm" onClick={() => void run("movePayout", { id: p.id, to: "approved" }, `Approved. Now pay ${str(p.memberName)} from the bank.`)}>
+                      Approve
+                    </Button>
+                  )}
+                </span>
+              </li>
+            ))}
+            {toPay.map((p) => (
+              <li key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
+                <span className="flex-1">
+                  Pay <strong>{inr(p.net)}</strong> to <strong>{str(p.memberName)}</strong> <span className="text-blueprint">· {periodText(p)}</span>
+                </span>
+                {paying === p.id ? (
+                  <span className="flex w-full gap-2 sm:w-auto">
+                    <Input autoFocus className="sm:w-56" placeholder="Bank UTR / reference" value={ref} onChange={(e) => setRef(e.target.value)} />
+                    <Button
+                      size="sm"
+                      disabled={!ref.trim()}
+                      onClick={async () => {
+                        if (await run("movePayout", { id: p.id, to: "paid", paymentReference: ref }, `Marked as paid. ${str(p.memberName)} can see the letter in My Incentives.`)) {
+                          setPaying(null);
+                          setRef("");
+                        }
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setPaying(null)}>
+                      Cancel
+                    </Button>
+                  </span>
+                ) : (
+                  <span className="flex gap-2">
+                    <Link className="self-center text-xs underline" href={`/hq/print/incentive-letter/${p.id}`} target="_blank">
+                      Letter
+                    </Link>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setPaying(p.id);
+                        setRef("");
+                      }}
+                    >
+                      Mark as paid
+                    </Button>
+                  </span>
+                )}
+              </li>
+            ))}
           </ul>
-        </Panel>
-        <Panel title="Who takes part" subtitle="Set in Team & Payroll">
-          <TeamTable team={team} eligibleIds={eligibleIds} />
-          {db.incentiveOnly.length > 0 && (
-            <div className="mt-3">
-              <Notice tone="bad">
-                {db.incentiveOnly.join(", ")} {db.incentiveOnly.length === 1 ? "is" : "are"} set to “Incentives only”. Interns and freelancers are fine — employees need at least minimum wage as fixed pay.
-              </Notice>
-            </div>
-          )}
-        </Panel>
-      </div>
+        )}
+      </section>
+
+      {/* 3 · the team */}
+      <section>
+        <h2 className="mb-2 text-base font-semibold">Your team</h2>
+        {!people.length ? (
+          <p className="rounded-[var(--radius)] border border-graphite/10 bg-white px-4 py-3 text-sm text-charcoal">
+            Nobody yet. Add people in{" "}
+            <Link className="underline" href="/hq/team">
+              Team &amp; Payroll
+            </Link>{" "}
+            and tick “Takes part in team incentives”.
+          </p>
+        ) : (
+          <div className="overflow-x-auto rounded-[var(--radius)] border border-graphite/10 bg-white">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs text-blueprint">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Name</th>
+                  <th className="px-4 py-2 text-right font-medium">Commission · {monthLabel(month).split(" ")[0]}</th>
+                  <th className="px-4 py-2 text-right font-medium">Waiting to be paid</th>
+                  <th className="px-4 py-2 text-right font-medium">Paid so far</th>
+                </tr>
+              </thead>
+              <tbody>
+                {people.map((m) => (
+                  <tr key={m.id} className="border-t border-graphite/10">
+                    <td className="px-4 py-2.5">
+                      {m.name}
+                      {!m.incentiveEligible && <span className="ml-2 text-xs text-blueprint">(not in team bonus)</span>}
+                    </td>
+                    <td className="tabular px-4 py-2.5 text-right">{inr(sumFor(m.id, (p) => p.kind === "commission" && str(p.period) === month))}</td>
+                    <td className="tabular px-4 py-2.5 text-right">{inr(sumFor(m.id, (p) => !["paid", "reversed"].includes(str(p.status))))}</td>
+                    <td className="tabular px-4 py-2.5 text-right font-semibold">{inr(sumFor(m.id, (p) => str(p.status) === "paid"))}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* how it works, in three lines */}
+      <section className="rounded-[var(--radius)] border border-dashed border-graphite/20 px-4 py-3 text-sm text-charcoal">
+        <p className="mb-1 font-semibold text-graphite">How it works</p>
+        <ol className="list-decimal space-y-0.5 pl-5">
+          <li>A team member registers a client in My Incentives — you Accept it here.</li>
+          <li>In Finance, link that client&apos;s invoice to the lead and tick “Reconciled” when the money is in the bank.</li>
+          <li>Their {data.policy.commissionRate}% appears here to Approve. Pay from the bank, then Mark as paid with the UTR.</li>
+        </ol>
+      </section>
+
+      {open && data.payouts.find((p) => p.id === open) && <PayoutDrawer p={data.payouts.find((p) => p.id === open)!} data={data} onClose={() => setOpen(null)} run={run} />}
     </div>
-  );
-}
-
-function Todo({ n, text, onClick, href }: { n: number; text: string; onClick?: () => void; href?: string }) {
-  if (!n) return null;
-  const body = (
-    <>
-      <span className="tabular mr-2 inline-flex min-w-6 justify-center rounded-full bg-graphite px-1.5 text-xs font-semibold text-paper">{n}</span>
-      {text}
-    </>
-  );
-  return <li>{href ? <Link className="hover:underline" href={href}>{body}</Link> : <button className="text-left hover:underline" onClick={onClick}>{body}</button>}</li>;
-}
-
-const BASIS: Record<string, string> = { fixed: "Fixed salary", "fixed-incentive": "Fixed + incentives", stipend: "Stipend + incentives", freelance: "Freelance", "incentive-only": "Incentives only (proposed)" };
-
-function TeamTable({ team, eligibleIds }: { team: Member[]; eligibleIds: Set<string> }) {
-  const active = team.filter((m) => str(m.status) !== "inactive");
-  if (!active.length) return <p className="text-sm text-blueprint">No team members yet.</p>;
-  return (
-    <table className="w-full text-sm">
-      <thead className="text-left text-xs text-blueprint">
-        <tr>
-          <th className="py-1 font-medium">Name</th>
-          <th className="py-1 font-medium">Pay basis</th>
-          <th className="py-1 font-medium">This quarter</th>
-        </tr>
-      </thead>
-      <tbody>
-        {active.map((m) => (
-          <tr key={m.id} className="border-t border-graphite/10">
-            <td className="py-1.5">{m.name}</td>
-            <td className="py-1.5">{BASIS[str(m.compensationBasis)] ?? <span className="text-blueprint">Not set</span>}</td>
-            <td className="py-1.5">{eligibleIds.has(m.id) ? <Badge tone="ok">Eligible</Badge> : m.incentiveEligible ? <Badge tone="outline">Not yet (dates)</Badge> : <Badge tone="outline">Not taking part</Badge>}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
   );
 }
 

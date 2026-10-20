@@ -210,9 +210,9 @@ export const PAYOUT_LABELS: Record<PayoutStatus, string> = {
 
 const MOVES: Record<PayoutStatus, PayoutStatus[]> = {
   draft: ["calculated", "rejected"],
-  calculated: ["pending", "on-hold", "rejected"],
+  calculated: ["pending", "approved", "on-hold", "rejected"],
   pending: ["approved", "on-hold", "rejected"],
-  approved: ["initiated", "on-hold", "rejected"],
+  approved: ["initiated", "paid", "on-hold", "rejected"],
   "on-hold": ["pending", "rejected"],
   initiated: ["paid", "on-hold"],
   paid: ["reversed"],

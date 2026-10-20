@@ -264,7 +264,7 @@ export function quarterSummary(d: Data, key: string) {
   const approvedUnpaid = toRupees(d.payouts.filter((p) => ["approved", "initiated"].includes(s(p.status))).reduce((sum, p) => sum + toPaise(n(p.net)), 0));
   const pendingCommission = toRupees(d.payouts.filter((p) => p.kind === "commission" && ["calculated", "pending"].includes(s(p.status))).reduce((sum, p) => sum + toPaise(n(p.net)), 0));
 
-  const pendingLeads = d.leads.filter((l) => s(l.attribution) === "pending");
+  const pendingLeads = d.leads.filter((l) => s(l.attribution) === "pending" || (s(l.ownerId) && ["", "none"].includes(s(l.attribution))));
   const linkedToUnaccepted = d.invoices.filter((i) => s(i.leadId) && s(d.leads.find((l) => l.id === s(i.leadId))?.attribution) !== "accepted");
   const claims = new Map<string, number>();
   for (const p of d.payouts) {
@@ -318,11 +318,12 @@ export async function calculateCommissions(d: Data, month: string, by: string) {
   const owners = new Set(attributions.filter((a) => a.status === "accepted").flatMap((a) => a.splits.map((x) => x.memberId)));
   const done: string[] = [];
   for (const memberId of owners) {
-    const existing = d.payouts.find((p) => p.kind === "commission" && s(p.memberId) === memberId && s(p.period) === month && s(p.status) !== "rejected");
-    if (existing && LOCKED.includes(s(existing.status) as PayoutStatus)) continue;
+    // the open statement for the month, if any; approved ones keep their payments, and new payments start a fresh one
+    const existing = d.payouts.find((p) => p.kind === "commission" && s(p.memberId) === memberId && s(p.period) === month && !["rejected", ...LOCKED].includes(s(p.status)));
     const lines = commissionLines({ memberId, month, collections, attributions, ratePercent: d.policy.commissionRate, alreadyClaimed: claimsOf(d.payouts, existing?.id) });
     if (!lines.length && !existing) continue;
     const gross = toRupees(lines.reduce((sum, l) => sum + toPaise(l.amount), 0));
+    if (existing && n(existing.gross) === gross && JSON.stringify(existing.lines ?? []) === JSON.stringify(lines)) continue;
     const deductions = n(existing?.deductions);
     const record: Record<string, unknown> = {
       ...(existing ?? {}),
@@ -346,7 +347,7 @@ export async function calculateCommissions(d: Data, month: string, by: string) {
 }
 
 /** Quarterly team bonus statements for the eligible members, at the tier the quarter's collections reached. */
-export async function calculateBonus(d: Data, key: string, by: string, exclusions: { memberId: string; reason: string }[] = []) {
+export async function calculateBonus(d: Data, key: string, by: string, exclusions: { memberId: string; reason: string }[] = [], skipZero = false) {
   if (!/^\d{4}-Q[1-4]$/.test(key)) throw new IncentiveError("Choose a quarter.");
   const q = quarterSummary(d, key);
   const out: string[] = [];
@@ -355,6 +356,8 @@ export async function calculateBonus(d: Data, key: string, by: string, exclusion
     if (existing && LOCKED.includes(s(existing.status) as PayoutStatus)) continue;
     const ex = exclusions.find((x) => x.memberId === m.id);
     const gross = ex ? 0 : toRupees(Math.round(toPaise(q.tier.amount) * m.share));
+    if (!existing && !gross && skipZero) continue;
+    if (existing && n(existing.gross) === gross && (existing.basis as { eligibleCollections?: number } | undefined)?.eligibleCollections === q.eligible) continue;
     const deductions = n(existing?.deductions);
     await upsertRecord(
       "incentivePayouts",
@@ -378,6 +381,22 @@ export async function calculateBonus(d: Data, key: string, by: string, exclusion
     out.push(m.name);
   }
   return out;
+}
+
+/**
+ * Keeps the statements up to date without anyone pressing Calculate: commission for this month and last month, and the
+ * bonus for the quarter that last ended. Only statements whose figures changed are written.
+ */
+export async function autoCalculate(d: Data, by: string) {
+  const month = monthOf(d.today);
+  const prev = new Date(Date.parse(`${month}-01`));
+  prev.setUTCMonth(prev.getUTCMonth() - 1);
+  const lastMonth = prev.toISOString().slice(0, 7);
+  const done = [...(await calculateCommissions(d, lastMonth, by)), ...(await calculateCommissions(d, month, by))];
+  const [y, q] = quarterOf(d.today).split("-Q").map(Number);
+  const lastQuarter = q === 1 ? `${y - 1}-Q4` : `${y}-Q${q - 1}`;
+  done.push(...(await calculateBonus(d, lastQuarter, by, [], true)));
+  return done;
 }
 
 /* ───────────────────────────── changes, each checked and logged ───────────────────────────── */
@@ -422,7 +441,8 @@ export async function decideLead(d: Data, user: SessionUser, leadId: string, dec
   if (actor && owners.some((o) => o.memberId === actor.id)) throw new IncentiveError("Nobody can decide a lead they would earn commission on.");
   if (decision === "rejected" && !reason.trim()) throw new IncentiveError("Give the reason for rejecting: the team member sees it.");
   const prevSplits = JSON.stringify(lead.splits ?? []);
-  if (decision === "accepted" && JSON.stringify(owners) !== prevSplits && hasCollections(d, leadId)) {
+  // once accepted and paid against, the split is fixed; a first acceptance after the client paid is fine
+  if (decision === "accepted" && s(lead.attribution) === "accepted" && prevSplits !== "[]" && JSON.stringify(owners) !== prevSplits && hasCollections(d, leadId)) {
     throw new IncentiveError("The client has already paid against this lead, so the split can no longer change. Record an exception in the policy instead.");
   }
   await upsertRecord(
