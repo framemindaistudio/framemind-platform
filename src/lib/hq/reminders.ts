@@ -255,7 +255,7 @@ export function buildReminders(data: ReminderData, today: string, o: { signsOf?:
     add({ key: `sub:${t.id}`, area: "tools", level: levelFor(d, today), title: `${s(t.tool)} ${s(t.status) === "trial" ? "trial ends" : "renews"} ${whenLabel(d, today)}`, detail: "Keep it, or cancel before it charges", href: "/hq/tools", date: d });
   }
 
-  /* team incentives: decisions and payments waiting on the founder, payments to reconcile, the legal review's renewal */
+  /* team incentives: decisions and payments waiting on the founder, payments to reconcile */
   const HREF = "/hq/incentives";
   for (const l of data.leads ?? []) {
     if (s(l.attribution) !== "pending") continue;
@@ -270,12 +270,6 @@ export function buildReminders(data: ReminderData, today: string, o: { signsOf?:
   if (payouts.length || (data.incentivePolicies ?? []).length) {
     const unreconciled = (data.invoices ?? []).flatMap((inv) => (Array.isArray(inv.payments) ? (inv.payments as BaseRecord[]) : []).filter((p) => !p.reconciled && !p.refunded && day(p.date) && day(p.date) <= addDaysIso(today, -3)));
     if (unreconciled.length) add({ key: "inc:recon", area: "incentives", level: "soon", title: `${unreconciled.length} client payment${unreconciled.length === 1 ? "" : "s"} to reconcile`, detail: "Unreconciled payments do not count toward team incentives", href: "/hq/finance?tab=invoices", date: today });
-  }
-  for (const p of data.incentivePolicies ?? []) {
-    const c = (p.compliance ?? {}) as { status?: string; expiresOn?: string };
-    if (s(p.status) !== "active" || c.status !== "approved" || !day(c.expiresOn)) continue;
-    const exp = day(c.expiresOn);
-    if (exp <= addDaysIso(today, 30)) add({ key: `pol:${p.id}`, area: "incentives", level: exp < today ? "overdue" : exp <= addDaysIso(today, 7) ? "today" : "soon", title: `Incentive policy legal review ${exp < today ? "has expired" : `expires ${whenLabel(exp, today)}`}`, detail: "Renew it with the labour-law professional; approvals stop when it lapses", href: `${HREF}?tab=policy`, date: exp });
   }
 
   /* internships are a fixed term: decide before each one ends */

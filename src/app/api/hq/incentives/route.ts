@@ -4,7 +4,6 @@ import { apiError } from "@/lib/hq/api";
 import { LEADERSHIP } from "@/lib/hq/roles";
 import { quarterOf } from "@/lib/incentives/calc.ts";
 import {
-  activatePolicy,
   calculateBonus,
   calculateCommissions,
   dashboard,
@@ -15,7 +14,6 @@ import {
   quarterSummary,
   saveReview,
   savePolicy,
-  setCompliance,
   setDeductions,
   workFacts,
 } from "@/lib/incentives/server";
@@ -71,12 +69,6 @@ export async function POST(req: Request) {
         break;
       case "savePolicy":
         await savePolicy(d, user, body.policy ?? {});
-        break;
-      case "setCompliance":
-        await setCompliance(d, user, String(body.policyId), body.compliance ?? {});
-        break;
-      case "activatePolicy":
-        await activatePolicy(d, user, String(body.policyId));
         break;
       case "saveReview":
         await saveReview(d, user, body.review ?? {});

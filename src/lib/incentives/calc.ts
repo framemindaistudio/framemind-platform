@@ -233,31 +233,11 @@ export function moveProblem(o: {
   payoutMemberId: string;
   reason?: string;
   paymentReference?: string;
-  complianceOk: boolean;
 }): string | null {
   if (!MOVES[o.from]?.includes(o.to)) return `A payout cannot go from ${PAYOUT_LABELS[o.from]} to ${PAYOUT_LABELS[o.to]}.`;
   if (o.actorTeamId && o.actorTeamId === o.payoutMemberId) return "Nobody can move their own payout.";
   if (o.to === "approved" && o.actorRole !== "founder") return "Only the founder approves incentives.";
-  if (o.to === "approved" && !o.complianceOk) return "The incentive policy's compliance review is not approved (or has expired), so nothing can be approved yet.";
   if ((o.to === "paid" || o.to === "initiated") && !(o.paymentReference ?? "").trim()) return "Enter the payment reference (UTR, cheque number or transaction ID) first.";
   if (["rejected", "on-hold", "reversed"].includes(o.to) && !(o.reason ?? "").trim()) return "Give a reason: it is kept in the audit trail.";
   return null;
-}
-
-/* ───────────────────────────── compliance gate ───────────────────────────── */
-
-export type ComplianceStatus = "review-required" | "under-review" | "approved" | "blocked" | "expired";
-
-export const COMPLIANCE_LABELS: Record<ComplianceStatus, string> = {
-  "review-required": "Review required",
-  "under-review": "Under legal review",
-  approved: "Approved for configured use",
-  blocked: "Blocked pending compliance",
-  expired: "Review expired",
-};
-
-/** The status as it stands today: an approval past its expiry date counts as expired. */
-export function complianceNow(status: ComplianceStatus, expiresOn: string | undefined, today: string): ComplianceStatus {
-  if (status === "approved" && expiresOn && expiresOn < today) return "expired";
-  return status;
 }

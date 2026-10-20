@@ -8,7 +8,6 @@ import {
   claimKey,
   CLAIMING,
   commissionLines,
-  complianceNow,
   countable,
   DEFAULT_TIERS,
   eligibleFeeOf,
@@ -25,7 +24,6 @@ import {
   type BonusTier,
   type Collection,
   type CommissionLine,
-  type ComplianceStatus,
   type PayoutStatus,
 } from "./calc.ts";
 
@@ -63,17 +61,6 @@ const history = (r: Rec | null | undefined): AuditEvent[] => (Array.isArray(r?.h
 
 /* ───────────────────────────── policy ───────────────────────────── */
 
-export interface Compliance {
-  status: ComplianceStatus;
-  reviewer?: string;
-  firm?: string;
-  reviewedOn?: string;
-  expiresOn?: string;
-  notes?: string;
-  /** a vault path or link to the professional's written opinion */
-  document?: string;
-}
-
 export interface Policy {
   id?: string;
   name: string;
@@ -93,15 +80,14 @@ export interface Policy {
   eligibilityRules: string;
   qualityRules: string;
   exceptions: string;
-  compliance: Compliance;
   history?: AuditEvent[];
 }
 
-/** The proposal the founders started from: what HQ shows until a policy is saved. Not active, not approved. */
+/** The starting terms: in force until the founder saves a version of their own. */
 export const PROPOSED_POLICY: Policy = {
   name: "Team incentive policy",
   version: 0,
-  status: "draft",
+  status: "active",
   effectiveFrom: "",
   commissionRate: 5,
   tiers: DEFAULT_TIERS,
@@ -113,11 +99,9 @@ export const PROPOSED_POLICY: Policy = {
     "Eligible: active full-time team members marked \"Takes part in team incentives\" in Team & Payroll for the quarter. Contribution and quality are assessed in the quarterly performance review.",
   qualityRules: "No unresolved quality or delivery issue on the member's projects in the quarter, as recorded in the quarterly review.",
   exceptions: "",
-  compliance: { status: "review-required" },
 };
 
 function asPolicy(r: Rec): Policy {
-  const c = (r.compliance ?? {}) as Compliance;
   return {
     id: r.id,
     name: s(r.name) || PROPOSED_POLICY.name,
@@ -133,19 +117,14 @@ function asPolicy(r: Rec): Policy {
     eligibilityRules: s(r.eligibilityRules),
     qualityRules: s(r.qualityRules),
     exceptions: s(r.exceptions),
-    compliance: { status: (s(c.status) || "review-required") as ComplianceStatus, reviewer: s(c.reviewer), firm: s(c.firm), reviewedOn: s(c.reviewedOn), expiresOn: s(c.expiresOn), notes: s(c.notes), document: s(c.document) },
     history: history(r),
   };
 }
 
-/** The policy in force: the active one, else the newest saved draft, else the proposal. */
+/** The policy in force: the active one (each save makes the new version active), else the starting terms. */
 export function currentPolicy(policies: Rec[]): Policy {
   const list = policies.map(asPolicy).sort((a, b) => b.version - a.version);
   return list.find((p) => p.status === "active") ?? list[0] ?? PROPOSED_POLICY;
-}
-
-export function complianceOk(p: Policy, today: string) {
-  return p.status === "active" && complianceNow(p.compliance.status, p.compliance.expiresOn, today) === "approved";
 }
 
 /* ───────────────────────────── the shared records ───────────────────────────── */
@@ -407,7 +386,7 @@ export async function movePayout(d: Data, user: SessionUser, id: string, to: Pay
   const p = d.payouts.find((x) => x.id === id);
   if (!p) throw new IncentiveError("That payout no longer exists.", 404);
   const actor = memberOf(user, d.team);
-  const problem = moveProblem({ from: s(p.status) as PayoutStatus, to, actorRole: user.role, actorTeamId: actor?.id, payoutMemberId: s(p.memberId), reason: o.reason, paymentReference: o.paymentReference ?? s(p.paymentReference), complianceOk: complianceOk(d.policy, d.today) });
+  const problem = moveProblem({ from: s(p.status) as PayoutStatus, to, actorRole: user.role, actorTeamId: actor?.id, payoutMemberId: s(p.memberId), reason: o.reason, paymentReference: o.paymentReference ?? s(p.paymentReference) });
   if (problem) throw new IncentiveError(problem);
   const next: Record<string, unknown> = { ...p, status: to, history: [...history(p), event(user.name, "Status", { from: s(p.status), to, reason: o.reason })] };
   if (to === "approved") {
@@ -470,11 +449,11 @@ export async function savePolicy(d: Data, user: SessionUser, input: Partial<Poli
   const rate = input.commissionRate === undefined ? base.commissionRate : n(input.commissionRate);
   if (rate < 0 || rate > 50) throw new IncentiveError("The commission rate must be between 0% and 50%.");
   const version = Math.max(0, ...d.policies.map((p) => n(p.version))) + 1;
-  // a new version always starts as a draft: its compliance review is its own
+  // a saved version applies at once; the previous one is retired and kept for the record
   const policy: Policy = {
     name: s(input.name) || base.name,
     version,
-    status: "draft",
+    status: "active",
     effectiveFrom: s(input.effectiveFrom) || d.today,
     commissionRate: rate,
     tiers,
@@ -485,35 +464,12 @@ export async function savePolicy(d: Data, user: SessionUser, input: Partial<Poli
     eligibilityRules: s(input.eligibilityRules ?? base.eligibilityRules).slice(0, 4000),
     qualityRules: s(input.qualityRules ?? base.qualityRules).slice(0, 4000),
     exceptions: s(input.exceptions ?? base.exceptions).slice(0, 4000),
-    compliance: { status: "review-required" },
-    history: [event(user.name, "Saved as a new draft version", { to: `v${version}` })],
+    history: [event(user.name, "Saved and in force", { to: `v${version}` })],
   };
-  return upsertRecord("incentivePolicies", policy as unknown as Record<string, unknown>, user.name);
-}
-
-export async function setCompliance(d: Data, user: SessionUser, policyId: string, c: Compliance) {
-  if (user.role !== "founder") throw new IncentiveError("Only the founder records the compliance review.", 403);
-  const rec = d.policies.find((p) => p.id === policyId);
-  if (!rec) throw new IncentiveError("Save the policy first: the review belongs to a saved version.", 404);
-  const status = c.status;
-  if (!["review-required", "under-review", "approved", "blocked", "expired"].includes(status)) throw new IncentiveError("Unknown review status.");
-  if (status === "approved" && (!s(c.reviewer) || !s(c.reviewedOn) || !s(c.expiresOn))) throw new IncentiveError("An approval needs the professional's name, the review date and the date it must be renewed by.");
-  const next: Record<string, unknown> = { ...rec, compliance: { ...c }, history: [...history(rec), event(user.name, "Compliance review", { from: s((rec.compliance as Compliance | undefined)?.status), to: status, reason: s(c.notes) || undefined })] };
-  // a policy whose approval is withdrawn stops being active
-  if (status !== "approved" && rec.status === "active") next.status = "draft";
-  await upsertRecord("incentivePolicies", next, user.name);
-}
-
-export async function activatePolicy(d: Data, user: SessionUser, policyId: string) {
-  if (user.role !== "founder") throw new IncentiveError("Only the founder activates the incentive policy.", 403);
-  const rec = d.policies.find((p) => p.id === policyId);
-  if (!rec) throw new IncentiveError("That policy version no longer exists.", 404);
-  const p = asPolicy(rec);
-  if (complianceNow(p.compliance.status, p.compliance.expiresOn, d.today) !== "approved") throw new IncentiveError("This version's compliance review is not approved (or has expired), so it cannot be activated.");
-  for (const other of d.policies.filter((x) => x.status === "active" && x.id !== policyId)) {
-    await upsertRecord("incentivePolicies", { ...other, status: "retired", history: [...history(other), event(user.name, "Retired", { reason: `Replaced by v${p.version}` })] }, user.name);
+  for (const other of d.policies.filter((x) => x.status === "active")) {
+    await upsertRecord("incentivePolicies", { ...other, status: "retired", history: [...history(other), event(user.name, "Retired", { reason: `Replaced by v${version}` })] }, user.name);
   }
-  await upsertRecord("incentivePolicies", { ...rec, status: "active", history: [...history(rec), event(user.name, "Activated")] }, user.name);
+  return upsertRecord("incentivePolicies", policy as unknown as Record<string, unknown>, user.name);
 }
 
 /* ───────────────────────────── performance reviews ───────────────────────────── */
@@ -590,7 +546,7 @@ export function myView(d: Data, user: SessionUser) {
   return {
     linked: !!me,
     member: me ? { id: me.id, name: s(me.name), role: s(me.role), incentiveEligible: me.incentiveEligible === true } : null,
-    policy: { commissionRate: d.policy.commissionRate, tiers: d.policy.tiers, active: complianceOk(d.policy, d.today), version: d.policy.version },
+    policy: { commissionRate: d.policy.commissionRate, tiers: d.policy.tiers, version: d.policy.version },
     quarter: q ? { key: q.key, label: range.label, milestoneReached: q.tier.amount, nextMilestone: q.tier.next?.amount ?? null, eligible: q.members.some((m) => m.id === me?.id) } : null,
     leads: me
       ? d.leads
@@ -675,7 +631,6 @@ export function dashboard(d: Data) {
   const awaiting = d.payouts.filter((p) => st(p) === "pending");
   const approvedUnpaid = d.payouts.filter((p) => ["approved", "initiated"].includes(st(p)));
   const incentiveOnly = d.team.filter((m) => s(m.compensationBasis) === "incentive-only" && s(m.status) !== "inactive");
-  const status = complianceNow(d.policy.compliance.status, d.policy.compliance.expiresOn, d.today);
   return {
     today: d.today,
     month,
@@ -686,13 +641,7 @@ export function dashboard(d: Data) {
     overdueInvoices: overdue.length,
     reviewDue: reviewDue.map((m) => s(m.name)),
     reviewMonth,
-    compliance: { status, policyVersion: d.policy.version, policyStatus: d.policy.status, active: complianceOk(d.policy, d.today) },
     incentiveOnly: incentiveOnly.map((m) => s(m.name)),
-    payoutReadiness:
-      !complianceOk(d.policy, d.today)
-        ? "Blocked: the incentive policy is not active with an approved compliance review."
-        : q.flags.length
-          ? `${q.flags.length} issue${q.flags.length === 1 ? "" : "s"} to clear before approving.`
-          : "Ready: nothing is blocking approvals.",
+    payoutReadiness: q.flags.length ? `${q.flags.length} issue${q.flags.length === 1 ? "" : "s"} to clear before approving.` : "Ready: nothing is blocking approvals.",
   };
 }

@@ -12,7 +12,7 @@ import { AttributionBadge, inr, Notice, PayoutBadge, str, when, type Rec } from 
 interface Mine {
   linked: boolean;
   member: { id: string; name: string; role: string; incentiveEligible: boolean } | null;
-  policy: { commissionRate: number; tiers: { from: number; amount: number }[]; active: boolean; version: number };
+  policy: { commissionRate: number; tiers: { from: number; amount: number }[]; version: number };
   quarter: { key: string; label: string; milestoneReached: number; nextMilestone: number | null; eligible: boolean } | null;
   leads: { id: string; name: string; organisation: string; registeredAt: string; attribution: string; decisionNote: string; decidedAt: string; split: number | null }[];
   payouts: Rec[];
@@ -82,7 +82,6 @@ export function MyIncentives() {
         <EmptyState icon="UserCheck" title="Your login is not linked to your team record yet" description="Ask the founder to link it under Settings → Logins. Then your leads, statements and reviews appear here." />
       ) : (
         <div className="space-y-5">
-          {!data.policy.active && <Notice tone="warn">The incentive policy is still being reviewed for legal compliance. You can register leads now; statements become payable only once the policy is active.</Notice>}
           <div className="grid gap-3 sm:grid-cols-3">
             <StatCard
               tone="dark"

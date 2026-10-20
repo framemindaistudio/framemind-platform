@@ -5,13 +5,13 @@ import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Drawer, Modal } from "@/components/ui/Overlay";
+import { Drawer } from "@/components/ui/Overlay";
 import { Tabs } from "@/components/ui/Tabs";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/form";
 import { EmptyState, KV, Loading, PageHeader, Panel, StatCard } from "@/components/hq/ui";
 import { useHq } from "@/components/hq/data";
 import { PAYOUT_LABELS, quarterOf, type PayoutStatus } from "@/lib/incentives/calc.ts";
-import { act, AttributionBadge, ComplianceBadge, History, inr, Notice, num, PayoutBadge, str, useIncentives, when, type Data, type Member, type Policy, type Rec } from "./shared";
+import { act, AttributionBadge, History, inr, Notice, num, PayoutBadge, str, useIncentives, when, type Data, type Member, type Policy, type Rec } from "./shared";
 
 export type IncentivesTab = "overview" | "leads" | "payouts" | "reviews" | "policy" | "audit";
 
@@ -20,7 +20,7 @@ const TAB_LIST: { value: IncentivesTab; label: string }[] = [
   { value: "leads", label: "Lead attribution" },
   { value: "payouts", label: "Payouts" },
   { value: "reviews", label: "Reviews" },
-  { value: "policy", label: "Policy & compliance" },
+  { value: "policy", label: "Policy" },
   { value: "audit", label: "Audit trail" },
 ];
 
@@ -85,17 +85,6 @@ export function IncentivesApp({ initialTab = "overview" }: { initialTab?: Incent
       {!data && loading && <Loading label="Working out the figures…" />}
       {data && (
         <>
-          {data.dashboard.compliance.status !== "approved" || !data.dashboard.compliance.active ? (
-            <div className="mb-5">
-              <Notice tone="warn">
-                <strong>Not active yet.</strong> The incentive policy (v{data.policy.version || 0}, {data.policy.status}) has no approved compliance review. You can register leads, calculate and review figures, but nothing can be approved for payment until a qualified Karnataka labour-law professional has reviewed the policy and it is activated under{" "}
-                <button className="underline" onClick={() => setTab("policy")}>
-                  Policy &amp; compliance
-                </button>
-                .
-              </Notice>
-            </div>
-          ) : null}
           {tab === "overview" && <Overview data={data} quarter={quarter || data.quarter.key} setQuarter={setQuarter} run={run} goto={setTab} />}
           {tab === "leads" && <LeadsTab data={data} run={run} />}
           {tab === "payouts" && <PayoutsTab data={data} run={run} />}
@@ -268,7 +257,7 @@ function Overview({ data, quarter, setQuarter, run, goto }: { data: Data; quarte
           {db.incentiveOnly.length > 0 && (
             <div className="mt-3">
               <Notice tone="bad">
-                {db.incentiveOnly.join(", ")} {db.incentiveOnly.length === 1 ? "is" : "are"} set to “Incentives only”. A full-time employee may not lawfully be paid only commission or discretionary bonus — keep this as a proposal until the legal review says otherwise, and pay at least the applicable minimum wage meanwhile.
+                {db.incentiveOnly.join(", ")} {db.incentiveOnly.length === 1 ? "is" : "are"} set to “Incentives only”. Interns and freelancers are fine — employees need at least minimum wage as fixed pay.
               </Notice>
             </div>
           )}
@@ -873,18 +862,17 @@ function ReviewEditor({ initial, data, onClose, run }: { initial: Record<string,
   );
 }
 
-/* ───────────────────────────── policy & compliance ───────────────────────────── */
+/* ───────────────────────────── policy ───────────────────────────── */
 
 function PolicyTab({ data, run }: { data: Data; run: Run }) {
   const { user } = useHq();
   const founder = user.role === "founder";
   const [draft, setDraft] = useState<Policy>(data.policy);
-  const [review, setReview] = useState<Rec | null>(null);
   const set = <K extends keyof Policy>(k: K, v: Policy[K]) => setDraft((p) => ({ ...p, [k]: v }));
   const versions = [...data.policies].sort((a, b) => num(b.version) - num(a.version));
   return (
     <div className="grid gap-5 xl:grid-cols-[1.3fr_1fr]">
-      <Panel title="Policy terms" subtitle="Saving always creates a new draft version; it needs its own compliance review before it can be activated.">
+      <Panel title="Policy terms" subtitle="These terms are in force. Saving applies the change at once as a new version.">
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3">
             <Field label="Name" className="sm:col-span-2">
@@ -946,119 +934,31 @@ function PolicyTab({ data, run }: { data: Data; run: Run }) {
             <Textarea rows={2} value={draft.exceptions} onChange={(e) => set("exceptions", e.target.value)} disabled={!founder} />
           </Field>
           {founder && (
-            <Button size="sm" onClick={() => void run("savePolicy", { policy: draft }, "Saved as a new draft version")}>
-              Save as new version
+            <Button size="sm" onClick={() => void run("savePolicy", { policy: draft }, "Saved — the new terms are in force")}>
+              Save
             </Button>
           )}
         </div>
       </Panel>
 
-      <div className="space-y-5">
-        <Panel title="Compliance gate">
-          <Notice tone="warn">
-            This arrangement must not be used as employment compensation until a qualified Karnataka labour-law professional has reviewed it. Questions for that review: whether full-time staff may be paid incentive-only, minimum-wage and Payment of Wages obligations, how bonuses interact with the Payment of Bonus Act, TDS treatment (section 192 for employees, 194H/194J otherwise), and what the appointment letters must say.
-          </Notice>
-        </Panel>
-        <Panel title="Versions">
-          {!versions.length ? (
-            <p className="text-sm text-blueprint">Nothing saved yet. The figures above are the proposed terms from the brief; save them to start a version and record its review.</p>
-          ) : (
-            <ul className="space-y-3">
-              {versions.map((v) => {
-                const c = (v.compliance ?? { status: "review-required" }) as Policy["compliance"];
-                return (
-                  <li key={v.id} className="rounded-[var(--radius-sm)] border border-graphite/10 p-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold">v{num(v.version)}</span>
-                      <Badge tone={v.status === "active" ? "ok" : v.status === "retired" ? "neutral" : "outline"}>{str(v.status)}</Badge>
-                      <ComplianceBadge status={c.status} />
-                      <span className="ml-auto text-xs text-blueprint">{num(v.commissionRate)}% · from {str(v.effectiveFrom)}</span>
-                    </div>
-                    {c.reviewer && (
-                      <p className="mt-1 text-xs text-blueprint">
-                        Reviewed by {c.reviewer}
-                        {c.firm ? `, ${c.firm}` : ""} on {c.reviewedOn}; renew by {c.expiresOn}
-                      </p>
-                    )}
-                    {founder && (
-                      <div className="mt-2 flex gap-2">
-                        <Button size="sm" variant="secondary" onClick={() => setReview(v)}>
-                          Record review
-                        </Button>
-                        {v.status !== "active" && c.status === "approved" && (
-                          <Button size="sm" onClick={() => void run("activatePolicy", { policyId: v.id }, `v${num(v.version)} is now active`)}>
-                            Activate
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </Panel>
-      </div>
-      {review && <ComplianceModal policy={review} onClose={() => setReview(null)} run={run} />}
+      <Panel title="Versions" subtitle="Each save applies at once; older versions are kept for the record">
+        {!versions.length ? (
+          <p className="text-sm text-blueprint">The terms on the left are in force now. Change them and save to make a new version.</p>
+        ) : (
+          <ul className="space-y-2">
+            {versions.map((v) => (
+              <li key={v.id} className="flex flex-wrap items-center gap-2 rounded-[var(--radius-sm)] border border-graphite/10 p-3 text-sm">
+                <span className="font-semibold">v{num(v.version)}</span>
+                <Badge tone={v.status === "active" ? "ok" : "neutral"}>{v.status === "active" ? "In force" : "Replaced"}</Badge>
+                <span className="ml-auto text-xs text-blueprint">
+                  {num(v.commissionRate)}% · from {str(v.effectiveFrom)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
     </div>
-  );
-}
-
-function ComplianceModal({ policy, onClose, run }: { policy: Rec; onClose: () => void; run: Run }) {
-  const [c, setC] = useState<Policy["compliance"]>((policy.compliance as Policy["compliance"]) ?? { status: "review-required" });
-  const set = (k: keyof Policy["compliance"], v: string) => setC((x) => ({ ...x, [k]: v }));
-  return (
-    <Modal
-      open
-      onClose={onClose}
-      title={`Compliance review — v${num(policy.version)}`}
-      footer={
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" size="sm" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            size="sm"
-            onClick={async () => {
-              if (await run("setCompliance", { policyId: policy.id, compliance: c }, "Compliance review recorded")) onClose();
-            }}
-          >
-            Save
-          </Button>
-        </div>
-      }
-    >
-      <div className="space-y-3">
-        <Field label="Status">
-          <Select value={c.status} onChange={(e) => set("status", e.target.value)}>
-            <option value="review-required">Review required</option>
-            <option value="under-review">Under legal review</option>
-            <option value="approved">Approved for configured use</option>
-            <option value="blocked">Blocked pending compliance</option>
-          </Select>
-        </Field>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Professional's name" required={c.status === "approved"}>
-            <Input value={c.reviewer ?? ""} onChange={(e) => set("reviewer", e.target.value)} />
-          </Field>
-          <Field label="Firm">
-            <Input value={c.firm ?? ""} onChange={(e) => set("firm", e.target.value)} />
-          </Field>
-          <Field label="Reviewed on" required={c.status === "approved"}>
-            <Input type="date" value={c.reviewedOn ?? ""} onChange={(e) => set("reviewedOn", e.target.value)} />
-          </Field>
-          <Field label="Renew by" required={c.status === "approved"}>
-            <Input type="date" value={c.expiresOn ?? ""} onChange={(e) => set("expiresOn", e.target.value)} />
-          </Field>
-        </div>
-        <Field label="Opinion document" help="Link to the signed opinion in Documents or Files">
-          <Input value={c.document ?? ""} onChange={(e) => set("document", e.target.value)} />
-        </Field>
-        <Field label="Notes / conditions">
-          <Textarea rows={3} value={c.notes ?? ""} onChange={(e) => set("notes", e.target.value)} />
-        </Field>
-      </div>
-    </Modal>
   );
 }
 

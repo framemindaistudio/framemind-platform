@@ -9,7 +9,6 @@ import {
   claimKey,
   commissionFor,
   commissionLines,
-  complianceNow,
   countable,
   eligibleFeeOf,
   moveProblem,
@@ -91,22 +90,16 @@ test("commission splits must total exactly 100%", () => {
   assert.equal(bad.length, 0, "a split over 100% pays nothing until it is fixed");
 });
 
-test("payout rules: no self-approval, founder approves, compliance gate, payment evidence", () => {
-  const base = { actorRole: "founder", payoutMemberId: "m1", complianceOk: true };
+test("payout rules: no self-approval, founder approves, payment evidence", () => {
+  const base = { actorRole: "founder", payoutMemberId: "m1" };
   assert.equal(moveProblem({ ...base, from: "pending", to: "approved" }), null);
   assert.match(moveProblem({ ...base, from: "pending", to: "approved", actorTeamId: "m1" }) ?? "", /own payout/);
   assert.match(moveProblem({ ...base, from: "pending", to: "approved", actorRole: "admin" }) ?? "", /founder/);
-  assert.match(moveProblem({ ...base, from: "pending", to: "approved", complianceOk: false }) ?? "", /compliance/);
   assert.match(moveProblem({ ...base, from: "calculated", to: "paid" }) ?? "", /cannot go/, "an unapproved payout cannot be marked paid");
   assert.match(moveProblem({ ...base, from: "on-hold", to: "paid" }) ?? "", /cannot go/, "an on-hold payout cannot be marked paid");
   assert.match(moveProblem({ ...base, from: "initiated", to: "paid" }) ?? "", /reference/);
   assert.equal(moveProblem({ ...base, from: "initiated", to: "paid", paymentReference: "UTR123" }), null);
   assert.match(moveProblem({ ...base, from: "pending", to: "rejected" }) ?? "", /reason/);
-});
-
-test("compliance approval expires", () => {
-  assert.equal(complianceNow("approved", "2026-12-31", "2026-10-20"), "approved");
-  assert.equal(complianceNow("approved", "2026-09-30", "2026-10-20"), "expired");
 });
 
 test("FY quarters", () => {

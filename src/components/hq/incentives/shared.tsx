@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { api } from "@/components/hq/data";
-import { COMPLIANCE_LABELS, PAYOUT_LABELS, type ComplianceStatus, type PayoutStatus } from "@/lib/incentives/calc.ts";
+import { PAYOUT_LABELS, type PayoutStatus } from "@/lib/incentives/calc.ts";
 import { formatINR } from "@/lib/utils";
 
 /* What /api/hq/incentives returns (the server works every figure out; the screens only show and send actions). */
@@ -58,7 +58,6 @@ export interface Policy {
   eligibilityRules: string;
   qualityRules: string;
   exceptions: string;
-  compliance: { status: ComplianceStatus; reviewer?: string; firm?: string; reviewedOn?: string; expiresOn?: string; notes?: string; document?: string };
   history?: AuditEvent[];
 }
 
@@ -84,7 +83,6 @@ export interface Dashboard {
   overdueInvoices: number;
   reviewDue: string[];
   reviewMonth: string;
-  compliance: { status: ComplianceStatus; policyVersion: number; policyStatus: string; active: boolean };
   incentiveOnly: string[];
   payoutReadiness: string;
 }
@@ -139,11 +137,6 @@ const PAYOUT_TONES: Record<PayoutStatus, Tone> = { draft: "outline", calculated:
 export function PayoutBadge({ status }: { status: unknown }) {
   const s = (str(status) || "draft") as PayoutStatus;
   return <Badge tone={PAYOUT_TONES[s] ?? "neutral"}>{PAYOUT_LABELS[s] ?? s}</Badge>;
-}
-
-const COMPLIANCE_TONES: Record<ComplianceStatus, Tone> = { "review-required": "warn", "under-review": "info", approved: "ok", blocked: "bad", expired: "bad" };
-export function ComplianceBadge({ status }: { status: ComplianceStatus }) {
-  return <Badge tone={COMPLIANCE_TONES[status] ?? "warn"}>{COMPLIANCE_LABELS[status] ?? status}</Badge>;
 }
 
 const ATTR: Record<string, [string, Tone]> = { none: ["Not registered", "outline"], pending: ["Pending decision", "warn"], accepted: ["Accepted", "ok"], rejected: ["Rejected", "bad"] };

@@ -60,7 +60,7 @@ export const hqNav: HqNavGroup[] = [
       { label: "Finance", href: "/hq/finance", icon: "ReceiptIndianRupee", roles: OPS, description: "P&L, invoices, expenses, income" },
       { label: "Rate Card", href: "/hq/prices", icon: "BadgeIndianRupee", roles: OPS, description: "Every service, option and price the studio quotes" },
       { label: "Team & Payroll", href: "/hq/team", icon: "Users", roles: STAFF, description: "People, salaries, freelance pay, payslips" },
-      { label: "Team Incentives", href: "/hq/incentives", icon: "HandCoins", roles: LEADERSHIP, description: "Quarterly bonus, 5% commission, payouts, reviews, compliance" },
+      { label: "Team Incentives", href: "/hq/incentives", icon: "HandCoins", roles: LEADERSHIP, description: "Quarterly bonus, 5% commission, payouts, reviews" },
       { label: "Business Planner", href: "/hq/planner", icon: "Calculator", roles: OPS, description: "Monthly costs, targets, revenue streams" },
     ],
   },
