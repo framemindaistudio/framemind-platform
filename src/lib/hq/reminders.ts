@@ -7,7 +7,7 @@ import { invoiceTotals, type BaseRecord } from "@/lib/hq/collections";
 import { formatINR } from "@/lib/utils";
 
 export type ReminderLevel = "overdue" | "today" | "soon";
-export type ReminderArea = "leads" | "followups" | "quotes" | "projects" | "production" | "shoots" | "coaching" | "vritta" | "invoices" | "tasks" | "papers" | "social" | "tools";
+export type ReminderArea = "leads" | "followups" | "quotes" | "projects" | "production" | "shoots" | "coaching" | "vritta" | "invoices" | "tasks" | "papers" | "social" | "tools" | "incentives";
 
 export interface Reminder {
   key: string;
@@ -35,6 +35,7 @@ export const AREA_LABEL: Record<ReminderArea, string> = {
   papers: "Papers to sign",
   social: "Social media",
   tools: "Renewals",
+  incentives: "Team incentives",
 };
 
 /** The collection each area is built from: someone who cannot read it does not get its reminders. */
@@ -52,6 +53,8 @@ export const AREA_SOURCE: Record<ReminderArea, string> = {
   papers: "signDocs",
   social: "contentCalendar",
   tools: "subscriptions",
+  // founder and admin only: the area follows who can read incentive payouts
+  incentives: "incentivePayouts",
 };
 
 export interface ReminderData {
@@ -69,6 +72,8 @@ export interface ReminderData {
   signDocs?: BaseRecord[];
   contentCalendar?: BaseRecord[];
   subscriptions?: BaseRecord[];
+  incentivePayouts?: BaseRecord[];
+  incentivePolicies?: BaseRecord[];
 }
 
 const s = (v: unknown) => (v === undefined || v === null ? "" : String(v));
@@ -244,6 +249,29 @@ export function buildReminders(data: ReminderData, today: string, o: { signsOf?:
     const d = day(t.renewalDate);
     if (!d || !["active", "trial"].includes(s(t.status) || "active") || d > in3 || d < addDaysIso(today, -3)) continue;
     add({ key: `sub:${t.id}`, area: "tools", level: levelFor(d, today), title: `${s(t.tool)} ${s(t.status) === "trial" ? "trial ends" : "renews"} ${whenLabel(d, today)}`, detail: "Keep it, or cancel before it charges", href: "/hq/tools", date: d });
+  }
+
+  /* team incentives: decisions and payments waiting on the founder, payments to reconcile, the legal review's renewal */
+  const HREF = "/hq/incentives";
+  for (const l of data.leads ?? []) {
+    if (s(l.attribution) !== "pending") continue;
+    const at = day(l.registeredAt) || day(l.createdAt) || today;
+    add({ key: `attr:${l.id}`, area: "incentives", level: at < addDaysIso(today, -7) ? "overdue" : "today", title: `Decide commission attribution: ${s(l.name) || "a registered lead"}`, detail: `Registered by ${s(l.registeredBy) || "a team member"} ${whenLabel(at, today)}`, href: `${HREF}?tab=leads`, date: at });
+  }
+  const payouts = data.incentivePayouts ?? [];
+  const pending = payouts.filter((p) => s(p.status) === "pending");
+  if (pending.length) add({ key: "inc:pending", area: "incentives", level: "today", title: `${pending.length} incentive statement${pending.length === 1 ? "" : "s"} waiting for approval`, detail: pending.map((p) => s(p.memberName)).filter(Boolean).slice(0, 4).join(", "), href: `${HREF}?tab=payouts`, date: today });
+  const unpaid = payouts.filter((p) => ["approved", "initiated"].includes(s(p.status)));
+  if (unpaid.length) add({ key: "inc:unpaid", area: "incentives", level: "soon", title: `${unpaid.length} approved incentive${unpaid.length === 1 ? "" : "s"} to pay`, detail: "Pay from the bank, then record the reference", href: `${HREF}?tab=payouts`, date: today });
+  if (payouts.length || (data.incentivePolicies ?? []).length) {
+    const unreconciled = (data.invoices ?? []).flatMap((inv) => (Array.isArray(inv.payments) ? (inv.payments as BaseRecord[]) : []).filter((p) => !p.reconciled && !p.refunded && day(p.date) && day(p.date) <= addDaysIso(today, -3)));
+    if (unreconciled.length) add({ key: "inc:recon", area: "incentives", level: "soon", title: `${unreconciled.length} client payment${unreconciled.length === 1 ? "" : "s"} to reconcile`, detail: "Unreconciled payments do not count toward team incentives", href: "/hq/finance?tab=invoices", date: today });
+  }
+  for (const p of data.incentivePolicies ?? []) {
+    const c = (p.compliance ?? {}) as { status?: string; expiresOn?: string };
+    if (s(p.status) !== "active" || c.status !== "approved" || !day(c.expiresOn)) continue;
+    const exp = day(c.expiresOn);
+    if (exp <= addDaysIso(today, 30)) add({ key: `pol:${p.id}`, area: "incentives", level: exp < today ? "overdue" : exp <= addDaysIso(today, 7) ? "today" : "soon", title: `Incentive policy legal review ${exp < today ? "has expired" : `expires ${whenLabel(exp, today)}`}`, detail: "Renew it with the labour-law professional; approvals stop when it lapses", href: `${HREF}?tab=policy`, date: exp });
   }
 
   const rank: Record<ReminderLevel, number> = { overdue: 0, today: 1, soon: 2 };

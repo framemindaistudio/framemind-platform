@@ -42,7 +42,9 @@ export function TodayReminders({ index, today }: { index: string; today: string 
   const signDocs = useCollection(readable(user, "signDocs"));
   const contentCalendar = useCollection(readable(user, "contentCalendar"));
   const subscriptions = useCollection(readable(user, "subscriptions"));
-  const all = [leads, clients, proposals, projects, deliverables, shoots, coachingSessions, learners, vrittaLicences, invoices, tasks, signDocs, contentCalendar, subscriptions];
+  const incentivePayouts = useCollection(readable(user, "incentivePayouts"));
+  const incentivePolicies = useCollection(readable(user, "incentivePolicies"));
+  const all = [leads, clients, proposals, projects, deliverables, shoots, coachingSessions, learners, vrittaLicences, invoices, tasks, signDocs, contentCalendar, subscriptions, incentivePayouts, incentivePolicies];
   const loading = all.some((c) => c.loading);
 
   // who signs which paper comes from the templates, loaded only for people who see papers
@@ -79,12 +81,14 @@ export function TodayReminders({ index, today }: { index: string; today: string 
         signDocs: signDocs.records,
         contentCalendar: contentCalendar.records,
         subscriptions: subscriptions.records,
+        incentivePayouts: incentivePayouts.records,
+        incentivePolicies: incentivePolicies.records,
       },
       today,
       { signsOf },
     ).filter((r) => allowed(r.area));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the collections are listed one by one below
-  }, [today, loading, signsOf, seesPapers, user, leads.records, clients.records, proposals.records, projects.records, deliverables.records, shoots.records, coachingSessions.records, learners.records, vrittaLicences.records, invoices.records, tasks.records, signDocs.records, contentCalendar.records, subscriptions.records]);
+  }, [today, loading, signsOf, seesPapers, user, leads.records, clients.records, proposals.records, projects.records, deliverables.records, shoots.records, coachingSessions.records, learners.records, vrittaLicences.records, invoices.records, tasks.records, signDocs.records, contentCalendar.records, subscriptions.records, incentivePayouts.records, incentivePolicies.records]);
 
   const counts = list ? countByLevel(list) : { overdue: 0, today: 0, soon: 0 };
   const areas = useMemo(() => (list ? [...new Set(list.map((r) => r.area))] : []), [list]);

@@ -45,7 +45,7 @@ export async function allUsers(fresh = false): Promise<ConfiguredUser[]> {
   });
   const managed = accounts
     .filter((a) => !a.builtInOverride && !a.disabled && !names.has(a.username))
-    .map((a) => ({ username: a.username, name: a.name, role: a.role, password: a.password, mustChange: !!a.mustChange }));
+    .map((a) => ({ username: a.username, name: a.name, role: a.role, password: a.password, mustChange: !!a.mustChange, ...(a.teamId ? { teamId: a.teamId } : {}) }));
   return [...withOverrides, ...managed];
 }
 
@@ -65,5 +65,5 @@ export async function liveUser(session: Session | null): Promise<SessionUser | n
   // the cached list first; before refusing, the file read fresh (a login just made, or changed, on another server)
   const user = (await matches(await allUsers())) ?? (await matches(await allUsers(true)));
   if (!user) return null;
-  return { username: user.username, name: user.name, role: user.role, ...(user.mustChange ? { mustChange: true } : {}) };
+  return { username: user.username, name: user.name, role: user.role, ...(user.mustChange ? { mustChange: true } : {}), ...(user.teamId ? { teamId: user.teamId } : {}) };
 }

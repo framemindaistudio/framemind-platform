@@ -59,6 +59,8 @@ export interface SessionUser {
   role: Role;
   /** signed in with a one-time password from a founder: must choose their own before using HQ */
   mustChange?: boolean;
+  /** the Team & Payroll member this login belongs to (set on the login in Settings → Logins) */
+  teamId?: string;
 }
 
 export function can(user: Pick<SessionUser, "role"> | null | undefined, roles: Role[]) {

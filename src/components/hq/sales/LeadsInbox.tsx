@@ -21,6 +21,10 @@ import { addDays, isWithinDays, relativeDay, str, todayIso } from "./crm";
 import { ContactButtons, Notice } from "./bits";
 import { useToday } from "./useToday";
 import { appliedFor, cleanApplication, type Application } from "@/lib/content/careers";
+import type { Tone } from "@/components/ui/Badge";
+
+/** A lead registered by a team member for commission, and the founder's decision on it (decided in HQ → Team incentives). */
+const ATTRIBUTION: Record<string, [string, Tone]> = { pending: ["Commission: pending", "warn"], accepted: ["Commission: accepted", "ok"], rejected: ["Commission: rejected", "bad"] };
 
 const leadsDef = getCollection("leads")!;
 const proposalHref = (clientId: string, leadId: string) => `/hq/proposals/new?client=${encodeURIComponent(clientId)}&lead=${encodeURIComponent(leadId)}`;
@@ -155,7 +159,12 @@ export function LeadsInbox() {
         key: "status",
         label: "Status",
         sortValue: (r) => str(r.status),
-        render: (r) => <Badge tone={statusTone(r.status || "new")}>{statusLabel(r.status || "new")}</Badge>,
+        render: (r) => (
+          <span className="inline-flex flex-wrap gap-1">
+            <Badge tone={statusTone(r.status || "new")}>{statusLabel(r.status || "new")}</Badge>
+            {ATTRIBUTION[str(r.attribution)] && <Badge tone={ATTRIBUTION[str(r.attribution)][1]}>{ATTRIBUTION[str(r.attribution)][0]}</Badge>}
+          </span>
+        ),
       },
     ],
     [today],
@@ -396,6 +405,11 @@ function LeadDetail({ lead, canWrite }: { lead: BaseRecord; canWrite: boolean })
           {statusLabel(status)}
         </Badge>
         <Badge tone={lead.kind === "project" ? "dark" : "outline"}>{kindLabel(lead.kind)}</Badge>
+        {ATTRIBUTION[str(lead.attribution)] && (
+          <Link href="/hq/incentives?tab=leads" title="Lead attribution for team commission">
+            <Badge tone={ATTRIBUTION[str(lead.attribution)][1]}>{ATTRIBUTION[str(lead.attribution)][0]}</Badge>
+          </Link>
+        )}
         {status === "converted" && lead.clientId ? (
           <Link href={`/hq/crm/${str(lead.clientId)}`} className="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-graphite underline-offset-4 hover:underline">
             Open client in CRM <ArrowRight className="size-4" aria-hidden />

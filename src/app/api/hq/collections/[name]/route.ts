@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
 import { getCollection } from "@/lib/hq/collections";
-import { deleteRecord, listRecords, upsertMany, upsertRecord } from "@/lib/hq/records";
+import { deleteRecord, getRecord, listRecords, upsertMany, upsertRecord } from "@/lib/hq/records";
 import { can, LEADERSHIP, OPS, STAFF } from "@/lib/hq/roles";
 import { storeInfo } from "@/lib/store";
 import { deleteProject, ProjectHasInvoices } from "@/lib/hq/project-delete";
@@ -31,20 +31,71 @@ export async function GET(_req: Request, ctx: Ctx) {
 }
 
 /** POST { record } → upsert one · POST { records: [] } → bulk upsert in one commit */
+const MANAGED = (label: string) => NextResponse.json({ error: `${label} change only through HQ → Incentives, so every change is checked and kept in the audit trail.` }, { status: 403 });
+
+/** The founder's decision on a lead's commission attribution is made in Incentives: an ordinary edit keeps it as it was. */
+const ATTRIBUTION_KEYS = ["attribution", "splits", "decidedBy", "decidedAt", "decisionNote", "attributionHistory", "registeredBy", "registeredAt"];
+
+/**
+ * Payments ticked "reconciled" (or "refunded") are stamped with who did it and when, from the session — never from
+ * what the browser sent — so the incentive figures that rest on them have a trustworthy trail.
+ */
+function stampPayments(next: Record<string, unknown>, prev: Record<string, unknown> | null, by: string) {
+  if (!Array.isArray(next.payments)) return next;
+  const before = new Map((Array.isArray(prev?.payments) ? (prev!.payments as Record<string, unknown>[]) : []).map((p) => [String(p.id), p]));
+  const now = new Date().toISOString();
+  const payments = (next.payments as Record<string, unknown>[]).map((p) => {
+    const old = before.get(String(p.id));
+    const out = { ...p };
+    if (p.reconciled === true) {
+      if (old?.reconciled === true) Object.assign(out, { reconciledBy: old.reconciledBy, reconciledAt: old.reconciledAt });
+      else Object.assign(out, { reconciledBy: by, reconciledAt: now });
+    } else {
+      delete out.reconciledBy;
+      delete out.reconciledAt;
+    }
+    if (p.refunded === true) {
+      if (old?.refunded === true) Object.assign(out, { refundedBy: old.refundedBy, refundedAt: old.refundedAt });
+      else Object.assign(out, { refundedBy: by, refundedAt: now });
+    } else {
+      delete out.refundedBy;
+      delete out.refundedAt;
+    }
+    return out;
+  });
+  return { ...next, payments };
+}
+
+async function guarded(name: string, record: Record<string, unknown>, by: string) {
+  const prev = record.id ? await getRecord(name, String(record.id)) : null;
+  if (name === "leads") {
+    const out = { ...record };
+    for (const k of ATTRIBUTION_KEYS) {
+      if (prev && k in prev) out[k] = prev[k];
+      else delete out[k];
+    }
+    return out;
+  }
+  if (name === "invoices") return stampPayments(record, prev, by);
+  return record;
+}
+
 export async function POST(req: Request, ctx: Ctx) {
   const { name } = await ctx.params;
   const def = getCollection(name);
   if (!def) return NextResponse.json({ error: "Unknown collection" }, { status: 404 });
   const { user, error } = await apiEditor(def.write);
   if (error) return error;
+  if (def.managed) return MANAGED(def.label);
   try {
     const body = await req.json();
     if (Array.isArray(body.records)) {
-      const records = await upsertMany(name, body.records, user.name);
+      const list = await Promise.all((body.records as Record<string, unknown>[]).map((r) => guarded(name, r, user.name)));
+      const records = await upsertMany(name, list, user.name);
       return NextResponse.json({ records });
     }
     if (!body.record || typeof body.record !== "object") return NextResponse.json({ error: "Missing record" }, { status: 400 });
-    const record = await upsertRecord(name, body.record, user.name);
+    const record = await upsertRecord(name, await guarded(name, body.record, user.name), user.name);
     return NextResponse.json({ record });
   } catch (e) {
     return apiError(e);
@@ -58,6 +109,7 @@ export async function DELETE(req: Request, ctx: Ctx) {
   if (!def) return NextResponse.json({ error: "Unknown collection" }, { status: 404 });
   const { user, error } = await apiEditor(def.write);
   if (error) return error;
+  if (def.managed) return MANAGED(def.label);
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   try {

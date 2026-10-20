@@ -14,6 +14,8 @@ import { liveUser } from "@/lib/hq/users";
 const PUBLIC_HQ_PATHS = ["/hq/login", "/api/hq/auth/login", "/api/hq/auth/logout"];
 /** Everyone may change their own password, view-only accounts included. */
 const OWN_PASSWORD_API = "/api/hq/account/password";
+/** Everyone may register their own leads and answer their own reviews (the route checks the rest). */
+const OWN_INCENTIVES_API = "/api/hq/incentives/me";
 /** All a login with a one-time password may reach until it chooses its own. */
 const FIRST_SIGN_IN_PATHS = ["/hq/account", OWN_PASSWORD_API, "/api/hq/me"];
 
@@ -42,7 +44,7 @@ export async function proxy(req: NextRequest) {
       url.search = "?first=1";
       return NextResponse.redirect(url);
     }
-    if (isHqApi && !["GET", "HEAD", "OPTIONS"].includes(req.method) && !EDITORS.includes(user.role) && pathname !== OWN_PASSWORD_API) {
+    if (isHqApi && !["GET", "HEAD", "OPTIONS"].includes(req.method) && !EDITORS.includes(user.role) && pathname !== OWN_PASSWORD_API && pathname !== OWN_INCENTIVES_API) {
       return NextResponse.json({ error: VIEW_ONLY_MESSAGE, viewOnly: true }, { status: 403 });
     }
     const res = NextResponse.next();

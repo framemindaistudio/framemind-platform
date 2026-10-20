@@ -35,7 +35,19 @@ export interface Payment {
   note?: string;
   /** true when synthesised from a bare amountPaid (no payment entries) */
   synthetic?: boolean;
+  /** matched against the bank statement — only reconciled payments count toward team incentives */
+  reconciled?: boolean;
+  reconciledBy?: string;
+  reconciledAt?: string;
+  /** refunded to the client — never counts toward incentives */
+  refunded?: boolean;
+  refundedBy?: string;
+  refundedAt?: string;
 }
+
+/** The reconciliation fields a payment carries through every save (the server stamps who and when). */
+const RECON_KEYS = ["reconciled", "reconciledBy", "reconciledAt", "refunded", "refundedBy", "refundedAt"] as const;
+const reconOf = (p: Partial<Payment>) => Object.fromEntries(RECON_KEYS.filter((k) => p[k] !== undefined && p[k] !== "").map((k) => [k, p[k]]));
 
 export const PAY_MODE_LABELS: Record<string, string> = {
   upi: "UPI",
@@ -223,6 +235,7 @@ export function invoicePayments(inv: Rec): Payment[] {
       reference: str(p.reference),
       tds: round2(num(p.tds)),
       note: str(p.note),
+      ...reconOf(p),
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
   if (!list.length && num(inv.amountPaid) > 0) {
@@ -336,7 +349,7 @@ export async function prepareInvoice(
   // payment entries win over a hand-typed "amount received" — but an empty list must not wipe a typed amount
   if (Array.isArray(r.payments) && r.payments.length > 0) {
     const pays = invoicePayments({ ...r, amountPaid: 0 } as unknown as Rec).filter((p) => !p.synthetic);
-    r.payments = pays.map((p) => ({ id: p.id, date: p.date, amount: p.amount, mode: p.mode || "", reference: p.reference || "", tds: p.tds || 0, ...(p.note ? { note: p.note } : {}) }));
+    r.payments = pays.map((p) => ({ id: p.id, date: p.date, amount: p.amount, mode: p.mode || "", reference: p.reference || "", tds: p.tds || 0, ...(p.note ? { note: p.note } : {}), ...reconOf(p) }));
     r.amountPaid = round2(pays.reduce((s, p) => s + p.amount + (p.tds || 0), 0));
     r.tdsDeducted = round2(pays.reduce((s, p) => s + (p.tds || 0), 0));
   }

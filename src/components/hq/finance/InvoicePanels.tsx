@@ -123,6 +123,12 @@ export function PaymentsPanel({ r, settings, today, canWrite, onSave }: { r: Rec
     }
   }
 
+  /** Mark a payment as matched to the bank statement, or as refunded: incentives count reconciled, unrefunded payments only. */
+  async function flag(id: string, key: "reconciled" | "refunded", value: boolean) {
+    if (key === "refunded" && value && !window.confirm("Mark this payment as refunded to the client? It will stop counting toward team incentives.")) return;
+    await commit(baseEntries().map((p) => (p.id === id ? { ...p, [key]: value } : p)));
+  }
+
   async function removePayment(id: string) {
     if (!window.confirm("Remove this payment entry? The invoice balance and status will be recalculated.")) return;
     await commit(baseEntries().filter((p) => p.id !== id && !(p.synthetic && id.startsWith("legacy_"))));
@@ -163,6 +169,32 @@ export function PaymentsPanel({ r, settings, today, canWrite, onSave }: { r: Rec
                 {!!p.tds && <span className="text-blueprint"> · TDS {formatINR(p.tds)}</span>}
               </span>
               <span className="tabular font-semibold">{formatINR(p.amount, { decimals: true })}</span>
+              {!p.synthetic && (
+                <span className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    disabled={!canWrite || busy}
+                    onClick={() => void flag(p.id, "reconciled", !p.reconciled)}
+                    className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${p.reconciled ? "border-ok/40 bg-ok/10 text-ok" : "border-graphite/20 text-blueprint hover:border-graphite/40"}`}
+                    title={p.reconciled ? `Reconciled${p.reconciledBy ? ` by ${p.reconciledBy}` : ""}${p.reconciledAt ? ` on ${fmtDate(p.reconciledAt.slice(0, 10))}` : ""}` : "Tick once this payment is matched to the bank statement"}
+                    aria-pressed={!!p.reconciled}
+                  >
+                    {p.reconciled ? "Reconciled" : "Reconcile"}
+                  </button>
+                  {(p.refunded || (canWrite && p.reconciled)) && (
+                    <button
+                      type="button"
+                      disabled={!canWrite || busy}
+                      onClick={() => void flag(p.id, "refunded", !p.refunded)}
+                      className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${p.refunded ? "border-bad/40 bg-bad/10 text-bad" : "border-graphite/20 text-blueprint hover:border-graphite/40"}`}
+                      title={p.refunded ? `Refunded${p.refundedBy ? ` — marked by ${p.refundedBy}` : ""}` : "Mark as refunded to the client"}
+                      aria-pressed={!!p.refunded}
+                    >
+                      {p.refunded ? "Refunded" : "Refund?"}
+                    </button>
+                  )}
+                </span>
+              )}
               {r.id && !p.synthetic && (
                 <a href={`/hq/print/receipt/${r.id}?payment=${encodeURIComponent(p.id)}`} className="rounded p-1 text-blueprint hover:bg-graphite/5 hover:text-graphite" aria-label={`Print receipt for payment on ${fmtDate(p.date)}`} title="Print receipt">
                   <ReceiptText className="size-4" />
