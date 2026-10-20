@@ -7,7 +7,7 @@ import { invoiceTotals, type BaseRecord } from "@/lib/hq/collections";
 import { formatINR } from "@/lib/utils";
 
 export type ReminderLevel = "overdue" | "today" | "soon";
-export type ReminderArea = "leads" | "followups" | "quotes" | "projects" | "production" | "shoots" | "coaching" | "vritta" | "invoices" | "tasks" | "papers" | "social" | "tools" | "incentives";
+export type ReminderArea = "leads" | "followups" | "quotes" | "projects" | "production" | "shoots" | "coaching" | "vritta" | "invoices" | "tasks" | "papers" | "social" | "tools" | "incentives" | "people";
 
 export interface Reminder {
   key: string;
@@ -36,6 +36,7 @@ export const AREA_LABEL: Record<ReminderArea, string> = {
   social: "Social media",
   tools: "Renewals",
   incentives: "Team incentives",
+  people: "Team",
 };
 
 /** The collection each area is built from: someone who cannot read it does not get its reminders. */
@@ -55,6 +56,8 @@ export const AREA_SOURCE: Record<ReminderArea, string> = {
   tools: "subscriptions",
   // founder and admin only: the area follows who can read incentive payouts
   incentives: "incentivePayouts",
+  // internship end dates: founder and admin only, like payroll
+  people: "payroll",
 };
 
 export interface ReminderData {
@@ -74,6 +77,7 @@ export interface ReminderData {
   subscriptions?: BaseRecord[];
   incentivePayouts?: BaseRecord[];
   incentivePolicies?: BaseRecord[];
+  team?: BaseRecord[];
 }
 
 const s = (v: unknown) => (v === undefined || v === null ? "" : String(v));
@@ -272,6 +276,18 @@ export function buildReminders(data: ReminderData, today: string, o: { signsOf?:
     if (s(p.status) !== "active" || c.status !== "approved" || !day(c.expiresOn)) continue;
     const exp = day(c.expiresOn);
     if (exp <= addDaysIso(today, 30)) add({ key: `pol:${p.id}`, area: "incentives", level: exp < today ? "overdue" : exp <= addDaysIso(today, 7) ? "today" : "soon", title: `Incentive policy legal review ${exp < today ? "has expired" : `expires ${whenLabel(exp, today)}`}`, detail: "Renew it with the labour-law professional; approvals stop when it lapses", href: `${HREF}?tab=policy`, date: exp });
+  }
+
+  /* internships are a fixed term: decide before each one ends */
+  for (const m of data.team ?? []) {
+    if (s(m.type) !== "Intern" || s(m.status) === "inactive") continue;
+    const ends = day(m.internshipEnds);
+    if (!ends) {
+      add({ key: `intern-end:${m.id}`, area: "people", level: "soon", title: `Set the internship end date for ${s(m.name) || "an intern"}`, detail: "An internship is a fixed term (3–6 months) — without an end date it can look like a job paid below minimum wage", href: "/hq/team", date: day(m.joinDate) || today });
+      continue;
+    }
+    if (ends > addDaysIso(today, 14)) continue;
+    add({ key: `intern-end:${m.id}`, area: "people", level: ends < today ? "overdue" : ends <= addDaysIso(today, 3) ? "today" : "soon", title: `${s(m.name) || "An intern"}'s internship ${ends < today ? "has ended" : `ends ${whenLabel(ends, today)}`}`, detail: "Confirm as staff (minimum wage or more), move to freelance, or close with the internship certificate", href: "/hq/team", date: ends });
   }
 
   const rank: Record<ReminderLevel, number> = { overdue: 0, today: 1, soon: 2 };

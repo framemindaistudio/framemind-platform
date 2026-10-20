@@ -289,7 +289,7 @@ function Todo({ n, text, onClick, href }: { n: number; text: string; onClick?: (
   return <li>{href ? <Link className="hover:underline" href={href}>{body}</Link> : <button className="text-left hover:underline" onClick={onClick}>{body}</button>}</li>;
 }
 
-const BASIS: Record<string, string> = { fixed: "Fixed salary", "fixed-incentive": "Fixed + incentives", stipend: "Stipend", freelance: "Freelance", "incentive-only": "Incentives only (proposed)" };
+const BASIS: Record<string, string> = { fixed: "Fixed salary", "fixed-incentive": "Fixed + incentives", stipend: "Stipend + incentives", freelance: "Freelance", "incentive-only": "Incentives only (proposed)" };
 
 function TeamTable({ team, eligibleIds }: { team: Member[]; eligibleIds: Set<string> }) {
   const active = team.filter((m) => str(m.status) !== "inactive");

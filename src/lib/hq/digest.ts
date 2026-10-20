@@ -32,7 +32,7 @@ export function recipientsOf(list: unknown): string[] {
 /** Reads every section the reminders come from. A section that cannot be read is left out, never the whole email. */
 export async function loadReminders(today: string): Promise<Reminder[]> {
   // learners give the coaching reminders their names
-  const names = [...new Set([...Object.values(AREA_SOURCE), "learners", "incentivePolicies"])];
+  const names = [...new Set([...Object.values(AREA_SOURCE), "learners", "incentivePolicies", "team"])];
   const data: Record<string, unknown> = {};
   await Promise.all(
     names.map(async (n) => {
