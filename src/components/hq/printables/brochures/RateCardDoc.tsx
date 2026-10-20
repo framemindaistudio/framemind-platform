@@ -47,7 +47,7 @@ export function RateCardDoc({ q }: { q: Q }) {
           </header>
 
           <p className="mt-[4mm] text-[8pt] leading-relaxed text-charcoal">
-            Prices in Indian rupees, before GST ({rates.gstPercent}%). {TERMS.pricesFinal} Quotes hold for {rates.terms.validityDays} days.
+            {TERMS.tax} {TERMS.pricesFinal} Quotes hold for {rates.terms.validityDays} days.
           </p>
 
           {services.map((s) => (
@@ -144,19 +144,20 @@ export function RateCardDoc({ q }: { q: Q }) {
             </section>
           )}
 
-          <section className="mt-[7mm] grid grid-cols-3 gap-[6mm] border-t-2 border-ink pt-[3mm] text-[7.5pt] leading-relaxed text-charcoal" style={{ breakInside: "avoid" }}>
-            <div>
-              <p className="font-bold text-ink">Payment</p>
-              <p>{rates.terms.milestones.map((m) => `${m.percent}% ${m.label.toLowerCase()}`).join(", ")}.</p>
-            </div>
-            <div>
-              <p className="font-bold text-ink">Revisions</p>
-              <p>{rates.terms.revisionRounds} rounds per design stage. New scope is quoted separately.</p>
-            </div>
-            <div>
-              <p className="font-bold text-ink">Handover</p>
-              <p>{TERMS.handoff}</p>
-            </div>
+          <section className="mt-[7mm] grid grid-cols-3 gap-x-[6mm] gap-y-[3mm] border-t-2 border-ink pt-[3mm] text-[7pt] leading-relaxed text-charcoal" style={{ breakInside: "avoid" }}>
+            {[
+              ["Payment", TERMS.paymentTerms],
+              ["Revisions", TERMS.revisionPolicy],
+              ["Ownership & handover", TERMS.handoff],
+              ["Not included", TERMS.thirdParty],
+              ["Warranty", TERMS.warranty],
+              ["Delays & discounts", `${TERMS.delays} ${TERMS.discounts}`],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <p className="font-bold text-ink">{k}</p>
+                <p>{v}</p>
+              </div>
+            ))}
           </section>
         </div>
       </A4Page>

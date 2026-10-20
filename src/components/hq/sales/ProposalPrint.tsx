@@ -212,7 +212,7 @@ function ScopePage({ c, lines, start, page, first }: { c: Ctx; lines: QuoteLine[
         <div className="mb-[7mm]">
           <p className={LABEL}>01 · Scope</p>
           <h2 className="mt-2 text-[22pt] font-semibold leading-tight tracking-[-0.03em] text-graphite">What we&apos;ll build for you</h2>
-          <p className="mt-2 max-w-[160mm] text-[9pt] leading-relaxed text-charcoal">Every option below was chosen with you. Each is designed, built and tested individually — and you own everything we make.</p>
+          <p className="mt-2 max-w-[160mm] text-[9pt] leading-relaxed text-charcoal">Every option below was chosen with you. Each is designed, built and tested individually, and the final deliverables are yours once the project is paid in full.</p>
         </div>
       )}
       <div className="space-y-[6mm]">
@@ -367,8 +367,12 @@ function TermsPage({ c, page }: { c: Ctx; page: string }) {
             ["Revisions", TERMS.revisionPolicy],
             ["What we need from you", TERMS.clientResponsibilities],
             ["Handover", TERMS.handoff],
-            ["Pricing", TERMS.pricesFinal],
-            ["Third parties", "Hosting, domains, paid plugins, payment-gateway fees, API usage and ad spend are billed by their providers directly to you, unless this quote lists them."],
+            ["Pricing", `${TERMS.pricesFinal} ${TERMS.tax}`],
+            ["Payment", TERMS.paymentTerms],
+            ["Third parties", TERMS.thirdParty],
+            ["Warranty", TERMS.warranty],
+            ["Delays", TERMS.delays],
+            ["Discounts", TERMS.discounts],
             ["International clients", TERMS.international],
           ].map(([k, v]) => (
             <div key={k} className="grid grid-cols-[42mm_1fr] gap-4 border-t border-graphite/10 pt-[3mm]">

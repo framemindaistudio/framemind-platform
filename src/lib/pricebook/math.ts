@@ -16,10 +16,22 @@ export interface PricedItem {
   price: number;
 }
 
+/** A ready package is chosen: the service's "package" group holds an option with a price (not "Build my own"). */
+export function packageChosen(service: Service, selections: Selections) {
+  const g = service.groups.find((x) => x.id === "package");
+  const id = g ? (selections[g.id] ?? [])[0] : undefined;
+  return !!g?.options.find((o) => o.id === id && o.price > 0);
+}
+
+/** The groups to show and charge: with a ready package chosen, the core groups it covers drop out. */
+export function activeGroups(service: Service, selections: Selections) {
+  return packageChosen(service, selections) ? service.groups.filter((g) => !g.core) : service.groups;
+}
+
 /** What a configured service costs: one row per chosen option (included options show at ₹0). */
 export function priceService(service: Service, selections: Selections): { items: PricedItem[]; subtotal: number } {
   const items: PricedItem[] = [];
-  for (const g of service.groups) {
+  for (const g of activeGroups(service, selections)) {
     const chosen = selections[g.id] ?? [];
     const picked = g.options.filter((o) => chosen.includes(o.id));
     for (const o of g.mode === "one" ? picked.slice(0, 1) : picked) items.push({ group: g.title, label: o.label, price: o.price });
@@ -101,12 +113,13 @@ export function quoteMoney(lines: QuoteLine[], o: { applyBundle: boolean; bundle
   if (monthly > 0 && months === 0) months = 1;
   const gross = oneTime + monthly * months;
   const bPct = o.applyBundle ? bundlePercent(services.size, o.bundleSteps) : 0;
-  const bundleAmount = Math.round((gross * bPct) / 100);
+  // the bundle discount is on one-time work only: monthly retainers already carry their contract-length discount
+  const bundleAmount = Math.round((oneTime * bPct) / 100);
   const extraPercent = Math.min(100, Math.max(0, o.extraPercent || 0));
   const extraAmount = Math.round(((gross - bundleAmount) * extraPercent) / 100);
   const taxable = Math.max(0, gross - bundleAmount - extraAmount);
   const gst = Math.round((taxable * o.gstPercent) / 100);
-  const keep = (1 - bPct / 100) * (1 - extraPercent / 100);
+  const keep = 1 - extraPercent / 100;
   return {
     oneTime,
     monthly,

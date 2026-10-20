@@ -38,6 +38,8 @@ export interface ServiceGroup {
   mode: "one" | "any";
   help?: string;
   note?: string;
+  /** part of the core spec: hidden and not charged while a ready package (group id "package") is chosen */
+  core?: boolean;
   options: ServiceOption[];
 }
 
@@ -87,6 +89,7 @@ export const SERVICES: Service[] = WEBSITE_SERVICES.filter((s): s is typeof s & 
       mode: g.type === "radio" ? ("one" as const) : ("any" as const),
       ...(g.subtitle ? { help: g.subtitle } : {}),
       ...(g.note ? { note: g.note } : {}),
+      ...(g.core ? { core: true } : {}),
       options: g.options.map((o) => ({ id: o.id, label: o.label, price: o.price, ...(o.desc ? { detail: o.desc } : {}), ...(o.tag ? { badge: o.tag } : {}), ...(o.isBase ? { base: true } : {}), ...(o.unit ? { unit: o.unit } : {}) })),
     })),
 }));
@@ -99,20 +102,20 @@ export const SOCIAL_CONTRACTS: { months: number; label: string; discountPercent:
 /** Studio Bundle: a standard engagement per service, and the discount for buying several. */
 export const BUNDLE = {
   standard: [
-    { id: "websites", label: "Website", detail: "Standard 11–20 page custom site", price: 63000 },
-    { id: "brand", label: "Brand Identity", detail: "3 concepts + full guidelines + collateral", price: 45000 },
-    { id: "software", label: "Software Solution", detail: "Multi-feature web app with admin panel", price: 125000 },
-    { id: "automations", label: "Automations", detail: "3–6 connected workflows with AI steps", price: 50000 },
-    { id: "photography", label: "Photography", detail: "Full-day shoot + 60 edited photos", price: 45000 },
-    { id: "videography", label: "Videography", detail: "90-sec brand reel + 1 shoot day + grade", price: 55000 },
-    { id: "social", label: "Social Media", detail: "3 platforms + 16 posts/mo + reels", price: 42000 },
+    { id: "websites", label: "Website", detail: "6–10 page custom site with an edit-it-yourself CMS", price: 45000 },
+    { id: "brand", label: "Brand Identity", detail: "3 concepts + standard guidelines + stationery", price: 44000 },
+    { id: "software", label: "Software Solution", detail: "Business web app with roles and admin panel", price: 150000 },
+    { id: "automations", label: "Automations", detail: "3 connected workflows with AI steps", price: 45000 },
+    { id: "photography", label: "Photography", detail: "Full-day commercial shoot package", price: 28000 },
+    { id: "videography", label: "Videography", detail: "Corporate video package", price: 40000 },
+    { id: "social", label: "Social Media", detail: "Growth package — first month", price: 30000 },
   ] as { id: ServiceId; label: string; detail: string; price: number }[],
   /** number of services → discount percent (5 or more = the last step) */
   steps: [
     { services: 2, discountPercent: 5 },
-    { services: 3, discountPercent: 10 },
-    { services: 4, discountPercent: 15 },
-    { services: 5, discountPercent: 20 },
+    { services: 3, discountPercent: 8 },
+    { services: 4, discountPercent: 10 },
+    { services: 5, discountPercent: 12 },
   ],
 };
 
@@ -207,11 +210,18 @@ export const TERMS = {
   ],
   validityDays: 15,
   revisionRounds: 2,
-  revisionPolicy: "Each design stage includes 2 rounds of revisions. Major scope changes or new pages added after sign-off are quoted separately.",
-  clientResponsibilities: "The client provides all text content, images, logos and brand assets before work begins. Delays in providing content may affect the delivery timeline.",
-  handoff: "All source files, documentation and a walkthrough call. Nothing is locked behind us — the client owns everything we build.",
-  pricesFinal: "These are accurate estimates based on the selections. Final pricing is confirmed after a 20-minute discovery call where we align on exact scope.",
-  timelines: "A focused website or brand identity runs 3–6 weeks. Software projects range from 6 to 16 weeks. Timelines are set before work starts.",
+  revisionPolicy: "2 rounds of revisions per design stage, on the agreed brief. Send each round's feedback together, from one person. New pages, extra videos, a new creative direction or other scope changes are quoted before we start them.",
+  clientResponsibilities: "You provide text, images, logos, brand assets and account access before work begins, and approve each stage on time. Copywriting is not included unless it is on the quote.",
+  handoff: "The agreed final deliverables, source files, documentation and a walkthrough call. Ownership of the final deliverables passes to you once the project is paid in full. Third-party software, open-source libraries, stock assets, fonts and plugins stay under their own licences.",
+  pricesFinal: "Prices are starting prices for the scope described; ready packages are fixed for what they list. The final price is confirmed in a written quote after a short discovery call.",
+  timelines: "A focused website or brand identity runs 3–6 weeks. Software projects range from 6 to 16 weeks. Timelines start once the advance, the brief and your materials are in.",
+  /** milestone guidance in words (the default split itself is in defaultMilestones / the rate card) */
+  paymentTerms: "Projects up to ₹1 lakh: 50% advance, 50% before final delivery. Larger projects: 40% advance, 30% at an agreed milestone, 30% before handover. Monthly retainers are billed in advance. Work starts once the advance and your materials are in.",
+  thirdParty: "Domains, hosting, databases, cloud storage, API and AI usage, email, SMS and WhatsApp fees, ad spend, stock assets and travel beyond 25 km are not included unless the quote lists them. They are paid by you directly, in accounts you own, or billed at cost.",
+  warranty: "Websites and software include a 30-day bug-fix warranty after launch: anything that doesn't work as agreed is fixed free. It doesn't cover new features, changes made by others or outages of third-party services. Ongoing care is a separate plan.",
+  delays: "If approvals, materials or payments are late, the schedule moves by the same time. A project paused by the client for more than 30 days is re-scheduled when it restarts.",
+  discounts: "Discounts apply to our service fees only — not to third-party costs, taxes or expenses — and don't combine: a quote gets either the bundle or the contract-length discount, whichever is higher.",
+  tax: "All prices are in Indian rupees and exclude GST, which is added at the applicable rate and shown separately on the invoice.",
   international: "We work with clients internationally. Pricing is INR-based; international payments are by bank transfer or Wise.",
   process: [
     { title: "Tell us what you're building", detail: "A 20-minute call. A direct conversation about what's needed and whether we're the right fit." },

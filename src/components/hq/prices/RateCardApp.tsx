@@ -408,6 +408,12 @@ function ServiceEditor({ service, editable, onChange }: { service: Service; edit
                 <option value="one">Choose one</option>
                 <option value="any">Choose any</option>
               </select>
+              {service.groups.some((x) => x.id === "package") && g.id !== "package" && (
+                <label className="flex items-center gap-1.5 text-xs text-charcoal" title="Hidden and not charged when a ready package is chosen">
+                  <input type="checkbox" disabled={!editable} checked={!!g.core} onChange={(e) => setGroup(g.id, (x) => ({ ...x, core: e.target.checked || undefined }))} />
+                  Covered by packages
+                </label>
+              )}
             </span>
           }
           action={

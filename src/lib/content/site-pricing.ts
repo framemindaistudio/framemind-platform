@@ -1,6 +1,6 @@
 /**
  * The studio's published price list: every service, group and option of the website's pricing configurator, exactly
- * as the Figma site had it. It is the starting rate card: HQ → Money → Rate Card begins from it (src/lib/content/
+ * as first published, revised October 2026 against Indian 2026 market pricing for a small studio. It is the starting rate card: HQ → Money → Rate Card begins from it (src/lib/content/
  * catalog.ts derives from this file), and once the founders save their own rate card the website shows that instead.
  */
 
@@ -24,6 +24,8 @@ export interface Group {
   note?: string;
   type: "radio" | "checkbox";
   isDiscount?: boolean;
+  /** part of the core spec: when a ready package (the group with id "package") is chosen, this group is hidden and not charged */
+  core?: boolean;
   options: Option[];
 }
 
@@ -55,14 +57,15 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
       {
         id: "pages", title: "How Many Pages?",
         subtitle: "Count every distinct page — home, about, services, contact, each portfolio or blog item, etc.",
-        note: "Each page is designed and developed individually. Popups, modals and repeated layout sections do not count as separate pages.",
+        note: "Pages that share one layout (e.g. 10 blog posts) are built once from a template. Popups and repeated sections don't count as pages. Copywriting and moving content from an old site are not included unless added.",
         type: "radio",
         options: [
-          { id: "p1", label: "1–5 pages", desc: "Landing page, about, contact, services", price: 15000, isBase: true },
-          { id: "p2", label: "6–10 pages", desc: "Adds team, portfolio, blog, gallery", price: 28000, isBase: true },
-          { id: "p3", label: "11–20 pages", desc: "Full site with multiple sections", price: 48000, isBase: true, tag: "Popular" },
-          { id: "p4", label: "21–30 pages", desc: "Large business or directory-style site", price: 75000, isBase: true },
-          { id: "p5", label: "30+ pages", desc: "Enterprise or multi-department site", price: 110000, isBase: true },
+          { id: "p0", label: "Single landing page", desc: "One long scrolling page with an enquiry form", price: 12000, isBase: true },
+          { id: "p1", label: "2–5 pages", desc: "Home, about, services, contact and similar", price: 20000, isBase: true },
+          { id: "p2", label: "6–10 pages", desc: "Adds team, portfolio, blog, gallery", price: 35000, isBase: true, tag: "Popular" },
+          { id: "p3", label: "11–20 pages", desc: "Full site with multiple sections", price: 60000, isBase: true },
+          { id: "p4", label: "21–30 pages", desc: "Large business or directory-style site", price: 90000, isBase: true },
+          { id: "p5", label: "30+ pages", desc: "Starting price — confirmed after a sitemap review", price: 130000, isBase: true },
         ],
       },
       {
@@ -70,9 +73,9 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         subtitle: "All options use your brand colours, fonts and assets. The difference is depth of custom visual design.",
         type: "radio",
         options: [
-          { id: "d1", label: "Clean & professional", desc: "Polished and purposeful — no templates", price: 0 },
-          { id: "d2", label: "Custom UI design", desc: "Every component designed for your brand", price: 15000, tag: "Popular" },
-          { id: "d3", label: "Premium + micro-animations", desc: "Scroll effects, transitions, interactions", price: 32000 },
+          { id: "d1", label: "Clean & professional", desc: "Custom layout in your colours and fonts, built from our proven section patterns — no bought templates", price: 0 },
+          { id: "d2", label: "Fully custom UI design", desc: "Every page designed from scratch in Figma first, with its own components", price: 18000, tag: "Popular" },
+          { id: "d3", label: "Premium custom + motion", desc: "Fully custom design plus scroll effects, transitions and interactions", price: 35000 },
         ],
       },
       {
@@ -82,8 +85,8 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         type: "radio",
         options: [
           { id: "c1", label: "No CMS needed", desc: "Static or developer-managed content", price: 0 },
-          { id: "c2", label: "WordPress / Webflow CMS", desc: "Familiar interface, easy for teams", price: 8000 },
-          { id: "c3", label: "Custom CMS", desc: "Built specifically for your content structure", price: 20000 },
+          { id: "c2", label: "Edit-it-yourself CMS", desc: "Change text, images and blog posts yourself (WordPress, Webflow or Sanity) — up to 3 content types", price: 10000 },
+          { id: "c3", label: "Custom CMS", desc: "Built for your own content types and workflow — starting price", price: 30000 },
         ],
       },
       {
@@ -96,12 +99,12 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
           { id: "f2", label: "Blog or news section", price: 6000 },
           { id: "f3", label: "WhatsApp click-to-chat", price: 2000 },
           { id: "f4", label: "Live chat widget", price: 3000 },
-          { id: "f5", label: "Payment gateway", price: 8000 },
-          { id: "f6", label: "Booking / appointment system", price: 12000 },
-          { id: "f7", label: "E-commerce — basic store", price: 22000 },
-          { id: "f8", label: "E-commerce — advanced + inventory", price: 45000, tag: "Advanced" },
-          { id: "f9", label: "Role-based admin dashboard", price: 20000 },
-          { id: "f10", label: "AI chatbot", price: 18000 },
+          { id: "f5", label: "Payment gateway", price: 10000 },
+          { id: "f6", label: "Booking / appointment system", price: 15000 },
+          { id: "f7", label: "E-commerce — basic store", price: 30000 },
+          { id: "f8", label: "E-commerce — advanced + inventory", price: 60000, tag: "Advanced" },
+          { id: "f9", label: "Role-based admin dashboard", price: 25000 },
+          { id: "f10", label: "AI chatbot", desc: "Answers from your own content; AI usage fees are billed at cost", price: 20000 },
           { id: "f11", label: "Multi-language support", price: 8000, unit: "/language" },
           { id: "f12", label: "Member login / gated area", price: 12000 },
         ],
@@ -120,14 +123,14 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
       },
       {
         id: "support", title: "Post-Launch Support",
-        subtitle: "Covers bug fixes, minor content updates and compatibility checks after your site goes live.",
-        note: "Support covers the original scope of work. New features or design changes outside the original brief are quoted separately.",
+        subtitle: "Every site comes with a 30-day bug-fix warranty. A care plan adds updates, backups and small changes after that.",
+        note: "The warranty fixes anything that doesn't work as agreed. It doesn't cover new features, changes made by others or outages of hosting and third-party services. Unused care hours don't carry over.",
         type: "radio",
         options: [
-          { id: "sp0", label: "No support needed", price: 0 },
-          { id: "sp1", label: "1 month", desc: "Bug fixes and minor adjustments", price: 5000 },
-          { id: "sp2", label: "3 months", desc: "Extended monitoring and updates", price: 12000, tag: "Popular" },
-          { id: "sp3", label: "6 months", desc: "Priority support and monthly check-ins", price: 22000 },
+          { id: "sp0", label: "30-day warranty only", desc: "Bug fixes for 30 days after launch — included", price: 0 },
+          { id: "sp1", label: "3-month care plan", desc: "Updates, backups, uptime checks and up to 2 hours of small changes a month", price: 9000 },
+          { id: "sp2", label: "6-month care plan", desc: "Same as above, for 6 months", price: 16000, tag: "Popular" },
+          { id: "sp3", label: "12-month care plan", desc: "Same as above, for a year, with priority replies", price: 28000 },
         ],
       },
     ],
@@ -159,9 +162,9 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         note: "Each concept includes 2 rounds of revisions. You select one direction to refine into the final logo. Additional concepts or rounds are quoted separately.",
         type: "radio",
         options: [
-          { id: "l1", label: "2 concepts", desc: "Focused, fast", price: 10000, isBase: true },
-          { id: "l2", label: "3 concepts", desc: "More direction to choose from", price: 18000, isBase: true, tag: "Popular" },
-          { id: "l3", label: "5 concepts", desc: "Full exploration across styles", price: 28000, isBase: true },
+          { id: "l1", label: "2 concepts", desc: "Two distinct creative directions — you choose one to refine", price: 12000, isBase: true },
+          { id: "l2", label: "3 concepts", desc: "More direction to choose from", price: 20000, isBase: true, tag: "Popular" },
+          { id: "l3", label: "5 concepts", desc: "Full exploration across styles", price: 30000, isBase: true },
         ],
       },
       {
@@ -171,8 +174,8 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         type: "radio",
         options: [
           { id: "g1", label: "Quick-reference sheet", desc: "Colours, fonts and logo usage — 1 page", price: 0 },
-          { id: "g2", label: "Standard (10–15 pages)", desc: "Full system with rules and examples", price: 15000, tag: "Popular" },
-          { id: "g3", label: "Comprehensive (25+ pages)", desc: "Tone, imagery, iconography and strategy", price: 35000 },
+          { id: "g2", label: "Standard (10–15 pages)", desc: "Full system with rules and examples", price: 18000, tag: "Popular" },
+          { id: "g3", label: "Comprehensive (25+ pages)", desc: "Tone, imagery, iconography and strategy", price: 40000 },
         ],
       },
       {
@@ -240,34 +243,24 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
     groups: [
       {
         id: "apptype", title: "What Are We Building?",
-        subtitle: "Select the type of software. This determines the base architecture and technology stack.",
-        note: "All options include a structured discovery session before development begins to finalise scope, user flows and technical requirements.",
+        subtitle: "Each price is the full starting price for that kind of product — design, build, testing and launch included.",
+        note: "Every build includes discovery, UI design, login, database, deployment, backups and testing. The price is fixed once the scope is signed off after discovery.",
         type: "radio",
         options: [
-          { id: "at1", label: "Web application", desc: "Browser-based, works on all devices", price: 40000, isBase: true, tag: "Most Common" },
-          { id: "at2", label: "Mobile app (iOS or Android)", desc: "Native mobile application", price: 80000, isBase: true },
-          { id: "at3", label: "Web + mobile app", desc: "Both platforms, shared backend", price: 110000, isBase: true },
-          { id: "at4", label: "Internal tool / dashboard", desc: "For your team, not public-facing", price: 35000, isBase: true },
-        ],
-      },
-      {
-        id: "complexity", title: "Scope & Complexity",
-        subtitle: "How many features and how much business logic does the product need to handle?",
-        note: "Final scope is confirmed in a discovery session. This selection gives an accurate estimate — exact pricing is locked after scope sign-off.",
-        type: "radio",
-        options: [
-          { id: "cx1", label: "MVP — one core feature", desc: "Ship fast, validate, then grow", price: 0 },
-          { id: "cx2", label: "Multi-feature product", desc: "3–6 core features with defined flows", price: 60000, tag: "Popular" },
-          { id: "cx3", label: "Complex / scalable platform", desc: "High data volume, complex business logic", price: 150000 },
-          { id: "cx4", label: "Enterprise platform", desc: "Multi-tenant, SSO, audit trails, SLAs", price: 300000 },
+          { id: "at4", label: "Internal tool / dashboard", desc: "For your team — up to ~8 screens, login, admin and reports", price: 60000, isBase: true },
+          { id: "at1", label: "Web app MVP", desc: "One core workflow, built to launch fast and learn", price: 75000, isBase: true },
+          { id: "at5", label: "Business web app", desc: "Several workflows, user roles, admin panel and notifications", price: 150000, isBase: true, tag: "Most Common" },
+          { id: "at2", label: "Mobile app MVP (Android + iOS)", desc: "Cross-platform app with its backend — one core workflow", price: 150000, isBase: true },
+          { id: "at3", label: "Web + mobile business product", desc: "Shared backend, web admin and a mobile app for your users", price: 275000, isBase: true },
+          { id: "at6", label: "Advanced / scalable platform", desc: "Complex business logic, many integrations, high data volume, expanded testing", price: 400000, isBase: true },
+          { id: "at7", label: "Enterprise platform", desc: "Multi-tenant, SSO, audit trails, SLAs — starts with a paid discovery, then a fixed quote", price: 600000, isBase: true },
         ],
       },
       {
         id: "corefeatures", title: "Core Features",
-        subtitle: "Select every feature your product needs. Each is individually built and tested.",
+        subtitle: "Extra features on top of the product you chose. Login is always included; the business app and above already include roles, admin panel and notifications.",
         type: "checkbox",
         options: [
-          { id: "cf1", label: "User authentication (login, signup)", price: 8000 },
           { id: "cf2", label: "User roles & permissions", price: 10000 },
           { id: "cf3", label: "Admin panel", desc: "Manage users, content and settings", price: 15000, tag: "Recommended" },
           { id: "cf4", label: "File uploads & storage", price: 5000 },
@@ -290,7 +283,7 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
           { id: "in4", label: "Maps / geolocation", price: 5000 },
           { id: "in5", label: "Social login (Google, Facebook)", price: 5000 },
           { id: "in6", label: "CRM integration", price: 8000 },
-          { id: "in7", label: "AI / ML features", desc: "Custom model integration or LLM-powered features", price: 28000 },
+          { id: "in7", label: "AI features", desc: "Chat, summarise, classify or extract — within an agreed scope. AI usage fees are billed at cost", price: 30000 },
           { id: "in8", label: "Custom third-party API", price: 8000, unit: "/integration" },
         ],
       },
@@ -308,14 +301,14 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
       },
       {
         id: "softsupport", title: "Post-Launch Support",
-        subtitle: "Bug fixes, minor changes and monitoring after your software goes live.",
-        note: "Support covers bugs and issues within the agreed scope. New features, major changes or integrations added after launch are quoted separately.",
+        subtitle: "Every build comes with a 30-day bug-fix warranty. A support plan adds monitoring and small changes after that.",
+        note: "The warranty fixes anything that doesn't work as agreed. New features, major changes and new integrations after launch are quoted separately. Unused hours don't carry over.",
         type: "radio",
         options: [
-          { id: "ss0", label: "No support", price: 0 },
-          { id: "ss1", label: "30 days", desc: "Bug fixes and stability monitoring", price: 10000 },
-          { id: "ss2", label: "60 days", desc: "Extended monitoring and minor updates", price: 18000, tag: "Popular" },
-          { id: "ss3", label: "90 days", desc: "Priority support and proactive reviews", price: 28000 },
+          { id: "ss0", label: "30-day warranty only", desc: "Bug fixes for 30 days after launch — included", price: 0 },
+          { id: "ss1", label: "3-month support", desc: "Monitoring, bug fixes and up to 6 hours of small changes a month", price: 24000 },
+          { id: "ss2", label: "6-month support", desc: "Same as above, for 6 months", price: 42000, tag: "Popular" },
+          { id: "ss3", label: "12-month support", desc: "Same as above, for a year, with priority replies", price: 75000 },
         ],
       },
     ],
@@ -347,10 +340,10 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         note: "A workflow is defined as one trigger → action chain. A lead form submission triggering an email + CRM entry + Slack alert = 1 workflow with 3 actions.",
         type: "radio",
         options: [
-          { id: "w1", label: "1 workflow", desc: "One trigger, one outcome", price: 8000, isBase: true },
-          { id: "w2", label: "3 workflows", desc: "A connected set for a department", price: 20000, isBase: true, tag: "Popular" },
-          { id: "w3", label: "6 workflows", desc: "Covers most core operations", price: 38000, isBase: true },
-          { id: "w4", label: "10+ workflows", desc: "Full automation across the business", price: 60000, isBase: true },
+          { id: "w1", label: "1 workflow", desc: "One trigger and its steps, tested and handed over", price: 10000, isBase: true },
+          { id: "w2", label: "3 workflows", desc: "A connected set for a department", price: 25000, isBase: true, tag: "Popular" },
+          { id: "w3", label: "6 workflows", desc: "Covers most core operations", price: 45000, isBase: true },
+          { id: "w4", label: "10+ workflows", desc: "Starting price — scoped after mapping your processes", price: 70000, isBase: true },
         ],
       },
       {
@@ -388,7 +381,7 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
           { id: "av1", label: "Automated reports (daily/weekly)", desc: "Scheduled reports sent to email or Slack", price: 6000 },
           { id: "av2", label: "AI auto-classification", desc: "Categorise leads, tickets or data automatically", price: 10000 },
           { id: "av3", label: "AI auto-response drafting", desc: "Draft replies to emails or messages using AI", price: 14000 },
-          { id: "av4", label: "Full AI agent (autonomous task handling)", desc: "End-to-end autonomous decision and action loop", price: 28000 },
+          { id: "av4", label: "AI agent (defined tasks)", desc: "Acts only within agreed permissions, with human approval steps, logging and failure alerts", price: 30000 },
           { id: "av5", label: "Error monitoring + failure alerts", desc: "Get notified instantly when a workflow fails", price: 4000, tag: "Recommended" },
           { id: "av6", label: "Uptime monitoring + auto-restart", price: 5000 },
         ],
@@ -417,7 +410,21 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
     description: "Professional photography for brands, products, events, teams and spaces — planned, directed and edited to industry standard. Configure every layer of your shoot.",
     groups: [
       {
-        id: "shoottype",
+        id: "package", title: "Start with a ready package",
+        subtitle: "Fixed price for everything listed: photographer, camera and lighting kit, travel within 25 km, and the edited photos.",
+        note: "A package covers the choices it lists, so those are hidden while it is selected. Add-ons below stay available and are charged on top.",
+        type: "radio",
+        options: [
+          { id: "pk1", label: "Headshots / small product set", desc: "2 hours · 1 location · 15 retouched photos", price: 8000, isBase: true },
+          { id: "pk2", label: "Half-day brand shoot", desc: "4 hours · 1 location · 30 retouched photos", price: 15000, isBase: true, tag: "Popular" },
+          { id: "pk3", label: "Full-day commercial shoot", desc: "7–8 hours · up to 2 locations · 60 retouched photos", price: 28000, isBase: true },
+          { id: "pk4", label: "Event coverage — half day", desc: "Up to 4 hours · 150 colour-corrected photos incl. 20 retouched highlights", price: 15000, isBase: true },
+          { id: "pk5", label: "Event coverage — full day", desc: "Up to 8 hours · 300 colour-corrected photos incl. 40 retouched highlights", price: 25000, isBase: true },
+          { id: "pk0", label: "Build my own", desc: "Choose each option below yourself", price: 0, isBase: true },
+        ],
+      },
+      {
+        id: "shoottype", core: true,
         title: "What Are We Shooting?",
         subtitle: "Select the primary shoot category. Each type determines equipment, lighting setup, and preparation required.",
         note: "Multiple categories in one shoot are supported — select all that apply and we will plan the session to cover each. Complex multi-category shoots may require additional session time.",
@@ -435,21 +442,21 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         ],
       },
       {
-        id: "session",
+        id: "session", core: true,
         title: "Shoot Session Length",
         subtitle: "Shoot time starts on arrival at location and includes setup, shooting and pack-down.",
         note: "Travel within 25 km of base location is included. Outstation shoots require travel and accommodation to be arranged and covered by the client. Permits, venue access and parking are the client's responsibility.",
         type: "radio",
         options: [
-          { id: "sl1", label: "2 hours", desc: "Quick headshot session or small product set (up to ~20 hero shots)", price: 5000, isBase: true },
-          { id: "sl2", label: "Half day — 4 hours", desc: "Products, portraits, or a single location and concept", price: 9000, isBase: true },
-          { id: "sl3", label: "Full day — 7 hours", desc: "Brand shoot covering team, products and space — most shoots land here", price: 17000, isBase: true, tag: "Most Common" },
-          { id: "sl4", label: "2 shoot days", desc: "Campaign with multiple concepts, locations or talent groups", price: 32000, isBase: true },
-          { id: "sl5", label: "3+ shoot days", desc: "Complete brand photography system or large-scale event", price: 48000, isBase: true },
+          { id: "sl1", label: "2 hours", desc: "Quick headshot session or small product set (up to ~20 hero shots)", price: 6000, isBase: true },
+          { id: "sl2", label: "Half day — 4 hours", desc: "Products, portraits, or a single location and concept", price: 10000, isBase: true },
+          { id: "sl3", label: "Full day — 7 hours", desc: "Brand shoot covering team, products and space — most shoots land here", price: 20000, isBase: true, tag: "Most Common" },
+          { id: "sl4", label: "2 shoot days", desc: "Campaign with multiple concepts, locations or talent groups", price: 38000, isBase: true },
+          { id: "sl5", label: "3+ shoot days", desc: "Complete brand photography system or large-scale event", price: 55000, isBase: true },
         ],
       },
       {
-        id: "locations",
+        id: "locations", core: true,
         title: "Number of Locations",
         subtitle: "Each location switch adds transit, setup and lighting reset time.",
         type: "radio",
@@ -461,7 +468,7 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         ],
       },
       {
-        id: "deliverables",
+        id: "deliverables", core: true,
         title: "Number of Edited Photos Delivered",
         subtitle: "All photos are professionally colour-corrected and retouched. Delivered as high-resolution JPEGs.",
         note: "Editing turnaround is 5–7 working days after the shoot. A curated gallery of selects is shared for approval before final delivery.",
@@ -476,7 +483,7 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         ],
       },
       {
-        id: "editlevel",
+        id: "editlevel", core: true,
         title: "Edit Level",
         subtitle: "Choose the depth of post-processing applied to each delivered photo.",
         note: "The edit level applies uniformly to all delivered photos. Mixed-level editing (e.g. advanced retouch for hero shots only) can be arranged — mention this in the brief.",
@@ -497,7 +504,7 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
           { id: "of2", label: "Print-ready — high-res TIFF or PDF", desc: "300 DPI, CMYK or RGB, suitable for press and large-format print", price: 3000 },
           { id: "of3", label: "Social media crops", desc: "Square (1:1), portrait (4:5), story (9:16) — sized for Instagram, LinkedIn and Facebook", price: 2500 },
           { id: "of4", label: "E-commerce pack", desc: "White-background isolation, multiple angles formatted for Amazon, Flipkart or Shopify", price: 4000 },
-          { id: "of5", label: "RAW files (.CR2/.ARW/.NEF)", desc: "Unedited originals for in-house processing — requires advanced retouch edit level", price: 5000 },
+          { id: "of5", label: "RAW files (.CR2/.ARW/.NEF)", desc: "Unedited originals of the delivered selects, for in-house processing", price: 5000 },
         ],
       },
       {
@@ -558,7 +565,19 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
     description: "Brand films, reels, event coverage, product videos and documentaries — shot, edited and delivered to broadcast standard. Configure every stage from pre-production to final delivery.",
     groups: [
       {
-        id: "videotype",
+        id: "package", title: "Start with a ready package",
+        subtitle: "Fixed price for everything listed: crew, camera, lights and audio kit, travel within 25 km, editing and 2 rounds of revisions.",
+        note: "A package covers the choices it lists, so those are hidden while it is selected. Add-ons below stay available and are charged on top.",
+        type: "radio",
+        options: [
+          { id: "pk1", label: "Social reel", desc: "Up to 2-hour shoot · one 30–60 s vertical reel · standard edit, colour correction, captions, licensed music", price: 15000, isBase: true },
+          { id: "pk2", label: "Corporate video", desc: "Half-day shoot · one 1–2 min video + a 30 s vertical cut · standard edit, natural grade, music, subtitles", price: 40000, isBase: true, tag: "Popular" },
+          { id: "pk3", label: "Brand film", desc: "Script & storyboard · full-day shoot · one 60–90 s film + 2 vertical cuts · cinematic edit and grade, sound design, music", price: 80000, isBase: true },
+          { id: "pk0", label: "Build my own", desc: "Choose each option below yourself", price: 0, isBase: true },
+        ],
+      },
+      {
+        id: "videotype", core: true,
         title: "What Are We Producing?",
         subtitle: "Select the type of video. Each format has different production requirements, equipment and edit workflows.",
         note: "Multiple formats can be produced in one shoot. Select all that apply — we will plan the shoot to maximise output across formats.",
@@ -576,21 +595,21 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         ],
       },
       {
-        id: "shootdays",
+        id: "shootdays", core: true,
         title: "Shoot Days",
         subtitle: "On-location production with camera, lights and crew. Includes setup and pack-down.",
         note: "Travel within 25 km of base location is included. Outstation shoots require travel and accommodation covered by the client. Shoot days run 7–8 hours on set — arrival 30 min before for setup.",
         type: "radio",
         options: [
-          { id: "vs1", label: "Half day — 4 hours on set", desc: "Interviews, small product shoots, single-location reels", price: 8000, isBase: true },
-          { id: "vs2", label: "Full day — 8 hours on set", desc: "Brand films, events, multi-scene shoots — most productions land here", price: 16000, isBase: true, tag: "Most Common" },
-          { id: "vs3", label: "2 shoot days", desc: "Multi-location or multi-concept campaigns. Large events.", price: 30000, isBase: true },
-          { id: "vs4", label: "3 shoot days", desc: "Documentaries, full brand content systems, multi-city shoots", price: 44000, isBase: true },
-          { id: "vs5", label: "4+ shoot days", desc: "Large-scale productions. Scoped individually after a planning call.", price: 58000, isBase: true },
+          { id: "vs1", label: "Half day — 4 hours on set", desc: "Interviews, small product shoots, single-location reels", price: 10000, isBase: true },
+          { id: "vs2", label: "Full day — 8 hours on set", desc: "Brand films, events, multi-scene shoots — most productions land here", price: 20000, isBase: true, tag: "Most Common" },
+          { id: "vs3", label: "2 shoot days", desc: "Multi-location or multi-concept campaigns. Large events.", price: 38000, isBase: true },
+          { id: "vs4", label: "3 shoot days", desc: "Documentaries, full brand content systems, multi-city shoots", price: 55000, isBase: true },
+          { id: "vs5", label: "4+ shoot days", desc: "Large-scale productions. Scoped individually after a planning call.", price: 70000, isBase: true },
         ],
       },
       {
-        id: "quantity",
+        id: "quantity", core: true,
         title: "Number of Finished Videos",
         subtitle: "How many complete, edited videos do you need delivered from this production?",
         note: "Additional videos from the same shoot are cheaper than separate shoots — footage captured in one session can be repurposed across multiple deliverables.",
@@ -604,36 +623,36 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         ],
       },
       {
-        id: "length",
+        id: "length", core: true,
         title: "Length per Finished Video",
         subtitle: "Length of each finished, edited video — not raw shoot duration.",
         note: "Each additional video in a series can have a different length. This selection reflects the primary deliverable. Shorter cuts of longer videos are priced under Platform Formats below.",
         type: "radio",
         options: [
-          { id: "vl1", label: "Under 30 seconds", desc: "Story ad, quick reel, teaser", price: 5000, isBase: true },
-          { id: "vl2", label: "30–60 seconds", desc: "Social reel, product highlight, testimonial clip", price: 9000, isBase: true },
-          { id: "vl3", label: "60–90 seconds", desc: "Brand promo, Instagram feature, short case study", price: 14000, isBase: true, tag: "Most Common" },
-          { id: "vl4", label: "2–4 minutes", desc: "Brand film, product demo, educational video", price: 22000, isBase: true },
-          { id: "vl5", label: "5–8 minutes", desc: "Documentary short, detailed walkthrough, keynote film", price: 35000, isBase: true },
-          { id: "vl6", label: "10–20 minutes", desc: "Training module, full event film, interview documentary", price: 50000, isBase: true },
-          { id: "vl7", label: "20+ minutes", desc: "Long-form documentary or full event coverage — scoped after brief", price: 70000, isBase: true },
+          { id: "vl1", label: "Under 30 seconds", desc: "Story ad, quick reel, teaser", price: 6000, isBase: true },
+          { id: "vl2", label: "30–60 seconds", desc: "Social reel, product highlight, testimonial clip", price: 10000, isBase: true },
+          { id: "vl3", label: "60–90 seconds", desc: "Brand promo, Instagram feature, short case study", price: 15000, isBase: true, tag: "Most Common" },
+          { id: "vl4", label: "2–4 minutes", desc: "Brand film, product demo, educational video", price: 24000, isBase: true },
+          { id: "vl5", label: "5–8 minutes", desc: "Documentary short, detailed walkthrough, keynote film", price: 38000, isBase: true },
+          { id: "vl6", label: "10–20 minutes", desc: "Training module, full event film, interview documentary", price: 55000, isBase: true },
+          { id: "vl7", label: "20+ minutes", desc: "Long-form documentary or full event coverage — scoped after brief", price: 75000, isBase: true },
         ],
       },
       {
-        id: "edittype",
+        id: "edittype", core: true,
         title: "Edit Style",
         subtitle: "Choose the editing approach. All edits include a rough cut for approval followed by final delivery.",
         note: "Each video includes 2 rounds of revisions after the first cut. Structural changes (reordering scenes, adding new footage) after round 2 are quoted separately.",
         type: "radio",
         options: [
-          { id: "et1", label: "Basic cut — sync, trim, export", desc: "Clean assembly of footage with cuts on beat. No graphics or grade. Ideal for raw event coverage or interviews.", price: 0 },
+          { id: "et1", label: "Basic cut — raw assembly", desc: "Footage synced, trimmed and exported. No music, titles, graphics or colour work — for raw event records or internal use.", price: 0 },
           { id: "et2", label: "Standard edit", desc: "Cuts, transitions, title cards, lower-thirds, background music synced to pacing. Professional and polished.", price: 6000, tag: "Popular" },
           { id: "et3", label: "Premium edit — motion graphics included", desc: "Custom animated titles, branded overlays, intro/outro sequence, dynamic transitions. Broadcast-ready.", price: 14000 },
           { id: "et4", label: "Cinematic edit — full post-production", desc: "Scene-driven storytelling, dramatic pacing, multi-layer audio design, custom motion graphics and full grade. Showcase-quality.", price: 24000 },
         ],
       },
       {
-        id: "colourgrade",
+        id: "colourgrade", core: true,
         title: "Colour Grade",
         subtitle: "Applied to the final video after editing.",
         type: "radio",
@@ -670,7 +689,7 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
           { id: "pf4", label: "Short-form cut (15s)", desc: "15-second highlight cut of the main video — optimised for story ads and quick reels", price: 2500 },
           { id: "pf5", label: "Short-form cut (30s)", desc: "30-second highlight cut — for pre-roll ads, teasers and social previews", price: 2500 },
           { id: "pf6", label: "YouTube optimisation pack", desc: "Custom thumbnail (designed), chapter markers, end-screen template and description copy", price: 4000 },
-          { id: "pf7", label: "WhatsApp / low-res compressed version", desc: "Compressed MP4 under 16MB — for sharing via WhatsApp without quality loss perception", price: 1500 },
+          { id: "pf7", label: "WhatsApp version", desc: "Compressed MP4 under 16 MB for WhatsApp sharing — picture quality is reduced", price: 1500 },
         ],
       },
       {
@@ -734,7 +753,19 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
     description: "Consistent, on-brand social content and management designed to keep your brand visible, engaging and growing.",
     groups: [
       {
-        id: "platforms", title: "Platforms to Manage",
+        id: "package", title: "Start with a ready package",
+        subtitle: "A fixed monthly fee for what's listed. Counts are unique pieces of content — one reel posted to three platforms counts once.",
+        note: "A package covers the choices it lists, so those are hidden while it is selected. Add-ons below stay available and are charged on top.",
+        type: "radio",
+        options: [
+          { id: "pk1", label: "Starter", desc: "2 platforms · 12 posts a month (statics + carousels) · captions, hashtags, scheduling · monthly report", price: 15000, isBase: true },
+          { id: "pk2", label: "Growth", desc: "3 platforms · 16 posts + 4 reels a month · stories 2×/week · content calendar · monthly report", price: 30000, isBase: true, tag: "Popular" },
+          { id: "pk3", label: "Scale", desc: "4 platforms · 24 posts + 8 reels a month · stories 4×/week · 2 infographics · report + monthly strategy call", price: 55000, isBase: true },
+          { id: "pk0", label: "Build my own", desc: "Choose each option below yourself", price: 0, isBase: true },
+        ],
+      },
+      {
+        id: "platforms", core: true, title: "Platforms to Manage",
         subtitle: "Choose the platforms you want us to manage. We handle publishing, scheduling, captions and basic optimisation.",
         note: "Content creation and specialised formats are selected separately.",
         type: "checkbox",
@@ -749,7 +780,7 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         ],
       },
       {
-        id: "frequency", title: "Posting Frequency",
+        id: "frequency", core: true, title: "Posting Frequency",
         subtitle: "Choose your monthly posting volume. Includes custom static creatives, captions, scheduling and publishing.",
         type: "radio",
         options: [
@@ -760,9 +791,9 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         ],
       },
       {
-        id: "content", title: "Content Formats",
+        id: "content", core: true, title: "Content Formats",
         subtitle: "Add specialised formats to your social media content plan.",
-        note: "Reels include editing, captions/subtitles, basic transitions and CTA. Client footage required unless video production is separately quoted.",
+        note: "Reels are edited from your footage or licensed stock; on-location shoots are quoted separately under Videography.",
         type: "checkbox",
         options: [
           { id: "cf1", label: "Carousel / Multi-image Posts", price: 2500 },
@@ -825,20 +856,20 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
     name: "Studio Bundle",
     icon: "Layers",
     unit: "project",
-    description: "Pick any combination of our services and get a bundle discount — up to 20% off.",
+    description: "Pick any combination of our services and get a bundle discount — up to 12% off our service fees.",
     groups: [
       {
         id: "services", title: "Which services do you need?",
-        subtitle: "Prices reflect a standard engagement for each service. 2 services = 5% off · 3 = 10% · 4 = 15% · 5+ = 20% off",
+        subtitle: "Prices reflect a standard engagement for each service. 2 services = 5% off · 3 = 8% · 4 = 10% · 5+ = 12% off",
         type: "checkbox",
         options: [
-          { id: "bs1", label: "Website", desc: "Standard 11–20 page custom site", price: 63000 },
-          { id: "bs2", label: "Brand Identity", desc: "3 concepts + full guidelines + collateral", price: 45000 },
-          { id: "bs3", label: "Software Solution", desc: "Multi-feature web app with admin panel", price: 125000 },
-          { id: "bs4", label: "Automations", desc: "3–6 connected workflows with AI steps", price: 50000 },
-          { id: "bs5", label: "Photography", desc: "Full-day shoot + 60 edited photos", price: 45000 },
-          { id: "bs6", label: "Videography", desc: "90-sec brand reel + 1 shoot day + grade", price: 55000 },
-          { id: "bs7", label: "Social Media", desc: "3 platforms + 16 posts/mo + reels", price: 42000 },
+          { id: "bs1", label: "Website", desc: "6–10 page custom site with an edit-it-yourself CMS", price: 45000 },
+          { id: "bs2", label: "Brand Identity", desc: "3 concepts + standard guidelines + stationery", price: 44000 },
+          { id: "bs3", label: "Software Solution", desc: "Business web app with roles and admin panel", price: 150000 },
+          { id: "bs4", label: "Automations", desc: "3 connected workflows with AI steps", price: 45000 },
+          { id: "bs5", label: "Photography", desc: "Full-day commercial shoot package", price: 28000 },
+          { id: "bs6", label: "Videography", desc: "Corporate video package", price: 40000 },
+          { id: "bs7", label: "Social Media", desc: "Growth package — first month", price: 30000 },
         ],
       },
     ],

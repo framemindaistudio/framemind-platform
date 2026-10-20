@@ -7,7 +7,7 @@ import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Copy, ExternalLink, Fol
 import { COACHING, VRITTA, type ServiceId } from "@/lib/content/catalog";
 import { getCollection, type BaseRecord, type LineItem } from "@/lib/hq/collections";
 import { can } from "@/lib/hq/roles";
-import { bundlePercent, priceService, priceVritta, splitMilestones, type QuoteLine, type QuoteMoney } from "@/lib/pricebook/math";
+import { activeGroups, bundlePercent, priceService, priceVritta, splitMilestones, type QuoteLine, type QuoteMoney } from "@/lib/pricebook/math";
 import type { Milestone, RateCard } from "@/lib/pricebook/types";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -641,7 +641,7 @@ function LineCard({
 
           {line.kind === "service" && service && (
             <>
-              {service.groups.map((g) => {
+              {activeGroups(service, line.selections).map((g) => {
                 const chosen = line.selections[g.id] ?? [];
                 return (
                   <div key={g.id}>

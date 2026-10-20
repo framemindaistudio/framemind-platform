@@ -77,7 +77,7 @@ function cleanGroups(v: unknown, base: ServiceGroup[]): ServiceGroup[] {
         .filter((o) => o.label);
       const help = text(g.help, 300);
       const note = text(g.note, 400);
-      return { id, title: text(g.title, 80), mode: g.mode === "any" ? ("any" as const) : ("one" as const), ...(help ? { help } : {}), ...(note ? { note } : {}), options };
+      return { id, title: text(g.title, 80), mode: g.mode === "any" ? ("any" as const) : ("one" as const), ...(help ? { help } : {}), ...(note ? { note } : {}), ...(g.core === true ? { core: true } : {}), options };
     })
     .filter((g) => g.title && g.options.length);
 }

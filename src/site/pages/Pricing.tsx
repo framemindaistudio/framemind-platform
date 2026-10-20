@@ -27,10 +27,18 @@ const iconOf = (name: string) => ICONS[name] ?? Layers;
 type BundleStep = { services: number; discountPercent: number };
 const DEFAULT_STEPS: BundleStep[] = [
   { services: 2, discountPercent: 5 },
-  { services: 3, discountPercent: 10 },
-  { services: 4, discountPercent: 15 },
-  { services: 5, discountPercent: 20 },
+  { services: 3, discountPercent: 8 },
+  { services: 4, discountPercent: 10 },
+  { services: 5, discountPercent: 12 },
 ];
+
+/** With a ready package chosen (the "package" group, any option but "Build my own"), the core groups it covers drop out. */
+function packageChosen(service: ServiceDef, selections: Selections) {
+  const g = service.groups.find((x) => x.id === "package");
+  const id = g ? (selections[g.id] as string) : undefined;
+  return !!g?.options.find((o) => o.id === id && o.price > 0);
+}
+const activeGroups = (service: ServiceDef, selections: Selections) => (packageChosen(service, selections) ? service.groups.filter((g) => !g.core) : service.groups);
 function bundlePct(count: number, steps: BundleStep[]) {
   let pct = 0;
   for (const st of [...steps].sort((a, b) => a.services - b.services)) if (count >= st.services) pct = st.discountPercent;
@@ -63,6 +71,7 @@ function servicesFrom(rates: PublicRates | null | undefined): ServiceDef[] {
       ...(g.help ? { subtitle: g.help } : {}),
       ...(g.note ? { note: g.note } : {}),
       type: g.mode === "one" ? "radio" : "checkbox",
+      ...(g.core ? { core: true } : {}),
       options: g.options.map((o) => ({ id: o.id, label: o.label, price: o.price, ...(o.detail ? { desc: o.detail } : {}), ...(o.badge ? { tag: o.badge } : {}), ...(o.base ? { isBase: true } : {}), ...(o.unit ? { unit: o.unit } : {}) })),
     }));
     if (page.id === "social" && rates.socialContracts.length) {
@@ -83,11 +92,13 @@ function servicesFrom(rates: PublicRates | null | undefined): ServiceDef[] {
 // ─── FAQs ─────────────────────────────────────────────────────────────────────
 
 const faqs = [
-  { q: "Are these prices final?", a: "These are accurate estimates based on your selections. Final pricing is confirmed after a 20-minute discovery call where we align on exact scope. No surprises." },
-  { q: "Can I pay in instalments?", a: "Yes. We typically split into two or three milestones — usually 50% to start, 50% on delivery. For larger projects we can structure more milestones." },
+  { q: "Are these prices final?", a: "Ready packages are fixed for what they list. Everything else is a starting price for the scope you select; the final price is confirmed in a written quote after a short discovery call. All prices exclude GST, which is added at the applicable rate." },
+  { q: "Can I pay in instalments?", a: "Yes. Projects up to ₹1 lakh: 50% advance, 50% before final delivery. Larger projects: 40% advance, 30% at an agreed milestone, 30% before handover. Monthly retainers are billed in advance." },
+  { q: "What isn't included?", a: "Domains, hosting, cloud and API or AI usage, SMS and WhatsApp fees, ad spend, stock assets and travel beyond 25 km — unless the quote lists them. You pay these directly, in accounts you own, or we bill them at cost." },
+  { q: "Do discounts combine?", a: "No. A quote gets either the bundle discount or the social-media contract discount, whichever is higher, and discounts apply to our service fees only." },
   { q: "What if I need something not listed here?", a: "Just reach out. Many projects have elements we scope together. The configurator covers 95% of scenarios — the rest we handle in a call." },
   { q: "How long does a typical project take?", a: "A focused website or brand identity runs 3–6 weeks. Software projects range from 6 to 16 weeks. Timelines are set before work starts and we stick to them." },
-  { q: "What's included in the handoff?", a: "All source files, documentation, and a walkthrough call. Nothing is locked behind us — you own everything we build." },
+  { q: "What's included in the handoff?", a: "The agreed final deliverables, source files, documentation and a walkthrough call. Ownership passes to you once the project is paid in full; third-party software, fonts, stock assets and plugins stay under their own licences. Websites and software include a 30-day bug-fix warranty." },
   { q: "Do you work with clients outside India?", a: "Yes. We work with clients internationally. Pricing is INR-based, and international payments are handled via bank transfer or Wise." },
 ];
 
@@ -110,7 +121,7 @@ function calculateQuote(service: ServiceDef, selections: Selections, steps: Bund
   let subtotal = 0;
   let discountPct = 0;
 
-  for (const group of service.groups) {
+  for (const group of activeGroups(service, selections)) {
     if (group.isDiscount) {
       const sel = selections[group.id] as string;
       const opt = group.options.find(o => o.id === sel);
@@ -173,7 +184,7 @@ async function downloadQuotePDF(clientName: string, service: ServiceDef, quote: 
   ]);
 
   // ── Scope table rows ──
-  const scopeRows = service.groups
+  const scopeRows = activeGroups(service, selections)
     .filter(g => !g.isDiscount)
     .map(group => {
       let selectedOpts: Option[] = [];
@@ -257,7 +268,7 @@ async function downloadQuotePDF(clientName: string, service: ServiceDef, quote: 
         </div>
       </div>
       <div style="padding:12px 20px;background:#f4f4f4;border-top:1px solid #ddd;">
-        <span style="font-size:10.5px;font-weight:600;color:#555;">Payment: 50% to start · 50% on delivery &nbsp;·&nbsp; All prices in INR &nbsp;·&nbsp; No hidden charges</span>
+        <span style="font-size:10.5px;font-weight:600;color:#555;">Payment: 50% advance · 50% before delivery (larger projects in 3 milestones) &nbsp;·&nbsp; INR, excluding GST &nbsp;·&nbsp; Third-party costs billed separately</span>
       </div>
     </div>`;
 
@@ -552,7 +563,7 @@ function OptionCard({ option, selected, type, onToggle }: {
               <span className={`text-sm font-bold tabular-nums ${selected ? "text-[#C8F135]" : "text-foreground"}`}>
                 {option.price === 0
                   ? (option.isBase ? "" : <span className="text-xs font-normal text-muted-foreground">Included</span>)
-                  : `+₹${option.price.toLocaleString("en-IN")}`}
+                  : `${option.isBase ? "" : "+"}₹${option.price.toLocaleString("en-IN")}`}
               </span>
               {option.tag && (
                 <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm ${
@@ -722,7 +733,7 @@ export default function Pricing({ rates = null }: { rates?: PublicRates | null }
               </div>
 
               <div className="flex flex-col gap-10">
-                {service.groups.map(group => {
+                {activeGroups(service, selections).map(group => {
                   const currentRadio = selections[group.id] as string;
                   const currentCheckbox = (selections[group.id] as string[]) ?? [];
                   return (
