@@ -7,7 +7,7 @@ import { invoiceTotals, type BaseRecord } from "@/lib/hq/collections";
 import { formatINR } from "@/lib/utils";
 
 export type ReminderLevel = "overdue" | "today" | "soon";
-export type ReminderArea = "leads" | "followups" | "quotes" | "projects" | "production" | "shoots" | "coaching" | "vritta" | "invoices" | "tasks" | "papers" | "social" | "tools" | "incentives" | "people";
+export type ReminderArea = "leads" | "followups" | "quotes" | "projects" | "production" | "shoots" | "coaching" | "vritta" | "invoices" | "tasks" | "papers" | "social" | "tools" | "incentives" | "people" | "portal";
 
 export interface Reminder {
   key: string;
@@ -37,6 +37,7 @@ export const AREA_LABEL: Record<ReminderArea, string> = {
   tools: "Renewals",
   incentives: "Team incentives",
   people: "Team",
+  portal: "Client portal",
 };
 
 /** The collection each area is built from: someone who cannot read it does not get its reminders. */
@@ -58,6 +59,7 @@ export const AREA_SOURCE: Record<ReminderArea, string> = {
   incentives: "incentivePayouts",
   // internship end dates: founder and admin only, like payroll
   people: "payroll",
+  portal: "portalSubmissions",
 };
 
 export interface ReminderData {
@@ -78,6 +80,9 @@ export interface ReminderData {
   incentivePayouts?: BaseRecord[];
   incentivePolicies?: BaseRecord[];
   team?: BaseRecord[];
+  portalSubmissions?: BaseRecord[];
+  portalMessages?: BaseRecord[];
+  portalUpdates?: BaseRecord[];
 }
 
 const s = (v: unknown) => (v === undefined || v === null ? "" : String(v));
@@ -270,6 +275,27 @@ export function buildReminders(data: ReminderData, today: string, o: { signsOf?:
   if (payouts.length || (data.incentivePolicies ?? []).length) {
     const unreconciled = (data.invoices ?? []).flatMap((inv) => (Array.isArray(inv.payments) ? (inv.payments as BaseRecord[]) : []).filter((p) => !p.reconciled && !p.refunded && day(p.date) && day(p.date) <= addDaysIso(today, -3)));
     if (unreconciled.length) add({ key: "inc:recon", area: "incentives", level: "soon", title: `${unreconciled.length} client payment${unreconciled.length === 1 ? "" : "s"} to reconcile`, detail: "Unreconciled payments do not count toward team incentives", href: "/hq/finance?tab=invoices", date: today });
+  }
+
+  /* client portal: requirements to review, messages to answer, change requests on what was shared */
+  const projectTitle = (id: unknown) => s((data.projects ?? []).find((p) => p.id === s(id))?.title) || "a project";
+  for (const sub of data.portalSubmissions ?? []) {
+    if (s(sub.status) !== "submitted") continue;
+    const at = day(sub.submittedAt) || today;
+    add({ key: `psub:${sub.id}`, area: "portal", level: at < addDaysIso(today, -2) ? "overdue" : "today", title: `Review the client's requirements: ${projectTitle(sub.projectId)}`, detail: `Sent ${whenLabel(at, today)} from the client portal`, href: `/hq/projects/${s(sub.projectId)}?tab=portal`, date: at });
+  }
+  const unreadBy = new Map<string, BaseRecord[]>();
+  for (const m of data.portalMessages ?? []) if (m.from === "client" && m.readByTeam !== true) unreadBy.set(s(m.projectId), [...(unreadBy.get(s(m.projectId)) ?? []), m]);
+  for (const [pid, list] of unreadBy) {
+    const at = list.map((m) => day(m.createdAt)).sort()[0] || today;
+    add({ key: `pmsg:${pid}`, area: "portal", level: at < addDaysIso(today, -1) ? "overdue" : "today", title: `${list.length} client message${list.length === 1 ? "" : "s"}: ${projectTitle(pid)}`, detail: s(list[list.length - 1].text).slice(0, 90), href: `/hq/projects/${pid}?tab=portal`, date: at });
+  }
+  for (const u of data.portalUpdates ?? []) {
+    const a = (u.approval ?? {}) as { status?: string; at?: string; comment?: string };
+    if (a.status !== "changes") continue;
+    const later = (data.portalUpdates ?? []).some((x) => s(x.projectId) === s(u.projectId) && s(x.createdAt) > s(a.at));
+    if (later) continue;
+    add({ key: `pupd:${u.id}`, area: "portal", level: "today", title: `Client asked for changes: ${s(u.title)}`, detail: `${projectTitle(u.projectId)}${a.comment ? ` — “${s(a.comment).slice(0, 70)}”` : ""}`, href: `/hq/projects/${s(u.projectId)}?tab=portal`, date: day(a.at) || today });
   }
 
   /* internships are a fixed term: decide before each one ends */

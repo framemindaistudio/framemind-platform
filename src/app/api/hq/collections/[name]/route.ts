@@ -6,6 +6,7 @@ import { deleteRecord, getRecord, listRecords, upsertMany, upsertRecord } from "
 import { can, LEADERSHIP, OPS, STAFF } from "@/lib/hq/roles";
 import { storeInfo } from "@/lib/store";
 import { deleteProject, ProjectHasInvoices } from "@/lib/hq/project-delete";
+import { autoPortalOnPayment } from "@/lib/portal/invite";
 
 type Ctx = { params: Promise<{ name: string }> };
 
@@ -95,7 +96,10 @@ export async function POST(req: Request, ctx: Ctx) {
       return NextResponse.json({ records });
     }
     if (!body.record || typeof body.record !== "object") return NextResponse.json({ error: "Missing record" }, { status: 400 });
+    const before = name === "invoices" && body.record.id ? await getRecord(name, String(body.record.id)) : null;
     const record = await upsertRecord(name, await guarded(name, body.record, user.name), user.name);
+    // the first payment on a project's invoice opens the client's portal (when email is set up)
+    if (name === "invoices") await autoPortalOnPayment(before, record, user.name);
     return NextResponse.json({ record });
   } catch (e) {
     return apiError(e);

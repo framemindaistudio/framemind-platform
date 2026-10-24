@@ -46,7 +46,10 @@ export function TodayReminders({ index, today }: { index: string; today: string 
   const incentivePolicies = useCollection(readable(user, "incentivePolicies"));
   // the team list feeds internship end-date reminders, which only founders and admins get (they read payroll)
   const team = useCollection(can(user, getCollection("payroll")?.read ?? []) ? "team" : "__none_team");
-  const all = [leads, clients, proposals, projects, deliverables, shoots, coachingSessions, learners, vrittaLicences, invoices, tasks, signDocs, contentCalendar, subscriptions, incentivePayouts, incentivePolicies, team];
+  const portalSubmissions = useCollection(readable(user, "portalSubmissions"));
+  const portalMessages = useCollection(readable(user, "portalMessages"));
+  const portalUpdates = useCollection(readable(user, "portalUpdates"));
+  const all = [leads, clients, proposals, projects, deliverables, shoots, coachingSessions, learners, vrittaLicences, invoices, tasks, signDocs, contentCalendar, subscriptions, incentivePayouts, incentivePolicies, team, portalSubmissions, portalMessages, portalUpdates];
   const loading = all.some((c) => c.loading);
 
   // who signs which paper comes from the templates, loaded only for people who see papers
@@ -86,12 +89,15 @@ export function TodayReminders({ index, today }: { index: string; today: string 
         incentivePayouts: incentivePayouts.records,
         incentivePolicies: incentivePolicies.records,
         team: team.records,
+        portalSubmissions: portalSubmissions.records,
+        portalMessages: portalMessages.records,
+        portalUpdates: portalUpdates.records,
       },
       today,
       { signsOf },
     ).filter((r) => allowed(r.area));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the collections are listed one by one below
-  }, [today, loading, signsOf, seesPapers, user, leads.records, clients.records, proposals.records, projects.records, deliverables.records, shoots.records, coachingSessions.records, learners.records, vrittaLicences.records, invoices.records, tasks.records, signDocs.records, contentCalendar.records, subscriptions.records, incentivePayouts.records, incentivePolicies.records, team.records]);
+  }, [today, loading, signsOf, seesPapers, user, leads.records, clients.records, proposals.records, projects.records, deliverables.records, shoots.records, coachingSessions.records, learners.records, vrittaLicences.records, invoices.records, tasks.records, signDocs.records, contentCalendar.records, subscriptions.records, incentivePayouts.records, incentivePolicies.records, team.records, portalSubmissions.records, portalMessages.records, portalUpdates.records]);
 
   const counts = list ? countByLevel(list) : { overdue: 0, today: 0, soon: 0 };
   const areas = useMemo(() => (list ? [...new Set(list.map((r) => r.area))] : []), [list]);
