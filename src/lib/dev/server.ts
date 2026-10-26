@@ -157,7 +157,6 @@ export async function createTask(projectId: string, input: Record<string, unknow
   const key = taskKey(s(project.taskPrefix) || prefixFor(s(project.title)), n);
   const branch = branchName(type, key, title);
   await upsertRecord("projects", { ...project, devCounter: n }, user.name);
-  await createBranch(repo, branch);
   // the dev fields go straight onto the record here; the generic save keeps them away from everyone else
   const saved = await upsertRecord(
     "tasks",
@@ -182,8 +181,10 @@ export async function createTask(projectId: string, input: Record<string, unknow
     },
     user.name,
   );
-  if (assignee && s(assignee.githubUsername)) await addCollaborator(repo, s(assignee.githubUsername), "push").catch(() => {});
+  // Tasks.md on main lists the new task first, so the branch starts level with main (not a commit behind)
   await syncDocs(projectId, user.name).catch(() => {});
+  await createBranch(repo, branch);
+  if (assignee && s(assignee.githubUsername)) await addCollaborator(repo, s(assignee.githubUsername), "push").catch(() => {});
   return saved;
 }
 
@@ -281,6 +282,8 @@ export async function handleEvent(event: string, p: Payload) {
       const t = byBranch(s(p.ref));
       if (!t || p.deleted) return "ignored";
       const commits = Array.isArray(p.commits) ? p.commits : [];
+      // creating the branch is reported as a push with no commits: nothing has been worked on yet
+      if (!commits.length) return "ignored (no new commits)";
       const head = p.head_commit ?? commits[commits.length - 1];
       await upsertRecord("tasks", { ...t, status: "doing", commits: Number(t.commits ?? 0) + commits.length, lastCommit: head ? { sha: s(head.id), message: s(head.message).split("\n")[0].slice(0, 200), at: s(head.timestamp), author: s(head.author?.name) } : t.lastCommit, devStatus: statusAfter(s(t.devStatus) as DevStatus, { kind: "push" }) }, by);
       return "push recorded";
