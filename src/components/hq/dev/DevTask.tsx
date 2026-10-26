@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Drawer } from "@/components/ui/Overlay";
 import { Textarea } from "@/components/ui/form";
 import { api, useHq } from "@/components/hq/data";
-import { claudeReviewOf, DEV_STATUS_LABELS, mergeProblem, type DevStatus, type Review } from "@/lib/dev/rules";
+import { claudeReviewFor, DEV_STATUS_LABELS, mergeProblem, type ClaudeVerdict, type DevStatus, type Review } from "@/lib/dev/rules";
 import { formatDateTime } from "@/lib/utils";
 
 export type Rec = Record<string, unknown> & { id: string };
@@ -42,7 +42,7 @@ export function startCommand(task: Rec, repo: RepoInfo) {
 }
 
 /** One development task: start command, pull request, checks, reviews, and the merge gate. */
-export function DevTaskDrawer({ task, repo, team, onClose, onChanged }: { task: Rec; repo: RepoInfo | null; team: { id: string; name: string; codeReviewer: boolean }[]; onClose: () => void; onChanged: () => Promise<unknown> | void }) {
+export function DevTaskDrawer({ task, repo, team, requireClaude = false, onClose, onChanged }: { task: Rec; repo: RepoInfo | null; team: { id: string; name: string; codeReviewer: boolean }[]; requireClaude?: boolean; onClose: () => void; onChanged: () => Promise<unknown> | void }) {
   const { user } = useHq();
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState("");
@@ -57,7 +57,11 @@ export function DevTaskDrawer({ task, repo, team, onClose, onChanged }: { task: 
   const status = s(task.devStatus) as DevStatus;
   const open = !!pr?.number && s(pr.state) === "open" && pr.merged !== true;
   const canReview = open && (leader || me?.codeReviewer === true) && !mine;
-  const blocked = mergeProblem({ claudeReview: claudeReviewOf(checks?.items), actorRole: user.role, actorTeamId: me?.id, assigneeId: s(task.assigneeId), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks: (checks?.state ?? "none") as "success", reviews });
+  const verdicts = (Array.isArray(task.claudeVerdicts) ? task.claudeVerdicts : []) as ClaudeVerdict[];
+  const claude = claudeReviewFor(verdicts, s(pr?.headSha));
+  const lastVerdict = verdicts[verdicts.length - 1];
+  const build = task.aiBuild as { status?: string; runUrl?: string } | undefined;
+  const blocked = mergeProblem({ claudeReview: claude, requireClaude, actorRole: user.role, actorTeamId: me?.id, assigneeId: s(task.assigneeId), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks: (checks?.state ?? "none") as "success", reviews });
 
   const act = async (action: string, extra: Record<string, unknown>, ok: string) => {
     setBusy(action);
@@ -184,7 +188,39 @@ export function DevTaskDrawer({ task, repo, team, onClose, onChanged }: { task: 
               Preview deployment <ExternalLink className="size-3" />
             </a>
           )}
+          {pr?.number ? (
+            <p className="mt-2 text-xs">
+              <span className="font-semibold">Claude&apos;s review:</span>{" "}
+              {claude === "passed" ? <Badge tone="ok">Approved this commit</Badge> : claude === "changes" ? <Badge tone="bad">Asked for changes</Badge> : <Badge tone="outline">Not yet on this commit</Badge>}
+              {lastVerdict?.url && (
+                <a className="ml-2 underline" href={lastVerdict.url} target="_blank" rel="noreferrer">
+                  read it
+                </a>
+              )}
+            </p>
+          ) : null}
         </section>
+
+        {leader && !["merged", "closed"].includes(status) && (
+          <section className="flex flex-wrap items-center gap-3 rounded-[var(--radius-sm)] border border-graphite/10 p-3">
+            <Button size="sm" variant="secondary" disabled={!!busy || build?.status === "running"} onClick={() => void act("build", {}, "Claude started building this task on GitHub. HQ opens the pull request when it finishes.")}>
+              {build?.status === "running" ? "Claude is building…" : "Build with Claude"}
+            </Button>
+            {build?.status === "failed" && (
+              <Button size="sm" variant="ghost" disabled={!!busy} onClick={() => void act("retry", {}, "Cleared — Claude will try again.")}>
+                Retry
+              </Button>
+            )}
+            <span className="text-xs text-blueprint">
+              {build?.status === "failed" ? "Claude's last build run failed." : "Claude builds it on GitHub with your Max subscription — no laptop needed."}
+              {build?.runUrl && (
+                <a className="ml-1 underline" href={build.runUrl} target="_blank" rel="noreferrer">
+                  Run log
+                </a>
+              )}
+            </span>
+          </section>
+        )}
 
         <section>
           <p className="mb-1 text-xs font-semibold text-blueprint">Reviews</p>
@@ -225,7 +261,7 @@ export function DevTaskDrawer({ task, repo, team, onClose, onChanged }: { task: 
               <Button disabled={!!blocked || !!busy} onClick={() => void act("merge", {}, "Merged to main. The branch is deleted and the task is done.")}>
                 <GitMerge className="size-4" /> Merge to main
               </Button>
-              <span className={`text-xs ${blocked ? "text-warn" : "text-ok"}`}>{blocked ?? "Ready: approved on the latest commit, checks green, Claude has reviewed it."}</span>
+              <span className={`text-xs ${blocked ? "text-warn" : "text-ok"}`}>{blocked ?? (claude === "passed" ? "Ready: approved on the latest commit, checks green, Claude approved it too." : "Ready: approved on the latest commit, checks green.")}</span>
             </div>
             <p className="mt-2 text-[11px] text-blueprint">HQ re-checks GitHub at the moment you press it and merges only the exact commit that was approved.</p>
           </section>

@@ -54,14 +54,25 @@ export function keyFromBranch(branch: string): string | null {
 /** A safe GitHub repository name from a project title. */
 export const repoName = (title: string) => slug(title, 60) || "client-project";
 
-export type ClaudeReview = "passed" | "pending" | "failed" | "missing";
+export type ClaudeReview = "passed" | "changes" | "missing";
 
-/** Claude's review state from a commit's checks: the "Claude review" workflow run. */
-export function claudeReviewOf(items: { name: string; state: string }[] | undefined): ClaudeReview {
-  const run = (items ?? []).find((i) => /claude/i.test(i.name));
-  if (!run || run.state === "skipped") return "missing";
-  return run.state === "success" ? "passed" : run.state === "pending" ? "pending" : "failed";
+/** Claude's verdict on one commit, read from the verdict line of its PR review comment. */
+export interface ClaudeVerdict {
+  sha: string;
+  verdict: "approve" | "changes";
+  at: string;
+  url?: string;
 }
+
+/** Claude's review of the latest commit: the last verdict recorded for exactly that commit. */
+export function claudeReviewFor(verdicts: ClaudeVerdict[] | undefined, headSha: string): ClaudeReview {
+  const mine = (verdicts ?? []).filter((v) => headSha.startsWith(v.sha) || v.sha.startsWith(headSha));
+  const last = mine[mine.length - 1];
+  return !last ? "missing" : last.verdict === "approve" ? "passed" : "changes";
+}
+
+/** The developer seat Claude fills: tasks assigned to it are built by the Claude build workflow. */
+export const CLAUDE_ID = "claude";
 
 export interface Review {
   by: string;
@@ -73,8 +84,10 @@ export interface Review {
 }
 
 /**
- * Why a task cannot be merged yet, or null when it can. The approval must be on the exact commit being merged (a new
- * push needs a new review), from someone other than the person who wrote it, with every check green.
+ * Why a task cannot be merged yet, or null when it can. Normally: an approval on the exact commit being merged (a new
+ * push needs a new review) from someone other than the developer, every check green, and — when the project requires
+ * it — Claude's approval of that commit too. On autopilot (switched on by the founder per project) HQ itself merges
+ * Claude-built tasks once Claude's review approves the latest commit and the checks are green.
  */
 export function mergeProblem(o: {
   actorRole: string;
@@ -83,25 +96,30 @@ export function mergeProblem(o: {
   pr?: { state: string; merged: boolean; mergeable: boolean | null; headSha: string } | null;
   checks: "success" | "pending" | "failure" | "none";
   reviews: Review[];
-  /** Claude's PR review on the latest commit; when given, it must have passed */
   claudeReview?: ClaudeReview;
+  /** the project requires Claude's approval of the latest commit */
+  requireClaude?: boolean;
+  /** HQ merging on the founder's standing autopilot instruction */
+  autopilot?: boolean;
 }): string | null {
-  if (!["founder", "admin"].includes(o.actorRole)) return "Only the founder or an admin merges to main.";
+  if (!o.autopilot && !["founder", "admin"].includes(o.actorRole)) return "Only the founder or an admin merges to main.";
   if (!o.pr) return "Open the pull request first.";
   if (o.pr.merged) return "This pull request is already merged.";
   if (o.pr.state !== "open") return "This pull request is closed.";
-  if (o.actorTeamId && o.assigneeId && o.actorTeamId === o.assigneeId) return "Nobody merges their own work — another reviewer must.";
-  const onHead = o.reviews.filter((r) => r.sha === o.pr!.headSha);
-  const last = onHead[onHead.length - 1];
-  if (!last) return "It needs an approval on the latest commit (new commits since the last review need a fresh one).";
-  if (last.decision !== "approved") return "The latest review asked for changes.";
-  if (o.assigneeId && last.byTeamId === o.assigneeId) return "The approval must come from someone other than the developer.";
+  if (o.autopilot) {
+    if (o.claudeReview !== "passed") return o.claudeReview === "changes" ? "Claude asked for changes on the latest commit." : "Waiting for Claude's review of the latest commit.";
+  } else {
+    if (o.actorTeamId && o.assigneeId && o.actorTeamId === o.assigneeId) return "Nobody merges their own work — another reviewer must.";
+    const onHead = o.reviews.filter((r) => r.sha === o.pr!.headSha);
+    const last = onHead[onHead.length - 1];
+    if (!last) return "It needs an approval on the latest commit (new commits since the last review need a fresh one).";
+    if (last.decision !== "approved") return "The latest review asked for changes.";
+    if (o.assigneeId && last.byTeamId === o.assigneeId) return "The approval must come from someone other than the developer.";
+    if (o.requireClaude && o.claudeReview !== "passed") return o.claudeReview === "changes" ? "Claude asked for changes on the latest commit." : "This project requires Claude's review of the latest commit first.";
+  }
   if (o.checks === "failure") return "Some checks failed — fix them before merging.";
   if (o.checks === "pending") return "Checks are still running.";
   if (o.checks === "none") return "No checks have run on the latest commit yet.";
-  if (o.claudeReview === "pending") return "Claude is still reviewing the latest commit.";
-  if (o.claudeReview === "failed") return "Claude's review didn't complete — open it on GitHub (a missing ANTHROPIC_API_KEY secret shows there).";
-  if (o.claudeReview === "missing") return "Claude hasn't reviewed the latest commit. Add ANTHROPIC_API_KEY as an organization Actions secret, then push or re-run the workflow.";
   if (o.pr.mergeable === false) return "GitHub reports a conflict with main — update the branch first.";
   return null;
 }

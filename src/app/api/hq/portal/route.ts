@@ -1,4 +1,4 @@
-import { after, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
 import { getRecord, listRecords } from "@/lib/hq/records";
@@ -7,10 +7,11 @@ import { mailReady } from "@/lib/hq/mail";
 import { grantPortalAccess, publicAccount, readPortalAccounts, updatePortalAccounts } from "@/lib/portal/auth";
 import { decideSubmission, hqPortalView, markRead, PORTAL_URL, PortalError, publishUpdate, teamMessage } from "@/lib/portal/data";
 import { emailInvite } from "@/lib/portal/invite";
-import { autoBuild, buildReady, saveFounderBrief } from "@/lib/dev/server";
+import { saveFounderBrief, startPlan } from "@/lib/dev/server";
+import { devReady } from "@/lib/dev/github";
 
-/** Approving requirements can start the automatic build (Claude drafting + GitHub), which runs after the response. */
-export const maxDuration = 300;
+/** Approving requirements can set up the repository and start Claude's plan on GitHub. */
+export const maxDuration = 120;
 
 /**
  * HQ → a project's client portal.
@@ -78,13 +79,11 @@ export async function POST(req: Request) {
       case "decide": {
         const approved = body.decision === "approved";
         await decideSubmission(projectId, approved ? "approved" : "changes", String(body.note ?? ""), user.name);
-        // approved with the founder's summary: Claude drafts the docs and tasks, HQ builds the repo and branches
-        const build = approved && body.build === true && buildReady();
-        if (build) {
-          await saveFounderBrief(projectId, String(body.brief ?? ""), user.name);
-          after(() => autoBuild(projectId, user.name));
-        }
-        return NextResponse.json({ ok: true, building: build, buildReady: buildReady() });
+        // approved with the founder's summary: HQ sets up the repo and Claude starts planning on GitHub
+        const build = approved && body.build === true && devReady() && !!String(body.brief ?? "").trim();
+        if (approved && String(body.brief ?? "").trim()) await saveFounderBrief(projectId, String(body.brief), user.name);
+        if (build) await startPlan(projectId, user.name);
+        return NextResponse.json({ ok: true, building: build });
       }
       case "publish":
         await publishUpdate(projectId, { title: String(body.title ?? ""), body: String(body.body ?? ""), previewUrl: String(body.previewUrl ?? ""), needsApproval: body.needsApproval === true }, user.name);

@@ -234,10 +234,10 @@ function SubmissionPanel({ sub, canWrite, run }: { sub: Rec | null; canWrite: bo
           <Field label="What to build — your summary" help="Claude plans from this and the client's submission. Scope decisions, priorities, tech preferences, anything the client didn't say.">
             <Textarea rows={5} value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="e.g. 8-page website in Next.js: Home, About, Programmes, Events (admin can add), Gallery, Donate (Razorpay link only), Contact. Kannada + English later, not now. Launch before 20 Nov." />
           </Field>
-          <Checkbox label="Then let Claude write the docs and tasks, assign them, and set up GitHub automatically" checked={build} onChange={(e) => setBuild(e.target.checked)} />
+          <Checkbox label="Then set up GitHub and let Claude plan the project from this summary" checked={build} onChange={(e) => setBuild(e.target.checked)} />
           <Textarea rows={2} placeholder="Note to the client (needed to send it back)" value={note} onChange={(e) => setNote(e.target.value)} />
           <div className="flex gap-2">
-            <Button size="sm" onClick={() => void run({ action: "decide", decision: "approved", note, brief, build }, build ? "Approved. Claude is now writing the docs and tasks — follow it in the Development tab." : "Approved — it's now the project brief, and the project moved to Design.")}>
+            <Button size="sm" onClick={() => void run({ action: "decide", decision: "approved", note, brief, build }, build ? "Approved. Claude is now planning on GitHub — review its plan in the Development tab." : "Approved — it's now the project brief, and the project moved to Design.")}>
               {build ? "Approve & build with Claude" : "Approve"}
             </Button>
             <Button size="sm" variant="secondary" disabled={!note.trim()} onClick={() => void run({ action: "decide", decision: "changes", note }, "Sent back to the client.")}>

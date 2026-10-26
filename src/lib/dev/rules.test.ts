@@ -1,7 +1,8 @@
 /** Tests for the development workflow rules. Run: npm test */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { branchName, claudeReviewOf, keyFromBranch, mergeProblem, prefixFor, reviewProblem, statusAfter, taskKey } from "./rules.ts";
+import { branchName, claudeReviewFor, keyFromBranch, mergeProblem, prefixFor, reviewProblem, statusAfter, taskKey } from "./rules.ts";
+import { parseReviewMark } from "./workflows.ts";
 
 test("task keys, prefixes and branch names", () => {
   assert.equal(taskKey("fm", 104), "FM-104");
@@ -48,13 +49,27 @@ test("status follows GitHub", () => {
   assert.equal(statusAfter("merged", { kind: "pr-closed" }), "merged");
 });
 
-test("Claude must have reviewed the latest commit before merging", () => {
+test("Claude's review: optional by default, required when the project says so, enough on autopilot", () => {
   const base = { actorRole: "founder", assigneeId: "dev", pr, checks: "success" as const, reviews: [approved] };
-  assert.equal(mergeProblem({ ...base, claudeReview: "passed" }), null);
-  assert.match(mergeProblem({ ...base, claudeReview: "missing" }) ?? "", /ANTHROPIC_API_KEY/);
-  assert.match(mergeProblem({ ...base, claudeReview: "pending" }) ?? "", /still reviewing/);
-  assert.match(mergeProblem({ ...base, claudeReview: "failed" }) ?? "", /didn't complete/);
-  assert.equal(claudeReviewOf([{ name: "CI", state: "success" }, { name: "Claude review", state: "success" }]), "passed");
-  assert.equal(claudeReviewOf([{ name: "Claude review", state: "skipped" }]), "missing");
-  assert.equal(claudeReviewOf([{ name: "CI", state: "success" }]), "missing");
+  assert.equal(mergeProblem({ ...base, claudeReview: "missing" }), null, "not required unless the project asks");
+  assert.match(mergeProblem({ ...base, claudeReview: "missing", requireClaude: true }) ?? "", /requires Claude/);
+  assert.match(mergeProblem({ ...base, claudeReview: "changes", requireClaude: true }) ?? "", /asked for changes/);
+  assert.equal(mergeProblem({ ...base, claudeReview: "passed", requireClaude: true }), null);
+  // autopilot: no human review needed, Claude's approval on the head commit + green checks is
+  const auto = { actorRole: "system", assigneeId: "claude", pr, checks: "success" as const, reviews: [], autopilot: true };
+  assert.equal(mergeProblem({ ...auto, claudeReview: "passed" }), null);
+  assert.match(mergeProblem({ ...auto, claudeReview: "missing" }) ?? "", /Waiting for Claude/);
+  assert.match(mergeProblem({ ...auto, claudeReview: "passed", checks: "pending" }) ?? "", /running/);
+  assert.match(mergeProblem({ ...base, actorRole: "system", claudeReview: "passed" }) ?? "", /founder or an admin/, "outside autopilot the system can't merge");
+  // the verdict counts only for the exact commit
+  const v = [{ sha: "abc1234", verdict: "approve" as const, at: "t" }];
+  assert.equal(claudeReviewFor(v, "abc1234def"), "passed");
+  assert.equal(claudeReviewFor(v, "fff0000"), "missing");
+  assert.equal(claudeReviewFor([...v, { sha: "abc1234", verdict: "changes" as const, at: "t2" }], "abc1234"), "changes");
+});
+
+test("Claude's verdict line is read from its review comment", () => {
+  assert.deepEqual(parseReviewMark("Looks good.\n<!-- hq-claude-review sha=0123456789abcdef verdict=approve -->"), { sha: "0123456789abcdef", verdict: "approve" });
+  assert.equal(parseReviewMark("<!-- hq-claude-review sha=HEAD_SHA verdict=approve -->"), null, "the placeholder itself is not a verdict");
+  assert.equal(parseReviewMark("no verdict here"), null);
 });

@@ -5,7 +5,7 @@ import "server-only";
  * data repository. Configured in Vercel:
  *   GITHUB_DEV_TOKEN    a fine-grained token (or classic token) of the founder's account with access to the
  *                       organization's repositories: Administration, Contents, Pull requests, Webhooks, Workflows
- *                       (read and write); Actions, Commit statuses (read)
+ *                       (read and write); Actions (read and write, to start Claude's workflows); Commit statuses (read)
  *   GITHUB_DEV_OWNER    the GitHub organization the client repositories live in (e.g. framemind-studio)
  *   GITHUB_WEBHOOK_SECRET  a long random value; HQ signs up each repository's webhook with it and checks every event
  */
@@ -176,6 +176,22 @@ export async function mergePullRequest(repo: Repo, n: number, sha: string, title
   return { sha: r.sha };
 }
 
+/** The text of a file on a branch, or null when it doesn't exist. */
+export async function getFileText(repo: Repo, path: string, branch: string): Promise<string | null> {
+  const r = await gh<{ content: string }>(`/repos/${enc(repo.owner)}/${enc(repo.name)}/contents/${enc(path)}?ref=${encodeURIComponent(branch)}`, {}, true);
+  return r ? Buffer.from(r.content, "base64").toString("utf8") : null;
+}
+
+/** Merge one branch into another directly (used for the approved plan branch). */
+export async function mergeBranch(repo: Repo, head: string, message: string) {
+  await gh(`/repos/${enc(repo.owner)}/${enc(repo.name)}/merges`, { method: "POST", body: JSON.stringify({ base: repo.defaultBranch, head, commit_message: message }) });
+}
+
+/** Start a workflow (needs the token's "Actions: Read and write"). */
+export async function dispatchWorkflow(repo: Repo, file: string, inputs: Record<string, string>, ref = repo.defaultBranch) {
+  await gh(`/repos/${enc(repo.owner)}/${enc(repo.name)}/actions/workflows/${enc(file)}/dispatches`, { method: "POST", body: JSON.stringify({ ref, inputs }) });
+}
+
 /* ───────────────────────────── webhooks & people ───────────────────────────── */
 
 export async function ensureWebhook(repo: Repo, url: string) {
@@ -183,7 +199,7 @@ export async function ensureWebhook(repo: Repo, url: string) {
   if (!secret) throw new GitHubError("GITHUB_WEBHOOK_SECRET isn't set, so GitHub can't be connected to HQ securely.", 503);
   const hooks = (await gh<{ id: number; config: { url?: string } }[]>(`/repos/${enc(repo.owner)}/${enc(repo.name)}/hooks`)) ?? [];
   const config = { url, content_type: "json", secret, insecure_ssl: "0" };
-  const events = ["push", "pull_request", "pull_request_review", "workflow_run", "status", "deployment_status"];
+  const events = ["push", "pull_request", "pull_request_review", "issue_comment", "workflow_run", "status", "deployment_status"];
   const found = hooks.find((h) => h.config.url === url);
   if (found) await gh(`/repos/${enc(repo.owner)}/${enc(repo.name)}/hooks/${found.id}`, { method: "PATCH", body: JSON.stringify({ config, events, active: true }) });
   else await gh(`/repos/${enc(repo.owner)}/${enc(repo.name)}/hooks`, { method: "POST", body: JSON.stringify({ name: "web", config, events, active: true }) });

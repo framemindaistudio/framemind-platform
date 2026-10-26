@@ -1,10 +1,11 @@
-import { after, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
 import { OPS, STAFF } from "@/lib/hq/roles";
-import { autoBuild, buildReady, createTask, devQueue, devView, DevError, GitHubError, mergeTask, openPR, refreshTask, reviewTask, saveFounderBrief, setupRepo, syncDocs } from "@/lib/dev/server";
+import { approvePlan, autopilotTick, buildTask, createTask, devQueue, devView, DevError, GitHubError, mergeTask, openPR, refreshTask, reviewTask, saveAutopilot, saveFounderBrief, setupRepo, startPlan, syncDocs } from "@/lib/dev/server";
+import { getRecord, upsertRecord } from "@/lib/hq/records";
 
-/** The automatic build (Claude drafting + GitHub) runs after the response, within this limit. */
+/** Approving a plan creates every task and its branch on GitHub, which can take a while for a big plan. */
 export const maxDuration = 300;
 
 /**
@@ -33,11 +34,29 @@ export async function POST(req: Request) {
     const project = String(b.project ?? "");
     const task = String(b.task ?? "");
     switch (b.action) {
-      case "auto":
-        if (!buildReady()) throw new DevError("Connect GitHub and Claude first (GITHUB_DEV_TOKEN, GITHUB_DEV_OWNER and ANTHROPIC_API_KEY in Vercel).", 503);
+      case "brief": {
         await saveFounderBrief(project, String(b.brief ?? ""), user.name);
-        after(() => autoBuild(project, user.name));
-        return NextResponse.json({ ok: true, started: true });
+        const p = await getRecord("projects", project);
+        if (p?.repo) await syncDocs(project, user.name);
+        return NextResponse.json({ ok: true });
+      }
+      case "plan":
+        if (b.brief !== undefined) await saveFounderBrief(project, String(b.brief), user.name);
+        await startPlan(project, user.name);
+        return NextResponse.json({ ok: true });
+      case "approvePlan":
+        return NextResponse.json({ created: await approvePlan(project, user.name) });
+      case "autopilot":
+        return NextResponse.json({ autopilot: await saveAutopilot(project, (b.settings as Record<string, boolean>) ?? {}, user.name) });
+      case "build":
+        return NextResponse.json({ task: await buildTask(task, user.name) });
+      case "retry": {
+        // clear a failed Claude build so the autopilot (or a manual build) can try again
+        const t = await getRecord("tasks", task);
+        if (t) await upsertRecord("tasks", { ...t, aiBuild: { ...((t.aiBuild as Record<string, unknown> | undefined) ?? {}), status: "retry", rounds: 0 } }, user.name);
+        if (t?.projectId) await autopilotTick(String(t.projectId));
+        return NextResponse.json({ ok: true });
+      }
       case "setup":
         return NextResponse.json(await setupRepo(project, user.name));
       case "docs":

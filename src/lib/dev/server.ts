@@ -15,7 +15,10 @@ import {
   devOwner,
   devReady,
   ensureWebhook,
+  dispatchWorkflow,
+  getFileText,
   getPullRequest,
+  mergeBranch,
   getRepo,
   GitHubError,
   mergePullRequest,
@@ -25,9 +28,9 @@ import {
   type PullRequest,
   type Repo,
 } from "./github";
-import { repoFiles, TEMPLATE_MARK } from "./docs";
-import { aiReady, draftDocs, type AiDocs } from "./ai";
-import { branchName, claudeReviewOf, keyFromBranch, mergeProblem, prefixFor, repoName, reviewProblem, statusAfter, taskKey, type DevStatus, type DevType, type Review } from "./rules";
+import { repoFiles } from "./docs";
+import { parseReviewMark, TASKS_JSON } from "./workflows";
+import { branchName, CLAUDE_ID, claudeReviewFor, keyFromBranch, mergeProblem, type ClaudeVerdict, prefixFor, repoName, reviewProblem, statusAfter, taskKey, type DevStatus, type DevType, type Review } from "./rules";
 
 /*
  * HQ's development workflow: one repository per client project in the GitHub organization, one branch per task,
@@ -36,6 +39,7 @@ import { branchName, claudeReviewOf, keyFromBranch, mergeProblem, prefixFor, rep
  */
 
 type Rec = BaseRecord;
+type Obj = Record<string, unknown>;
 const s = (v: unknown) => (v === undefined || v === null ? "" : String(v)).trim();
 const now = () => new Date().toISOString();
 
@@ -64,15 +68,14 @@ async function memberOf(user: SessionUser) {
 export async function devView(projectId: string) {
   const [project, tasks, team] = await Promise.all([getRecord("projects", projectId), listRecords("tasks"), listRecords("team")]);
   if (!project) throw new DevError("Project not found.", 404);
-  const ai = project.aiDocs as AiDocs | undefined;
   return {
     ready: devReady(),
-    aiReady: aiReady(),
     owner: devOwner(),
     webhookReady: !!webhookSecret(),
     founderBrief: s(project.founderBrief),
     aiRun: (project.aiRun as Rec | undefined) ?? null,
-    aiDraftedAt: ai?.at ?? "",
+    plan: (project.plan as Rec | undefined) ?? null,
+    autopilot: autopilotOf(project),
     repo: repoOf(project),
     prefix: s(project.taskPrefix) || prefixFor(s(project.title)),
     tasks: tasks.filter((t) => t.projectId === projectId && s(t.taskKey)).sort((a, b) => Number(s(b.taskKey).split("-").pop()) - Number(s(a.taskKey).split("-").pop())),
@@ -106,7 +109,6 @@ async function docInput(project: Rec) {
     tasks: tasks.filter((t) => t.projectId === project.id && s(t.taskKey)),
     team,
     repoUrl: repoOf(project)?.url ?? "",
-    ai: (project.aiDocs as AiDocs | undefined)?.files ?? null,
   };
 }
 
@@ -118,10 +120,11 @@ export async function syncDocs(projectId: string, by: string) {
   const input = await docInput(project);
   let changed = 0;
   for (const f of repoFiles(input)) {
-    const r = await putFile(repo, f.path, f.content, `${f.owned ? "Update" : f.replaceTemplate ? "Claude draft of" : "Add"} ${f.path} (FrameMind HQ)`, repo.defaultBranch, !f.owned, f.replaceTemplate ? (cur) => cur.includes(TEMPLATE_MARK) : f.replaceMark ? (cur) => cur.includes(f.replaceMark!) : undefined);
+    const r = await putFile(repo, f.path, f.content, `${f.owned ? "Update" : "Add"} ${f.path} (FrameMind HQ)`, repo.defaultBranch, !f.owned);
     if (r.changed) changed++;
   }
-  await upsertRecord("projects", { ...project, devDocsAt: now() }, by);
+  await upsertRecord("projects", { ...(await getRecord("projects", projectId))!, devDocsAt: now() }, by);
+  await ensureWebhook(repo, WEBHOOK_URL()).catch(() => {});
   return changed;
 }
 
@@ -146,104 +149,148 @@ export async function setupRepo(projectId: string, by: string) {
   return { repo, files, webhook };
 }
 
-/* ───────────────────────────── the automatic build ───────────────────────────── */
+/* ───────────────────────────── Claude on GitHub: plan, build, review, autopilot ───────────────────────────── */
 
-/** Save the founder's "what to build" summary on the project (the input Claude plans from). */
+export interface Autopilot {
+  /** Claude builds the project's tasks one after another */
+  enabled: boolean;
+  /** HQ merges a task when Claude's review approves the latest commit and the checks are green */
+  autoMerge: boolean;
+  /** the founder approves Claude's plan before any task is created (recommended) */
+  approvePlan: boolean;
+  /** merges by people also need Claude's approval of the latest commit */
+  requireClaude: boolean;
+}
+export const DEFAULT_AUTOPILOT: Autopilot = { enabled: false, autoMerge: false, approvePlan: true, requireClaude: false };
+export const autopilotOf = (p: Rec | null | undefined): Autopilot => ({ ...DEFAULT_AUTOPILOT, ...((p?.autopilot as Partial<Autopilot> | undefined) ?? {}) });
+
+/** HQ acting on the founder's standing instructions (autopilot): named in every history entry it makes. */
+const SYSTEM: SessionUser = { username: "claude-autopilot", name: "Claude (autopilot)", role: "admin" };
+
+/** Where Claude has got to on this project, for every screen to show. */
+async function status(projectId: string, by: string, patch: Record<string, unknown>) {
+  const p = await getRecord("projects", projectId);
+  if (p) await upsertRecord("projects", { ...p, aiRun: { ...((p.aiRun as Obj | undefined) ?? ({} as Obj)), ...patch, at: now() } }, by);
+}
+
 export async function saveFounderBrief(projectId: string, brief: string, by: string) {
   const p = await getRecord("projects", projectId);
   if (!p) throw new DevError("Project not found.", 404);
-  await upsertRecord("projects", { ...p, founderBrief: brief.trim().slice(0, 8000), aiRun: { status: "queued", step: "Starting…", error: "", at: now() } }, by);
+  await upsertRecord("projects", { ...p, founderBrief: brief.trim().slice(0, 8000) }, by);
 }
 
-export const buildReady = () => devReady() && aiReady();
-
-/** Where the automatic build has got to, kept on the project so every screen can show it. */
-async function runStep(projectId: string, by: string, patch: Record<string, unknown>) {
+export async function saveAutopilot(projectId: string, input: Partial<Autopilot>, by: string) {
   const p = await getRecord("projects", projectId);
-  if (p) await upsertRecord("projects", { ...p, aiRun: { ...((p.aiRun as Rec | undefined) ?? {}), ...patch, at: now() } }, by);
+  if (!p) throw new DevError("Project not found.", 404);
+  const next: Autopilot = { ...autopilotOf(p), ...Object.fromEntries(Object.entries(input).filter(([k, v]) => k in DEFAULT_AUTOPILOT && typeof v === "boolean")) };
+  await upsertRecord("projects", { ...p, autopilot: next }, by);
+  if (next.enabled) await autopilotTick(projectId).catch((e) => console.error("[autopilot]", e));
+  return next;
 }
 
 /**
- * From the client's approved requirements and the founder's summary: make sure the repository exists, have Claude
- * draft the four documents and the task plan (each task assigned), write the docs, then create every task with its
- * branch. Safe to run again: docs the team has edited are never overwritten, and a plan's tasks are created once.
+ * Plan with Claude: write the founder summary and the client's requirements into the repository, then start the
+ * Claude plan workflow on a fresh plan/ branch. GitHub tells HQ when it finishes (workflow_run).
  */
-export async function autoBuild(projectId: string, by: string) {
-  try {
-    if (!devReady()) throw new DevError("GitHub isn't connected (GITHUB_DEV_TOKEN / GITHUB_DEV_OWNER in Vercel).");
-    if (!aiReady()) throw new DevError("Claude isn't connected (ANTHROPIC_API_KEY in Vercel).");
-    await runStep(projectId, by, { status: "running", step: "Setting up the repository", error: "" });
-    await setupRepo(projectId, by);
-
-    await runStep(projectId, by, { step: "Claude is drafting the documents and the task plan" });
-    const project = (await getRecord("projects", projectId))!;
-    const [subs, team, tasks] = await Promise.all([listRecords("portalSubmissions"), listRecords("team"), listRecords("tasks")]);
-    const sub = subs.find((x) => s(x.projectId) === projectId && s(x.status) === "approved");
-    const open = (id: string) => tasks.filter((t) => s(t.assigneeId) === id && s(t.taskKey) && !["merged", "closed"].includes(s(t.devStatus))).length;
-    const ai = await draftDocs({
-      title: s(project.title),
-      services: Array.isArray(project.services) && (project.services as string[]).length ? (project.services as string[]) : [s(project.service)].filter(Boolean),
-      dueDate: s(project.dueDate),
-      founderBrief: s(project.founderBrief),
-      client: sub
-        ? { Company: s(sub.company), "About the client": s(sub.about), Audience: s(sub.audience), Requirements: s(sub.requirements), "Pages / sections": s(sub.pages), Fonts: s(sub.fonts), "Reference links": s(sub.referenceLinks), "Current website": s(sub.website) }
-        : { "Project brief": s(project.brief) },
-      colors: sub && Array.isArray(sub.colors) ? (sub.colors as string[]) : [],
-      team: team.filter((m) => s(m.status) !== "inactive").map((m) => ({ id: m.id, name: s(m.name), role: s(m.role), skills: Array.isArray(m.skills) ? (m.skills as string[]) : [], openTasks: open(m.id) })),
-    });
-    await upsertRecord("projects", { ...(await getRecord("projects", projectId))!, aiDocs: ai }, by);
-
-    await runStep(projectId, by, { step: "Writing the documents to GitHub" });
-    await syncDocs(projectId, by);
-
-    await runStep(projectId, by, { step: `Creating ${ai.tasks.length} tasks and their branches` });
-    const created = await createPlannedTasks(projectId, ai, by);
-    await runStep(projectId, by, { status: "done", step: `Done — ${created} tasks created and assigned`, error: "" });
-  } catch (e) {
-    console.error("[autoBuild]", e);
-    await runStep(projectId, by, { status: "failed", error: e instanceof Error ? e.message : "Something went wrong." }).catch(() => {});
-  }
+export async function startPlan(projectId: string, by: string) {
+  if (!devReady()) throw new DevError("Connect GitHub first (GITHUB_DEV_TOKEN and GITHUB_DEV_OWNER in Vercel).", 503);
+  const project = await getRecord("projects", projectId);
+  if (!project) throw new DevError("Project not found.", 404);
+  if (!s(project.founderBrief)) throw new DevError("Write the founder summary first — Claude plans from it.");
+  await setupRepo(projectId, by);
+  const repo = repoOf(await getRecord("projects", projectId))!;
+  const branch = `plan/${now().slice(0, 16).replace(/[-:T]/g, "")}`;
+  await dispatchWorkflow(repo, "claude-plan.yml", { branch });
+  const p = (await getRecord("projects", projectId))!;
+  await upsertRecord("projects", { ...p, plan: { branch, status: "running", at: now(), by } }, by);
+  await status(projectId, by, { status: "running", step: "Claude is writing the plan and the documents on GitHub", error: "" });
 }
 
-/** Create Claude's planned tasks (once per plan), then update Tasks.md once, then make the branches from that main. */
-async function createPlannedTasks(projectId: string, ai: AiDocs, by: string) {
-  let project = (await getRecord("projects", projectId))!;
-  if (s(project.aiTasksFrom) === ai.at) return 0;
+/** Claude's plan run finished: read its task list from the plan branch. */
+async function planFinished(project: Rec, run: Rec) {
+  const plan = (project.plan as Obj | undefined) ?? ({} as Obj);
+  if (s(run.head_branch) !== s(plan.branch)) return "not the current plan";
   const repo = repoOf(project)!;
-  const team = await listRecords("team");
+  if (s(run.conclusion) !== "success") {
+    await upsertRecord("projects", { ...project, plan: { ...plan, status: "failed", runUrl: s(run.html_url) } }, "GitHub");
+    await status(project.id, "GitHub", { status: "failed", error: `Claude's plan run failed — open it on GitHub to see why (a missing CLAUDE_CODE_OAUTH_TOKEN shows there): ${s(run.html_url)}` });
+    return "plan failed";
+  }
+  let tasks: Rec[] = [];
+  try {
+    const parsed = JSON.parse((await getFileText(repo, TASKS_JSON, s(plan.branch))) ?? "{}") as { tasks?: Rec[] };
+    tasks = (Array.isArray(parsed.tasks) ? parsed.tasks : []).filter((t) => s(t.title)).slice(0, 30);
+  } catch {
+    tasks = [];
+  }
+  await upsertRecord("projects", { ...project, plan: { ...plan, status: "ready", tasks, runUrl: s(run.html_url), readyAt: now() } }, "GitHub");
+  await status(project.id, "GitHub", { status: "done", step: tasks.length ? `Plan ready: ${tasks.length} tasks — review it and approve` : "Plan ready, but Claude wrote no task list — check docs/tasks.json on the plan branch", error: "" });
+  if (tasks.length && autopilotOf(project).enabled && !autopilotOf(project).approvePlan) await approvePlan(project.id, "Claude (autopilot)");
+  return "plan ready";
+}
+
+/** Who a planned task goes to: Claude on autopilot; otherwise the least-busy team member whose role fits. */
+function assigneeFor(role: string, team: Rec[], open: (id: string) => number, autopilot: boolean) {
+  if (autopilot) return { id: CLAUDE_ID, name: "Claude (AI developer)" };
+  const want = role.toLowerCase();
+  const fits = (m: Rec) => {
+    const r = `${s(m.role)} ${Array.isArray(m.skills) ? (m.skills as string[]).join(" ") : ""}`.toLowerCase();
+    if (/design/.test(want)) return /design|ui|ux/.test(r);
+    if (/qa|test/.test(want)) return /qa|test/.test(r);
+    if (/devops|infra/.test(want)) return /devops|infra|lead/.test(r);
+    return /develop|engineer|full.?stack|front|back|tech lead/.test(r);
+  };
+  const pick = team.filter((m) => s(m.status) !== "inactive" && fits(m)).sort((a, b) => open(a.id) - open(b.id))[0];
+  return pick ? { id: pick.id, name: s(pick.name) } : null;
+}
+
+/** The founder approves Claude's plan: merge the plan branch, create the tasks with branches, start the autopilot. */
+export async function approvePlan(projectId: string, by: string) {
+  const project = await getRecord("projects", projectId);
+  const repo = repoOf(project);
+  const plan = (project?.plan as Obj | undefined) ?? ({} as Obj);
+  if (!project || !repo) throw new DevError("Project not found.", 404);
+  if (s(plan.status) !== "ready") throw new DevError("There's no plan waiting for approval.");
+  await mergeBranch(repo, s(plan.branch), "Project plan by Claude (approved in FrameMind HQ)");
+  await deleteBranch(repo, s(plan.branch)).catch(() => {});
+  const [team, all] = await Promise.all([listRecords("team"), listRecords("tasks")]);
+  const open = (id: string) => all.filter((t) => s(t.assigneeId) === id && s(t.taskKey) && !["merged", "closed"].includes(s(t.devStatus))).length;
+  const pilot = autopilotOf(project).enabled;
   const prefix = s(project.taskPrefix) || prefixFor(s(project.title));
   let n = Number(project.devCounter ?? 100);
   const made: Rec[] = [];
-  for (const t of ai.tasks) {
+  for (const t of (plan.tasks as Rec[]) ?? []) {
     n += 1;
     const key = taskKey(prefix, n);
-    const assignee = team.find((m) => m.id === t.assigneeId);
+    const type = (["feature", "fix"].includes(s(t.type)) ? s(t.type) : "feature") as DevType;
+    const who = assigneeFor(s(t.role), team, open, pilot);
     made.push(
       await upsertRecord(
         "tasks",
         {
-          title: `${key}: ${t.title}`,
+          title: `${key}: ${s(t.title).slice(0, 140)}`,
           status: "todo",
-          priority: t.priority,
+          priority: ["low", "medium", "high"].includes(s(t.priority)) ? s(t.priority) : "medium",
           area: "Development",
           projectId,
-          assignee: s(assignee?.name),
-          description: t.description,
-          acceptance: t.acceptance.join("\n"),
+          assignee: who?.name ?? "",
+          description: s(t.description).slice(0, 4000),
+          acceptance: (Array.isArray(t.acceptance) ? (t.acceptance as unknown[]).map(s) : []).join("\n"),
           taskKey: key,
-          devType: t.type,
-          branch: branchName(t.type, key, t.title),
+          devType: type,
+          branch: branchName(type, key, s(t.title)),
           devStatus: "todo",
-          assigneeId: assignee?.id ?? "",
+          assigneeId: who?.id ?? "",
+          role: s(t.role),
           commits: 0,
-          devHistory: [ev("Claude", "Planned and assigned", t.reason)],
+          devHistory: [ev(by, "Created from Claude's plan", who ? `assigned to ${who.name}` : "no team member fits — assign by hand")],
         },
         by,
       ),
     );
   }
-  project = (await getRecord("projects", projectId))!;
-  await upsertRecord("projects", { ...project, devCounter: n, aiTasksFrom: ai.at }, by);
+  const fresh = (await getRecord("projects", projectId))!;
+  await upsertRecord("projects", { ...fresh, devCounter: n, plan: { ...plan, status: "approved", approvedBy: by, approvedAt: now() } }, by);
   await syncDocs(projectId, by).catch(() => {});
   for (const t of made) await createBranch(repo, s(t.branch));
   const invited = new Set<string>();
@@ -254,7 +301,105 @@ async function createPlannedTasks(projectId: string, ai: AiDocs, by: string) {
       await addCollaborator(repo, login, "push").catch(() => {});
     }
   }
+  await status(projectId, by, { status: "done", step: `Plan approved — ${made.length} tasks created${pilot ? ", Claude is starting the first one" : ""}`, error: "" });
+  if (pilot) await autopilotTick(projectId).catch((e) => console.error("[autopilot]", e));
   return made.length;
+}
+
+/** Start Claude building one task on GitHub (manually, or by the autopilot). */
+export async function buildTask(taskId: string, by: string, instructions = "") {
+  const { task, repo } = await taskAndRepo(taskId);
+  if (!(await branchSha(repo, s(task.branch)))) await createBranch(repo, s(task.branch));
+  await dispatchWorkflow(repo, "claude-build.yml", { task: s(task.taskKey), branch: s(task.branch), instructions: instructions.slice(0, 2000) });
+  const rounds = Number((task.aiBuild as Rec | undefined)?.rounds ?? 0) + (instructions ? 1 : 0);
+  return upsertRecord("tasks", { ...task, status: "doing", devStatus: s(task.devStatus) === "todo" ? "in-progress" : s(task.devStatus), aiBuild: { status: "running", at: now(), rounds }, devHistory: [...hist(task), ev(by, instructions ? "Claude is addressing the review" : "Claude started building")] }, by);
+}
+
+/** A Claude build run finished: open (or refresh) the pull request; reviews and CI start from there. */
+async function buildFinished(project: Rec, run: Rec, tasks: Rec[]) {
+  const t = tasks.find((x) => s(x.branch) === s(run.head_branch));
+  if (!t) return "no task for this branch";
+  const ok = s(run.conclusion) === "success";
+  await upsertRecord("tasks", { ...t, aiBuild: { ...((t.aiBuild as Obj | undefined) ?? ({} as Obj)), status: ok ? "done" : "failed", runUrl: s(run.html_url), finishedAt: now() }, devHistory: [...hist(t), ev("GitHub", ok ? "Claude finished building" : "Claude's build run failed", s(run.html_url))] }, "GitHub");
+  if (!ok) {
+    if (autopilotOf(project).enabled) await status(project.id, "GitHub", { status: "failed", error: `Autopilot paused: Claude's build of ${s(t.taskKey)} failed — open it on GitHub: ${s(run.html_url)}` });
+    return "build failed";
+  }
+  const repo = repoOf(project)!;
+  const hadPR = !!(t.pr as Rec | undefined)?.number;
+  const pr = await openPR(t.id, SYSTEM, false);
+  // pushes made inside Actions don't start other workflows, so HQ starts CI and the review for the new commits
+  if (hadPR) {
+    await dispatchWorkflow(repo, "ci.yml", {}, s(t.branch)).catch(() => {});
+    await dispatchWorkflow(repo, "claude-review.yml", { pr: String(pr.number) }).catch(() => {});
+  }
+  await autopilotTick(project.id).catch(() => {});
+  return "pull request ready";
+}
+
+/** Claude's review verdict arrived as a PR comment. */
+async function reviewPosted(project: Rec, p: Payload, tasks: Rec[]) {
+  const mark = parseReviewMark(s(p.comment?.body));
+  if (!mark) return "no verdict";
+  const t = tasks.find((x) => Number((x.pr as Rec | undefined)?.number) === Number(p.issue?.number));
+  if (!t) return "no task for this pull request";
+  const v: ClaudeVerdict = { sha: mark.sha, verdict: mark.verdict, at: now(), url: s(p.comment?.html_url) };
+  await upsertRecord("tasks", { ...t, claudeVerdicts: [...((t.claudeVerdicts as ClaudeVerdict[] | undefined) ?? []), v], devHistory: [...hist(t), ev("Claude", mark.verdict === "approve" ? "Claude's review: approve" : "Claude's review: changes needed", v.url)] }, "GitHub");
+  await autopilotTick(project.id).catch(() => {});
+  return "verdict recorded";
+}
+
+/**
+ * The autopilot's one step: look at the project's Claude tasks in order and move the first unfinished one forward —
+ * start its build, ask Claude to address its own review (twice at most), or merge it when Claude approved the latest
+ * commit and the checks are green (when auto-merge is on). It runs after every relevant GitHub event.
+ */
+export async function autopilotTick(projectId: string): Promise<void> {
+  const project = await getRecord("projects", projectId);
+  const pilot = autopilotOf(project);
+  if (!project || !pilot.enabled || !repoOf(project)) return;
+  const tasks = (await listRecords("tasks"))
+    .filter((t) => t.projectId === projectId && s(t.assigneeId) === CLAUDE_ID && !["merged", "closed"].includes(s(t.devStatus)))
+    .sort((a, b) => Number(s(a.taskKey).split("-").pop()) - Number(s(b.taskKey).split("-").pop()));
+  const t = tasks[0];
+  if (!t) {
+    await status(projectId, "Claude (autopilot)", { status: "done", step: "Autopilot: every Claude task is merged", error: "" });
+    return;
+  }
+  const build = (t.aiBuild as Obj | undefined) ?? ({} as Obj);
+  if (s(build.status) === "running") return;
+  if (s(build.status) === "failed") return;
+  const pr = t.pr as Rec | undefined;
+  if (s(build.status) === "retry" && pr?.number) {
+    await buildTask(t.id, "Claude (autopilot)", `Continue task ${s(t.taskKey)}: finish it and address any review comments on pull request #${s(pr.number)} (gh pr view ${s(pr.number)} --comments).`);
+    return;
+  }
+  if (!pr?.number) {
+    await buildTask(t.id, "Claude (autopilot)");
+    await status(projectId, "Claude (autopilot)", { status: "running", step: `Autopilot: Claude is building ${s(t.taskKey)}`, error: "" });
+    return;
+  }
+  const fresh = await refreshTask(t.id, "Claude (autopilot)");
+  const head = s((fresh.pr as Rec | undefined)?.headSha);
+  const verdict = claudeReviewFor(fresh.claudeVerdicts as ClaudeVerdict[] | undefined, head);
+  if (verdict === "changes") {
+    if (Number(build.rounds ?? 0) >= 2) {
+      await status(projectId, "Claude (autopilot)", { status: "failed", error: `Autopilot paused: Claude's review still asks for changes on ${s(t.taskKey)} after two rounds — please look at the pull request.` });
+      return;
+    }
+    await buildTask(t.id, "Claude (autopilot)", `Address the review comments on pull request #${s(pr.number)} (read them with: gh pr view ${s(pr.number)} --comments), then push.`);
+    await status(projectId, "Claude (autopilot)", { status: "running", step: `Autopilot: Claude is addressing its review of ${s(t.taskKey)}`, error: "" });
+    return;
+  }
+  if (verdict !== "passed") return;
+  const checks = s((fresh.checks as Rec | undefined)?.state) || "none";
+  if (checks !== "success") return;
+  if (!pilot.autoMerge) {
+    await status(projectId, "Claude (autopilot)", { status: "done", step: `Autopilot: ${s(t.taskKey)} is approved by Claude and green — waiting for you to merge`, error: "" });
+    return;
+  }
+  await mergeTaskAuto(t.id);
+  await autopilotTick(projectId);
 }
 
 /* ───────────────────────────── tasks ───────────────────────────── */
@@ -362,8 +507,8 @@ export async function mergeTask(taskId: string, user: SessionUser) {
   const me = await memberOf(user);
   const pr = fresh.pr as Rec | undefined;
   const checks = ((fresh.checks as Rec | undefined)?.state ?? "none") as "success" | "pending" | "failure" | "none";
-  const claudeReview = claudeReviewOf((fresh.checks as { items?: { name: string; state: string }[] } | undefined)?.items);
-  const problem = mergeProblem({ claudeReview, actorRole: user.role, actorTeamId: me?.id, assigneeId: s(fresh.assigneeId), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks, reviews: Array.isArray(fresh.reviews) ? (fresh.reviews as Review[]) : [] });
+  const claudeReview = claudeReviewFor(fresh.claudeVerdicts as ClaudeVerdict[] | undefined, s((fresh.pr as Rec | undefined)?.headSha));
+  const problem = mergeProblem({ claudeReview, requireClaude: autopilotOf(project).requireClaude, actorRole: user.role, actorTeamId: me?.id, assigneeId: s(fresh.assigneeId), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks, reviews: Array.isArray(fresh.reviews) ? (fresh.reviews as Review[]) : [] });
   if (problem) throw new DevError(problem, 409);
   await mergePullRequest(repo, Number(pr!.number), s(pr!.headSha), `${s(fresh.title)} (#${s(pr!.number)})`);
   await deleteBranch(repo, s(fresh.branch)).catch(() => {});
@@ -371,6 +516,21 @@ export async function mergeTask(taskId: string, user: SessionUser) {
   await syncDocs(project.id, user.name).catch(() => {});
   if (fresh.clientVisible === true) await publishUpdate(project.id, { title: `Done: ${s(fresh.title).replace(/^[A-Z0-9]+-\d+:\s*/, "")}`, body: "This part of your project is complete and merged.", previewUrl: s(project.stagingUrl) }, user.name).catch(() => {});
   return saved;
+}
+
+/** The autopilot's merge: same checks on GitHub, but Claude's approval of the latest commit stands in for a person's. */
+async function mergeTaskAuto(taskId: string) {
+  const fresh = await refreshTask(taskId, "Claude (autopilot)");
+  const { repo, project } = await taskAndRepo(taskId);
+  const pr = fresh.pr as Rec | undefined;
+  const checks = ((fresh.checks as Rec | undefined)?.state ?? "none") as "success" | "pending" | "failure" | "none";
+  const problem = mergeProblem({ autopilot: true, actorRole: "system", assigneeId: s(fresh.assigneeId), claudeReview: claudeReviewFor(fresh.claudeVerdicts as ClaudeVerdict[] | undefined, s(pr?.headSha)), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks, reviews: [] });
+  if (problem) throw new DevError(problem, 409);
+  await mergePullRequest(repo, Number(pr!.number), s(pr!.headSha), `${s(fresh.title)} (#${s(pr!.number)})`);
+  await deleteBranch(repo, s(fresh.branch)).catch(() => {});
+  await upsertRecord("tasks", { ...fresh, status: "done", devStatus: "merged", pr: { ...pr, merged: true, state: "closed" }, mergedBy: "Claude (autopilot)", mergedAt: now(), devHistory: [...hist(fresh), ev("Claude (autopilot)", "Merged to main", "Claude approved the latest commit; checks green")] }, "Claude (autopilot)");
+  await syncDocs(project.id, "Claude (autopilot)").catch(() => {});
+  if (fresh.clientVisible === true) await publishUpdate(project.id, { title: `Done: ${s(fresh.title).replace(/^[A-Z0-9]+-\d+:\s*/, "")}`, body: "This part of your project is complete and merged.", previewUrl: s(project.stagingUrl) }, "Claude (autopilot)").catch(() => {});
 }
 
 /* ───────────────────────────── GitHub events ───────────────────────────── */
@@ -430,7 +590,16 @@ export async function handleEvent(event: string, p: Payload) {
       await upsertRecord("tasks", { ...t, reviews: [...(Array.isArray(t.reviews) ? (t.reviews as Review[]) : []), review], devStatus: statusAfter(s(t.devStatus) as DevStatus, { kind: "review", decision }), devHistory: [...hist(t), ev(review.by, decision === "approved" ? "Approved on GitHub" : "Changes requested on GitHub")] }, by);
       return "review recorded";
     }
+    case "issue_comment":
+      if (!p.issue?.pull_request || p.action !== "created") return "ignored";
+      return reviewPosted(project, p, tasks);
     case "workflow_run":
+      if (p.action === "completed") {
+        const path = s(p.workflow_run?.path);
+        if (path.endsWith("claude-plan.yml")) return planFinished(project, p.workflow_run);
+        if (path.endsWith("claude-build.yml")) return buildFinished(project, p.workflow_run, tasks);
+      }
+    // falls through: any other workflow updates the checks of the commit it ran on
     case "check_run":
     case "check_suite":
     case "status": {

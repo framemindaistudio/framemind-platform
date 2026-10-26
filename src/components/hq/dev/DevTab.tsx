@@ -12,10 +12,10 @@ import { ChecksBadge, DevStatusBadge, DevTaskDrawer, type Rec, type RepoInfo } f
 
 interface View {
   ready: boolean;
-  aiReady: boolean;
   founderBrief: string;
   aiRun: { status?: string; step?: string; error?: string; at?: string } | null;
-  aiDraftedAt: string;
+  plan: { branch?: string; status?: string; tasks?: { title: string; role?: string; priority?: string; description?: string }[]; runUrl?: string; readyAt?: string } | null;
+  autopilot: { enabled: boolean; autoMerge: boolean; approvePlan: boolean; requireClaude: boolean };
   owner: string;
   webhookReady: boolean;
   repo: RepoInfo | null;
@@ -49,7 +49,7 @@ export function DevTab({ projectId }: { projectId: string }) {
     void load();
   }, [load]);
   // while Claude is building, refresh every few seconds to show its progress
-  const building = ["queued", "running"].includes(v?.aiRun?.status ?? "");
+  const building = v?.aiRun?.status === "running" || v?.plan?.status === "running" || !!v?.tasks.some((t) => (t.aiBuild as { status?: string } | undefined)?.status === "running");
   useEffect(() => {
     if (!building) return;
     const t = setInterval(() => void load(), 5000);
@@ -85,7 +85,7 @@ export function DevTab({ projectId }: { projectId: string }) {
         </Notice>
       )}
 
-      <BuildPanel v={v} leader={leader} busy={!!busy} onBuild={(brief) => run("auto", { brief }, () => "Started — Claude is writing the docs and the task plan. This takes a minute or two.")} />
+      <ClaudePanel v={v} leader={leader} busy={!!busy} run={run} />
 
       <Panel
         title="Repository"
@@ -157,38 +157,107 @@ export function DevTab({ projectId }: { projectId: string }) {
       </Panel>
 
       {creating && <NewTask team={v.team} prefix={v.prefix} onClose={() => setCreating(false)} onCreate={(input) => run("task", { input }, (r) => `Created ${s((r.task as Rec)?.taskKey)} with its branch on GitHub.`)} />}
-      {current && <DevTaskDrawer task={current} repo={v.repo} team={v.team} onClose={() => setOpenId(null)} onChanged={load} />}
+      {current && <DevTaskDrawer task={current} repo={v.repo} team={v.team} requireClaude={v.autopilot.requireClaude} onClose={() => setOpenId(null)} onChanged={load} />}
     </div>
   );
 }
 
-/** The founder's "what to build" summary, and the automatic build Claude runs from it. */
-function BuildPanel({ v, leader, busy, onBuild }: { v: View; leader: boolean; busy: boolean; onBuild: (brief: string) => Promise<boolean> }) {
+type Run = (action: string, extra: Record<string, unknown>, ok: (r: Record<string, unknown>) => string) => Promise<boolean>;
+
+/**
+ * Claude on GitHub, from the founder's side: write the summary, let Claude plan, approve the plan, and choose how much
+ * Claude does on its own (autopilot).
+ */
+function ClaudePanel({ v, leader, busy, run }: { v: View; leader: boolean; busy: boolean; run: Run }) {
   const [brief, setBrief] = useState(v.founderBrief);
-  const run = v.aiRun;
-  const status = run?.status ?? "";
+  const status = v.aiRun?.status ?? "";
+  const plan = v.plan;
+  const ap = v.autopilot;
+  const toggle = (k: keyof View["autopilot"], label: string, help: string) => (
+    <label className="flex items-start gap-2 text-sm">
+      <input type="checkbox" className="mt-1" checked={ap[k]} disabled={!leader || busy} onChange={(e) => void run("autopilot", { settings: { [k]: e.target.checked } }, () => "Saved.")} />
+      <span>
+        <span className="font-medium">{label}</span>
+        <span className="block text-xs text-blueprint">{help}</span>
+      </span>
+    </label>
+  );
   return (
-    <Panel title="Build with Claude" subtitle="Your summary + the client's approved requirements → Claude writes PRD, Architecture, Rules, Design and the tasks, assigns each task, and HQ creates the branches.">
-      {status && (
-        <div className={`mb-3 rounded-[var(--radius-sm)] border px-3 py-2 text-sm ${status === "failed" ? "border-bad/30 bg-bad/10 text-bad" : status === "done" ? "border-ok/30 bg-ok/10 text-ok" : "border-info/30 bg-info/10 text-info"}`}>
-          {status === "failed" ? `Stopped: ${run?.error}` : run?.step}
-          {["queued", "running"].includes(status) && <span className="ml-2 inline-block size-2 animate-pulse rounded-full bg-current" />}
-        </div>
-      )}
-      {!v.aiReady && <p className="mb-2 text-xs text-warn">Add ANTHROPIC_API_KEY in Vercel to turn this on.</p>}
-      {leader ? (
-        <div className="space-y-2">
-          <Textarea rows={5} value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="What to build: pages and features, priorities, tech preferences, what's out of scope, deadlines." />
-          <div className="flex flex-wrap items-center gap-3">
-            <Button size="sm" disabled={busy || !v.ready || !v.aiReady || ["queued", "running"].includes(status)} onClick={() => void onBuild(brief)}>
-              {v.aiDraftedAt ? "Rebuild docs & tasks with Claude" : "Build docs & tasks with Claude"}
-            </Button>
-            {v.aiDraftedAt && <span className="text-xs text-blueprint">Last drafted {new Date(v.aiDraftedAt).toLocaleString("en-IN")}. Docs your team has edited are never overwritten; a new plan adds new tasks.</span>}
+    <Panel title="Claude" subtitle="Claude works inside GitHub on your Claude Max subscription: it plans from your summary, builds tasks, and reviews every pull request.">
+      <div className="space-y-4">
+        {status && (
+          <div className={`rounded-[var(--radius-sm)] border px-3 py-2 text-sm ${status === "failed" ? "border-bad/30 bg-bad/10 text-bad" : status === "running" ? "border-info/30 bg-info/10 text-info" : "border-ok/30 bg-ok/10 text-ok"}`}>
+            {status === "failed" ? v.aiRun?.error : v.aiRun?.step}
+            {status === "running" && <span className="ml-2 inline-block size-2 animate-pulse rounded-full bg-current" />}
           </div>
+        )}
+
+        <div>
+          <p className="mb-1 text-sm font-semibold">1 · Founder summary — what we are building</p>
+          <p className="mb-2 text-xs text-blueprint">The master instruction. It goes into every repository as docs/FOUNDER_SUMMARY.md and overrides the client&apos;s submission wherever they differ.</p>
+          {leader ? (
+            <>
+              <Textarea rows={6} value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="Pages and features, priorities, tech preferences, what's out of scope, deadlines." />
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button size="sm" variant="secondary" disabled={busy || brief === v.founderBrief} onClick={() => void run("brief", { brief }, () => "Saved — FOUNDER_SUMMARY.md is updated on GitHub.")}>
+                  Save summary
+                </Button>
+                <Button size="sm" disabled={busy || !v.ready || !brief.trim() || plan?.status === "running"} onClick={() => void run("plan", { brief }, () => "Claude started planning on GitHub. It writes PROJECT_PLAN, PRD, Architecture, Rules, Design and the task list — usually 5–15 minutes.")}>
+                  {plan?.status ? "Plan again with Claude" : "2 · Plan with Claude"}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <p className="whitespace-pre-line text-sm text-charcoal">{v.founderBrief || "Not written yet."}</p>
+          )}
         </div>
-      ) : (
-        v.founderBrief && <p className="whitespace-pre-line text-sm text-charcoal">{v.founderBrief}</p>
-      )}
+
+        {plan?.status === "ready" && (
+          <div className="rounded-[var(--radius-sm)] border-2 border-graphite p-3">
+            <p className="text-sm font-semibold">3 · Review Claude&apos;s plan</p>
+            <p className="mb-2 text-xs text-blueprint">
+              The documents are on the{" "}
+              {v.repo ? (
+                <a className="underline" href={`${v.repo.url}/tree/${plan.branch}/docs`} target="_blank" rel="noreferrer">
+                  {plan.branch}
+                </a>
+              ) : (
+                plan.branch
+              )}{" "}
+              branch. Approving merges them into main and creates these {plan.tasks?.length ?? 0} tasks with their branches.
+            </p>
+            <ol className="mb-3 list-decimal space-y-1 pl-5 text-sm">
+              {(plan.tasks ?? []).map((t, i) => (
+                <li key={i}>
+                  {t.title} {t.role && <span className="text-xs text-blueprint">· {t.role}</span>}
+                </li>
+              ))}
+            </ol>
+            {leader && (
+              <Button size="sm" disabled={busy} onClick={() => void run("approvePlan", {}, (r) => `Plan approved — ${String(r.created ?? 0)} tasks created${ap.enabled ? ", Claude is starting the first one" : ""}.`)}>
+                Approve plan & create tasks
+              </Button>
+            )}
+          </div>
+        )}
+        {plan?.status === "failed" && plan.runUrl && (
+          <p className="text-sm">
+            Claude&apos;s plan run failed —{" "}
+            <a className="underline" href={plan.runUrl} target="_blank" rel="noreferrer">
+              open it on GitHub
+            </a>
+            .
+          </p>
+        )}
+
+        <div className="space-y-2 border-t border-graphite/10 pt-3">
+          <p className="text-sm font-semibold">Autopilot</p>
+          {toggle("enabled", "Claude builds this project's tasks", "Tasks from an approved plan go to Claude, one after another: build → pull request → Claude's review → fixes (twice at most).")}
+          {toggle("autoMerge", "Merge automatically", "When Claude approves the latest commit and every check is green, HQ merges and starts the next task. Off: HQ waits for you to press Merge.")}
+          {toggle("approvePlan", "I approve the plan first", "Recommended. Off: tasks are created as soon as Claude's plan is ready.")}
+          {toggle("requireClaude", "People's merges need Claude's approval too", "For tasks built by your team: Merge stays locked until Claude approves the latest commit.")}
+        </div>
+      </div>
     </Panel>
   );
 }
