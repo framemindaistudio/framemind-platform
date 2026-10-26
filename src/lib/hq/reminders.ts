@@ -7,7 +7,7 @@ import { invoiceTotals, type BaseRecord } from "@/lib/hq/collections";
 import { formatINR } from "@/lib/utils";
 
 export type ReminderLevel = "overdue" | "today" | "soon";
-export type ReminderArea = "leads" | "followups" | "quotes" | "projects" | "production" | "shoots" | "coaching" | "vritta" | "invoices" | "tasks" | "papers" | "social" | "tools" | "incentives" | "people" | "portal";
+export type ReminderArea = "leads" | "followups" | "quotes" | "projects" | "production" | "shoots" | "coaching" | "vritta" | "invoices" | "tasks" | "papers" | "social" | "tools" | "incentives" | "people" | "portal" | "code";
 
 export interface Reminder {
   key: string;
@@ -38,6 +38,7 @@ export const AREA_LABEL: Record<ReminderArea, string> = {
   incentives: "Team incentives",
   people: "Team",
   portal: "Client portal",
+  code: "Code",
 };
 
 /** The collection each area is built from: someone who cannot read it does not get its reminders. */
@@ -60,6 +61,7 @@ export const AREA_SOURCE: Record<ReminderArea, string> = {
   // internship end dates: founder and admin only, like payroll
   people: "payroll",
   portal: "portalSubmissions",
+  code: "tasks",
 };
 
 export interface ReminderData {
@@ -296,6 +298,18 @@ export function buildReminders(data: ReminderData, today: string, o: { signsOf?:
     const later = (data.portalUpdates ?? []).some((x) => s(x.projectId) === s(u.projectId) && s(x.createdAt) > s(a.at));
     if (later) continue;
     add({ key: `pupd:${u.id}`, area: "portal", level: "today", title: `Client asked for changes: ${s(u.title)}`, detail: `${projectTitle(u.projectId)}${a.comment ? ` — “${s(a.comment).slice(0, 70)}”` : ""}`, href: `/hq/projects/${s(u.projectId)}?tab=portal`, date: day(a.at) || today });
+  }
+
+  /* code: pull requests to review, approved ones ready to merge, failing checks */
+  for (const t of data.tasks ?? []) {
+    if (!s(t.taskKey)) continue;
+    const st = s(t.devStatus);
+    const label = `${s(t.taskKey)} ${s(t.title).replace(/^[A-Z0-9]+-\d+:\s*/, "")}`;
+    const checks = s((t.checks as { state?: string } | undefined)?.state);
+    if (st === "in-review") add({ key: `code-rev:${t.id}`, area: "code", level: "today", title: `Review pull request: ${label}`, detail: `${s(t.assignee) || "A developer"} is waiting for a review`, href: "/hq/code", date: day(t.updatedAt) || today });
+    else if (st === "approved" && checks === "success") add({ key: `code-merge:${t.id}`, area: "code", level: "today", title: `Ready to merge: ${label}`, detail: "Approved on the latest commit and checks passed", href: "/hq/code", date: day(t.updatedAt) || today });
+    else if (st === "changes") add({ key: `code-chg:${t.id}`, area: "code", level: "soon", title: `Changes requested: ${label}`, detail: `For ${s(t.assignee) || "the developer"}`, href: "/hq/code", date: day(t.updatedAt) || today });
+    if (checks === "failure" && !["merged", "closed"].includes(st)) add({ key: `code-ci:${t.id}`, area: "code", level: "overdue", title: `Checks failed: ${label}`, detail: `For ${s(t.assignee) || "the developer"}`, href: "/hq/code", date: day(t.updatedAt) || today });
   }
 
   /* internships are a fixed term: decide before each one ends */

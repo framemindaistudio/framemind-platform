@@ -37,6 +37,7 @@ export const hqNav: HqNavGroup[] = [
     items: [
       { label: "Projects", href: "/hq/projects", icon: "FolderKanban", roles: ALL, description: "Milestones, deliverables, revisions, handover" },
       { label: "Production", href: "/hq/production", icon: "Layers", roles: ALL, description: "Every deliverable from planned to delivered" },
+      { label: "Code", href: "/hq/code", icon: "GitBranch", roles: STAFF, description: "Dev tasks, pull requests, reviews and merges" },
       { label: "Shoots", href: "/hq/shoots", icon: "Camera", roles: STAFF, description: "Call sheets, crew, gear and shoot-day mode" },
       { label: "Travel", href: "/hq/travel", icon: "Car", roles: STAFF, description: "Trips, vehicles, travel costs" },
       { label: "Feedback & Testimonials", href: "/hq/reputation", icon: "MessageSquareHeart", roles: MEDIA_SIDE, description: "Feedback, testimonials, case studies" },

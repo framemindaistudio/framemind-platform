@@ -36,6 +36,9 @@ const MANAGED = (label: string) => NextResponse.json({ error: `${label} change o
 
 /** The founder's decision on a lead's commission attribution is made in Incentives: an ordinary edit keeps it as it was. */
 const ATTRIBUTION_KEYS = ["attribution", "splits", "decidedBy", "decidedAt", "decisionNote", "attributionHistory", "registeredBy", "registeredAt"];
+/** Kept from the stored record: the development workflow changes these only through /api/hq/dev and GitHub events. */
+const DEV_TASK_KEYS = ["taskKey", "devType", "branch", "pr", "checks", "reviews", "devStatus", "commits", "lastCommit", "previewUrl", "assigneeId", "devHistory", "mergedBy", "mergedAt"];
+const DEV_PROJECT_KEYS = ["repo", "devCounter", "devDocsAt"];
 
 /**
  * Payments ticked "reconciled" (or "refunded") are stamped with who did it and when, from the session — never from
@@ -78,6 +81,15 @@ async function guarded(name: string, record: Record<string, unknown>, by: string
     return out;
   }
   if (name === "invoices") return stampPayments(record, prev, by);
+  const keep = name === "tasks" ? DEV_TASK_KEYS : name === "projects" ? DEV_PROJECT_KEYS : null;
+  if (keep) {
+    const out = { ...record };
+    for (const k of keep) {
+      if (prev && k in prev) out[k] = prev[k];
+      else delete out[k];
+    }
+    return out;
+  }
   return record;
 }
 

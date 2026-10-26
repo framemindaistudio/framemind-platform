@@ -20,10 +20,11 @@ import { DueChip, ProgressBar, ServiceChips, StageBadge } from "./bits";
 import { checklistOf, inputsOf, longDate, num, progressOf, projectMoney, str, type Rec } from "./logic";
 import { ProjectFormDrawer } from "./ProjectFormDrawer";
 import { PortalTab } from "./PortalTab";
+import { DevTab } from "@/components/hq/dev/DevTab";
 import { ChecklistTab, DeliverablesTab, HandoverTab, InputsTab, MilestonesTab, ShootsTab } from "./ProjectTabs";
 
 const projectsDef = getCollection("projects")!;
-type Tab = "overview" | "payments" | "deliverables" | "checklist" | "inputs" | "portal" | "shoots" | "handover";
+type Tab = "overview" | "payments" | "deliverables" | "checklist" | "inputs" | "portal" | "dev" | "shoots" | "handover";
 
 /** The project record and a way to change part of it, shared by every tab. */
 export function useProject(id: string) {
@@ -61,7 +62,7 @@ export function ProjectDetail({ id }: { id: string }) {
   const { records: shoots } = useCollection(can(user, getCollection("shoots")!.read) ? "shoots" : "__none");
   const [tab, setTab] = useState<Tab>(() => {
     const t = params.get("tab");
-    return (["overview", "payments", "deliverables", "checklist", "inputs", "portal", "shoots", "handover"] as Tab[]).includes(t as Tab) ? (t as Tab) : "overview";
+    return (["overview", "payments", "deliverables", "checklist", "inputs", "portal", "dev", "shoots", "handover"] as Tab[]).includes(t as Tab) ? (t as Tab) : "overview";
   });
   const [draft, setDraft] = useState<Record<string, unknown> | null>(null);
 
@@ -93,6 +94,7 @@ export function ProjectDetail({ id }: { id: string }) {
     { value: "checklist", label: "Checklist", count: checklist.length ? checklist.filter((c) => !c.done).length || undefined : undefined },
     { value: "inputs", label: "From the client", count: pendingInputs || undefined },
     { value: "portal", label: "Client portal" },
+    { value: "dev", label: "Development" },
     ...(can(user, getCollection("shoots")!.read) ? [{ value: "shoots" as Tab, label: "Shoots", count: myShoots.length || undefined }] : []),
     { value: "handover", label: "Handover" },
   ];
@@ -264,6 +266,7 @@ export function ProjectDetail({ id }: { id: string }) {
         {tab === "checklist" && <ChecklistTab project={project} canWrite={canWrite} patch={patch} />}
         {tab === "inputs" && <InputsTab project={project} client={client} canWrite={canWrite} patch={patch} />}
         {tab === "portal" && <PortalTab project={project} canWrite={canWrite} />}
+        {tab === "dev" && <DevTab projectId={project.id} />}
         {tab === "shoots" && <ShootsTab project={project} shoots={myShoots} />}
         {tab === "handover" && <HandoverTab project={project} client={client} canWrite={canWrite} patch={patch} />}
       </div>

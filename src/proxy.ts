@@ -11,11 +11,13 @@ import { liveUser } from "@/lib/hq/users";
  * Only editors (founders) may call an HQ API with anything but a read; everyone else can view and print.
  * (Pages and APIs re-check both server-side as well.)
  */
-const PUBLIC_HQ_PATHS = ["/hq/login", "/api/hq/auth/login", "/api/hq/auth/logout"];
+const PUBLIC_HQ_PATHS = ["/hq/login", "/api/hq/auth/login", "/api/hq/auth/logout", "/api/hq/dev/webhook"];
 /** Everyone may change their own password, view-only accounts included. */
 const OWN_PASSWORD_API = "/api/hq/account/password";
 /** Everyone may register their own leads and answer their own reviews (the route checks the rest). */
 const OWN_INCENTIVES_API = "/api/hq/incentives/me";
+/** Everyone may open the PR for their own task and review as a code reviewer (the route checks the rest). */
+const OWN_DEV_API = "/api/hq/dev/me";
 /** All a login with a one-time password may reach until it chooses its own. */
 const FIRST_SIGN_IN_PATHS = ["/hq/account", OWN_PASSWORD_API, "/api/hq/me"];
 
@@ -44,7 +46,7 @@ export async function proxy(req: NextRequest) {
       url.search = "?first=1";
       return NextResponse.redirect(url);
     }
-    if (isHqApi && !["GET", "HEAD", "OPTIONS"].includes(req.method) && !EDITORS.includes(user.role) && pathname !== OWN_PASSWORD_API && pathname !== OWN_INCENTIVES_API) {
+    if (isHqApi && !["GET", "HEAD", "OPTIONS"].includes(req.method) && !EDITORS.includes(user.role) && pathname !== OWN_PASSWORD_API && pathname !== OWN_INCENTIVES_API && pathname !== OWN_DEV_API) {
       return NextResponse.json({ error: VIEW_ONLY_MESSAGE, viewOnly: true }, { status: 403 });
     }
     const res = NextResponse.next();

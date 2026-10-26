@@ -8,7 +8,7 @@
     "start": "next start -p 3011",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types src/lib/incentives/calc.test.ts src/lib/pricebook/math.test.ts"
+    "test": "node --test --experimental-strip-types src/lib/incentives/calc.test.ts src/lib/pricebook/math.test.ts src/lib/dev/rules.test.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
