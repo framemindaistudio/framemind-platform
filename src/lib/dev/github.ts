@@ -4,8 +4,8 @@ import "server-only";
  * GitHub for client projects — separate from the HQ data store (lib/store), which only ever touches the private
  * data repository. Configured in Vercel:
  *   GITHUB_DEV_TOKEN    a fine-grained token (or classic token) of the founder's account with access to the
- *                       organization's repositories: Administration, Contents, Pull requests, Webhooks, Workflows,
- *                       Commit statuses / Checks (read)
+ *                       organization's repositories: Administration, Contents, Pull requests, Webhooks, Workflows
+ *                       (read and write); Actions, Commit statuses (read)
  *   GITHUB_DEV_OWNER    the GitHub organization the client repositories live in (e.g. framemind-studio)
  *   GITHUB_WEBHOOK_SECRET  a long random value; HQ signs up each repository's webhook with it and checks every event
  */
@@ -125,15 +125,30 @@ export async function getPullRequest(repo: Repo, n: number): Promise<PullRequest
   return toPR((await gh<RawPR>(`/repos/${enc(repo.owner)}/${enc(repo.name)}/pulls/${n}`))!);
 }
 
-/** The combined result of every check and status on a commit: success, pending, failure or none. */
+/**
+ * The combined result of the checks on a commit: GitHub Actions runs (CI, Claude review) plus commit statuses
+ * (e.g. hosting providers). Read through the Actions API, which fine-grained tokens can see ("Actions: Read-only");
+ * third-party check runs are added when the token happens to be allowed to read them.
+ */
 export async function checksFor(repo: Repo, sha: string): Promise<{ state: "success" | "pending" | "failure" | "none"; items: { name: string; state: string; url: string }[] }> {
-  const [runs, status] = await Promise.all([
-    gh<{ check_runs: { name: string; status: string; conclusion: string | null; html_url: string }[] }>(`/repos/${enc(repo.owner)}/${enc(repo.name)}/commits/${sha}/check-runs?per_page=50`),
-    gh<{ statuses: { context: string; state: string; target_url: string }[] }>(`/repos/${enc(repo.owner)}/${enc(repo.name)}/commits/${sha}/status`),
+  const base = `/repos/${enc(repo.owner)}/${enc(repo.name)}`;
+  const [runs, status, checkRuns] = await Promise.all([
+    gh<{ workflow_runs: { name: string; status: string; conclusion: string | null; html_url: string; run_attempt: number; workflow_id: number; created_at: string }[] }>(`${base}/actions/runs?head_sha=${sha}&per_page=50`).catch(() => null),
+    gh<{ statuses: { context: string; state: string; target_url: string }[] }>(`${base}/commits/${sha}/status`).catch(() => null),
+    gh<{ check_runs: { name: string; status: string; conclusion: string | null; html_url: string; app?: { slug?: string } }[] }>(`${base}/commits/${sha}/check-runs?per_page=50`).catch(() => null),
   ]);
+  // the newest run of each workflow counts (a re-run replaces the earlier result)
+  const latest = new Map<number, { name: string; status: string; conclusion: string | null; html_url: string; created_at: string }>();
+  for (const r of runs?.workflow_runs ?? []) {
+    const prev = latest.get(r.workflow_id);
+    if (!prev || r.created_at > prev.created_at) latest.set(r.workflow_id, r);
+  }
+  const verdict = (status: string, conclusion: string | null) => (status !== "completed" ? "pending" : conclusion === "success" || conclusion === "skipped" || conclusion === "neutral" ? "success" : "failure");
   const items = [
-    ...(runs?.check_runs ?? []).map((r) => ({ name: r.name, state: r.status !== "completed" ? "pending" : r.conclusion === "success" || r.conclusion === "skipped" || r.conclusion === "neutral" ? "success" : "failure", url: r.html_url })),
-    ...(status?.statuses ?? []).map((s) => ({ name: s.context, state: s.state === "success" ? "success" : s.state === "pending" ? "pending" : "failure", url: s.target_url })),
+    ...[...latest.values()].map((r) => ({ name: r.name, state: verdict(r.status, r.conclusion), url: r.html_url })),
+    ...(status?.statuses ?? []).map((x) => ({ name: x.context, state: x.state === "success" ? "success" : x.state === "pending" ? "pending" : "failure", url: x.target_url })),
+    // check runs made by GitHub Actions are already counted above
+    ...(checkRuns?.check_runs ?? []).filter((c) => c.app?.slug !== "github-actions").map((c) => ({ name: c.name, state: verdict(c.status, c.conclusion), url: c.html_url })),
   ];
   return { state: combine(items.map((i) => i.state)), items };
 }
@@ -164,7 +179,7 @@ export async function ensureWebhook(repo: Repo, url: string) {
   if (!secret) throw new GitHubError("GITHUB_WEBHOOK_SECRET isn't set, so GitHub can't be connected to HQ securely.", 503);
   const hooks = (await gh<{ id: number; config: { url?: string } }[]>(`/repos/${enc(repo.owner)}/${enc(repo.name)}/hooks`)) ?? [];
   const config = { url, content_type: "json", secret, insecure_ssl: "0" };
-  const events = ["push", "pull_request", "pull_request_review", "check_suite", "check_run", "status", "deployment_status"];
+  const events = ["push", "pull_request", "pull_request_review", "workflow_run", "status", "deployment_status"];
   const found = hooks.find((h) => h.config.url === url);
   if (found) await gh(`/repos/${enc(repo.owner)}/${enc(repo.name)}/hooks/${found.id}`, { method: "PATCH", body: JSON.stringify({ config, events, active: true }) });
   else await gh(`/repos/${enc(repo.owner)}/${enc(repo.name)}/hooks`, { method: "POST", body: JSON.stringify({ name: "web", config, events, active: true }) });

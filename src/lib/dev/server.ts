@@ -308,10 +308,11 @@ export async function handleEvent(event: string, p: Payload) {
       await upsertRecord("tasks", { ...t, reviews: [...(Array.isArray(t.reviews) ? (t.reviews as Review[]) : []), review], devStatus: statusAfter(s(t.devStatus) as DevStatus, { kind: "review", decision }), devHistory: [...hist(t), ev(review.by, decision === "approved" ? "Approved on GitHub" : "Changes requested on GitHub")] }, by);
       return "review recorded";
     }
+    case "workflow_run":
     case "check_run":
     case "check_suite":
     case "status": {
-      const sha = s(p.sha || p.check_run?.head_sha || p.check_suite?.head_sha);
+      const sha = s(p.sha || p.workflow_run?.head_sha || p.check_run?.head_sha || p.check_suite?.head_sha);
       for (const t of bySha(sha)) {
         const checks = await checksFor(repo, sha);
         await upsertRecord("tasks", { ...t, checks: { ...checks, sha, at: now() } }, by);
