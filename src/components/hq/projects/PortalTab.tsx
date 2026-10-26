@@ -159,6 +159,8 @@ const SUB_LABEL: Record<string, string> = { approved: "Approved", submitted: "Wa
 
 function SubmissionPanel({ sub, canWrite, run }: { sub: Rec | null; canWrite: boolean; run: Run }) {
   const [note, setNote] = useState("");
+  const [brief, setBrief] = useState("");
+  const [build, setBuild] = useState(true);
   if (!sub) return <Panel title="Requirements from the client"><p className="text-sm text-blueprint">Nothing sent yet.</p></Panel>;
   const status = str(sub.status) || "draft";
   const list = (v: unknown) => (Array.isArray(v) ? (v as string[]) : []);
@@ -228,11 +230,15 @@ function SubmissionPanel({ sub, canWrite, run }: { sub: Rec | null; canWrite: bo
         </ul>
       )}
       {status === "submitted" && canWrite && (
-        <div className="mt-4 space-y-2 border-t border-graphite/10 pt-3">
+        <div className="mt-4 space-y-3 border-t border-graphite/10 pt-3">
+          <Field label="What to build — your summary" help="Claude plans from this and the client's submission. Scope decisions, priorities, tech preferences, anything the client didn't say.">
+            <Textarea rows={5} value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="e.g. 8-page website in Next.js: Home, About, Programmes, Events (admin can add), Gallery, Donate (Razorpay link only), Contact. Kannada + English later, not now. Launch before 20 Nov." />
+          </Field>
+          <Checkbox label="Then let Claude write the docs and tasks, assign them, and set up GitHub automatically" checked={build} onChange={(e) => setBuild(e.target.checked)} />
           <Textarea rows={2} placeholder="Note to the client (needed to send it back)" value={note} onChange={(e) => setNote(e.target.value)} />
           <div className="flex gap-2">
-            <Button size="sm" onClick={() => void run({ action: "decide", decision: "approved", note }, "Approved — it's now the project brief, and the project moved to Design.")}>
-              Approve
+            <Button size="sm" onClick={() => void run({ action: "decide", decision: "approved", note, brief, build }, build ? "Approved. Claude is now writing the docs and tasks — follow it in the Development tab." : "Approved — it's now the project brief, and the project moved to Design.")}>
+              {build ? "Approve & build with Claude" : "Approve"}
             </Button>
             <Button size="sm" variant="secondary" disabled={!note.trim()} onClick={() => void run({ action: "decide", decision: "changes", note }, "Sent back to the client.")}>
               Request changes

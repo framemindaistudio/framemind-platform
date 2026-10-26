@@ -54,6 +54,15 @@ export function keyFromBranch(branch: string): string | null {
 /** A safe GitHub repository name from a project title. */
 export const repoName = (title: string) => slug(title, 60) || "client-project";
 
+export type ClaudeReview = "passed" | "pending" | "failed" | "missing";
+
+/** Claude's review state from a commit's checks: the "Claude review" workflow run. */
+export function claudeReviewOf(items: { name: string; state: string }[] | undefined): ClaudeReview {
+  const run = (items ?? []).find((i) => /claude/i.test(i.name));
+  if (!run || run.state === "skipped") return "missing";
+  return run.state === "success" ? "passed" : run.state === "pending" ? "pending" : "failed";
+}
+
 export interface Review {
   by: string;
   byTeamId?: string;
@@ -74,6 +83,8 @@ export function mergeProblem(o: {
   pr?: { state: string; merged: boolean; mergeable: boolean | null; headSha: string } | null;
   checks: "success" | "pending" | "failure" | "none";
   reviews: Review[];
+  /** Claude's PR review on the latest commit; when given, it must have passed */
+  claudeReview?: ClaudeReview;
 }): string | null {
   if (!["founder", "admin"].includes(o.actorRole)) return "Only the founder or an admin merges to main.";
   if (!o.pr) return "Open the pull request first.";
@@ -88,6 +99,9 @@ export function mergeProblem(o: {
   if (o.checks === "failure") return "Some checks failed — fix them before merging.";
   if (o.checks === "pending") return "Checks are still running.";
   if (o.checks === "none") return "No checks have run on the latest commit yet.";
+  if (o.claudeReview === "pending") return "Claude is still reviewing the latest commit.";
+  if (o.claudeReview === "failed") return "Claude's review didn't complete — open it on GitHub (a missing ANTHROPIC_API_KEY secret shows there).";
+  if (o.claudeReview === "missing") return "Claude hasn't reviewed the latest commit. Add ANTHROPIC_API_KEY as an organization Actions secret, then push or re-run the workflow.";
   if (o.pr.mergeable === false) return "GitHub reports a conflict with main — update the branch first.";
   return null;
 }

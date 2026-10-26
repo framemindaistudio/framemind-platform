@@ -1,8 +1,11 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
 import { OPS, STAFF } from "@/lib/hq/roles";
-import { createTask, devQueue, devView, DevError, GitHubError, mergeTask, openPR, refreshTask, reviewTask, setupRepo, syncDocs } from "@/lib/dev/server";
+import { autoBuild, buildReady, createTask, devQueue, devView, DevError, GitHubError, mergeTask, openPR, refreshTask, reviewTask, saveFounderBrief, setupRepo, syncDocs } from "@/lib/dev/server";
+
+/** The automatic build (Claude drafting + GitHub) runs after the response, within this limit. */
+export const maxDuration = 300;
 
 /**
  * HQ → development.
@@ -30,8 +33,13 @@ export async function POST(req: Request) {
     const project = String(b.project ?? "");
     const task = String(b.task ?? "");
     switch (b.action) {
+      case "auto":
+        if (!buildReady()) throw new DevError("Connect GitHub and Claude first (GITHUB_DEV_TOKEN, GITHUB_DEV_OWNER and ANTHROPIC_API_KEY in Vercel).", 503);
+        await saveFounderBrief(project, String(b.brief ?? ""), user.name);
+        after(() => autoBuild(project, user.name));
+        return NextResponse.json({ ok: true, started: true });
       case "setup":
-        return NextResponse.json(await setupRepo(project, user));
+        return NextResponse.json(await setupRepo(project, user.name));
       case "docs":
         return NextResponse.json({ changed: await syncDocs(project, user.name) });
       case "task":

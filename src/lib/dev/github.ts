@@ -85,10 +85,13 @@ export async function deleteBranch(repo: Repo, branch: string) {
   await gh(`/repos/${enc(repo.owner)}/${enc(repo.name)}/git/refs/heads/${enc(branch)}`, { method: "DELETE" }, true);
 }
 
-/** Create or update one file on a branch. Unchanged content makes no commit; `onlyIfMissing` never touches an existing file. */
-export async function putFile(repo: Repo, path: string, content: string, message: string, branch = repo.defaultBranch, onlyIfMissing = false): Promise<{ changed: boolean }> {
+/**
+ * Create or update one file on a branch. Unchanged content makes no commit. `onlyIfMissing` never touches an existing
+ * file — unless `replaceIf` says the existing content may be replaced (e.g. it is still HQ's untouched template).
+ */
+export async function putFile(repo: Repo, path: string, content: string, message: string, branch = repo.defaultBranch, onlyIfMissing = false, replaceIf?: (current: string) => boolean): Promise<{ changed: boolean }> {
   const current = await gh<{ sha: string; content: string }>(`/repos/${enc(repo.owner)}/${enc(repo.name)}/contents/${enc(path)}?ref=${encodeURIComponent(branch)}`, {}, true);
-  if (current && onlyIfMissing) return { changed: false };
+  if (current && onlyIfMissing && !(replaceIf && replaceIf(Buffer.from(current.content, "base64").toString("utf8")))) return { changed: false };
   const b64 = Buffer.from(content, "utf8").toString("base64");
   if (current && current.content.replace(/\n/g, "") === b64) return { changed: false };
   await gh(`/repos/${enc(repo.owner)}/${enc(repo.name)}/contents/${enc(path)}`, { method: "PUT", body: JSON.stringify({ message, content: b64, branch, ...(current ? { sha: current.sha } : {}) }) });
@@ -143,7 +146,7 @@ export async function checksFor(repo: Repo, sha: string): Promise<{ state: "succ
     const prev = latest.get(r.workflow_id);
     if (!prev || r.created_at > prev.created_at) latest.set(r.workflow_id, r);
   }
-  const verdict = (status: string, conclusion: string | null) => (status !== "completed" ? "pending" : conclusion === "success" || conclusion === "skipped" || conclusion === "neutral" ? "success" : "failure");
+  const verdict = (status: string, conclusion: string | null) => (status !== "completed" ? "pending" : conclusion === "skipped" ? "skipped" : conclusion === "success" || conclusion === "neutral" ? "success" : "failure");
   const items = [
     ...[...latest.values()].map((r) => ({ name: r.name, state: verdict(r.status, r.conclusion), url: r.html_url })),
     ...(status?.statuses ?? []).map((x) => ({ name: x.context, state: x.state === "success" ? "success" : x.state === "pending" ? "pending" : "failure", url: x.target_url })),
@@ -155,6 +158,7 @@ export async function checksFor(repo: Repo, sha: string): Promise<{ state: "succ
 
 /** Pure: the overall state of a set of check states. */
 export function combine(states: string[]): "success" | "pending" | "failure" | "none" {
+  states = states.map((s) => (s === "skipped" ? "success" : s));
   if (!states.length) return "none";
   if (states.some((s) => s === "failure")) return "failure";
   if (states.some((s) => s === "pending")) return "pending";

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Drawer } from "@/components/ui/Overlay";
 import { Textarea } from "@/components/ui/form";
 import { api, useHq } from "@/components/hq/data";
-import { DEV_STATUS_LABELS, mergeProblem, type DevStatus, type Review } from "@/lib/dev/rules";
+import { claudeReviewOf, DEV_STATUS_LABELS, mergeProblem, type DevStatus, type Review } from "@/lib/dev/rules";
 import { formatDateTime } from "@/lib/utils";
 
 export type Rec = Record<string, unknown> & { id: string };
@@ -57,7 +57,7 @@ export function DevTaskDrawer({ task, repo, team, onClose, onChanged }: { task: 
   const status = s(task.devStatus) as DevStatus;
   const open = !!pr?.number && s(pr.state) === "open" && pr.merged !== true;
   const canReview = open && (leader || me?.codeReviewer === true) && !mine;
-  const blocked = mergeProblem({ actorRole: user.role, actorTeamId: me?.id, assigneeId: s(task.assigneeId), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks: (checks?.state ?? "none") as "success", reviews });
+  const blocked = mergeProblem({ claudeReview: claudeReviewOf(checks?.items), actorRole: user.role, actorTeamId: me?.id, assigneeId: s(task.assigneeId), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks: (checks?.state ?? "none") as "success", reviews });
 
   const act = async (action: string, extra: Record<string, unknown>, ok: string) => {
     setBusy(action);
@@ -169,7 +169,7 @@ export function DevTaskDrawer({ task, repo, team, onClose, onChanged }: { task: 
             <ul className="space-y-1">
               {checks.items.map((c, i) => (
                 <li key={i} className="flex items-center gap-2 text-xs">
-                  {c.state === "success" ? <CheckCircle2 className="size-3.5 text-ok" /> : c.state === "failure" ? <XCircle className="size-3.5 text-bad" /> : <CircleDashed className="size-3.5 text-warn" />}
+                  {c.state === "success" ? <CheckCircle2 className="size-3.5 text-ok" /> : c.state === "failure" ? <XCircle className="size-3.5 text-bad" /> : <CircleDashed className={`size-3.5 ${c.state === "skipped" ? "text-blueprint" : "text-warn"}`} />}
                   <a className="hover:underline" href={c.url} target="_blank" rel="noreferrer">
                     {c.name}
                   </a>
@@ -225,7 +225,7 @@ export function DevTaskDrawer({ task, repo, team, onClose, onChanged }: { task: 
               <Button disabled={!!blocked || !!busy} onClick={() => void act("merge", {}, "Merged to main. The branch is deleted and the task is done.")}>
                 <GitMerge className="size-4" /> Merge to main
               </Button>
-              <span className={`text-xs ${blocked ? "text-warn" : "text-ok"}`}>{blocked ?? "Ready: approved on the latest commit, checks green."}</span>
+              <span className={`text-xs ${blocked ? "text-warn" : "text-ok"}`}>{blocked ?? "Ready: approved on the latest commit, checks green, Claude has reviewed it."}</span>
             </div>
             <p className="mt-2 text-[11px] text-blueprint">HQ re-checks GitHub at the moment you press it and merges only the exact commit that was approved.</p>
           </section>

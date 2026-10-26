@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
 import { getRecord, listRecords } from "@/lib/hq/records";
@@ -7,6 +7,10 @@ import { mailReady } from "@/lib/hq/mail";
 import { grantPortalAccess, publicAccount, readPortalAccounts, updatePortalAccounts } from "@/lib/portal/auth";
 import { decideSubmission, hqPortalView, markRead, PORTAL_URL, PortalError, publishUpdate, teamMessage } from "@/lib/portal/data";
 import { emailInvite } from "@/lib/portal/invite";
+import { autoBuild, buildReady, saveFounderBrief } from "@/lib/dev/server";
+
+/** Approving requirements can start the automatic build (Claude drafting + GitHub), which runs after the response. */
+export const maxDuration = 300;
 
 /**
  * HQ → a project's client portal.
@@ -71,9 +75,17 @@ export async function POST(req: Request) {
         );
         return NextResponse.json({ ok: true });
       }
-      case "decide":
-        await decideSubmission(projectId, body.decision === "approved" ? "approved" : "changes", String(body.note ?? ""), user.name);
-        return NextResponse.json({ ok: true });
+      case "decide": {
+        const approved = body.decision === "approved";
+        await decideSubmission(projectId, approved ? "approved" : "changes", String(body.note ?? ""), user.name);
+        // approved with the founder's summary: Claude drafts the docs and tasks, HQ builds the repo and branches
+        const build = approved && body.build === true && buildReady();
+        if (build) {
+          await saveFounderBrief(projectId, String(body.brief ?? ""), user.name);
+          after(() => autoBuild(projectId, user.name));
+        }
+        return NextResponse.json({ ok: true, building: build, buildReady: buildReady() });
+      }
       case "publish":
         await publishUpdate(projectId, { title: String(body.title ?? ""), body: String(body.body ?? ""), previewUrl: String(body.previewUrl ?? ""), needsApproval: body.needsApproval === true }, user.name);
         return NextResponse.json({ ok: true });

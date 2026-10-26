@@ -25,8 +25,9 @@ import {
   type PullRequest,
   type Repo,
 } from "./github";
-import { repoFiles } from "./docs";
-import { branchName, keyFromBranch, mergeProblem, prefixFor, repoName, reviewProblem, statusAfter, taskKey, type DevStatus, type DevType, type Review } from "./rules";
+import { repoFiles, TEMPLATE_MARK } from "./docs";
+import { aiReady, draftDocs, type AiDocs } from "./ai";
+import { branchName, claudeReviewOf, keyFromBranch, mergeProblem, prefixFor, repoName, reviewProblem, statusAfter, taskKey, type DevStatus, type DevType, type Review } from "./rules";
 
 /*
  * HQ's development workflow: one repository per client project in the GitHub organization, one branch per task,
@@ -63,10 +64,15 @@ async function memberOf(user: SessionUser) {
 export async function devView(projectId: string) {
   const [project, tasks, team] = await Promise.all([getRecord("projects", projectId), listRecords("tasks"), listRecords("team")]);
   if (!project) throw new DevError("Project not found.", 404);
+  const ai = project.aiDocs as AiDocs | undefined;
   return {
     ready: devReady(),
+    aiReady: aiReady(),
     owner: devOwner(),
     webhookReady: !!webhookSecret(),
+    founderBrief: s(project.founderBrief),
+    aiRun: (project.aiRun as Rec | undefined) ?? null,
+    aiDraftedAt: ai?.at ?? "",
     repo: repoOf(project),
     prefix: s(project.taskPrefix) || prefixFor(s(project.title)),
     tasks: tasks.filter((t) => t.projectId === projectId && s(t.taskKey)).sort((a, b) => Number(s(b.taskKey).split("-").pop()) - Number(s(a.taskKey).split("-").pop())),
@@ -100,6 +106,7 @@ async function docInput(project: Rec) {
     tasks: tasks.filter((t) => t.projectId === project.id && s(t.taskKey)),
     team,
     repoUrl: repoOf(project)?.url ?? "",
+    ai: (project.aiDocs as AiDocs | undefined)?.files ?? null,
   };
 }
 
@@ -111,7 +118,7 @@ export async function syncDocs(projectId: string, by: string) {
   const input = await docInput(project);
   let changed = 0;
   for (const f of repoFiles(input)) {
-    const r = await putFile(repo, f.path, f.content, `${f.owned ? "Update" : "Add"} ${f.path} (FrameMind HQ)`, repo.defaultBranch, !f.owned);
+    const r = await putFile(repo, f.path, f.content, `${f.owned ? "Update" : f.replaceTemplate ? "Claude draft of" : "Add"} ${f.path} (FrameMind HQ)`, repo.defaultBranch, !f.owned, f.replaceTemplate ? (cur) => cur.includes(TEMPLATE_MARK) : f.replaceMark ? (cur) => cur.includes(f.replaceMark!) : undefined);
     if (r.changed) changed++;
   }
   await upsertRecord("projects", { ...project, devDocsAt: now() }, by);
@@ -119,7 +126,7 @@ export async function syncDocs(projectId: string, by: string) {
 }
 
 /** Create (or reconnect) the project's private repository, write its docs and workflows, and connect the webhook. */
-export async function setupRepo(projectId: string, user: SessionUser) {
+export async function setupRepo(projectId: string, by: string) {
   if (!devReady()) throw new DevError("Connect GitHub first: add GITHUB_DEV_TOKEN and GITHUB_DEV_OWNER in Vercel.", 503);
   const project = await getRecord("projects", projectId);
   if (!project) throw new DevError("Project not found.", 404);
@@ -127,9 +134,9 @@ export async function setupRepo(projectId: string, user: SessionUser) {
   if (!repo) {
     const name = repoName(s(project.title));
     repo = (await getRepo(devOwner(), name)) ?? (await createRepo(name, `${s(project.title)} — FrameMind AI Studio`));
-    await upsertRecord("projects", { ...project, repo, repoUrl: repo.url, ...(s(project.taskPrefix) ? {} : { taskPrefix: prefixFor(s(project.title)) }) }, user.name);
+    await upsertRecord("projects", { ...project, repo, repoUrl: repo.url, ...(s(project.taskPrefix) ? {} : { taskPrefix: prefixFor(s(project.title)) }) }, by);
   }
-  const files = await syncDocs(projectId, user.name);
+  const files = await syncDocs(projectId, by);
   let webhook = "connected";
   try {
     await ensureWebhook(repo, WEBHOOK_URL());
@@ -137,6 +144,117 @@ export async function setupRepo(projectId: string, user: SessionUser) {
     webhook = e instanceof Error ? e.message : "not connected";
   }
   return { repo, files, webhook };
+}
+
+/* ───────────────────────────── the automatic build ───────────────────────────── */
+
+/** Save the founder's "what to build" summary on the project (the input Claude plans from). */
+export async function saveFounderBrief(projectId: string, brief: string, by: string) {
+  const p = await getRecord("projects", projectId);
+  if (!p) throw new DevError("Project not found.", 404);
+  await upsertRecord("projects", { ...p, founderBrief: brief.trim().slice(0, 8000), aiRun: { status: "queued", step: "Starting…", error: "", at: now() } }, by);
+}
+
+export const buildReady = () => devReady() && aiReady();
+
+/** Where the automatic build has got to, kept on the project so every screen can show it. */
+async function runStep(projectId: string, by: string, patch: Record<string, unknown>) {
+  const p = await getRecord("projects", projectId);
+  if (p) await upsertRecord("projects", { ...p, aiRun: { ...((p.aiRun as Rec | undefined) ?? {}), ...patch, at: now() } }, by);
+}
+
+/**
+ * From the client's approved requirements and the founder's summary: make sure the repository exists, have Claude
+ * draft the four documents and the task plan (each task assigned), write the docs, then create every task with its
+ * branch. Safe to run again: docs the team has edited are never overwritten, and a plan's tasks are created once.
+ */
+export async function autoBuild(projectId: string, by: string) {
+  try {
+    if (!devReady()) throw new DevError("GitHub isn't connected (GITHUB_DEV_TOKEN / GITHUB_DEV_OWNER in Vercel).");
+    if (!aiReady()) throw new DevError("Claude isn't connected (ANTHROPIC_API_KEY in Vercel).");
+    await runStep(projectId, by, { status: "running", step: "Setting up the repository", error: "" });
+    await setupRepo(projectId, by);
+
+    await runStep(projectId, by, { step: "Claude is drafting the documents and the task plan" });
+    const project = (await getRecord("projects", projectId))!;
+    const [subs, team, tasks] = await Promise.all([listRecords("portalSubmissions"), listRecords("team"), listRecords("tasks")]);
+    const sub = subs.find((x) => s(x.projectId) === projectId && s(x.status) === "approved");
+    const open = (id: string) => tasks.filter((t) => s(t.assigneeId) === id && s(t.taskKey) && !["merged", "closed"].includes(s(t.devStatus))).length;
+    const ai = await draftDocs({
+      title: s(project.title),
+      services: Array.isArray(project.services) && (project.services as string[]).length ? (project.services as string[]) : [s(project.service)].filter(Boolean),
+      dueDate: s(project.dueDate),
+      founderBrief: s(project.founderBrief),
+      client: sub
+        ? { Company: s(sub.company), "About the client": s(sub.about), Audience: s(sub.audience), Requirements: s(sub.requirements), "Pages / sections": s(sub.pages), Fonts: s(sub.fonts), "Reference links": s(sub.referenceLinks), "Current website": s(sub.website) }
+        : { "Project brief": s(project.brief) },
+      colors: sub && Array.isArray(sub.colors) ? (sub.colors as string[]) : [],
+      team: team.filter((m) => s(m.status) !== "inactive").map((m) => ({ id: m.id, name: s(m.name), role: s(m.role), skills: Array.isArray(m.skills) ? (m.skills as string[]) : [], openTasks: open(m.id) })),
+    });
+    await upsertRecord("projects", { ...(await getRecord("projects", projectId))!, aiDocs: ai }, by);
+
+    await runStep(projectId, by, { step: "Writing the documents to GitHub" });
+    await syncDocs(projectId, by);
+
+    await runStep(projectId, by, { step: `Creating ${ai.tasks.length} tasks and their branches` });
+    const created = await createPlannedTasks(projectId, ai, by);
+    await runStep(projectId, by, { status: "done", step: `Done — ${created} tasks created and assigned`, error: "" });
+  } catch (e) {
+    console.error("[autoBuild]", e);
+    await runStep(projectId, by, { status: "failed", error: e instanceof Error ? e.message : "Something went wrong." }).catch(() => {});
+  }
+}
+
+/** Create Claude's planned tasks (once per plan), then update Tasks.md once, then make the branches from that main. */
+async function createPlannedTasks(projectId: string, ai: AiDocs, by: string) {
+  let project = (await getRecord("projects", projectId))!;
+  if (s(project.aiTasksFrom) === ai.at) return 0;
+  const repo = repoOf(project)!;
+  const team = await listRecords("team");
+  const prefix = s(project.taskPrefix) || prefixFor(s(project.title));
+  let n = Number(project.devCounter ?? 100);
+  const made: Rec[] = [];
+  for (const t of ai.tasks) {
+    n += 1;
+    const key = taskKey(prefix, n);
+    const assignee = team.find((m) => m.id === t.assigneeId);
+    made.push(
+      await upsertRecord(
+        "tasks",
+        {
+          title: `${key}: ${t.title}`,
+          status: "todo",
+          priority: t.priority,
+          area: "Development",
+          projectId,
+          assignee: s(assignee?.name),
+          description: t.description,
+          acceptance: t.acceptance.join("\n"),
+          taskKey: key,
+          devType: t.type,
+          branch: branchName(t.type, key, t.title),
+          devStatus: "todo",
+          assigneeId: assignee?.id ?? "",
+          commits: 0,
+          devHistory: [ev("Claude", "Planned and assigned", t.reason)],
+        },
+        by,
+      ),
+    );
+  }
+  project = (await getRecord("projects", projectId))!;
+  await upsertRecord("projects", { ...project, devCounter: n, aiTasksFrom: ai.at }, by);
+  await syncDocs(projectId, by).catch(() => {});
+  for (const t of made) await createBranch(repo, s(t.branch));
+  const invited = new Set<string>();
+  for (const t of made) {
+    const login = s(team.find((m) => m.id === s(t.assigneeId))?.githubUsername);
+    if (login && !invited.has(login)) {
+      invited.add(login);
+      await addCollaborator(repo, login, "push").catch(() => {});
+    }
+  }
+  return made.length;
 }
 
 /* ───────────────────────────── tasks ───────────────────────────── */
@@ -244,7 +362,8 @@ export async function mergeTask(taskId: string, user: SessionUser) {
   const me = await memberOf(user);
   const pr = fresh.pr as Rec | undefined;
   const checks = ((fresh.checks as Rec | undefined)?.state ?? "none") as "success" | "pending" | "failure" | "none";
-  const problem = mergeProblem({ actorRole: user.role, actorTeamId: me?.id, assigneeId: s(fresh.assigneeId), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks, reviews: Array.isArray(fresh.reviews) ? (fresh.reviews as Review[]) : [] });
+  const claudeReview = claudeReviewOf((fresh.checks as { items?: { name: string; state: string }[] } | undefined)?.items);
+  const problem = mergeProblem({ claudeReview, actorRole: user.role, actorTeamId: me?.id, assigneeId: s(fresh.assigneeId), pr: pr ? { state: s(pr.state), merged: pr.merged === true, mergeable: (pr.mergeable as boolean | null) ?? null, headSha: s(pr.headSha) } : null, checks, reviews: Array.isArray(fresh.reviews) ? (fresh.reviews as Review[]) : [] });
   if (problem) throw new DevError(problem, 409);
   await mergePullRequest(repo, Number(pr!.number), s(pr!.headSha), `${s(fresh.title)} (#${s(pr!.number)})`);
   await deleteBranch(repo, s(fresh.branch)).catch(() => {});

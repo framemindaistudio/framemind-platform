@@ -17,7 +17,12 @@ export interface DocInput {
   tasks: Rec[];
   team: Rec[];
   repoUrl: string;
+  /** Claude's drafts, when the project has them: they replace the starting templates */
+  ai?: { prd: string; architecture: string; rules: string; design: string } | null;
 }
+
+/** Text that only HQ's untouched starting template contains: such a file may be replaced by Claude's draft. */
+export const TEMPLATE_MARK = "_To be written by the";
 
 const lines = (v: unknown) =>
   s(v)
@@ -230,9 +235,15 @@ permissions:
   id-token: write
 jobs:
   review:
-    if: \${{ secrets.ANTHROPIC_API_KEY != '' }}
     runs-on: ubuntu-latest
+    env:
+      HAS_KEY: \${{ secrets.ANTHROPIC_API_KEY != '' }}
     steps:
+      - name: Claude needs its key
+        if: env.HAS_KEY != 'true'
+        run: |
+          echo "::error::Add ANTHROPIC_API_KEY as an organization Actions secret — FrameMind HQ requires Claude's review before merging."
+          exit 1
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
@@ -260,16 +271,20 @@ export const PR_TEMPLATE = `## Task
 `;
 
 /** Every file HQ writes, with whether HQ owns it (rewritten) or only seeds it (written once). */
-export function repoFiles(input: DocInput): { path: string; content: string; owned: boolean }[] {
+/** Text only the first version of HQ's Claude workflow contains (GitHub rejects it); that file is replaced. */
+export const OLD_REVIEW_MARK = "if: ${{ secrets.ANTHROPIC_API_KEY != '' }}";
+
+export function repoFiles(input: DocInput): { path: string; content: string; owned: boolean; replaceTemplate?: boolean; replaceMark?: string }[] {
+  const ai = input.ai;
   return [
-    { path: "docs/PRD.md", content: prd(input), owned: false },
-    { path: "docs/Architecture.md", content: architecture(input), owned: false },
-    { path: "docs/Rules.md", content: rules(input), owned: false },
-    { path: "docs/Design.md", content: design(input), owned: false },
+    { path: "docs/PRD.md", content: ai?.prd || prd(input), owned: false, replaceTemplate: !!ai?.prd },
+    { path: "docs/Architecture.md", content: ai?.architecture || architecture(input), owned: false, replaceTemplate: !!ai?.architecture },
+    { path: "docs/Rules.md", content: ai?.rules || rules(input), owned: false, replaceTemplate: !!ai?.rules },
+    { path: "docs/Design.md", content: ai?.design || design(input), owned: false, replaceTemplate: !!ai?.design },
     { path: "docs/Tasks.md", content: tasksMd(input), owned: true },
     { path: "CLAUDE.md", content: claudeMd(input), owned: true },
     { path: ".github/workflows/ci.yml", content: CI_WORKFLOW, owned: false },
-    { path: ".github/workflows/claude-review.yml", content: CLAUDE_REVIEW_WORKFLOW, owned: false },
+    { path: ".github/workflows/claude-review.yml", content: CLAUDE_REVIEW_WORKFLOW, owned: false, replaceMark: OLD_REVIEW_MARK },
     { path: ".github/pull_request_template.md", content: PR_TEMPLATE, owned: false },
   ];
 }

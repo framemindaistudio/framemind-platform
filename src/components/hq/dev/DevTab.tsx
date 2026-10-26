@@ -12,6 +12,10 @@ import { ChecksBadge, DevStatusBadge, DevTaskDrawer, type Rec, type RepoInfo } f
 
 interface View {
   ready: boolean;
+  aiReady: boolean;
+  founderBrief: string;
+  aiRun: { status?: string; step?: string; error?: string; at?: string } | null;
+  aiDraftedAt: string;
   owner: string;
   webhookReady: boolean;
   repo: RepoInfo | null;
@@ -44,6 +48,13 @@ export function DevTab({ projectId }: { projectId: string }) {
   useEffect(() => {
     void load();
   }, [load]);
+  // while Claude is building, refresh every few seconds to show its progress
+  const building = ["queued", "running"].includes(v?.aiRun?.status ?? "");
+  useEffect(() => {
+    if (!building) return;
+    const t = setInterval(() => void load(), 5000);
+    return () => clearInterval(t);
+  }, [building, load]);
 
   const run = async (action: string, extra: Record<string, unknown>, ok: (r: Record<string, unknown>) => string) => {
     setBusy(action);
@@ -73,6 +84,8 @@ export function DevTab({ projectId }: { projectId: string }) {
           GitHub isn&apos;t connected yet. In Vercel → Settings → Environment Variables add <code>GITHUB_DEV_OWNER</code>, <code>GITHUB_DEV_TOKEN</code> and <code>GITHUB_WEBHOOK_SECRET</code>, then redeploy.
         </Notice>
       )}
+
+      <BuildPanel v={v} leader={leader} busy={!!busy} onBuild={(brief) => run("auto", { brief }, () => "Started — Claude is writing the docs and the task plan. This takes a minute or two.")} />
 
       <Panel
         title="Repository"
@@ -146,6 +159,37 @@ export function DevTab({ projectId }: { projectId: string }) {
       {creating && <NewTask team={v.team} prefix={v.prefix} onClose={() => setCreating(false)} onCreate={(input) => run("task", { input }, (r) => `Created ${s((r.task as Rec)?.taskKey)} with its branch on GitHub.`)} />}
       {current && <DevTaskDrawer task={current} repo={v.repo} team={v.team} onClose={() => setOpenId(null)} onChanged={load} />}
     </div>
+  );
+}
+
+/** The founder's "what to build" summary, and the automatic build Claude runs from it. */
+function BuildPanel({ v, leader, busy, onBuild }: { v: View; leader: boolean; busy: boolean; onBuild: (brief: string) => Promise<boolean> }) {
+  const [brief, setBrief] = useState(v.founderBrief);
+  const run = v.aiRun;
+  const status = run?.status ?? "";
+  return (
+    <Panel title="Build with Claude" subtitle="Your summary + the client's approved requirements → Claude writes PRD, Architecture, Rules, Design and the tasks, assigns each task, and HQ creates the branches.">
+      {status && (
+        <div className={`mb-3 rounded-[var(--radius-sm)] border px-3 py-2 text-sm ${status === "failed" ? "border-bad/30 bg-bad/10 text-bad" : status === "done" ? "border-ok/30 bg-ok/10 text-ok" : "border-info/30 bg-info/10 text-info"}`}>
+          {status === "failed" ? `Stopped: ${run?.error}` : run?.step}
+          {["queued", "running"].includes(status) && <span className="ml-2 inline-block size-2 animate-pulse rounded-full bg-current" />}
+        </div>
+      )}
+      {!v.aiReady && <p className="mb-2 text-xs text-warn">Add ANTHROPIC_API_KEY in Vercel to turn this on.</p>}
+      {leader ? (
+        <div className="space-y-2">
+          <Textarea rows={5} value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="What to build: pages and features, priorities, tech preferences, what's out of scope, deadlines." />
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="sm" disabled={busy || !v.ready || !v.aiReady || ["queued", "running"].includes(status)} onClick={() => void onBuild(brief)}>
+              {v.aiDraftedAt ? "Rebuild docs & tasks with Claude" : "Build docs & tasks with Claude"}
+            </Button>
+            {v.aiDraftedAt && <span className="text-xs text-blueprint">Last drafted {new Date(v.aiDraftedAt).toLocaleString("en-IN")}. Docs your team has edited are never overwritten; a new plan adds new tasks.</span>}
+          </div>
+        </div>
+      ) : (
+        v.founderBrief && <p className="whitespace-pre-line text-sm text-charcoal">{v.founderBrief}</p>
+      )}
+    </Panel>
   );
 }
 

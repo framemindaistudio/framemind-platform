@@ -38,7 +38,7 @@ const MANAGED = (label: string) => NextResponse.json({ error: `${label} change o
 const ATTRIBUTION_KEYS = ["attribution", "splits", "decidedBy", "decidedAt", "decisionNote", "attributionHistory", "registeredBy", "registeredAt"];
 /** Kept from the stored record: the development workflow changes these only through /api/hq/dev and GitHub events. */
 const DEV_TASK_KEYS = ["taskKey", "devType", "branch", "pr", "checks", "reviews", "devStatus", "commits", "lastCommit", "previewUrl", "assigneeId", "devHistory", "mergedBy", "mergedAt"];
-const DEV_PROJECT_KEYS = ["repo", "devCounter", "devDocsAt"];
+const DEV_PROJECT_KEYS = ["repo", "devCounter", "devDocsAt", "aiDocs", "aiRun", "aiTasksFrom", "founderBrief"];
 
 /**
  * Payments ticked "reconciled" (or "refunded") are stamped with who did it and when, from the session — never from

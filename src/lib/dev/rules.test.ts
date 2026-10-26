@@ -1,7 +1,7 @@
 /** Tests for the development workflow rules. Run: npm test */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { branchName, keyFromBranch, mergeProblem, prefixFor, reviewProblem, statusAfter, taskKey } from "./rules.ts";
+import { branchName, claudeReviewOf, keyFromBranch, mergeProblem, prefixFor, reviewProblem, statusAfter, taskKey } from "./rules.ts";
 
 test("task keys, prefixes and branch names", () => {
   assert.equal(taskKey("fm", 104), "FM-104");
@@ -46,4 +46,15 @@ test("status follows GitHub", () => {
   assert.equal(statusAfter("in-review", { kind: "review", decision: "changes" }), "changes");
   assert.equal(statusAfter("approved", { kind: "pr-merged" }), "merged");
   assert.equal(statusAfter("merged", { kind: "pr-closed" }), "merged");
+});
+
+test("Claude must have reviewed the latest commit before merging", () => {
+  const base = { actorRole: "founder", assigneeId: "dev", pr, checks: "success" as const, reviews: [approved] };
+  assert.equal(mergeProblem({ ...base, claudeReview: "passed" }), null);
+  assert.match(mergeProblem({ ...base, claudeReview: "missing" }) ?? "", /ANTHROPIC_API_KEY/);
+  assert.match(mergeProblem({ ...base, claudeReview: "pending" }) ?? "", /still reviewing/);
+  assert.match(mergeProblem({ ...base, claudeReview: "failed" }) ?? "", /didn't complete/);
+  assert.equal(claudeReviewOf([{ name: "CI", state: "success" }, { name: "Claude review", state: "success" }]), "passed");
+  assert.equal(claudeReviewOf([{ name: "Claude review", state: "skipped" }]), "missing");
+  assert.equal(claudeReviewOf([{ name: "CI", state: "success" }]), "missing");
 });
