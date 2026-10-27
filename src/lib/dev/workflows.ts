@@ -1,6 +1,6 @@
 /**
  * The Claude workflows HQ writes into every client repository. Claude runs inside GitHub Actions — on the studio's
- * Claude Max subscription (organization secret CLAUDE_CODE_OAUTH_TOKEN, made with `claude setup-token`) or, if that
+ * Claude subscription — Pro or Max (organization secret CLAUDE_CODE_OAUTH_TOKEN, made with `claude setup-token`) or, if that
  * isn't set, an Anthropic API key (ANTHROPIC_API_KEY). HQ starts Plan and Build; Review starts on every pull request.
  *
  *   claude-plan.yml    founder summary + client requirements → PROJECT_PLAN, PRD, Architecture, Rules, Design, tasks.json
@@ -26,7 +26,7 @@ const indent = (text: string, n: number) =>
     .map((l) => (l ? " ".repeat(n) + l : l))
     .join("\n");
 
-/** The Claude step twice — Max subscription first, API key otherwise — with the same prompt and tools. */
+/** The Claude step twice — Claude subscription first, API key otherwise — with the same prompt and tools. */
 function claudeSteps(prompt: string, tools: string, maxTurns = 150) {
   const step = (name: string, cond: string, auth: string) => `- name: ${name}
   if: ${cond}
@@ -38,7 +38,7 @@ ${indent(prompt, 6)}
     claude_args: |
       --allowedTools "${tools}" --max-turns ${maxTurns}`;
   return [
-    step("Claude (Max subscription)", "env.HAS_OAUTH == 'true'", "claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}"),
+    step("Claude (subscription)", "env.HAS_OAUTH == 'true'", "claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}"),
     step("Claude (API key)", "env.HAS_OAUTH != 'true' && env.HAS_KEY == 'true'", "anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}"),
   ]
     .map((x) => indent(x, 6))
@@ -53,7 +53,7 @@ const AUTH_ENV = `    env:
 const NEED_TOKEN = `      - name: Claude needs a token
         if: env.HAS_OAUTH != 'true' && env.HAS_KEY != 'true'
         run: |
-          echo "::error::Add CLAUDE_CODE_OAUTH_TOKEN (Claude Max: run 'claude setup-token') or ANTHROPIC_API_KEY as an organization Actions secret."
+          echo "::error::Add CLAUDE_CODE_OAUTH_TOKEN (your Claude Pro or Max login: run 'claude setup-token') or ANTHROPIC_API_KEY as an organization Actions secret."
           exit 1`;
 
 const GIT_ID = `      - name: Git identity

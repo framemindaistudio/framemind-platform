@@ -183,7 +183,7 @@ function ClaudePanel({ v, leader, busy, run }: { v: View; leader: boolean; busy:
     </label>
   );
   return (
-    <Panel title="Claude" subtitle="Claude works inside GitHub on your Claude Max subscription: it plans from your summary, builds tasks, and reviews every pull request.">
+    <Panel title="Claude" subtitle="Claude works inside GitHub on your Claude subscription (Pro or Max): it plans from your summary, builds tasks, and reviews every pull request.">
       <div className="space-y-4">
         {status && (
           <div className={`rounded-[var(--radius-sm)] border px-3 py-2 text-sm ${status === "failed" ? "border-bad/30 bg-bad/10 text-bad" : status === "running" ? "border-info/30 bg-info/10 text-info" : "border-ok/30 bg-ok/10 text-ok"}`}>

@@ -212,7 +212,7 @@ export function DevTaskDrawer({ task, repo, team, requireClaude = false, onClose
               </Button>
             )}
             <span className="text-xs text-blueprint">
-              {build?.status === "failed" ? "Claude's last build run failed." : "Claude builds it on GitHub with your Max subscription — no laptop needed."}
+              {build?.status === "failed" ? "Claude's last build run failed." : "Claude builds it on GitHub with your Claude subscription — no laptop needed. On Pro, if it stops at the usage limit, press Retry once the limit resets."}
               {build?.runUrl && (
                 <a className="ml-1 underline" href={build.runUrl} target="_blank" rel="noreferrer">
                   Run log
