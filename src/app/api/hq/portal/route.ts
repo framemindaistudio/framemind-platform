@@ -8,6 +8,7 @@ import { grantPortalAccess, publicAccount, readPortalAccounts, updatePortalAccou
 import { decideSubmission, hqPortalView, markRead, PORTAL_URL, PortalError, publishUpdate, teamMessage } from "@/lib/portal/data";
 import { emailInvite } from "@/lib/portal/invite";
 import { saveFounderBrief, startPlan } from "@/lib/dev/server";
+import { claudeOnGitHub } from "@/lib/dev/mode";
 import { devReady } from "@/lib/dev/github";
 
 /** Approving requirements can set up the repository and start Claude's plan on GitHub. */
@@ -26,7 +27,7 @@ export async function GET(req: Request) {
     const accounts = (await readPortalAccounts()).list.filter((a) => a.projectIds.includes(project)).map(publicAccount);
     const p = await getRecord("projects", project);
     const client = p?.clientId ? (await listRecords("clients")).find((c) => c.id === p.clientId) : undefined;
-    return NextResponse.json({ accounts, mailReady: mailReady(), portalUrl: PORTAL_URL(), client: client ? { name: String(client.contactName || client.name || ""), email: String(client.email || "") } : null, ...(await hqPortalView(project)) });
+    return NextResponse.json({ accounts, mailReady: mailReady(), portalUrl: PORTAL_URL(), claudeOnGitHub: claudeOnGitHub(), client: client ? { name: String(client.contactName || client.name || ""), email: String(client.email || "") } : null, ...(await hqPortalView(project)) });
   } catch (e) {
     return apiError(e);
   }
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
         const approved = body.decision === "approved";
         await decideSubmission(projectId, approved ? "approved" : "changes", String(body.note ?? ""), user.name);
         // approved with the founder's summary: HQ sets up the repo and Claude starts planning on GitHub
-        const build = approved && body.build === true && devReady() && !!String(body.brief ?? "").trim();
+        const build = approved && body.build === true && claudeOnGitHub() && devReady() && !!String(body.brief ?? "").trim();
         if (approved && String(body.brief ?? "").trim()) await saveFounderBrief(projectId, String(body.brief), user.name);
         if (build) await startPlan(projectId, user.name);
         return NextResponse.json({ ok: true, building: build });

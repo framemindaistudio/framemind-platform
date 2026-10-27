@@ -7,6 +7,7 @@
  */
 
 import { CLAUDE_BUILD_WORKFLOW, CLAUDE_PLAN_WORKFLOW, CLAUDE_REVIEW_WORKFLOW } from "./workflows";
+import { claudeOnGitHub } from "./mode";
 
 type Rec = Record<string, unknown>;
 const s = (v: unknown) => (v === undefined || v === null ? "" : String(v)).trim();
@@ -258,6 +259,7 @@ ${field("Organisation", s(sub.company) || s(client?.name))}${field("About", sub.
 }
 
 export function repoFiles(input: DocInput): { path: string; content: string; owned: boolean }[] {
+  const claude = claudeOnGitHub();
   return [
     { path: "docs/FOUNDER_SUMMARY.md", content: founderSummary(input), owned: true },
     { path: "docs/CLIENT_REQUIREMENTS.md", content: clientRequirements(input), owned: true },
@@ -268,9 +270,14 @@ export function repoFiles(input: DocInput): { path: string; content: string; own
     { path: "docs/Tasks.md", content: tasksMd(input), owned: true },
     { path: "CLAUDE.md", content: claudeMd(input), owned: true },
     { path: ".github/workflows/ci.yml", content: CI_WORKFLOW, owned: true },
-    { path: ".github/workflows/claude-plan.yml", content: CLAUDE_PLAN_WORKFLOW, owned: true },
-    { path: ".github/workflows/claude-build.yml", content: CLAUDE_BUILD_WORKFLOW, owned: true },
-    { path: ".github/workflows/claude-review.yml", content: CLAUDE_REVIEW_WORKFLOW, owned: true },
+    // Claude's workflows go in only while Claude on GitHub is on (lib/dev/mode.ts)
+    ...(claude
+      ? [
+          { path: ".github/workflows/claude-plan.yml", content: CLAUDE_PLAN_WORKFLOW, owned: true },
+          { path: ".github/workflows/claude-build.yml", content: CLAUDE_BUILD_WORKFLOW, owned: true },
+          { path: ".github/workflows/claude-review.yml", content: CLAUDE_REVIEW_WORKFLOW, owned: true },
+        ]
+      : []),
     { path: ".github/pull_request_template.md", content: PR_TEMPLATE, owned: false },
   ];
 }

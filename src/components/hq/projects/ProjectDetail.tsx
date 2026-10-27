@@ -48,6 +48,9 @@ export function useProject(id: string) {
   return { project, loading: projects.loading, patch, saving, error, remove: projects.remove };
 }
 
+const DELETE_MESSAGE =
+  "Delete this project?\n\nDeleted with it: its deliverables, shoots, coding tasks, and its client portal (the client's form, updates, messages and uploaded files). A client login made only for this project is removed too.\n\nKept: tasks, expenses and trips (unlinked), and the GitHub repository (delete it on GitHub if you no longer need it).\n\nA project with an invoice can't be deleted: cancel or delete the invoice in Finance first.";
+
 export function ProjectDetail({ id }: { id: string }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -65,6 +68,7 @@ export function ProjectDetail({ id }: { id: string }) {
     return (["overview", "payments", "deliverables", "checklist", "inputs", "portal", "dev", "shoots", "handover"] as Tab[]).includes(t as Tab) ? (t as Tab) : "overview";
   });
   const [draft, setDraft] = useState<Record<string, unknown> | null>(null);
+  const [deleteError, setDeleteError] = useState("");
 
   const client = useMemo(() => clientsQ.records.find((c) => c.id === project?.clientId), [clientsQ.records, project?.clientId]);
   const mine = useMemo(() => deliverables.filter((d) => d.projectId === id), [deliverables, id]);
@@ -136,6 +140,23 @@ export function ProjectDetail({ id }: { id: string }) {
                   <Pencil className="size-4" /> Edit details
                 </Button>
               )}
+              {canWrite && (
+                <ConfirmButton
+                  onConfirm={async () => {
+                    setDeleteError("");
+                    try {
+                      await remove(project.id);
+                      router.push("/hq/projects");
+                    } catch (e) {
+                      setDeleteError(e instanceof Error ? e.message : "Could not delete the project.");
+                    }
+                  }}
+                  message={DELETE_MESSAGE}
+                  className="inline-flex items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs font-semibold text-paper/70 hover:bg-bad/20 hover:text-paper"
+                >
+                  <Trash2 className="size-3.5" /> Delete project
+                </ConfirmButton>
+              )}
             </div>
           </div>
           {progress !== null && (
@@ -201,6 +222,7 @@ export function ProjectDetail({ id }: { id: string }) {
       </section>
 
       {error && <Notice tone="bad" className="mt-4">{error}</Notice>}
+      {deleteError && <Notice tone="bad" className="mt-4">{deleteError}</Notice>}
 
       <Tabs tabs={tabs} value={tab} onChange={setTab} className="mt-6" />
       <div className="pt-6">
@@ -244,20 +266,6 @@ export function ProjectDetail({ id }: { id: string }) {
                   emailSubject={`${str(project.title)} — update from FrameMind AI Studio`}
                 />
               </Panel>
-              {canWrite && (
-                <Panel title="Danger zone">
-                  <ConfirmButton
-                    onConfirm={async () => {
-                      await remove(project.id);
-                      router.push("/hq/projects");
-                    }}
-                    message="Delete this project? Its deliverables and shoots stay, unlinked. The change is kept in the history."
-                    className="inline-flex items-center gap-1.5 rounded px-2 py-1.5 text-xs font-semibold text-bad hover:bg-bad/10"
-                  >
-                    <Trash2 className="size-3.5" /> Delete project
-                  </ConfirmButton>
-                </Panel>
-              )}
             </aside>
           </div>
         )}

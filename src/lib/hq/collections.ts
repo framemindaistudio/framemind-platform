@@ -12,6 +12,7 @@
  *  unknown keys are preserved.
  * ─────────────────────────────────────────────────────────────────────────────
  */
+import { POSITIONS } from "./positions";
 import { ALL, DELIVERY_SIDE, LEADERSHIP, MEDIA_SIDE, OPS, OPS_MEDIA, OPS_STUDIO, SALES_SIDE, STAFF, type Role } from "./roles";
 
 export type FieldType =
@@ -785,7 +786,7 @@ export const collections: CollectionDef[] = [
     name: "team",
     label: "Team",
     singular: "Member",
-    description: "Founders, designers, developers, editors, coaches, freelancers and interns.",
+    description: "The people in each company role: Developer 1, Developer 2 and so on, with past people kept on record.",
     icon: "Users",
     titleField: "name",
     subtitleField: "role",
@@ -806,9 +807,19 @@ export const collections: CollectionDef[] = [
         table: true,
         width: "half",
       },
+      {
+        key: "position",
+        label: "Company role",
+        type: "select",
+        options: opts(...POSITIONS.map((p): [string, string] => [p.key, p.title])),
+        width: "third",
+        help: "Set when the person is added from Team → Roles. It decides their numbered place and login (e.g. Developer 2 → dev2).",
+      },
+      { key: "place", label: "Place number", type: "number", width: "third", hidden: true },
       { key: "type", label: "Engagement", type: "select", options: opts("Full-time", "Part-time", "Freelance", "Intern"), default: "Intern", table: true, width: "third" },
       { key: "status", label: "Status", type: "select", options: opts("onboarding", "active", "inactive"), default: "active", table: true, width: "third" },
       { key: "joinDate", label: "Joined", type: "date", width: "third" },
+      { key: "leftOn", label: "Left on", type: "date", width: "third", help: "Set by “Person left” on the Roles board: their place's login is paused." },
       {
         key: "internshipEnds",
         label: "Internship ends (interns only)",

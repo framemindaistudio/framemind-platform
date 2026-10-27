@@ -4,6 +4,7 @@ import { apiError } from "@/lib/hq/api";
 import { OPS, STAFF } from "@/lib/hq/roles";
 import { approvePlan, autopilotTick, buildTask, createTask, devQueue, devView, DevError, GitHubError, mergeTask, openPR, refreshTask, reviewTask, saveAutopilot, saveFounderBrief, setupRepo, startPlan, syncDocs } from "@/lib/dev/server";
 import { getRecord, upsertRecord } from "@/lib/hq/records";
+import { CLAUDE_ON_HOLD, claudeOnGitHub } from "@/lib/dev/mode";
 
 /** Approving a plan creates every task and its branch on GitHub, which can take a while for a big plan. */
 export const maxDuration = 300;
@@ -33,6 +34,8 @@ export async function POST(req: Request) {
     const b = (await req.json()) as Record<string, unknown>;
     const project = String(b.project ?? "");
     const task = String(b.task ?? "");
+    // Claude on GitHub is on hold unless HQ_CLAUDE_ON_GITHUB=on (lib/dev/mode.ts)
+    if (["plan", "approvePlan", "autopilot", "build", "retry"].includes(String(b.action)) && !claudeOnGitHub()) return NextResponse.json({ error: CLAUDE_ON_HOLD }, { status: 409 });
     switch (b.action) {
       case "brief": {
         await saveFounderBrief(project, String(b.brief ?? ""), user.name);

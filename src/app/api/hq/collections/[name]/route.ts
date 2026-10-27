@@ -6,6 +6,7 @@ import { deleteRecord, getRecord, listRecords, upsertMany, upsertRecord } from "
 import { can, LEADERSHIP, OPS, STAFF } from "@/lib/hq/roles";
 import { storeInfo } from "@/lib/store";
 import { deleteProject, ProjectHasInvoices } from "@/lib/hq/project-delete";
+import { ClientHasInvoices, deleteClient } from "@/lib/hq/client-delete";
 import { autoPortalOnPayment } from "@/lib/portal/invite";
 
 type Ctx = { params: Promise<{ name: string }> };
@@ -134,10 +135,16 @@ export async function DELETE(req: Request, ctx: Ctx) {
       const { removed } = await deleteProject(id, user.name);
       return NextResponse.json({ ok: true, removed });
     }
+    // a client takes its projects, quotes, notes and portal logins with it (lib/hq/client-delete.ts): founders and admins only
+    if (name === "clients") {
+      if (!can(user, LEADERSHIP)) return NextResponse.json({ error: "Only a founder or admin can delete a client." }, { status: 403 });
+      const { removed } = await deleteClient(id, user.name);
+      return NextResponse.json({ ok: true, removed });
+    }
     await deleteRecord(name, id, user.name);
     return NextResponse.json({ ok: true });
   } catch (e) {
-    if (e instanceof ProjectHasInvoices) return NextResponse.json({ error: e.message, invoices: e.invoices }, { status: 409 });
+    if (e instanceof ProjectHasInvoices || e instanceof ClientHasInvoices) return NextResponse.json({ error: e.message, invoices: e.invoices }, { status: 409 });
     return apiError(e);
   }
 }

@@ -42,7 +42,7 @@ export function startCommand(task: Rec, repo: RepoInfo) {
 }
 
 /** One development task: start command, pull request, checks, reviews, and the merge gate. */
-export function DevTaskDrawer({ task, repo, team, requireClaude = false, onClose, onChanged }: { task: Rec; repo: RepoInfo | null; team: { id: string; name: string; codeReviewer: boolean }[]; requireClaude?: boolean; onClose: () => void; onChanged: () => Promise<unknown> | void }) {
+export function DevTaskDrawer({ task, repo, team, requireClaude = false, claudeOn = false, onClose, onChanged }: { task: Rec; repo: RepoInfo | null; team: { id: string; name: string; codeReviewer: boolean }[]; requireClaude?: boolean; /** Claude on GitHub is switched on (lib/dev/mode.ts) */ claudeOn?: boolean; onClose: () => void; onChanged: () => Promise<unknown> | void }) {
   const { user } = useHq();
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState("");
@@ -188,7 +188,7 @@ export function DevTaskDrawer({ task, repo, team, requireClaude = false, onClose
               Preview deployment <ExternalLink className="size-3" />
             </a>
           )}
-          {pr?.number ? (
+          {claudeOn && pr?.number ? (
             <p className="mt-2 text-xs">
               <span className="font-semibold">Claude&apos;s review:</span>{" "}
               {claude === "passed" ? <Badge tone="ok">Approved this commit</Badge> : claude === "changes" ? <Badge tone="bad">Asked for changes</Badge> : <Badge tone="outline">Not yet on this commit</Badge>}
@@ -201,7 +201,7 @@ export function DevTaskDrawer({ task, repo, team, requireClaude = false, onClose
           ) : null}
         </section>
 
-        {leader && !["merged", "closed"].includes(status) && (
+        {claudeOn && leader && !["merged", "closed"].includes(status) && (
           <section className="flex flex-wrap items-center gap-3 rounded-[var(--radius-sm)] border border-graphite/10 p-3">
             <Button size="sm" variant="secondary" disabled={!!busy || build?.status === "running"} onClick={() => void act("build", {}, "Claude started building this task on GitHub. HQ opens the pull request when it finishes.")}>
               {build?.status === "running" ? "Claude is building…" : "Build with Claude"}

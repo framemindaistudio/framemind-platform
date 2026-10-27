@@ -1,45 +1,32 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ClipboardCheck, Loader2, Mail, Pencil, Phone, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { CollectionManager } from "@/components/hq/CollectionManager";
 import { useCollection, useHq } from "@/components/hq/data";
-import { EmptyState, Loading, StatCard } from "@/components/hq/ui";
-import { Badge, statusTone } from "@/components/ui/Badge";
+import { StatCard } from "@/components/hq/ui";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Overlay";
 import { can, LEADERSHIP } from "@/lib/hq/roles";
-import { cn, formatDate } from "@/lib/utils";
-import { MemberPhoto } from "./MemberPhoto";
-import { memberProjects, memberShoots, ONBOARDING, PROJECT_DONE, onboardingProgress, onboardingState, str, useTodayIso, type OnboardingState, type Rec } from "./team";
+import { RolesBoard } from "./RolesBoard";
+import { ONBOARDING, onboardingState, str, type OnboardingState, type Rec } from "./team";
 
-const STATUS_ORDER: Record<string, number> = { active: 0, onboarding: 1, inactive: 2 };
-
+/** Team → People: the company roles with their numbered places (RolesBoard), then every record in a table. */
 export function PeopleTab() {
   const { user, store } = useHq();
-  const { records: team, loading, error, save, refresh } = useCollection<Rec>("team");
-  const { records: projects } = useCollection<Rec>("projects");
-  const { records: shoots } = useCollection<Rec>("shoots");
-  const today = useTodayIso();
-  const year = today?.slice(0, 4) ?? "";
+  const { records: team, error, save, refresh } = useCollection<Rec>("team");
   const canEdit = can(user, LEADERSHIP) && store.writable;
 
   const [openId, setOpenId] = useState<string | null>(null);
   const [checklistId, setChecklistId] = useState<string | null>(null);
 
-  const members = useMemo(
-    () =>
-      [...team].sort((a, b) => (STATUS_ORDER[str(a.status)] ?? 3) - (STATUS_ORDER[str(b.status)] ?? 3) || str(a.name).localeCompare(str(b.name))),
-    [team],
-  );
-
   const stats = useMemo(() => {
-    const active = team.filter((m) => str(m.status) === "active").length;
-    const ready = team.filter((m) => m.agreementSigned === true && m.ipAssigned === true).length;
-    const onboarding = team.filter((m) => str(m.status) === "onboarding").length;
-    const live = projects.filter((p) => !PROJECT_DONE.includes(str(p.stage)) && str(p.stage) !== "on-hold").length;
-    return { active, ready, onboarding, live };
-  }, [team, projects]);
+    const current = team.filter((m) => str(m.status) !== "inactive");
+    const ready = current.filter((m) => m.agreementSigned === true && m.ipAssigned === true).length;
+    const onboarding = current.filter((m) => str(m.status) === "onboarding").length;
+    const interns = current.filter((m) => str(m.type) === "Intern").length;
+    return { current: current.length, ready, onboarding, interns, past: team.length - current.length };
+  }, [team]);
 
   const checklistMember = checklistId ? team.find((m) => m.id === checklistId) : undefined;
 
@@ -48,31 +35,20 @@ export function PeopleTab() {
       {error && <p className="rounded border border-bad/30 bg-bad/10 px-3 py-2 text-sm text-bad">{error}</p>}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Active team" value={stats.active} sub={`${team.length} on record`} />
-        <StatCard label="Paperwork done" value={`${stats.ready}/${team.length}`} sub="Agreement / NDA and IP assignment signed" progress={team.length ? stats.ready / team.length : 0} />
+        <StatCard label="In the team now" value={stats.current} sub={stats.past ? `${stats.past} past people on record` : "Nobody has left yet"} />
+        <StatCard label="Paperwork done" value={`${stats.ready}/${stats.current}`} sub="Agreement / NDA and IP assignment signed" progress={stats.current ? stats.ready / stats.current : 0} />
         <StatCard label="Onboarding" value={stats.onboarding} sub="Still finishing the onboarding checklist" />
-        <StatCard label="Live projects" value={stats.live} sub="Across the whole team" tone="dark" />
+        <StatCard label="Interns" value={stats.interns} sub="Engagement set to Intern" tone="dark" />
       </div>
 
-      {loading ? (
-        <Loading label="Loading team…" />
-      ) : members.length === 0 ? (
-        <EmptyState icon="Users" title="No team members yet" description="Add founders, staff, interns and freelancers below. Everyone signs the agreement and IP assignment before touching client work." />
-      ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Team directory">
-          {members.map((m) => (
-            <li key={m.id}>
-              <MemberCard member={m} projects={projects} shoots={shoots} year={year} today={today} canEdit={canEdit} onEdit={() => setOpenId(m.id)} onChecklist={() => setChecklistId(m.id)} onPhoto={() => void refresh()} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <RolesBoard members={team} canEdit={canEdit} onEdit={setOpenId} onChecklist={setChecklistId} onChanged={() => void refresh()} />
 
       <section aria-labelledby="team-table">
-        <h2 id="team-table" className="mb-3 text-sm font-semibold">
-          All members
+        <h2 id="team-table" className="mb-1 text-sm font-semibold">
+          All records
         </h2>
-        <CollectionManager name="team" openId={openId} onOpenChange={setOpenId} newLabel="Add member" defaults={{ status: "onboarding", type: "Freelance" }} />
+        <p className="mb-3 text-xs text-blueprint">Everyone, including past people. Add people to a role from the board above so they get their place and login.</p>
+        <CollectionManager name="team" openId={openId} onOpenChange={setOpenId} newLabel="Add someone outside the roles" defaults={{ status: "onboarding", type: "Freelance" }} />
       </section>
 
       {checklistMember && (
@@ -94,129 +70,6 @@ export function PeopleTab() {
         />
       )}
     </div>
-  );
-}
-
-/* ───────────────────────── member card ───────────────────────── */
-
-function MemberCard({ member, projects, shoots, year, today, canEdit, onEdit, onChecklist, onPhoto }: { member: Rec; projects: Rec[]; shoots: Rec[]; year: string; today: string | null; canEdit: boolean; onEdit: () => void; onChecklist: () => void; onPhoto: () => void }) {
-  const name = str(member.name);
-  const mine = useMemo(() => memberProjects(member, projects), [member, projects]);
-  const live = mine.filter((p) => !PROJECT_DONE.includes(str(p.stage)) && str(p.stage) !== "on-hold").length;
-  const done = year ? mine.filter((p) => str(p.stage) === "completed" && (str(p.dueDate) || str(p.startDate)).startsWith(year)).length : 0;
-  const upcoming = today ? memberShoots(member, shoots).filter((s) => str(s.status) !== "cancelled" && str(s.date) >= today).length : 0;
-  const { done: steps, total } = onboardingProgress(member);
-  const skills = Array.isArray(member.skills) ? member.skills.map(str).filter(Boolean) : [];
-  const phone = str(member.phone).trim();
-  const email = str(member.email).trim();
-  const status = str(member.status) || "active";
-
-  const flags = [
-    { label: "Agreement signed", ok: member.agreementSigned === true },
-    { label: "IP assigned", ok: member.ipAssigned === true },
-    { label: "Payout on file", ok: !!str(member.payoutDetails).trim() },
-  ];
-
-  return (
-    <article className="relative flex h-full flex-col overflow-hidden rounded-[var(--radius-md)] border border-graphite/12 bg-paper-50 shadow-[var(--shadow-paper)] transition-shadow hover:shadow-[var(--shadow-lift)]">
-      <div className="hatch-light pointer-events-none absolute inset-x-0 top-0 h-16 opacity-70" aria-hidden />
-      <div className="relative flex items-start gap-4 p-5 pb-4">
-        <MemberPhoto member={member} canEdit={canEdit} onChanged={onPhoto} />
-        <div className="min-w-0 flex-1 pt-1">
-          <h3 className="truncate text-[17px] font-bold leading-tight tracking-tight">{name}</h3>
-          <p className="truncate text-sm text-charcoal">{str(member.role) || "Role not set"}</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {str(member.type) && <Badge tone="outline">{str(member.type)}</Badge>}
-            <Badge tone={statusTone(status)} dot>
-              {status}
-            </Badge>
-            {live > 0 && <Badge tone="dark">{live} live project{live === 1 ? "" : "s"}</Badge>}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-4 px-5 pb-5">
-        {(phone || email) && (
-          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
-            {phone && (
-              <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="inline-flex items-center gap-1.5 text-charcoal underline-offset-2 hover:text-graphite hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-graphite">
-                <Phone className="size-3.5 text-blueprint" aria-hidden /> <span className="tabular">{phone}</span>
-              </a>
-            )}
-            {email && (
-              <a href={`mailto:${email}`} className="inline-flex min-w-0 items-center gap-1.5 text-charcoal underline-offset-2 hover:text-graphite hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-graphite">
-                <Mail className="size-3.5 shrink-0 text-blueprint" aria-hidden /> <span className="truncate">{email}</span>
-              </a>
-            )}
-          </div>
-        )}
-
-        <ul className="flex flex-wrap gap-1.5" aria-label="Compliance">
-          {flags.map((f) => (
-            <li
-              key={f.label}
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold",
-                f.ok ? "border-graphite bg-graphite text-paper" : "border-dashed border-graphite/30 text-blueprint",
-              )}
-            >
-              {f.ok ? <Check className="size-3" aria-hidden /> : <X className="size-3" aria-hidden />}
-              {f.label}
-              <span className="sr-only">{f.ok ? ": yes" : ": no"}</span>
-            </li>
-          ))}
-        </ul>
-
-        {skills.length > 0 && (
-          <p className="flex flex-wrap gap-1.5">
-            {skills.slice(0, 5).map((s) => (
-              <span key={s} className="rounded-[var(--radius-sm)] bg-graphite/[0.06] px-2 py-0.5 text-xs text-charcoal">
-                {s}
-              </span>
-            ))}
-            {skills.length > 5 && <span className="px-1 py-0.5 text-xs text-blueprint">+{skills.length - 5}</span>}
-          </p>
-        )}
-
-        <dl className="mt-auto grid grid-cols-3 divide-x divide-graphite/10 rounded-[var(--radius-sm)] border border-graphite/10 bg-paper text-center">
-          <div className="px-2 py-2">
-            <dt className="annot text-[9px] text-blueprint">Delivered {year}</dt>
-            <dd className="tabular text-lg font-bold">{done}</dd>
-          </div>
-          <div className="px-2 py-2">
-            <dt className="annot text-[9px] text-blueprint">Shoots ahead</dt>
-            <dd className="tabular text-lg font-bold">{upcoming}</dd>
-          </div>
-          <div className="px-2 py-2">
-            <dt className="annot text-[9px] text-blueprint">Joined</dt>
-            <dd className="tabular pt-1 text-xs font-semibold">{member.joinDate ? formatDate(str(member.joinDate), { month: "short", year: "2-digit", day: undefined }) : "—"}</dd>
-          </div>
-        </dl>
-
-        <div>
-          <div className="mb-1.5 flex items-center justify-between text-xs">
-            <span className="annot text-blueprint">Onboarding</span>
-            <span className="tabular font-semibold">
-              {steps}/{total}
-            </span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-graphite/10" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={steps} aria-label={`Onboarding steps complete for ${name}`}>
-            <div className="h-full rounded-full bg-graphite transition-[width] duration-500" style={{ width: `${(steps / total) * 100}%` }} />
-          </div>
-        </div>
-
-        <div className="flex gap-2">
-          <Button variant="secondary" size="sm" className="flex-1" onClick={onChecklist}>
-            <ClipboardCheck className="size-3.5" aria-hidden /> Checklist
-          </Button>
-          {canEdit && (
-            <Button variant="ghost" size="sm" onClick={onEdit} aria-label={`Edit ${name}`}>
-              <Pencil className="size-3.5" aria-hidden /> Edit
-            </Button>
-          )}
-        </div>
-      </div>
-    </article>
   );
 }
 

@@ -30,6 +30,7 @@ import {
 } from "./github";
 import { repoFiles } from "./docs";
 import { parseReviewMark, TASKS_JSON } from "./workflows";
+import { claudeOnGitHub } from "./mode";
 import { branchName, CLAUDE_ID, claudeReviewFor, keyFromBranch, mergeProblem, type ClaudeVerdict, prefixFor, repoName, reviewProblem, statusAfter, taskKey, type DevStatus, type DevType, type Review } from "./rules";
 
 /*
@@ -76,6 +77,7 @@ export async function devView(projectId: string) {
     aiRun: (project.aiRun as Rec | undefined) ?? null,
     plan: (project.plan as Rec | undefined) ?? null,
     autopilot: autopilotOf(project),
+    claudeOnGitHub: claudeOnGitHub(),
     repo: repoOf(project),
     prefix: s(project.taskPrefix) || prefixFor(s(project.title)),
     tasks: tasks.filter((t) => t.projectId === projectId && s(t.taskKey)).sort((a, b) => Number(s(b.taskKey).split("-").pop()) - Number(s(a.taskKey).split("-").pop())),
@@ -162,7 +164,9 @@ export interface Autopilot {
   requireClaude: boolean;
 }
 export const DEFAULT_AUTOPILOT: Autopilot = { enabled: false, autoMerge: false, approvePlan: true, requireClaude: false };
-export const autopilotOf = (p: Rec | null | undefined): Autopilot => ({ ...DEFAULT_AUTOPILOT, ...((p?.autopilot as Partial<Autopilot> | undefined) ?? {}) });
+/** A project's autopilot settings. While Claude on GitHub is on hold (lib/dev/mode.ts) nothing of it applies. */
+export const autopilotOf = (p: Rec | null | undefined): Autopilot =>
+  claudeOnGitHub() ? { ...DEFAULT_AUTOPILOT, ...((p?.autopilot as Partial<Autopilot> | undefined) ?? {}) } : { ...DEFAULT_AUTOPILOT, enabled: false, requireClaude: false };
 
 /** HQ acting on the founder's standing instructions (autopilot): named in every history entry it makes. */
 const SYSTEM: SessionUser = { username: "claude-autopilot", name: "Claude (autopilot)", role: "admin" };

@@ -25,6 +25,7 @@ interface PortalData {
   portalUrl: string;
   client: { name: string; email: string } | null;
   submission: Rec | null;
+  claudeOnGitHub?: boolean;
   updates: Rec[];
   messages: Rec[];
 }
@@ -75,7 +76,7 @@ export function PortalTab({ project, canWrite }: { project: Rec; canWrite: boole
     <div className="space-y-5">
       {msg && <Notice tone={msg.tone === "ok" ? "ok" : "bad"}>{msg.text}</Notice>}
       <Login d={d} granted={granted} canWrite={canWrite} run={run} project={project} />
-      <SubmissionPanel sub={d.submission} canWrite={canWrite} run={run} />
+      <SubmissionPanel sub={d.submission} canWrite={canWrite} run={run} claudeOn={d.claudeOnGitHub === true} />
       <UpdatesPanel d={d} project={project} canWrite={canWrite} run={run} />
       <MessagesPanel d={d} canWrite={canWrite} run={run} />
     </div>
@@ -157,10 +158,12 @@ function Login({ d, granted, canWrite, run, project }: { d: PortalData; granted:
 const SUB_TONE: Record<string, "ok" | "warn" | "info" | "outline"> = { approved: "ok", submitted: "warn", changes: "info", draft: "outline" };
 const SUB_LABEL: Record<string, string> = { approved: "Approved", submitted: "Waiting for your review", changes: "Sent back for changes", draft: "Client is still filling it in" };
 
-function SubmissionPanel({ sub, canWrite, run }: { sub: Rec | null; canWrite: boolean; run: Run }) {
+function SubmissionPanel({ sub, canWrite, run, claudeOn }: { sub: Rec | null; canWrite: boolean; run: Run; claudeOn: boolean }) {
   const [note, setNote] = useState("");
   const [brief, setBrief] = useState("");
-  const [build, setBuild] = useState(true);
+  const [wantBuild, setBuild] = useState(true);
+  // Claude planning on GitHub only while it is switched on (lib/dev/mode.ts)
+  const build = claudeOn && wantBuild;
   if (!sub) return <Panel title="Requirements from the client"><p className="text-sm text-blueprint">Nothing sent yet.</p></Panel>;
   const status = str(sub.status) || "draft";
   const list = (v: unknown) => (Array.isArray(v) ? (v as string[]) : []);
@@ -231,10 +234,10 @@ function SubmissionPanel({ sub, canWrite, run }: { sub: Rec | null; canWrite: bo
       )}
       {status === "submitted" && canWrite && (
         <div className="mt-4 space-y-3 border-t border-graphite/10 pt-3">
-          <Field label="What to build — your summary" help="Claude plans from this and the client's submission. Scope decisions, priorities, tech preferences, anything the client didn't say.">
+          <Field label="What to build — your summary" help={claudeOn ? "Claude plans from this and the client's submission. Scope decisions, priorities, tech preferences, anything the client didn't say." : "Saved as the founder summary (docs/FOUNDER_SUMMARY.md). Scope decisions, priorities, tech preferences, anything the client didn't say."}>
             <Textarea rows={5} value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="e.g. 8-page website in Next.js: Home, About, Programmes, Events (admin can add), Gallery, Donate (Razorpay link only), Contact. Kannada + English later, not now. Launch before 20 Nov." />
           </Field>
-          <Checkbox label="Then set up GitHub and let Claude plan the project from this summary" checked={build} onChange={(e) => setBuild(e.target.checked)} />
+          {claudeOn && <Checkbox label="Then set up GitHub and let Claude plan the project from this summary" checked={wantBuild} onChange={(e) => setBuild(e.target.checked)} />}
           <Textarea rows={2} placeholder="Note to the client (needed to send it back)" value={note} onChange={(e) => setNote(e.target.value)} />
           <div className="flex gap-2">
             <Button size="sm" onClick={() => void run({ action: "decide", decision: "approved", note, brief, build }, build ? "Approved. Claude is now planning on GitHub — review its plan in the Development tab." : "Approved — it's now the project brief, and the project moved to Design.")}>

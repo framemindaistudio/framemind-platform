@@ -16,6 +16,7 @@ interface View {
   aiRun: { status?: string; step?: string; error?: string; at?: string } | null;
   plan: { branch?: string; status?: string; tasks?: { title: string; role?: string; priority?: string; description?: string }[]; runUrl?: string; readyAt?: string } | null;
   autopilot: { enabled: boolean; autoMerge: boolean; approvePlan: boolean; requireClaude: boolean };
+  claudeOnGitHub: boolean;
   owner: string;
   webhookReady: boolean;
   repo: RepoInfo | null;
@@ -85,7 +86,7 @@ export function DevTab({ projectId }: { projectId: string }) {
         </Notice>
       )}
 
-      <ClaudePanel v={v} leader={leader} busy={!!busy} run={run} />
+      {v.claudeOnGitHub ? <ClaudePanel v={v} leader={leader} busy={!!busy} run={run} /> : <ManualPanel v={v} leader={leader} busy={!!busy} run={run} />}
 
       <Panel
         title="Repository"
@@ -116,7 +117,7 @@ export function DevTab({ projectId }: { projectId: string }) {
           </div>
         ) : leader ? (
           <div className="space-y-2 text-sm">
-            <p className="text-charcoal">Creates the private repository in {v.owner || "the organization"}, writes PRD, Architecture, Rules, Design, Tasks and CLAUDE.md from the client&apos;s approved requirements, adds CI and Claude review, and connects GitHub back to HQ.</p>
+            <p className="text-charcoal">Creates the private repository in {v.owner || "the organization"} with starting PRD, Architecture, Rules, Design, Tasks and CLAUDE.md (filled from the client&apos;s portal form where it can), adds CI checks, and connects GitHub back to HQ.</p>
             <Button disabled={!v.ready || !!busy} onClick={() => void run("setup", {}, (r) => `Repository ready (${s((r.repo as Rec)?.url)}). Webhook: ${s(r.webhook)}.`)}>
               <GitBranch className="size-4" /> {busy === "setup" ? "Setting up…" : "Create repository"}
             </Button>
@@ -157,8 +158,49 @@ export function DevTab({ projectId }: { projectId: string }) {
       </Panel>
 
       {creating && <NewTask team={v.team} prefix={v.prefix} onClose={() => setCreating(false)} onCreate={(input) => run("task", { input }, (r) => `Created ${s((r.task as Rec)?.taskKey)} with its branch on GitHub.`)} />}
-      {current && <DevTaskDrawer task={current} repo={v.repo} team={v.team} requireClaude={v.autopilot.requireClaude} onClose={() => setOpenId(null)} onChanged={load} />}
+      {current && <DevTaskDrawer task={current} repo={v.repo} team={v.team} requireClaude={v.autopilot.requireClaude} claudeOn={v.claudeOnGitHub} onClose={() => setOpenId(null)} onChanged={load} />}
     </div>
+  );
+}
+
+/**
+ * The way the studio works while Claude on GitHub is on hold: the founder's summary and the steps, done by hand with
+ * Claude Code (Pro) on each laptop.
+ */
+function ManualPanel({ v, leader, busy, run }: { v: View; leader: boolean; busy: boolean; run: Run }) {
+  const [brief, setBrief] = useState(v.founderBrief);
+  const steps = [
+    "Read what the client sent in the Client portal tab, then write your summary below. It goes into the repository as docs/FOUNDER_SUMMARY.md.",
+    "Create the repository below. It starts with PRD, Architecture, Rules, Design, Tasks and CLAUDE.md.",
+    "Fill the docs: open the repository with Claude Code on your laptop and ask it to write the docs from FOUNDER_SUMMARY.md and CLIENT_REQUIREMENTS.md, then push to main.",
+    "Add the tasks below and assign each one. Every task gets its own branch.",
+    "Each person opens their task, copies the start command, builds with Claude Code on their laptop and pushes the branch, then presses Open pull request.",
+    "You check the pull request (Claude Code on your laptop can review it), approve, and press Merge here.",
+  ];
+  return (
+    <Panel title="How this project is built" subtitle="By hand, with Claude Code (Pro) on each laptop. Automatic Claude on GitHub is on hold.">
+      <div className="space-y-4">
+        <ol className="list-decimal space-y-1.5 pl-5 text-sm text-charcoal">
+          {steps.map((t, i) => (
+            <li key={i}>{t}</li>
+          ))}
+        </ol>
+        <div className="border-t border-graphite/10 pt-3">
+          <p className="mb-1 text-sm font-semibold">Founder summary: what we are building</p>
+          <p className="mb-2 text-xs text-blueprint">It overrides the client&apos;s form wherever they differ. Saving updates docs/FOUNDER_SUMMARY.md on GitHub once the repository exists.</p>
+          {leader ? (
+            <>
+              <Textarea rows={6} value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="Pages and features, priorities, tech preferences, what's out of scope, deadlines." />
+              <Button className="mt-2" size="sm" variant="secondary" disabled={busy || brief === v.founderBrief} onClick={() => void run("brief", { brief }, () => (v.repo ? "Saved. FOUNDER_SUMMARY.md is updated on GitHub." : "Saved. It goes into the repository when you create it."))}>
+                Save summary
+              </Button>
+            </>
+          ) : (
+            <p className="whitespace-pre-line text-sm text-charcoal">{v.founderBrief || "Not written yet."}</p>
+          )}
+        </div>
+      </div>
+    </Panel>
   );
 }
 

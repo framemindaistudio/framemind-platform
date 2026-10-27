@@ -26,14 +26,14 @@ export function TeamApp({ initialTab }: { initialTab: TeamTab }) {
         title="Team & Payroll"
         eyebrow="People"
         icon="Users"
-        description="Founders, staff, interns and freelancers: whose paperwork is done, who is on which project or shoot, and what each person is paid."
+        description="Every company role with its numbered places (Developer 1, Developer 2…). Each place has its own login; letters and payslips stay with the person."
       />
       <Tabs
         className="mb-6"
         value={tab}
         onChange={change}
         tabs={[
-          { value: "people", label: "People" },
+          { value: "people", label: "Roles & people" },
           { value: "payroll", label: "Payroll" },
         ]}
       />

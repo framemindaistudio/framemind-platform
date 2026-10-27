@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2, FileSignature, FolderPlus, Loader2, MessageCircle, Mail, MonitorPlay, Pencil, Phone, Plus, StickyNote, Trash2, Users, Video, type LucideIcon } from "lucide-react";
 import { CLIENT_STAGES, getCollection, invoiceTotals, PROJECT_STAGES, SERVICE_OPTS, type BaseRecord } from "@/lib/hq/collections";
-import { can } from "@/lib/hq/roles";
+import { can, LEADERSHIP } from "@/lib/hq/roles";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal, ConfirmButton } from "@/components/ui/Overlay";
@@ -40,6 +41,7 @@ const outcomeTone = (o: unknown) => (o === "Positive" ? "ok" : o === "Negative" 
 
 export function ClientDetail({ id }: { id: string }) {
   const { user, store } = useHq();
+  const router = useRouter();
   const today = useToday();
   const clients = useCollection("clients");
   const activities = useCollection("activities");
@@ -166,6 +168,23 @@ export function ClientDetail({ id }: { id: string }) {
                 <Button variant="secondary" size="sm" className="h-10" onClick={() => setDraft({ ...client })}>
                   <Pencil className="size-4" aria-hidden /> Edit details
                 </Button>
+              )}
+              {canWrite && can(user, LEADERSHIP) && (
+                <ConfirmButton
+                  onConfirm={async () => {
+                    setError("");
+                    try {
+                      await clients.remove(client.id);
+                      router.push("/hq/crm");
+                    } catch (e) {
+                      setError(e instanceof Error ? e.message : "Could not delete the client.");
+                    }
+                  }}
+                  message={`Delete ${str(client.name) || "this client"}?\n\nDeleted with it: its ${related.projects.length} project${related.projects.length === 1 ? "" : "s"} (with their deliverables, shoots, coding tasks and client portal), its quotes, its activity notes, and its client portal logins.\n\nKept: the leads it came from (unlinked) and any GitHub repositories (delete those on GitHub).\n\nA client with an invoice can't be deleted: cancel or delete the invoice in Finance first.`}
+                  className="inline-flex items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs font-semibold text-bad hover:bg-bad/10"
+                >
+                  <Trash2 className="size-3.5" aria-hidden /> Delete client
+                </ConfirmButton>
               )}
             </div>
           </div>
