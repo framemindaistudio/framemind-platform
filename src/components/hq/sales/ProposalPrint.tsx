@@ -14,6 +14,7 @@ import { useCollection, useHq, useRates, useSettings } from "@/components/hq/dat
 import type { QuoteLine, QuoteMoney } from "@/lib/pricebook/math";
 import { str } from "./crm";
 import { extraItemsOf, linesOf, milestonePlan, moneyOf } from "./quote";
+import { SignatureSpace } from "@/components/print/Signature";
 
 const LABEL = "text-[6.5pt] font-semibold uppercase tracking-[0.22em] text-blueprint";
 
@@ -395,7 +396,8 @@ function TermsPage({ c, page }: { c: Ctx; page: string }) {
       <div className="absolute inset-x-[16mm] bottom-[22mm] grid grid-cols-2 gap-[12mm]">
         <div>
           <p className={LABEL}>For FrameMind AI Studio</p>
-          <div className="mt-[14mm] border-t border-graphite/60 pt-1.5 text-[8.5pt]">
+          <SignatureSpace name={c.signatory.name} align="left" className="h-[14mm]" />
+          <div className="border-t border-graphite/60 pt-1.5 text-[8.5pt]">
             <p className="font-semibold text-graphite">{c.signatory.name}</p>
             <p className="text-charcoal">{c.signatory.title}</p>
           </div>

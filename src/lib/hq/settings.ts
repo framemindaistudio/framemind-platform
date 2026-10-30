@@ -35,6 +35,8 @@ export interface CompanySettings {
   financialYear: string;
   signatoryName: string;
   signatoryTitle: string;
+  /** print the signatory's saved signature on invoices, receipts, quotes, POs, payslips, letters and certificates; off: sign by hand */
+  signDigitally: boolean;
   invoiceTerms: string;
   baseLocation: string;
   monthlyRevenueTarget: number;
@@ -82,6 +84,7 @@ export const defaultSettings: CompanySettings = {
   financialYear: "2026-27",
   signatoryName: "Chinmay R M",
   signatoryTitle: "Founder",
+  signDigitally: true,
   invoiceTerms:
     "Payment in milestones as agreed in the quote — usually 50% to start and 50% on delivery. Source files are handed over once the final payment is received. Bank transfer / UPI to the account below; international clients may pay by bank transfer or Wise. Prices in INR.",
   baseLocation: "Gadag, Karnataka",

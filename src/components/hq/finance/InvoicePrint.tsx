@@ -9,6 +9,7 @@ import type { CompanySettings } from "@/lib/hq/settings";
 import { amountInWords, cn, formatINR } from "@/lib/utils";
 import { PAY_MODE_LABELS, fmtDate, invoiceMath, effectiveDueDate, num, str, type Rec } from "./finance";
 import { Cap, DocMessage, Stamp, placeLabel, useInvoiceDoc } from "./printParts";
+import { SignatureSpace } from "@/components/print/Signature";
 
 const BACK = "/hq/finance?tab=invoices";
 const inr = (v: number) => formatINR(v, { decimals: true });
@@ -280,7 +281,7 @@ function Ready({ inv, settings }: { inv: Rec; settings: CompanySettings }) {
               <p className="text-[10px]">
                 For <span className="font-bold">{settings.legalName}</span>
               </p>
-              <div className="h-14" />
+              <SignatureSpace name={settings.signatoryName} className="h-14" />
               <div className="border-t border-graphite pt-1">
                 <p className="text-[11px] font-bold">{settings.signatoryName || "Authorised signatory"}</p>
                 <p className="text-[9px] text-charcoal">{settings.signatoryTitle || "Authorised signatory"}</p>

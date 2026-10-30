@@ -10,11 +10,12 @@ import { site } from "@/lib/site";
 import { Mark, Sheet, Wordmark } from "../PrintBits";
 import { plainDate } from "../util";
 import { certMeta, type CertRecord } from "./types";
+import { SignatureSpace } from "@/components/print/Signature";
 
 function Signature({ name, role }: { name: string; role: string }) {
   return (
     <div className="w-[62mm] text-center">
-      <div className="h-[15mm]" />
+      <SignatureSpace name={name} className="h-[15mm]" />
       <div className="border-t-[0.3mm] border-graphite" />
       <p className="mt-[1.6mm] text-[9.5pt] font-bold leading-tight tracking-[-0.01em]">{name}</p>
       <p className="mt-[0.6mm] text-[6.4pt] font-semibold uppercase tracking-[0.18em] text-blueprint">{role}</p>

@@ -4,6 +4,7 @@ import { A4Page, Letterhead, PrintFooter, PrintShell } from "@/components/print/
 import type { CompanySettings } from "@/lib/hq/settings";
 import { quarterRange } from "@/lib/incentives/calc.ts";
 import { amountInWords, formatDate, formatINR } from "@/lib/utils";
+import { SignatureSpace } from "@/components/print/Signature";
 
 type Rec = Record<string, unknown> & { id: string };
 const str = (v: unknown) => (v === undefined || v === null ? "" : String(v));
@@ -128,14 +129,21 @@ export function IncentiveLetter({ payout: p, member, settings, back }: { payout:
             </p>
           </div>
 
-          <section aria-label="Signatures" className="mt-14 grid grid-cols-2 gap-16 text-[10px]">
-            <div className="border-t border-graphite pt-1.5">
-              <p className="font-semibold">{member.name}</p>
-              <p className="text-blueprint">Acknowledged (signature &amp; date)</p>
+          <section aria-label="Signatures" className="mt-2 grid grid-cols-2 items-end gap-16 text-[10px]">
+            <div>
+              <div className="h-12" />
+              <div className="border-t border-graphite pt-1.5">
+                <p className="font-semibold">{member.name}</p>
+                <p className="text-blueprint">Acknowledged (signature &amp; date)</p>
+              </div>
             </div>
-            <div className="border-t border-graphite pt-1.5 text-right">
-              <p className="font-semibold">{approved ? str(p.approvedBy) || settings.signatoryName || "Authorised signatory" : "Authorised signatory"}</p>
-              <p className="text-blueprint">{settings.signatoryTitle || "For " + settings.legalName}</p>
+            <div>
+              {/* signed only once approved, by whoever approved it */}
+              <SignatureSpace name={approved ? str(p.approvedBy) || settings.signatoryName : ""} align="right" className="h-12" />
+              <div className="border-t border-graphite pt-1.5 text-right">
+                <p className="font-semibold">{approved ? str(p.approvedBy) || settings.signatoryName || "Authorised signatory" : "Authorised signatory"}</p>
+                <p className="text-blueprint">{settings.signatoryTitle || "For " + settings.legalName}</p>
+              </div>
             </div>
           </section>
         </div>

@@ -9,6 +9,7 @@ import { useCollection, useSettings } from "@/components/hq/data";
 import { amountInWords, formatDate, formatINR } from "@/lib/utils";
 import { num, str, type Rec } from "@/components/hq/projects/logic";
 import { DocMessage } from "./DocMessage";
+import { SignatureSpace } from "@/components/print/Signature";
 
 const BACK = "/hq/tools?tab=purchases";
 const inr = (v: number) => formatINR(v, { decimals: true });
@@ -195,7 +196,7 @@ function Ready({ po, vendor, settings }: { po: Rec; vendor?: Rec; settings: Comp
 
         <div className="mt-10 flex justify-end break-inside-avoid">
           <div className="w-56 text-center text-xs">
-            <div className="h-14 border-b border-graphite" />
+            <SignatureSpace name={settings.signatoryName} className="h-14 border-b border-graphite" />
             <p className="mt-1.5 font-semibold">{settings.signatoryName || "Authorised signatory"}</p>
             <p className="text-[10px] text-charcoal">{[settings.signatoryTitle, settings.brandName].filter(Boolean).join(", ")}</p>
           </div>

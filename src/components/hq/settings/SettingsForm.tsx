@@ -203,6 +203,31 @@ export function SettingsForm({ children }: { children?: React.ReactNode }) {
               {text("signatoryName", "Name")}
               {text("signatoryTitle", "Title")}
             </div>
+            <div className="mt-5 flex items-start justify-between gap-4 rounded-[var(--radius-md)] border border-graphite/15 bg-paper-50 p-4">
+              <div>
+                <p className="font-semibold text-graphite">Sign documents digitally</p>
+                <p className="mt-1 text-sm text-charcoal">
+                  {value.signDigitally !== false
+                    ? "On: the signatory's saved signature prints above their name on invoices, receipts, quotes, purchase orders, payslips, incentive letters and certificates."
+                    : "Off: those documents print with a blank space, to sign by hand."}
+                </p>
+                <p className="mt-1 text-xs text-blueprint">
+                  The signature picture is saved in Documents to Sign → Our signatures. Each print page also has its own switch for just that print. It is a picture of a signature, not a Digital Signature Certificate.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={value.signDigitally !== false}
+                aria-label="Sign documents digitally"
+                disabled={locked}
+                onClick={() => set("signDigitally", value.signDigitally === false)}
+                className={`relative mt-1 h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${value.signDigitally !== false ? "bg-lime" : "bg-graphite/25"}`}
+              >
+                <span className={`absolute top-1 size-5 rounded-full bg-white shadow transition-[left] ${value.signDigitally !== false ? "left-6" : "left-1"}`} />
+                <span className="sr-only">{value.signDigitally !== false ? "On" : "Off"}</span>
+              </button>
+            </div>
           </div>
         </SettingsSection>
 

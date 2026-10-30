@@ -8,6 +8,7 @@ import { A4Page, Letterhead, PrintFooter, PrintShell } from "@/components/print/
 import type { CompanySettings } from "@/lib/hq/settings";
 import { amountInWords, formatDate, formatINR } from "@/lib/utils";
 import { shootsInMonth, unitsText, monthLabel, payModeLabel, slipTotals, str, type Rec } from "./team";
+import { SignatureSpace } from "@/components/print/Signature";
 
 const BACK = "/hq/team?tab=payroll";
 const inr = (v: number) => formatINR(v, { decimals: true });
@@ -225,14 +226,20 @@ function Ready({ rec, member, shoots, settings }: { rec: Rec; member?: Rec; shoo
           )}
 
           {/* signatures */}
-          <section aria-label="Signatures" className="mt-14 grid grid-cols-2 gap-16 text-[10px]">
-            <div className="border-t border-graphite pt-1.5">
-              <p className="font-semibold">{name}</p>
-              <p className="text-blueprint">Received by (signature & date)</p>
+          <section aria-label="Signatures" className="mt-2 grid grid-cols-2 items-end gap-16 text-[10px]">
+            <div>
+              <div className="h-12" />
+              <div className="border-t border-graphite pt-1.5">
+                <p className="font-semibold">{name}</p>
+                <p className="text-blueprint">Received by (signature & date)</p>
+              </div>
             </div>
-            <div className="border-t border-graphite pt-1.5 text-right">
+            <div>
+              <SignatureSpace name={settings.signatoryName} align="right" className="h-12" />
+              <div className="border-t border-graphite pt-1.5 text-right">
               <p className="font-semibold">{settings.signatoryName || "Authorised signatory"}</p>
               <p className="text-blueprint">{settings.signatoryTitle || "For " + settings.legalName}</p>
+              </div>
             </div>
           </section>
 

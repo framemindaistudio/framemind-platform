@@ -7,6 +7,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { CompanySettings } from "@/lib/hq/settings";
+import { SignatureProvider, SignatureToggle } from "./Signature";
 
 /** Paper sizes a print page can ask for. Without one the sheet is A4 portrait (the default in globals.css). */
 export type Paper = "A4 landscape" | "A3" | "A3 landscape";
@@ -35,6 +36,7 @@ export function PrintShell({ title, back, children, toolbar, landscape, paper }:
   const size = paper ?? (landscape ? "A4 landscape" : undefined);
   const fit = usePaperFit(paper ? PAPER_WIDTH_MM[paper] : 210);
   return (
+    <SignatureProvider>
     <div className="min-h-dvh bg-paper-300/60 print:bg-white">
       {size && <style>{`@page { size: ${size}; margin: 0; }`}</style>}
       <div className="no-print sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-graphite/15 bg-paper/95 px-4 py-3 backdrop-blur sm:px-6">
@@ -46,6 +48,7 @@ export function PrintShell({ title, back, children, toolbar, landscape, paper }:
         <h1 className="truncate text-sm font-semibold">{title}</h1>
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {toolbar}
+          <SignatureToggle />
           <Button size="sm" onClick={() => window.print()}>
             <Printer className="size-4" /> Print / Save PDF
           </Button>
@@ -55,6 +58,7 @@ export function PrintShell({ title, back, children, toolbar, landscape, paper }:
         {children}
       </div>
     </div>
+    </SignatureProvider>
   );
 }
 
