@@ -115,7 +115,7 @@ function Cover({ c }: { c: Ctx }) {
             <div className="text-right">
               <p className="text-[6.5pt] font-semibold uppercase tracking-[0.22em] text-paper/40">Investment</p>
               <p className="mt-1 text-[20pt] font-semibold leading-none text-lime">{formatINR(money.taxable)}</p>
-              <p className="mt-1 text-[7.5pt] text-paper/50">+ GST {money.gstPercent}%</p>
+              <p className="mt-1 text-[7.5pt] text-paper/50">{money.gstPercent > 0 ? `+ GST ${money.gstPercent}%` : "No GST"}</p>
             </div>
           </div>
           <p className="mt-[8mm] text-[7.5pt] text-paper/45">{[settings.phone, settings.email, settings.website].filter(Boolean).join("   ·   ")}</p>
@@ -283,14 +283,23 @@ function InvestmentPage({ c, page }: { c: Ctx; page: string }) {
           <p className="text-[6.5pt] font-semibold uppercase tracking-[0.22em] text-lime">Total</p>
           <p className="tabular mt-2 text-[22pt] font-semibold leading-none">{formatINR(m.total)}</p>
           <dl className="mt-[4mm] space-y-1 text-[8pt] text-paper/70">
-            <div className="flex justify-between">
-              <dt>Before GST</dt>
-              <dd className="tabular">{formatINR(m.taxable)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt>GST {m.gstPercent}%</dt>
-              <dd className="tabular">{formatINR(m.gst)}</dd>
-            </div>
+            {m.gstPercent > 0 ? (
+              <>
+                <div className="flex justify-between">
+                  <dt>Before GST</dt>
+                  <dd className="tabular">{formatINR(m.taxable)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt>GST {m.gstPercent}%</dt>
+                  <dd className="tabular">{formatINR(m.gst)}</dd>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between">
+                <dt>GST</dt>
+                <dd>Not charged</dd>
+              </div>
+            )}
           </dl>
           <p className="mt-[4mm] text-[7pt] leading-snug text-paper/50">{amountInWords(Math.round(m.total))}</p>
         </div>
@@ -305,11 +314,11 @@ function InvestmentPage({ c, page }: { c: Ctx; page: string }) {
                 <p className="font-mono text-[7pt] text-blueprint">{pad2(i + 1)}</p>
                 <p className="mt-0.5 text-[9pt] font-semibold text-graphite">{p.label}</p>
                 <p className="tabular mt-1 text-[11pt] font-semibold text-graphite">{formatINR(p.amount)}</p>
-                <p className="text-[7.5pt] text-charcoal">{p.percent}% · + GST</p>
+                <p className="text-[7.5pt] text-charcoal">{p.percent}%{m.gstPercent > 0 ? " · + GST" : ""}</p>
               </div>
             ))}
           </div>
-          {m.monthly > 0 && <p className="mt-[3mm] text-[8pt] text-charcoal">Monthly retainers ({formatINR(m.monthlyNet)} + GST per month after discounts) are invoiced at the start of each month.</p>}
+          {m.monthly > 0 && <p className="mt-[3mm] text-[8pt] text-charcoal">Monthly retainers ({formatINR(m.monthlyNet)}{m.gstPercent > 0 ? " + GST" : ""} per month after discounts) are invoiced at the start of each month.</p>}
         </div>
       )}
 
@@ -367,7 +376,7 @@ function TermsPage({ c, page }: { c: Ctx; page: string }) {
             ["Revisions", TERMS.revisionPolicy],
             ["What we need from you", TERMS.clientResponsibilities],
             ["Handover", TERMS.handoff],
-            ["Pricing", `${TERMS.pricesFinal} ${TERMS.tax}`],
+            ["Pricing", `${TERMS.pricesFinal} ${c.money.gstPercent > 0 ? TERMS.tax : TERMS.taxNone}`],
             ["Payment", TERMS.paymentTerms],
             ["Third parties", TERMS.thirdParty],
             ["Warranty", TERMS.warranty],

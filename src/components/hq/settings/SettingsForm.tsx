@@ -208,6 +208,29 @@ export function SettingsForm({ children }: { children?: React.ReactNode }) {
 
         {/* 02 */}
         <SettingsSection id="tax" index="02" title="Tax & bank details" description="Shown on invoices so clients know where to pay. Leave the GSTIN empty until you are registered; ask your CA whether and when registration is required.">
+          <div className="mb-6 flex items-start justify-between gap-4 rounded-[var(--radius-md)] border border-graphite/15 bg-paper-50 p-4">
+            <div>
+              <p className="font-semibold text-graphite">GST registered</p>
+              <p className="mt-1 text-sm text-charcoal">
+                {value.gstRegistered
+                  ? "On: new quotes and invoices add GST, invoices print as tax invoices, and the website shows prices + GST."
+                  : "Off: no GST on new quotes, invoices or the website, and invoices print as plain invoices. Turn this on the day you are registered (service businesses usually must register above ₹20 lakh a year; confirm with your CA)."}
+              </p>
+              <p className="mt-1 text-xs text-blueprint">Each invoice also has its own “Charge GST” switch. Existing invoices keep what they were issued with.</p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={!!value.gstRegistered}
+              aria-label="GST registered"
+              disabled={locked}
+              onClick={() => set("gstRegistered", !value.gstRegistered)}
+              className={`relative mt-1 h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${value.gstRegistered ? "bg-lime" : "bg-graphite/25"}`}
+            >
+              <span className={`absolute top-1 size-5 rounded-full bg-white shadow transition-[left] ${value.gstRegistered ? "left-6" : "left-1"}`} />
+              <span className="sr-only">{value.gstRegistered ? "On" : "Off"}</span>
+            </button>
+          </div>
           <div className="grid gap-x-5 gap-y-5 sm:grid-cols-3">
             {text("gstin", "GSTIN", { mono: true, maxLength: 15, placeholder: "Not registered yet", transform: (v) => v.toUpperCase().replace(/\s/g, ""), help: gstinNote })}
             {text("pan", "PAN", { mono: true, maxLength: 10, transform: (v) => v.toUpperCase().replace(/\s/g, "") })}

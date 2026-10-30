@@ -1,4 +1,6 @@
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
+import { SETTINGS_TAG } from "@/site/rates";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
 import { readSettings, writeSettings } from "@/lib/hq/records";
@@ -23,6 +25,9 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const settings = await writeSettings(body.settings || {}, user.name);
+    // the website shows prices "+ GST" or not from these settings
+    revalidateTag(SETTINGS_TAG, { expire: 0 });
+    revalidatePath("/pricing");
     return NextResponse.json({ settings });
   } catch (e) {
     return apiError(e);

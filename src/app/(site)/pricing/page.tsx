@@ -1,5 +1,5 @@
 import Pricing from "@/site/pages/Pricing";
-import { publicRateCard } from "@/site/rates";
+import { publicGstOn, publicRateCard } from "@/site/rates";
 import { pageMetadata } from "@/site/seo";
 
 export const metadata = pageMetadata("/pricing");
@@ -9,6 +9,6 @@ export const dynamic = "force-static";
 export const revalidate = 600;
 
 export default async function Page() {
-  const card = await publicRateCard();
-  return <Pricing rates={card && { services: card.services, socialContracts: card.socialContracts, bundleSteps: card.bundleSteps }} />;
+  const [card, gstOn] = await Promise.all([publicRateCard(), publicGstOn()]);
+  return <Pricing gstOn={gstOn} rates={card && { services: card.services, socialContracts: card.socialContracts, bundleSteps: card.bundleSteps }} />;
 }

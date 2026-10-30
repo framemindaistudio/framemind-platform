@@ -121,7 +121,7 @@ export function ProjectInvoiceModal({
             <p className="font-semibold">{str(draft.record.customerName) || "No client linked"}</p>
             <p className="mt-1 text-xs text-charcoal">{(draft.record.items as { description: string }[])[0]?.description}</p>
             <p className="tabular mt-2 font-semibold">
-              {formatINR(math.taxable)} + GST = {formatINR(math.total)}
+              {math.gstPercent > 0 ? `${formatINR(math.taxable)} + GST = ${formatINR(math.total)}` : `${formatINR(math.total)} (no GST)`}
             </p>
             {draft.warnings.map((w) => (
               <p key={w} className="mt-1 text-xs text-warn">

@@ -47,6 +47,7 @@ export function InvoicesTab({ ledger, settings, today, intent }: { ledger: Ledge
       const next: Record<string, unknown> = { ...r };
       const pr = next.projectId ? projects.records.find((p) => p.id === next.projectId) : undefined;
       if (!next.clientId && pr?.clientId) next.clientId = pr.clientId;
+      if (pr && !str(next.projectName).trim()) next.projectName = str(pr.title);
       const cl = next.clientId ? clients.records.find((c) => c.id === next.clientId) : undefined;
       if (cl) {
         if (!str(next.customerName).trim()) next.customerName = str(cl.name);
@@ -145,8 +146,8 @@ export function InvoicesTab({ ledger, settings, today, intent }: { ledger: Ledge
   );
 
   const defaults = useMemo(
-    () => ({ date: today, dueDate: addDays(today, DUE_DAYS), placeOfSupply: settings.state, gstPercent: GST_PERCENT, status: "draft", payments: [] }),
-    [today, settings.state],
+    () => ({ date: today, dueDate: addDays(today, DUE_DAYS), placeOfSupply: settings.state, chargeGst: !!settings.gstRegistered, gstPercent: GST_PERCENT, status: "draft", payments: [] }),
+    [today, settings.state, settings.gstRegistered],
   );
 
   return (
@@ -156,7 +157,11 @@ export function InvoicesTab({ ledger, settings, today, intent }: { ledger: Ledge
         <Stat label="Open invoices" value={String(rec.openCount)} sub={rec.openCount ? `${formatINR(rec.outstanding)} to collect` : "Nothing waiting on payment"} />
         <Stat label="Overdue" value={formatINR(rec.overdue)} sub={rec.overdueCount ? `${rec.overdueCount} invoice${rec.overdueCount === 1 ? "" : "s"} past due` : "None past due"} tone={rec.overdueCount ? "bad" : undefined} />
         <Stat label="Drafts" value={String(drafts)} sub="Not yet issued — excluded from revenue" />
-        <Stat label="GST rate" value={`${GST_PERCENT}%`} sub="CGST + SGST within your state, IGST outside" />
+        {settings.gstRegistered ? (
+          <Stat label="GST rate" value={`${GST_PERCENT}%`} sub="CGST + SGST within your state, IGST outside" />
+        ) : (
+          <Stat label="GST" value="Off" sub="No GST on new invoices. Turn it on in Settings → Tax & bank once registered" />
+        )}
       </dl>
 
       {syncError && <p className="mb-3 rounded border border-bad/30 bg-bad/10 px-3 py-2 text-sm text-bad">{syncError}</p>}

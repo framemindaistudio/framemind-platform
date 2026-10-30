@@ -73,7 +73,7 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
   const activities = useCollection("activities");
   const projects = useCollection("projects");
   const invoices = useCollection(showMoney ? "invoices" : "__none");
-  const { settings } = useSettings();
+  const { settings, loading: settingsLoading } = useSettings();
   const leads = useCollection("leads");
   const canWrite = can(user, proposalsDef.write) && store.writable;
 
@@ -111,6 +111,14 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
   }, [dirty, isNew]);
 
   const bundleTouched = useRef(false);
+
+  // a new quote charges GST only when Settings says FrameMind is GST-registered (decided once settings have loaded)
+  const gstDecided = useRef(!!initial);
+  useEffect(() => {
+    if (gstDecided.current || settingsLoading) return;
+    gstDecided.current = true;
+    setForm((f) => ({ ...f, gstPercent: settings.gstRegistered ? (rates?.gstPercent ?? 18) : 0 }));
+  }, [settingsLoading, settings.gstRegistered, rates?.gstPercent]);
 
   function add(line: QuoteLine) {
     setLines([...lines, line]);
@@ -192,7 +200,7 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
       clientId: target.id,
       type: "Quote",
       date: today,
-      summary: status === "sent" ? `Quote ${str(saved.number)} sent — ${str(saved.title) || "studio work"}, ${formatINR(m.taxable)} + GST` : `Quote ${str(saved.number)} accepted — ${formatINR(m.taxable)} + GST`,
+      summary: status === "sent" ? `Quote ${str(saved.number)} sent — ${str(saved.title) || "studio work"}, ${formatINR(m.taxable)}${m.gstPercent > 0 ? " + GST" : ""}` : `Quote ${str(saved.number)} accepted — ${formatINR(m.taxable)}${m.gstPercent > 0 ? " + GST" : ""}`,
       outcome: status === "accepted" ? "Positive" : "Neutral",
       nextStep: status === "sent" ? "Follow up on the quote" : "Start the project and collect the advance",
       nextDate: addDays(today, status === "sent" ? 3 : 1),
@@ -229,6 +237,8 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
             customerGstin: str(client?.gstin),
             customerAddress: [str(client?.address), str(client?.city)].filter(Boolean).join(", "),
             placeOfSupply: settings.state,
+            chargeGst: money.gstPercent > 0,
+            projectName: str(project.title),
             gstPercent: money.gstPercent,
             items: [{ description: `${str(q.title) || "Studio project"} — ${first.label} (${first.percent}% of quote ${str(q.number)})`, qty: 1, rate: first.amount, sac: settings.sacCode || undefined }],
             status: "draft",
@@ -871,7 +881,7 @@ export function QuoteSummary({ money: m, lines, extra, plan }: { money: QuoteMon
   return (
     <section aria-label="Live pricing" className="relative overflow-hidden rounded-[var(--radius-lg)] border border-graphite/15 bg-paper-50 shadow-[var(--shadow-paper)]">
       <div className="bg-graphite px-5 py-4 text-paper">
-        <p className="annot text-lime">Total incl. GST</p>
+        <p className="annot text-lime">{m.gstPercent > 0 ? "Total incl. GST" : "Total (no GST)"}</p>
         <p className="tabular mt-1.5 text-3xl font-bold tracking-tight" aria-live="polite">
           {formatINR(m.total)}
         </p>
@@ -896,8 +906,8 @@ export function QuoteSummary({ money: m, lines, extra, plan }: { money: QuoteMon
             <div className="py-2">
               {m.bundleAmount > 0 && <Row label={`Studio bundle (${m.bundlePercent}%)`} amount={`− ${formatINR(m.bundleAmount)}`} negative />}
               {m.extraAmount > 0 && <Row label={`Discount (${m.extraPercent}%)`} amount={`− ${formatINR(m.extraAmount)}`} negative />}
-              <Row label="Subtotal (ex-GST)" amount={formatINR(m.taxable)} strong />
-              <Row label={`GST ${m.gstPercent}%`} amount={formatINR(m.gst)} />
+              <Row label={m.gstPercent > 0 ? "Subtotal (ex-GST)" : "Subtotal"} amount={formatINR(m.taxable)} strong />
+              {m.gstPercent > 0 ? <Row label={`GST ${m.gstPercent}%`} amount={formatINR(m.gst)} /> : <Row label="GST" amount="Not charged" />}
               <Row label="Grand total" amount={formatINR(m.total)} strong />
             </div>
           </div>
@@ -909,7 +919,7 @@ export function QuoteSummary({ money: m, lines, extra, plan }: { money: QuoteMon
                 <dt className="text-charcoal">
                   {p.label} · {p.percent}%
                 </dt>
-                <dd className="tabular font-semibold text-graphite">{formatINR(p.amount)} + GST</dd>
+                <dd className="tabular font-semibold text-graphite">{formatINR(p.amount)}{m.gstPercent > 0 ? " + GST" : ""}</dd>
               </div>
             ))}
           </dl>

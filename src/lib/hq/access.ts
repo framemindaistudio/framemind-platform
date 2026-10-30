@@ -76,7 +76,7 @@ export function canReadHistory(role: Role, path: string | undefined): boolean {
 }
 
 /** The part of the company settings that appears on documents anyone may print. Tax, bank, numbering and targets stay with the roles that see Finance. */
-const PROFILE_KEYS: (keyof CompanySettings)[] = ["legalName", "brandName", "udyamNumber", "addressLine1", "addressLine2", "city", "state", "stateCode", "pincode", "phone", "email", "website", "certificatePrefix", "financialYear", "signatoryName", "signatoryTitle", "baseLocation"];
+const PROFILE_KEYS: (keyof CompanySettings)[] = ["legalName", "brandName", "udyamNumber", "addressLine1", "addressLine2", "city", "state", "stateCode", "pincode", "phone", "email", "website", "gstRegistered", "certificatePrefix", "financialYear", "signatoryName", "signatoryTitle", "baseLocation"];
 
 export function settingsFor(role: Role, settings: CompanySettings): Partial<CompanySettings> {
   if (OPS.includes(role)) return settings;

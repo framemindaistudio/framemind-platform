@@ -698,7 +698,7 @@ export const collections: CollectionDef[] = [
     name: "invoices",
     label: "Invoices",
     singular: "Invoice",
-    description: "Tax invoices to clients, with payments received.",
+    description: "Invoices to clients (tax invoices when GST is charged), with payments received.",
     icon: "ReceiptIndianRupee",
     titleField: "number",
     subtitleField: "customerName",
@@ -711,8 +711,9 @@ export const collections: CollectionDef[] = [
       { key: "number", label: "Invoice no.", type: "text", table: true, width: "third", help: "Auto-assigned from Settings if left empty" },
       { key: "date", label: "Invoice date", type: "date", required: true, table: true, width: "third" },
       { key: "dueDate", label: "Due date", type: "date", width: "third" },
-      { key: "clientId", label: "Client", type: "ref", ref: "clients", width: "half" },
-      { key: "projectId", label: "Project", type: "ref", ref: "projects", width: "half" },
+      { key: "clientId", label: "Client (in HQ)", type: "ref", ref: "clients", width: "half", help: "Leave empty for a client who isn't in HQ (an old project, say) and type their name in “Bill to” below." },
+      { key: "projectId", label: "Project (in HQ)", type: "ref", ref: "projects", width: "half", help: "Leave empty for work that isn't in HQ and type its name in “Project name”." },
+      { key: "projectName", label: "Project name (printed on the invoice)", type: "text", placeholder: "e.g. Website redesign 2025", width: "full", help: "Filled from the linked project when empty. Type any name for an old project." },
       { key: "milestone", label: "Milestone billed", type: "text", placeholder: "e.g. Advance — to start (50%)", width: "full" },
       { key: "leadId", label: "Lead (for commission)", type: "ref", ref: "leads", width: "half", help: "The registered lead this work came from. Payments on this invoice then count toward that lead owner's commission, once the founder has accepted the lead." },
       { key: "excludedAmount", label: "Pass-through / reimbursable charges (₹, before GST)", type: "currency", width: "half", help: "Third-party costs billed at cost (hosting, ad spend, travel). They never count toward incentives." },
@@ -720,6 +721,7 @@ export const collections: CollectionDef[] = [
       { key: "customerGstin", label: "Customer GSTIN", type: "text", width: "half" },
       { key: "customerAddress", label: "Billing address", type: "textarea", width: "full" },
       { key: "placeOfSupply", label: "Place of supply (state)", type: "text", width: "half" },
+      { key: "chargeGst", label: "Charge GST", type: "boolean", width: "third", help: "Off when FrameMind is not GST-registered: no GST is added and it prints as an invoice, not a tax invoice. New invoices follow Settings → Tax & bank." },
       { key: "gstPercent", label: "GST %", type: "percent", default: 18, width: "third" },
       { key: "discount", label: "Discount (₹)", type: "currency", width: "third" },
       { key: "items", label: "Line items", type: "lineItems", width: "full" },
@@ -1237,7 +1239,8 @@ export function invoiceTotals(inv: Record<string, unknown>) {
   const subtotal = lineItemsTotal(inv.items);
   const discount = Number(inv.discount) || 0;
   const taxable = Math.max(0, subtotal - discount);
-  const gstPercent = inv.gstPercent === undefined || inv.gstPercent === "" ? 18 : Number(inv.gstPercent) || 0;
+  // "Charge GST" off → no GST; invoices made before the switch existed keep their GST %
+  const gstPercent = inv.chargeGst === false ? 0 : inv.gstPercent === undefined || inv.gstPercent === "" ? 18 : Number(inv.gstPercent) || 0;
   const gst = Math.round(taxable * gstPercent) / 100;
   const total = Math.round((taxable + gst) * 100) / 100;
   const paid = Number(inv.amountPaid) || 0;

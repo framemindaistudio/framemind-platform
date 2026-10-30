@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { readPriceBook } from "@/lib/hq/pricebook";
+import { readSettings } from "@/lib/hq/records";
 import type { RateCard } from "@/lib/pricebook/types";
 
 /** The cache tag HQ expires when the rate card is saved (/api/hq/pricebook). */
@@ -27,4 +28,24 @@ export const publicRateCard = unstable_cache(
   },
   ["public-ratecard"],
   { tags: [RATECARD_TAG], revalidate: 600 },
+);
+
+/** The cache tag HQ expires when company settings are saved (/api/hq/settings). */
+export const SETTINGS_TAG = "company-settings";
+
+/**
+ * Whether the website shows prices "+ GST": HQ → Settings → Tax & bank → GST registered. Cached like the rate card;
+ * saving settings in HQ expires it. When settings can't be read, the site says nothing about GST either way.
+ */
+export const publicGstOn = unstable_cache(
+  async (): Promise<boolean | null> => {
+    try {
+      return !!(await readSettings()).settings.gstRegistered;
+    } catch (e) {
+      console.error("[website GST] could not read settings:", e instanceof Error ? e.message : e);
+      return null;
+    }
+  },
+  ["public-gst-on"],
+  { tags: [SETTINGS_TAG], revalidate: 600 },
 );

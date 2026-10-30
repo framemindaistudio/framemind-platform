@@ -45,7 +45,7 @@ export function InvoiceTotalsBox({ r, settings }: { r: Rec; settings: CompanySet
         <p className="annot mb-2 text-blueprint">Live totals</p>
         <Line k="Subtotal" v={formatINR(m.subtotal, { decimals: true })} muted />
         {m.discount > 0 && <Line k="Discount" v={`− ${formatINR(m.discount, { decimals: true })}`} muted />}
-        <Line k="Taxable value" v={formatINR(m.taxable, { decimals: true })} />
+        {m.gstPercent > 0 ? <Line k="Taxable value" v={formatINR(m.taxable, { decimals: true })} /> : <Line k="GST" v="Not charged" muted />}
         {m.gstPercent > 0 &&
           (m.inter ? (
             <Line k={`IGST @ ${m.gstPercent}%`} v={formatINR(m.igst, { decimals: true })} muted />
@@ -69,7 +69,7 @@ export function InvoiceTotalsBox({ r, settings }: { r: Rec; settings: CompanySet
         <p className="mt-3 flex gap-2 rounded-[var(--radius-sm)] bg-graphite/[0.04] px-3 py-2 text-xs text-charcoal">
           <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           <span>
-            <PlaceOfSupplyNote value={r.placeOfSupply} settings={settings} /> Status updates to paid / partially paid / overdue automatically when you save
+            {m.gstPercent > 0 && <PlaceOfSupplyNote value={r.placeOfSupply} settings={settings} />} Status updates to paid / partially paid / overdue automatically when you save
             {str(r.status) === "draft" || !r.status ? " — set it to “Sent” when you issue the invoice." : "."}
           </span>
         </p>

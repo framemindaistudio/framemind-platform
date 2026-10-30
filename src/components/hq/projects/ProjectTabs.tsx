@@ -9,7 +9,7 @@ import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/form";
 import { CollectionManager } from "@/components/hq/CollectionManager";
-import { useCollection, useHq } from "@/components/hq/data";
+import { useCollection, useHq, useSettings } from "@/components/hq/data";
 import { Panel } from "@/components/hq/ui";
 import { Notice } from "@/components/hq/sales/bits";
 import { phoneDigits, whatsappHref } from "@/components/hq/sales/contact";
@@ -21,6 +21,7 @@ import type { Patch } from "./ProjectDetail";
 
 export function MilestonesTab({ project, client, invoices, canWrite, patch }: { project: Rec; client?: Rec; invoices: Rec[]; canWrite: boolean; patch: Patch }) {
   const invoicesCol = useCollection("invoices");
+  const { settings } = useSettings();
   const ms = milestonesOf(project);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -43,6 +44,9 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
         customerName: str(client?.name),
         customerGstin: str(client?.gstin),
         customerAddress: str(client?.address),
+        projectName: str(project.title),
+        // GST follows HQ → Settings → Tax & bank
+        chargeGst: !!settings.gstRegistered,
         gstPercent: 18,
         items: [{ description: `${str(project.title)} — ${m.label}${m.percent ? ` (${m.percent}%)` : ""}`, qty: 1, rate: m.amount }],
         status: "draft",
@@ -94,7 +98,7 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
                   <Badge tone={statusTone(paid ? "paid" : m.status)}>{paid ? "paid" : m.status}</Badge>
                   {inv ? (
                     <Link href="/hq/finance?tab=invoices" className="inline-flex items-center gap-1 font-semibold text-graphite underline-offset-4 hover:underline">
-                      {str(inv.number) || "Draft invoice"} · {formatINR(t?.total ?? 0)} incl. GST{t && t.balance > 0 ? ` · ${formatINR(t.balance)} due` : ""}
+                      {str(inv.number) || "Draft invoice"} · {formatINR(t?.total ?? 0)}{t && t.gstPercent > 0 ? " incl. GST" : ""}{t && t.balance > 0 ? ` · ${formatINR(t.balance)} due` : ""}
                     </Link>
                   ) : (
                     canWrite &&

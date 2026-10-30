@@ -91,8 +91,12 @@ function servicesFrom(rates: PublicRates | null | undefined): ServiceDef[] {
 
 // ─── FAQs ─────────────────────────────────────────────────────────────────────
 
-const faqs = [
-  { q: "Are these prices final?", a: "Ready packages are fixed for what they list. Everything else is a starting price for the scope you select; the final price is confirmed in a written quote after a short discovery call. All prices exclude GST, which is added at the applicable rate." },
+/** What the site says about GST, from HQ → Settings → Tax & bank. Unknown (settings unreadable): nothing. */
+const gstSentence = (gstOn: boolean | null) => (gstOn === true ? " All prices exclude GST, which is added at the applicable rate." : gstOn === false ? " No GST is charged." : "");
+const gstShort = (gstOn: boolean | null) => (gstOn === true ? " &nbsp;·&nbsp; INR, excluding GST" : gstOn === false ? " &nbsp;·&nbsp; INR, no GST" : " &nbsp;·&nbsp; INR");
+
+const faqsFor = (gstOn: boolean | null) => [
+  { q: "Are these prices final?", a: `Ready packages are fixed for what they list. Everything else is a starting price for the scope you select; the final price is confirmed in a written quote after a short discovery call.${gstSentence(gstOn)}` },
   { q: "Can I pay in instalments?", a: "Yes. Projects up to ₹1 lakh: 50% advance, 50% before final delivery. Larger projects: 40% advance, 30% at an agreed milestone, 30% before handover. Monthly retainers are billed in advance." },
   { q: "What isn't included?", a: "Domains, hosting, cloud and API or AI usage, SMS and WhatsApp fees, ad spend, stock assets and travel beyond 25 km — unless the quote lists them. You pay these directly, in accounts you own, or we bill them at cost." },
   { q: "Do discounts combine?", a: "No. A quote gets either the bundle discount or the social-media contract discount, whichever is higher, and discounts apply to our service fees only." },
@@ -157,7 +161,7 @@ function calculateQuote(service: ServiceDef, selections: Selections, steps: Bund
 
 // ─── PDF Generation ───────────────────────────────────────────────────────────
 
-async function downloadQuotePDF(clientName: string, service: ServiceDef, quote: QuoteResult, selections: Selections) {
+async function downloadQuotePDF(clientName: string, service: ServiceDef, quote: QuoteResult, selections: Selections, gstOn: boolean | null) {
   const now = new Date();
   const date = now.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
   const validUntil = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
@@ -268,7 +272,7 @@ async function downloadQuotePDF(clientName: string, service: ServiceDef, quote: 
         </div>
       </div>
       <div style="padding:12px 20px;background:#f4f4f4;border-top:1px solid #ddd;">
-        <span style="font-size:10.5px;font-weight:600;color:#555;">Payment: 50% advance · 50% before delivery (larger projects in 3 milestones) &nbsp;·&nbsp; INR, excluding GST &nbsp;·&nbsp; Third-party costs billed separately</span>
+        <span style="font-size:10.5px;font-weight:600;color:#555;">Payment: 50% advance · 50% before delivery (larger projects in 3 milestones)${gstShort(gstOn)} &nbsp;·&nbsp; Third-party costs billed separately</span>
       </div>
     </div>`;
 
@@ -580,8 +584,9 @@ function OptionCard({ option, selected, type, onToggle }: {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function Pricing({ rates = null }: { rates?: PublicRates | null }) {
+export default function Pricing({ rates = null, gstOn = null }: { rates?: PublicRates | null; gstOn?: boolean | null }) {
   const SERVICES = useMemo(() => servicesFrom(rates), [rates]);
+  const faqs = useMemo(() => faqsFor(gstOn), [gstOn]);
   const steps = rates?.bundleSteps?.length ? rates.bundleSteps : DEFAULT_STEPS;
   const [activeId, setActiveId] = useState<ServiceId>("websites");
   const [allSelections, setAllSelections] = useState<Record<ServiceId, Selections>>(
@@ -880,7 +885,7 @@ export default function Pricing({ rates = null }: { rates?: PublicRates | null }
                     <button
                       onClick={() => {
                         if (!hasSelections) return;
-                        downloadQuotePDF(clientName, service, quote, selections);
+                        downloadQuotePDF(clientName, service, quote, selections, gstOn);
                         const contact = clientContact.trim();
                         if (contact) {
                           const isEmail = contact.includes("@");

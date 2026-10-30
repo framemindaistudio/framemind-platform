@@ -47,7 +47,7 @@ export function RateCardDoc({ q }: { q: Q }) {
           </header>
 
           <p className="mt-[4mm] text-[8pt] leading-relaxed text-charcoal">
-            {TERMS.tax} {TERMS.pricesFinal} Quotes hold for {rates.terms.validityDays} days.
+            {settings.gstRegistered ? TERMS.tax : TERMS.taxNone} {TERMS.pricesFinal} Quotes hold for {rates.terms.validityDays} days.
           </p>
 
           {services.map((s) => (

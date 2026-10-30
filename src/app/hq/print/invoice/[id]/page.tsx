@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/hq/auth";
 import { OPS } from "@/lib/hq/roles";
 import { InvoicePrint } from "@/components/hq/finance/InvoicePrint";
 
-export const metadata: Metadata = { title: "Tax invoice", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Invoice", robots: { index: false, follow: false } };
 
 export default async function InvoicePrintPage({ params }: { params: Promise<{ id: string }> }) {
   await requireUser(OPS);

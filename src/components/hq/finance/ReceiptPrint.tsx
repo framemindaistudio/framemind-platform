@@ -33,6 +33,7 @@ function Ready({ inv, settings, paymentId }: { inv: Rec; settings: CompanySettin
   const settled = m.total > 0 && m.balance < 0.5;
   const hasCheque = shown.some((p) => p.mode === "cheque");
   const back = `${BACK}&id=${encodeURIComponent(inv.id)}`;
+  const docName = m.gstPercent > 0 ? "Tax invoice" : "Invoice";
 
   return (
     <PrintShell
@@ -40,7 +41,7 @@ function Ready({ inv, settings, paymentId }: { inv: Rec; settings: CompanySettin
       back={back}
       toolbar={
         <Link href={`/hq/print/invoice/${inv.id}`} className="inline-flex h-8 items-center gap-1.5 rounded px-2.5 text-xs font-semibold hover:bg-graphite/5">
-          <FileText className="size-3.5" /> Tax invoice
+          <FileText className="size-3.5" /> {docName}
         </Link>
       }
     >
@@ -129,7 +130,7 @@ function Ready({ inv, settings, paymentId }: { inv: Rec; settings: CompanySettin
                 <div>
                   <Cap>Towards</Cap>
                   <p>
-                    Tax invoice <span className="font-semibold">{number}</span> dated {fmtDate(inv.date)}
+                    {docName} <span className="font-semibold">{number}</span> dated {fmtDate(inv.date)}
                     {str(inv.customerName) ? ` issued to ${str(inv.customerName)}` : ""}.
                   </p>
                   {hasCheque && <p className="mt-2 text-[10px] text-charcoal">Cheque payments are subject to realisation.</p>}
@@ -146,7 +147,7 @@ function Ready({ inv, settings, paymentId }: { inv: Rec; settings: CompanySettin
 
               <section className="mt-10 grid break-inside-avoid grid-cols-[1fr_62mm] items-end gap-6 text-[10px]">
                 <p className="text-[9px] leading-relaxed text-blueprint">
-                  This receipt acknowledges money received against the invoice above. It is not a tax invoice — GST, where applicable, is shown on the tax invoice itself. This is a computer-generated document.
+                  This receipt acknowledges money received against the invoice above. It is not a tax invoice — GST, where charged, is shown on the invoice itself. This is a computer-generated document.
                 </p>
                 <div className="text-center">
                   <p className="text-[10px]">

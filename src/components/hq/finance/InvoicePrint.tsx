@@ -15,7 +15,7 @@ const inr = (v: number) => formatINR(v, { decimals: true });
 
 export function InvoicePrint({ id }: { id: string }) {
   const doc = useInvoiceDoc(id);
-  if (doc.kind !== "ready") return <DocMessage state={doc} title="Tax invoice" back={BACK} />;
+  if (doc.kind !== "ready") return <DocMessage state={doc} title="Invoice" back={BACK} />;
   return <Ready inv={doc.invoice} settings={doc.settings} />;
 }
 
@@ -29,6 +29,9 @@ function Ready({ inv, settings }: { inv: Rec; settings: CompanySettings }) {
   const place = placeLabel(inv.placeOfSupply, settings.state ? `${settings.state}${settings.stateCode ? ` (${settings.stateCode})` : ""}` : "");
   const supplierState = placeLabel(settings.stateCode || settings.state);
   const settled = m.total > 0 && m.balance < 0.5;
+  // GST charged → a tax invoice; "Charge GST" off → a plain invoice (Settings → Tax & bank)
+  const taxInvoice = m.gstPercent > 0;
+  const docName = taxInvoice ? "Tax invoice" : "Invoice";
 
   /* UPI QR for the balance — generated in the browser, never sent anywhere */
   const upiUri = useMemo(() => {
@@ -62,15 +65,15 @@ function Ready({ inv, settings }: { inv: Rec; settings: CompanySettings }) {
   ].filter(([, v]) => v);
 
   const warnings = [
-    !settings.gstin && "Your GSTIN is missing — add it in HQ → Settings before issuing this as a tax invoice.",
+    taxInvoice && !settings.gstin && "Your GSTIN is missing — add it in HQ → Settings before issuing this as a tax invoice, or turn off “Charge GST” on this invoice.",
     !str(inv.customerName).trim() && "Bill-to name is empty.",
     status === "draft" && "This invoice is still a draft. Set the status to “Sent” when you issue it.",
-    place && !/\(\d{2}\)$/.test(place) && "Place of supply isn't a recognised state, so it was treated as intra-state (CGST + SGST). Use the state name or its 2-digit GST code.",
+    taxInvoice && place && !/\(\d{2}\)$/.test(place) && "Place of supply isn't a recognised state, so it was treated as intra-state (CGST + SGST). Use the state name or its 2-digit GST code.",
   ].filter(Boolean) as string[];
 
   return (
     <PrintShell
-      title={`Tax invoice ${number}`}
+      title={`${docName} ${number}`}
       back={`${BACK}&id=${encodeURIComponent(inv.id)}`}
       toolbar={
         <>
@@ -98,7 +101,7 @@ function Ready({ inv, settings }: { inv: Rec; settings: CompanySettings }) {
       <A4Page>
         {status === "cancelled" ? <Stamp>Cancelled</Stamp> : status === "draft" ? <Stamp>Draft</Stamp> : settled ? <Stamp>Paid</Stamp> : null}
         <div className="pb-[16mm]">
-          <Letterhead settings={settings} docTitle="TAX INVOICE" docMeta={<span className="uppercase tracking-[0.18em]">Original for recipient</span>} />
+          <Letterhead settings={settings} docTitle={docName.toUpperCase()} docMeta={<span className="uppercase tracking-[0.18em]">Original for recipient</span>} />
 
           {/* parties + meta */}
           <section className="grid grid-cols-[1.25fr_1fr] gap-4 text-[11px] leading-relaxed">
@@ -111,17 +114,20 @@ function Ready({ inv, settings }: { inv: Rec; settings: CompanySettings }) {
                   <span className="text-blueprint">GSTIN:</span> <span className="font-semibold">{str(inv.customerGstin)}</span>
                 </p>
               )}
-              <p className="mt-1">
-                <span className="text-blueprint">Place of supply:</span> <span className="font-semibold">{place || "—"}</span>
-              </p>
+              {taxInvoice && (
+                <p className="mt-1">
+                  <span className="text-blueprint">Place of supply:</span> <span className="font-semibold">{place || "—"}</span>
+                </p>
+              )}
             </div>
             <dl className="rounded-[2px] border border-graphite/30 p-3.5">
               <Cap>Invoice details</Cap>
               <Meta k="Invoice no." v={number} strong />
               <Meta k="Invoice date" v={fmtDate(inv.date)} />
               <Meta k="Due date" v={due ? fmtDate(due) : "—"} />
-              {supplierState && <Meta k="Supplier state" v={supplierState} />}
-              <Meta k="Reverse charge" v="No" />
+              {str(inv.projectName) && <Meta k="Project" v={str(inv.projectName)} />}
+              {taxInvoice && supplierState && <Meta k="Supplier state" v={supplierState} />}
+              {taxInvoice && <Meta k="Reverse charge" v="No" />}
             </dl>
           </section>
 
@@ -175,7 +181,7 @@ function Ready({ inv, settings }: { inv: Rec; settings: CompanySettings }) {
             <dl>
               <TotalRow k="Subtotal" v={inr(m.subtotal)} />
               {m.discount > 0 && <TotalRow k="Discount" v={`− ${inr(m.discount)}`} />}
-              <TotalRow k="Taxable value" v={inr(m.taxable)} />
+              {taxInvoice && <TotalRow k="Taxable value" v={inr(m.taxable)} />}
               {m.gstPercent > 0 &&
                 (m.inter ? (
                   <TotalRow k={`IGST @ ${m.gstPercent}%`} v={inr(m.igst)} />
@@ -267,6 +273,7 @@ function Ready({ inv, settings }: { inv: Rec; settings: CompanySettings }) {
             <div>
               <Cap>Terms &amp; conditions</Cap>
               <p className="whitespace-pre-line leading-relaxed text-charcoal">{settings.invoiceTerms || "Payment due as per the due date above."}</p>
+              {!taxInvoice && <p className="mt-2 text-[9px] text-charcoal">No GST is charged on this invoice.</p>}
               <p className="mt-2 text-[9px] text-blueprint">This is a computer-generated invoice.</p>
             </div>
             <div className="text-center">

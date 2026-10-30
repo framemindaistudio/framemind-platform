@@ -11,6 +11,8 @@ export interface CompanySettings {
   phone: string;
   email: string;
   website: string;
+  /** registered under GST? Off: no GST on new quotes, invoices or the website (turn on once registered) */
+  gstRegistered: boolean;
   gstin: string;
   pan: string;
   sacCode: string;
@@ -56,6 +58,7 @@ export const defaultSettings: CompanySettings = {
   phone: "+91 80730 87576",
   email: "framemindaistudio@gmail.com",
   website: "www.framemindaistudio.com",
+  gstRegistered: false,
   gstin: "",
   pan: "",
   // IT design and development services; change it per invoice line for photo / video work if your CA advises

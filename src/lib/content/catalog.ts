@@ -222,6 +222,8 @@ export const TERMS = {
   delays: "If approvals, materials or payments are late, the schedule moves by the same time. A project paused by the client for more than 30 days is re-scheduled when it restarts.",
   discounts: "Discounts apply to our service fees only — not to third-party costs, taxes or expenses — and don't combine: a quote gets either the bundle or the contract-length discount, whichever is higher.",
   tax: "All prices are in Indian rupees and exclude GST, which is added at the applicable rate and shown separately on the invoice.",
+  /** the same line when GST is switched off (HQ → Settings → Tax & bank) */
+  taxNone: "All prices are in Indian rupees. No GST is charged.",
   international: "We work with clients internationally. Pricing is INR-based; international payments are by bank transfer or Wise.",
   process: [
     { title: "Tell us what you're building", detail: "A 20-minute call. A direct conversation about what's needed and whether we're the right fit." },
