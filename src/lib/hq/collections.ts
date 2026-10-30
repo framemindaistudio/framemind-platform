@@ -46,6 +46,12 @@ export interface FieldDef {
   options?: FieldOption[];
   /** for type "ref": target collection name */
   ref?: string;
+  /**
+   * for type "ref": which records the picker offers. `hide` leaves out records whose field has one of the values;
+   * `need` leaves out records with that field empty; `mark` keeps them but adds a note (e.g. "left"). The value already
+   * saved is always shown.
+   */
+  refFilter?: { hide?: Record<string, string[]>; need?: string[]; mark?: { key: string; values: string[]; note: string } };
   required?: boolean;
   placeholder?: string;
   /** text fields: common values offered as you type; anything else may still be typed */
@@ -285,7 +291,7 @@ export const collections: CollectionDef[] = [
       { key: "message", label: "Message", type: "textarea", width: "full" },
       { key: "page", label: "Submitted from", type: "text", width: "half" },
       { key: "clientId", label: "Converted to client", type: "ref", ref: "clients", width: "half" },
-      { key: "ownerId", label: "Lead owner (team)", type: "ref", ref: "team", width: "half", help: "The team member who brought the lead in. Commission needs the founder's acceptance in Incentives." },
+      { key: "ownerId", label: "Lead owner (team)", type: "ref", ref: "team", refFilter: { hide: { status: ["inactive"] } }, width: "half", help: "The team member who brought the lead in. Commission needs the founder's acceptance in Incentives." },
       { key: "evidence", label: "Evidence of the introduction", type: "textarea", width: "full", placeholder: "Who introduced whom, when — a message, an email, a meeting note" },
       { key: "attribution", label: "Commission attribution", type: "select", options: opts(["none", "Not registered"], ["pending", "Pending founder decision"], ["accepted", "Accepted"], ["rejected", "Rejected"]), default: "none", hidden: true },
     ],
@@ -715,7 +721,7 @@ export const collections: CollectionDef[] = [
       { key: "projectId", label: "Project (in HQ)", type: "ref", ref: "projects", width: "half", help: "Leave empty for work that isn't in HQ and type its name in “Project name”." },
       { key: "projectName", label: "Project name (printed on the invoice)", type: "text", placeholder: "e.g. Website redesign 2025", width: "full", help: "Filled from the linked project when empty. Type any name for an old project." },
       { key: "milestone", label: "Milestone billed", type: "text", placeholder: "e.g. Advance — to start (50%)", width: "full" },
-      { key: "leadId", label: "Lead (for commission)", type: "ref", ref: "leads", width: "half", help: "The registered lead this work came from. Payments on this invoice then count toward that lead owner's commission, once the founder has accepted the lead." },
+      { key: "leadId", label: "Lead (for commission)", type: "ref", ref: "leads", refFilter: { hide: { kind: ["careers", "contact"], status: ["spam"] }, need: ["ownerId"] }, width: "half", help: "Only enquiries with a team lead owner are listed (job applications never are). The registered lead this work came from. Payments on this invoice then count toward that lead owner's commission, once the founder has accepted the lead." },
       { key: "excludedAmount", label: "Pass-through / reimbursable charges (₹, before GST)", type: "currency", width: "half", help: "Third-party costs billed at cost (hosting, ad spend, travel). They never count toward incentives." },
       { key: "customerName", label: "Bill to (name)", type: "text", required: true, table: true, width: "half" },
       { key: "customerGstin", label: "Customer GSTIN", type: "text", width: "half" },
@@ -940,7 +946,7 @@ export const collections: CollectionDef[] = [
     write: LEADERSHIP,
     fields: [
       { key: "month", label: "Month", type: "month", required: true, table: true, width: "third" },
-      { key: "memberId", label: "Team member", type: "ref", ref: "team", required: true, table: true, width: "third" },
+      { key: "memberId", label: "Team member", type: "ref", ref: "team", refFilter: { mark: { key: "status", values: ["inactive"], note: "left" } }, required: true, table: true, width: "third" },
       { key: "status", label: "Status", type: "select", options: opts("pending", "paid", "on-hold"), default: "pending", table: true, width: "third" },
       { key: "fixedPay", label: "Fixed pay", type: "currency", width: "third" },
       { key: "units", label: "Freelance units", type: "number", width: "third", help: "Days, deliverables or sessions" },

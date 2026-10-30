@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Plus, Trash2, X } from "lucide-react";
 import type { BaseRecord, CollectionDef, FieldDef, LineItem } from "@/lib/hq/collections";
 import { getCollection, lineItemsTotal } from "@/lib/hq/collections";
@@ -72,13 +72,24 @@ export function FieldValue({ field, value, lookup }: { field: FieldDef; value: u
 
 function RefSelect({ field, value, onChange, disabled }: { field: FieldDef; value: unknown; onChange: (v: unknown) => void; disabled?: boolean }) {
   const { records } = useCollection(field.ref!);
-  const sorted = useMemo(() => [...records].sort((a, b) => refLabel(a, field.ref).localeCompare(refLabel(b, field.ref))), [records, field.ref]);
+  const f = field.refFilter;
+  const marked = useCallback((r: BaseRecord) => !!f?.mark && f.mark.values.includes(String(r[f.mark.key] ?? "")), [f]);
+  const sorted = useMemo(() => {
+    const keep = (r: BaseRecord) => {
+      if (r.id === String(value ?? "")) return true; // the saved value always stays visible
+      if (f?.hide && Object.entries(f.hide).some(([k, vals]) => vals.includes(String(r[k] ?? "")))) return false;
+      if (f?.need?.some((k) => !String(r[k] ?? "").trim())) return false;
+      return true;
+    };
+    return records.filter(keep).sort((a, b) => Number(marked(a)) - Number(marked(b)) || refLabel(a, field.ref).localeCompare(refLabel(b, field.ref)));
+  }, [records, field.ref, f, value, marked]);
   return (
     <Select value={String(value ?? "")} onChange={(e) => onChange(e.target.value)} disabled={disabled}>
       <option value="">— Select —</option>
       {sorted.map((r) => (
         <option key={r.id} value={r.id}>
           {refLabel(r, field.ref)}
+          {marked(r) ? ` (${f!.mark!.note})` : ""}
         </option>
       ))}
     </Select>
