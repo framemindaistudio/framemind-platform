@@ -7,6 +7,7 @@ const navLinks = [
   { to: "/pricing", label: "Services" },
   { to: "/vritta", label: "Vritta" },
   { to: "/jove", label: "JOVE" },
+  { to: "/360vue", label: "360VUE" },
   { to: "/personal-coaching", label: "1:1 Coaching" },
   { to: "/testimonials", label: "Testimonials" },
   { to: "/careers", label: "Careers" },

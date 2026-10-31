@@ -33,6 +33,12 @@ export const PAGE_SEO: Record<string, PageSeo> = {
     "keywords": "institutional newsletter software India, NAAC evidence software, activity record schools colleges India, department newsletter platform, education software India, IQAC software, accreditation evidence India, college newsletter automation",
     "ogImageAlt": "Vritta — Departmental Activity Record & Newsletter Platform by FrameMind AI Studio"
   },
+  "/360vue": {
+    "title": "360VUE — 360° Virtual Tours, SkyVUE Aerial 360° & Google Maps",
+    "description": "360VUE makes 360° virtual tours, SkyVUE drone 360° aerial views and Google Maps listings for restaurants, hotels, showrooms, hospitals, colleges and real estate across South India. A FrameMind AI Studio company.",
+    "keywords": "360 virtual tour India, virtual tour Bengaluru, Google Maps 360 tour, drone 360 aerial view, SkyVUE, real estate virtual tour, hotel virtual tour, 360VUE, FrameMind 360VUE",
+    "ogImageAlt": "360VUE — 360° Virtual Tours, a FrameMind AI Studio company"
+  },
   "/jove": {
     "title": "JOVE — School Robotics & AI Workshops Across India",
     "description": "JOVE brings full-day robotics, AI, and machine learning workshops to school campuses across India for Grades 1–10. Co-founded by the team behind FrameMind AI Studio.",

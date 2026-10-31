@@ -12,6 +12,7 @@ const PAGES: { path: string; priority: number; changeFrequency: "weekly" | "mont
   { path: "/team", priority: 0.6, changeFrequency: "monthly" },
   { path: "/careers", priority: 0.6, changeFrequency: "monthly" },
   { path: "/jove", priority: 0.6, changeFrequency: "monthly" },
+  { path: "/360vue", priority: 0.6, changeFrequency: "monthly" },
   { path: "/shop", priority: 0.5, changeFrequency: "monthly" },
 ];
 

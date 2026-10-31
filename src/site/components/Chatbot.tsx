@@ -18,6 +18,7 @@ const flows: Record<string, FlowNode> = {
       { label: "Pricing & quotes", next: "pricing" },
       { label: "Vritta — software for institutions", next: "vritta" },
       { label: "JOVE — school robotics workshops", next: "jove" },
+      { label: "360VUE — 360° virtual tours", next: "vue360" },
       { label: "AI Coaching", next: "coaching" },
       { label: "See our work", next: "work" },
       { label: "Get started with a project", next: "getstarted" },
@@ -102,6 +103,14 @@ const flows: Record<string, FlowNode> = {
       { label: "← Back", next: "vritta" },
     ],
   },
+  vue360: {
+    reply: "360VUE is a FrameMind AI Studio company. It makes 360° virtual tours, SkyVUE drone 360° aerial views and Google Maps listings for restaurants, hotels, showrooms, hospitals, colleges and real estate across South India. Prices are on 360vue.website's calculator.",
+    options: [
+      { label: "About 360VUE", to: "/360vue" },
+      { label: "Talk to us", to: "/connect" },
+      { label: "← Back", next: "start" },
+    ],
+  },
   jove: {
     reply: "JOVE (Journey of Visionation & Excellence) brings full-day robotics, AI & ML workshops to school campuses across India — Grades 1–10. Co-founded by the FrameMind team. Every event includes professional filming by FrameMind at no extra cost.",
     options: [
@@ -168,6 +177,7 @@ const KEYWORD_MAP: [RegExp, string][] = [
   [/\b(social|instagram|facebook|linkedin|media|post|content\s*creat)\b/i, "social_ai"],
   [/\b(automat|ai\s*tool|workflow|whatsapp\s*bot|chatbot|integrate)\b/i, "social_ai"],
   [/\b(price|cost|quote|rate|budget|how\s*much|pricing|fee|charge|rupee|inr)\b/i, "pricing"],
+  [/(\b360\b|360vue|virtual\s*tour|skyvue|google\s*maps|walk-?through|digital\s*twin)/i, "vue360"],
   [/\b(jove|robotics|robot|stem|machine\s*learning|ml\s*workshop|ai\s*workshop|school\s*workshop|grade|inventor|innovator)\b/i, "jove"],
   [/\b(vritta|newsletter|college|institution|iqac|naac|nba|accredit|department|campus)\b/i, "vritta"],
   [/\b(coach|coaching|learn\s*ai|artificial\s*intelligence|training|tutor|ai\s*course|ai\s*skill)\b/i, "coaching"],

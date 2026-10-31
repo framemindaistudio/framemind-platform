@@ -13,6 +13,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   pricing: "Services",
   vritta: "Vritta",
   jove: "JOVE",
+  "360vue": "360VUE",
   projects: "Projects",
   shop: "Shop",
   "personal-coaching": "1:1 AI Coaching",
