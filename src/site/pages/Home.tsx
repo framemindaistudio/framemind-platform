@@ -10,7 +10,8 @@ import SEO from "@/site/components/SEO";
 import { ImageWithFallback } from "@/site/components/ImageWithFallback";
 const jagkalyanMissionScreenshot = "/site/jagkalyan-mission.jpg";
 const msmeLogo = "/site/msme-logo.png";
-const heroVideo = "/site/logo-video.mp4";
+/** the shared FrameMind / 360VUE icon on ink (scripts/brand-assets.py made the icon; this still is cut from it) */
+const heroImage = "/site/hero-icon.webp";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -230,19 +231,19 @@ export default function Home() {
       {/* ── Hero ── */}
       <section className="relative w-full bg-[#0D0D0D] overflow-hidden min-h-[100svh] flex flex-col">
         {/* Video background */}
-        <video
-          src={heroVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ opacity: 0.35, animation: "heroFadeIn 1.2s ease-out forwards" }}
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none"
+          style={{ opacity: 0.45, animation: "heroFadeIn 1.2s ease-out forwards, heroDrift 24s ease-in-out infinite alternate" }}
         />
         {/* Stronger overlay on mobile for text legibility */}
         <div className="absolute inset-0 pointer-events-none bg-black/50 sm:bg-black/20" />
         <style>{`
-          @keyframes heroFadeIn { from { opacity: 0 } to { opacity: 0.35 } }
+          @keyframes heroFadeIn { from { opacity: 0 } to { opacity: 0.45 } }
+          @keyframes heroDrift { from { transform: scale(1) } to { transform: scale(1.06) } }
+          @media (prefers-reduced-motion: reduce) { img[aria-hidden] { animation: none !important; opacity: 0.45 } }
           @keyframes heroContentUp { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: translateY(0) } }
         `}</style>
 

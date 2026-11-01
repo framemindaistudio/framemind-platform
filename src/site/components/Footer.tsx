@@ -19,9 +19,7 @@ export default function Footer() {
     <footer className="bg-[#0D0D0D] text-[#F5F4F0]">
       <div className="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-3 gap-12">
         <div>
-          <p className="font-semibold text-lg tracking-tight mb-2">
-            FrameMind AI Studio<span className="text-[#C8F135]">.</span>
-          </p>
+          <img src="/brand/kit/preview/framemind-horizontal-on-dark-transparent-4k.webp" alt="FrameMind AI Studio — Design · Software · AI Solutions" width={900} height={274} className="mb-4 h-auto w-[260px]" />
           <p className="text-sm text-[#888] leading-relaxed max-w-xs">
             We design and ship websites, brand systems, custom software, and automations for founders who want things actually built.
           </p>

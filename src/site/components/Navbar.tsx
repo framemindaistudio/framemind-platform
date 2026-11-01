@@ -22,12 +22,15 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="font-semibold text-lg tracking-tight">
-          FrameMind AI Studio<span className="text-[#C8F135]">.</span>
+        <Link to="/" className="flex items-center gap-2.5 whitespace-nowrap font-semibold text-lg tracking-tight" aria-label="FrameMind AI Studio — home">
+          <img src="/brand/fm-mark-light.png" alt="" width={40} height={40} className="h-10 w-10 shrink-0" />
+          <span>
+            FrameMind AI Studio<span className="text-[#C8F135]">.</span>
+          </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-8 whitespace-nowrap">
           {navLinks.map(({ to, label }) =>
             to === "/connect" ? (
               <NavLink
@@ -59,7 +62,7 @@ export default function Navbar() {
 
         {/* Mobile toggle */}
         <button
-          className="md:hidden p-2 -mr-2"
+          className="lg:hidden p-2 -mr-2"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
@@ -69,7 +72,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t border-border bg-background px-6 py-4 flex flex-col gap-4">
+        <div className="lg:hidden border-t border-border bg-background px-6 py-4 flex flex-col gap-4">
           {navLinks.map(({ to, label }) =>
             to === "/connect" ? (
               <NavLink

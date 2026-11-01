@@ -18,12 +18,15 @@ export interface Position {
   code: string;
   /** what the login opens in HQ by default (the founder can choose another when adding a person) */
   access: Role;
-  group: "Sales & operations" | "Studio: design, development & AI" | "Media: photo, video & social";
+  group: "Founders" | "Sales & operations" | "Studio: design, development & AI" | "Media: photo, video & social";
+  /** founders sign in with their own built-in login (HQ_USERS): their place gets no numbered login */
+  noLogin?: boolean;
   /** one line on the job, for the Team page */
   about: string;
 }
 
 export const POSITIONS: Position[] = [
+  { key: "founder", title: "Founder", code: "founder", access: "admin", group: "Founders", about: "Owns the studio and leads every project. Signs in with their own founder login.", noLogin: true },
   { key: "business-development", title: "Business Development Executive", code: "bd", access: "ops", group: "Sales & operations", about: "Finds and follows up leads, sends quotes, looks after clients." },
   { key: "operations", title: "Operations & Accounts", code: "ops", access: "ops", group: "Sales & operations", about: "Invoices, payments, expenses, vendors and the day-to-day running." },
   { key: "ui-ux-designer", title: "UI/UX Designer", code: "ux", access: "studio", group: "Studio: design, development & AI", about: "Website and app design, design systems, Figma files." },
@@ -41,7 +44,7 @@ export const POSITION_GROUPS = [...new Set(POSITIONS.map((p) => p.group))];
 export const positionOf = (key: unknown) => POSITIONS.find((p) => p.key === key);
 
 /** "Full-stack Developer 2" */
-export const placeLabel = (p: Position, n: number) => `${p.title} ${n}`;
+export const placeLabel = (p: Position, n: number) => (p.noLogin ? p.title : `${p.title} ${n}`);
 
 /** "dev2" */
 export const placeUsername = (p: Position, n: number) => `${p.code}${n}`;

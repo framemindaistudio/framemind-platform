@@ -52,11 +52,11 @@ export async function GET() {
             leftOn: s(m.leftOn),
             phone: s(m.phone),
             email: s(m.email),
-            login: place ? login(placeUsername(p, place)) : null,
+            login: place && !p.noLogin ? login(placeUsername(p, place)) : null,
           };
         })
         .sort((a, b) => Number(isCurrent(b)) - Number(isCurrent(a)) || a.place - b.place || b.leftOn.localeCompare(a.leftOn));
-      return { ...p, accessLabel: roleLabels[p.access], people };
+      return { ...p, accessLabel: p.noLogin ? "their own founder login" : roleLabels[p.access], people };
     });
     const unplaced = team.filter((m) => !positionOf(m.position)).map((m) => ({ id: m.id, name: s(m.name), role: s(m.role), status: s(m.status) }));
     return NextResponse.json({ roles, unplaced, accessOptions: MANAGED_ROLES.map((r) => ({ value: r, label: roleLabels[r] })), canManage: user.role === "founder" });
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         "team",
         {
           name,
-          role: type === "Intern" ? `${p.title} Intern` : p.title,
+          role: p.noLogin ? p.title : type === "Intern" ? `${p.title} Intern` : p.title,
           position: p.key,
           place,
           type,
@@ -119,9 +119,12 @@ export async function POST(req: Request) {
           email: s(person.email) || undefined,
           monthlyPay,
           compensationBasis: type === "Intern" ? "stipend" : type === "Freelance" ? "freelance" : "fixed",
+          ...(p.noLogin ? { status: "active", incentiveEligible: false } : {}),
         },
         user.name,
       );
+      // founders keep their own built-in login: no numbered login for them
+      if (p.noLogin) return NextResponse.json({ ok: true, member: { id: record.id, name, label: placeLabel(p, place) } });
       const username = placeUsername(p, place);
       const password = await giveLogin(username, name, access, record.id, user.name);
       return NextResponse.json({ ok: true, member: { id: record.id, name, label: placeLabel(p, place) }, username, password });
@@ -146,6 +149,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    if (b.action === "password" && p.noLogin) return bad("Founders sign in with their own login. Change it in My account.");
     if (b.action === "password") {
       if (!isCurrent(m)) return bad("This person has left. Add the new person to the role instead.");
       const current = (await readAccounts(true)).accounts.find((a) => !a.builtInOverride && a.username === username);

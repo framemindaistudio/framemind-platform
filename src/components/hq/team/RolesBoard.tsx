@@ -32,6 +32,8 @@ interface RoleRow {
   accessLabel: string;
   group: string;
   about: string;
+  /** founders: their own login, no numbered place login */
+  noLogin?: boolean;
   people: Person[];
 }
 interface Board {
@@ -130,13 +132,11 @@ export function RolesBoard({ members, canEdit, onEdit, onChecklist, onChanged }:
                       <div className="min-w-0 flex-1">
                         <h3 className="text-[15px] font-bold leading-tight">{r.title}</h3>
                         <p className="mt-0.5 text-xs text-blueprint">{r.about}</p>
-                        <p className="mt-1 text-[11px] text-charcoal">
-                          Logins {r.code}1, {r.code}2… · opens HQ as {r.accessLabel}
-                        </p>
+                        <p className="mt-1 text-[11px] text-charcoal">{r.noLogin ? "Signs in with their own founder login" : <>Logins {r.code}1, {r.code}2… · opens HQ as {r.accessLabel}</>}</p>
                       </div>
                       {board.canManage && (
                         <Button size="sm" variant="secondary" onClick={() => setAdding(r)}>
-                          <Plus className="size-3.5" aria-hidden /> Add person
+                          <Plus className="size-3.5" aria-hidden /> {r.noLogin ? "Add founder" : "Add person"}
                         </Button>
                       )}
                     </header>
@@ -164,7 +164,7 @@ export function RolesBoard({ members, canEdit, onEdit, onChecklist, onChanged }:
                                     login {p.login.username}
                                     {p.login.mustChange ? " · one-time password not changed yet" : ""}
                                   </span>
-                                ) : board.canManage ? (
+                                ) : board.canManage && !r.noLogin ? (
                                   <span className="text-warn">no login</span>
                                 ) : null}
                               </p>
@@ -179,7 +179,7 @@ export function RolesBoard({ members, canEdit, onEdit, onChecklist, onChanged }:
                               <Button size="sm" variant="ghost" href="/hq/sign">
                                 <FileSignature className="size-3.5" aria-hidden /> Letters
                               </Button>
-                              {board.canManage && (
+                              {board.canManage && !r.noLogin && (
                                 <>
                                   <Button size="sm" variant="ghost" disabled={busy === p.id} onClick={() => void newPassword(p)}>
                                     <KeyRound className="size-3.5" aria-hidden /> {p.login ? "New password" : "Give login"}
@@ -221,7 +221,7 @@ export function RolesBoard({ members, canEdit, onEdit, onChecklist, onChanged }:
 
       {board.unplaced.length > 0 && (
         <p className="text-xs text-blueprint">
-          Not in a role yet: {board.unplaced.map((m) => m.name).join(", ")}. Founders are outside the roles. Others can be set in the All records table below.
+          Not in a role yet: {board.unplaced.map((m) => m.name).join(", ")}. Set their company role in the All records table below.
         </p>
       )}
 
@@ -234,7 +234,7 @@ export function RolesBoard({ members, canEdit, onEdit, onChecklist, onChanged }:
             const r = await post({ action: "add", position: adding.key, access, person });
             const m = r.member as { name: string; label: string };
             setAdding(null);
-            setGiven({ who: m.name, label: m.label, username: String(r.username), password: String(r.password) });
+            if (r.username) setGiven({ who: m.name, label: m.label, username: String(r.username), password: String(r.password) });
           }}
         />
       )}
@@ -272,15 +272,14 @@ function AddPerson({ role, accessOptions, onClose, onAdd }: { role: RoleRow; acc
     <Modal
       open
       onClose={onClose}
-      title={`Add ${role.title} ${freePlace}`}
+      title={role.noLogin ? `Add a ${role.title.toLowerCase()}` : `Add ${role.title} ${freePlace}`}
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onClose}>
             Cancel
           </Button>
           <Button size="sm" disabled={busy || f.name.trim().length < 2} onClick={() => void submit()}>
-            {busy && <Loader2 className="size-4 animate-spin" aria-hidden />} Add and give login {role.code}
-            {freePlace}
+            {busy && <Loader2 className="size-4 animate-spin" aria-hidden />} {role.noLogin ? "Add founder" : `Add and give login ${role.code}${freePlace}`}
           </Button>
         </div>
       }
@@ -308,6 +307,7 @@ function AddPerson({ role, accessOptions, onClose, onAdd }: { role: RoleRow; acc
         <Field label={f.type === "Intern" ? "Monthly stipend (₹)" : f.type === "Freelance" ? "Monthly retainer (₹, optional)" : "Monthly salary (₹)"}>
           <Input value={f.monthlyPay} onChange={set("monthlyPay")} inputMode="numeric" />
         </Field>
+        {!role.noLogin && (
         <Field label="What the login opens" help="The role's usual access is chosen. View and print only, except for Admin.">
           <Select value={access} onChange={(e) => setAccess(e.target.value)}>
             {accessOptions.map((o) => (
@@ -317,11 +317,16 @@ function AddPerson({ role, accessOptions, onClose, onAdd }: { role: RoleRow; acc
             ))}
           </Select>
         </Field>
+        )}
       </div>
+      {role.noLogin ? (
+        <p className="mt-3 text-xs text-blueprint">Founders sign in with their own founder login, so no new login is made. Their name, phone and photo then print on ID and visiting cards, letters and payslips. Add the rest from Details.</p>
+      ) : (
       <p className="mt-3 text-xs text-blueprint">
         They become <strong>{role.title} {freePlace}</strong>
         {freePlace < next ? " (a free place someone left)" : ""} with the login <code>{role.code}{freePlace}</code>. You&apos;ll see a one-time password next; they choose their own when they first sign in. Add the rest (address, payout, documents) from Details.
       </p>
+      )}
       {err && <p className="mt-3 rounded border border-bad/30 bg-bad/10 px-3 py-2 text-sm text-bad">{err}</p>}
     </Modal>
   );
