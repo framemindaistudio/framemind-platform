@@ -20,6 +20,7 @@ const ICONS = [
 ];
 
 const LOGOS = [
+  { file: "framemind-logo-profile-dp-4k.png", name: "Profile picture (DP)", note: "3840 × 3840 · fits a round crop: Instagram, WhatsApp, LinkedIn", bg: "bg-[#0D0D0D]" },
   { file: "framemind-logo-dark-4k.png", name: "Primary — dark", note: "3840 × 3840 · on Ink", bg: "bg-[#0D0D0D]" },
   { file: "framemind-logo-light-4k.png", name: "Primary — light", note: "3840 × 3840 · on Paper", bg: "bg-[#F5F4F0]" },
   { file: "framemind-logo-mono-4k.png", name: "Monochrome", note: "3840 × 3840 · one colour", bg: "bg-[#ecebe6]" },

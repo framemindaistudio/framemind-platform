@@ -222,6 +222,34 @@ def horizontal(bg, tone, name, w=4800, h=1280):
     return img
 
 
+def profile_picture(logo, name, side=3840, safe=0.43):
+    """A square on Ink with the logo scaled so every visible pixel sits inside a circle of radius `safe` × side
+    (round crops show 0.5; the rest is breathing room), with a soft glow behind the icon."""
+    import math
+    a = logo.split()[-1]
+    w, h = logo.size
+    cx, cy = w / 2, h / 2
+    # the farthest visible pixel from the logo's centre, sampled on a grid
+    far = 0.0
+    step = max(1, w // 400)
+    px = a.load()
+    for y in range(0, h, step):
+        for x in range(0, w, step):
+            if px[x, y] > 24:
+                far = max(far, math.hypot(x - cx, y - cy))
+    k = (side * safe) / far
+    lg = logo.resize((round(w * k), round(h * k)), Image.LANCZOS)
+    img = Image.new("RGBA", (side, side), INK + (255,))
+    glow = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    r = side * 0.26
+    gy = (side - lg.height) / 2 + lg.height * 0.28
+    ImageDraw.Draw(glow).ellipse((side / 2 - r, gy - r, side / 2 + r, gy + r), fill=(240, 150, 60, 30))
+    img.alpha_composite(glow.filter(ImageFilter.GaussianBlur(side * 0.08)))
+    img.alpha_composite(lg, ((side - lg.width) // 2, (side - lg.height) // 2))
+    img.convert("RGB").save(KIT / f"{name}.png", optimize=True)
+    return img
+
+
 def fit_width(img, width):
     return img.resize((width, round(img.height * width / img.width)), Image.LANCZOS)
 
@@ -244,6 +272,9 @@ if __name__ == "__main__":
     horizontal(INK, "dark", "framemind-horizontal-dark-4k")
     hz_dark = horizontal(None, "dark", "framemind-horizontal-on-dark-transparent-4k")
     horizontal(None, "light", "framemind-horizontal-on-light-transparent-4k")
+
+    # ── profile picture: the whole stacked logo inside the circle that Instagram, WhatsApp and LinkedIn crop to ──
+    profile_picture(dark_t, "framemind-logo-profile-dp-4k")
 
     # ── the files HQ and the website use (same names, so every screen and print picks them up) ──
     mark = square_icon(em, 512)
