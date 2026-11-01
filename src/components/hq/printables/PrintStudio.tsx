@@ -58,7 +58,7 @@ const GENERATORS: Gen[] = [
     ],
   },
   ...([
-    ["pricing", "Pricing booklet", "Every service with its ready packages, options and prices, the Studio Bundle, retainer discounts, coaching fees and the terms — read from the live Rate Card, so it always matches the website.", "About 16 A4 pages (follows the Rate Card) · A3 sheets, folded"],
+    ["pricing", "Pricing booklet", "Every service with its ready packages, options and prices, the Studio Bundle, retainer discounts, coaching fees and the terms — read from the live Rate Card, so it always matches the website.", "About 16 A4 pages · A3, folded"],
     ["studio", "Studio profile booklet", "Who FrameMind is, what it does, how a project runs, client work and words, Vritta, JOVE and 360VUE, and the founder — for a first meeting.", "8 A4 pages · 2 A3 sheets, folded"],
   ] as const).map(([kind, title, blurb, sheet]): Gen => ({
     id: `booklet-${kind}`,
@@ -267,9 +267,11 @@ export function PrintStudio() {
               <h3 className="text-[15px] font-bold leading-tight tracking-[-0.01em] text-graphite">{g.title}</h3>
               <p className="mt-1.5 text-[13px] leading-relaxed text-charcoal">{g.blurb}</p>
             </div>
-            <div className="mt-auto flex items-center justify-between gap-3 pt-1">
-              <Badge tone="outline">{g.sheet}</Badge>
-              <Button size="sm" onClick={() => setOpenId(g.id)} aria-label={`Customise and print: ${g.title}`}>
+            <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
+              <span className="min-w-0 max-w-full">
+                <Badge tone="outline" className="max-w-full whitespace-normal text-left">{g.sheet}</Badge>
+              </span>
+              <Button size="sm" className="shrink-0" onClick={() => setOpenId(g.id)} aria-label={`Customise and print: ${g.title}`}>
                 <Printer className="size-3.5" /> Customise
               </Button>
             </div>
