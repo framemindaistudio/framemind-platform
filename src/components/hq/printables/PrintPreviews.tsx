@@ -42,7 +42,24 @@ const Spread = () => (
 );
 const PAPER = "var(--color-paper, #f5f1e8)";
 
+/** A folded A4 booklet: dark cover on top, inside pages fanned behind. */
+const Booklet = ({ label }: { label: string }) => (
+  <Frame label={`Booklet sketch: ${label}`}>
+    <rect x="30" y="14" width="60" height="86" rx="1.5" fill="var(--color-paper-50, #fbf9f4)" transform="rotate(-6 60 57)" />
+    <rect x="44" y="10" width="60" height="86" rx="1.5" fill="var(--color-paper-50, #fbf9f4)" transform="rotate(-2 74 53)" />
+    <rect x="62" y="8" width="62" height="90" rx="1.5" fill="currentColor" opacity="0.9" stroke="none" />
+    <g stroke={PAPER}>
+      <path d="M69 18h16" strokeWidth="1.6" />
+      <path d="M69 66h40M69 72h32" strokeWidth="2.2" />
+      <path d="M69 80h46M69 84h38" strokeWidth="0.7" opacity="0.6" />
+    </g>
+    <text x="69" y="58" fontSize="7" fill={PAPER} stroke="none" fontWeight="700">{label}</text>
+  </Frame>
+);
+
 const previews: Record<string, () => React.ReactNode> = {
+  "booklet-pricing": () => <Booklet label="₹ Prices" />,
+  "booklet-studio": () => <Booklet label="Studio profile" />,
   "rate-card": () => (
     <Frame label="Brochure sketch: dark A3 sheet with a price table and a large price on the cover">
       <Spread />

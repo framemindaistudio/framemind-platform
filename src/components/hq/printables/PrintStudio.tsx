@@ -57,6 +57,22 @@ const GENERATORS: Gen[] = [
       { k: "vritta", label: "Add Vritta licence fees", t: "checkbox" },
     ],
   },
+  ...([
+    ["pricing", "Pricing booklet", "Every service with its ready packages, options and prices, the Studio Bundle, retainer discounts, coaching fees and the terms — read from the live Rate Card, so it always matches the website.", "About 16 A4 pages (follows the Rate Card) · A3 sheets, folded"],
+    ["studio", "Studio profile booklet", "Who FrameMind is, what it does, how a project runs, client work and words, Vritta, JOVE and 360VUE, and the founder — for a first meeting.", "8 A4 pages · 2 A3 sheets, folded"],
+  ] as const).map(([kind, title, blurb, sheet]): Gen => ({
+    id: `booklet-${kind}`,
+    group: "sales",
+    title,
+    blurb,
+    route: `/hq/print/brochures/booklet/${kind}`,
+    sheet,
+    fields: [
+      { k: "mode", label: "Print as", t: "select", options: [["print", "Booklet — A3 sheets, both sides, fold & staple"], ["read", "A4 pages in order — for a PDF on WhatsApp / email"]], help: "Booklet: print double-sided on A3, flip on short edge, scale 100%. Fold the stack in half and staple the fold." },
+      { k: "for", label: "Prepared for (optional)", t: "text", ph: "e.g. the client's business", help: "Printed on the cover. Leave empty for a general copy." },
+    ],
+    defaults: { mode: "print" },
+  })),
   {
     id: "id-cards",
     group: "badges",
@@ -269,7 +285,7 @@ export function PrintStudio() {
         icon="Printer"
         eyebrow="Print Studio"
         title="Printables"
-        description="Everything the studio prints, in one place: the rate card for client meetings, team IDs, visiting cards, letterhead and certificates. Pick a template, fill in a few details, and print or save as PDF. All sheets are laid out in millimetres, so they come out as they preview."
+        description="Everything the studio prints, in one place: the rate card and two folded booklets for client meetings, team IDs, visiting cards, letterhead and certificates. Pick a template, fill in a few details, and print or save as PDF. All sheets are laid out in millimetres, so they come out as they preview."
         actions={
           <Button href="/hq/settings" variant="secondary" size="sm">
             Company details &amp; letterhead data
