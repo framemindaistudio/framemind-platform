@@ -12,7 +12,7 @@ import { Bullets } from "./parts/bits";
 import { CopyButton } from "./parts/CopyButton";
 
 /*
- * The FrameMind brand on one page: the logo files cut from the 8K master, the colours and type HQ and the studio
+ * The FrameMind brand on one page: the 4K logo files (scripts/brand-assets.py), the colours and type HQ and the studio
  * website use, sizes and safe zones, file naming and the check before publishing. Source: OPERATIONS/01_BRAND and
  * 08_SOCIAL_MEDIA. Change a rule there and here together.
  */
@@ -42,10 +42,10 @@ interface BrandFile {
 }
 
 const LOGO_FILES: BrandFile[] = [
-  { file: "fm-logo-light.png", name: "Full lock-up", w: 800, h: 761, kind: "PNG, transparent", use: "Covers, title slides and documents on light backgrounds." },
-  { file: "fm-logo-dark.png", name: "Full lock-up, for dark", w: 800, h: 708, kind: "PNG, transparent", use: "Covers and title slides on black, and on photographs with a dark panel.", dark: true },
-  { file: "fm-mark-light.png", name: "Mark", w: 512, h: 512, kind: "PNG, transparent", use: "Small spaces on light backgrounds: the corner of a post, stamps, watermarks." },
-  { file: "fm-mark-dark.png", name: "Mark, for dark", w: 512, h: 512, kind: "PNG, transparent", use: "The same small spaces on black and on photographs.", dark: true },
+  { file: "fm-logo-light.png", name: "Stacked logo", w: 1200, h: 1132, kind: "PNG, transparent", use: "Covers, title slides and documents on light backgrounds." },
+  { file: "fm-logo-dark.png", name: "Stacked logo, for dark", w: 1200, h: 1132, kind: "PNG, transparent", use: "Covers and title slides on black, and on photographs with a dark panel.", dark: true },
+  { file: "fm-mark-light.png", name: "Icon", w: 512, h: 512, kind: "PNG, transparent", use: "Small spaces: the corner of a post, stamps, watermarks. The same icon as 360VUE." },
+  { file: "fm-mark-dark.png", name: "Icon, for dark", w: 512, h: 512, kind: "PNG, transparent", use: "The same small spaces on black and on photographs.", dark: true },
   { file: "icon-512.png", name: "App icon", w: 512, h: 512, kind: "PNG", use: "Profile pictures on every platform." },
 ];
 
@@ -62,7 +62,7 @@ const LOGO_DONT = [
   "Recolour it, or put the lime on a light background where it cannot be read.",
   "Place it on a busy photograph without a panel behind it.",
   "Re-type “FrameMind” in another font, or add shadows, glows or bevels.",
-  "Use a low-resolution copy. Start from the 8K master.",
+  "Use a low-resolution copy. Start from the 4K files in HQ → Brand Kit.",
 ];
 
 /* ───────────────────────────── colour ───────────────────────────── */
@@ -202,13 +202,13 @@ export function BrandKit() {
               ))}
             </ul>
             <p className="mt-4 border-t border-graphite/10 pt-4 text-xs leading-relaxed text-charcoal">
-              For print, start from the 8K master in the brand folder (<span className="font-mono">Brand-Assets/LOGO Versions</span>). It is not edited or renamed.
+              For print, start from the 4K files in <a href="/hq/brand" className="font-semibold underline underline-offset-2">HQ → Brand Kit</a>. They are not edited or renamed.
             </p>
           </Panel>
         </div>
 
         <div id="kit-logo-rules" className="scroll-mt-20">
-          <Panel title="Logo: do and do not" subtitle="The framed head: a mind inside a frame.">
+          <Panel title="Logo: do and do not" subtitle="The gold shutter with a mind inside: one icon for FrameMind AI Studio and 360VUE.">
             <div className="grid gap-x-8 gap-y-6 lg:grid-cols-2">
               <div>
                 <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-graphite">

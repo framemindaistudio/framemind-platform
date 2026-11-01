@@ -28,7 +28,7 @@ export function Tile({ w, h, className, children, cut = true, style }: { w: numb
 }
 
 /**
- * The FrameMind lock-up at a fixed width in mm: the framed-head mark with "FrameMind / AI STUDIO" set beside it in live
+ * The FrameMind lock-up at a fixed width in mm: the icon (shared with 360VUE) with "FrameMind / AI STUDIO" set beside it in live
  * type (sharp at every size), the same as HQ's sidebar. The mark is eager so it is loaded when the print dialog opens.
  */
 export function Wordmark({ mm = 30, white, className }: { mm?: number; white?: boolean; className?: string }) {
@@ -48,7 +48,7 @@ export function Wordmark({ mm = 30, white, className }: { mm?: number; white?: b
   );
 }
 
-/** The framed-head mark. */
+/** The icon (the same for FrameMind AI Studio and 360VUE). */
 export function Mark({ mm = 20, white, className, style }: { mm?: number; white?: boolean; className?: string; style?: React.CSSProperties }) {
   return (
     <Image

@@ -76,7 +76,7 @@ export async function loadFonts(fonts: Fonts): Promise<void> {
 }
 
 export interface Assets {
-  /** the framed-head mark, for light backgrounds and for dark ones */
+  /** the icon (shared with 360VUE), for light backgrounds and for dark ones */
   mark: HTMLImageElement;
   markWhite: HTMLImageElement;
 }
@@ -642,7 +642,7 @@ export class Painter {
   }
 
   /**
-   * The FrameMind logo: the framed-head mark alone, or the mark with "FrameMind / AI STUDIO" set beside it in DM Sans
+   * The FrameMind logo: the icon alone, or the icon with "FrameMind / AI STUDIO" set beside it in DM Sans
    * (the same lock-up as HQ's sidebar). `h` is the height of the whole logo. Returns its width.
    */
   logo(kind: "wordmark" | "mark", x: number, y: number, h: number, o: { white?: boolean; align?: "left" | "right" | "center"; alpha?: number } = {}) {

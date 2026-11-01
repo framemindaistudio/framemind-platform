@@ -4,14 +4,13 @@ import { cn } from "@/lib/utils";
 
 /**
  * FrameMind AI Studio logo.
- * variant: "wordmark" (mark + FrameMind / AI STUDIO set in DM Sans) · "mark" (the framed head) · "full" (the master lock-up)
+ * variant: "wordmark" (icon + FrameMind / AI STUDIO set in DM Sans) · "mark" (the icon, shared with 360VUE) · "full" (the stacked logo)
  * tone: "ink" (for light backgrounds: paper, print) · "white" (for dark backgrounds: the sidebar, the login)
  *
- * The mark and the full lock-up are cut from the 8K master with the black (or white) taken out as transparency, so the
- * glow sits on any background. The wordmark's letters are live text, so they stay sharp at every size and in print.
+ * The icon and the stacked logo are built in 4K by scripts/brand-assets.py (HQ → Brand Kit has every file). The wordmark's letters are live text, so they stay sharp at every size and in print.
  */
 const MARK = { ink: "/brand/fm-mark-light.png", white: "/brand/fm-mark-dark.png", w: 512, h: 512 } as const;
-const FULL = { ink: "/brand/fm-logo-light.png", white: "/brand/fm-logo-dark.png", w: 800, h: 761 } as const;
+const FULL = { ink: "/brand/fm-logo-light.png", white: "/brand/fm-logo-dark.png", w: 1200, h: 1132 } as const;
 
 export function Logo({
   variant = "wordmark",

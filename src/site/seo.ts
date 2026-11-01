@@ -4,7 +4,7 @@ import { PAGE_SEO } from "./seo-data";
 
 export const SITE_NAME = "FrameMind AI Studio";
 /** The link-preview picture (WhatsApp, LinkedIn, X). Raise ?v= when it changes: the apps cache it by its address. */
-export const OG_IMAGE = "/og-image.png?v=2";
+export const OG_IMAGE = "/og-image.png?v=3";
 
 /**
  * The metadata of one public page, as the Figma site's SEO component wrote it: "<title> | FrameMind AI Studio" (the

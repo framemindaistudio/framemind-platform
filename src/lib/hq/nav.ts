@@ -81,6 +81,7 @@ export const hqNav: HqNavGroup[] = [
     items: [
       { label: "Presentations", href: "/hq/presentations", icon: "Presentation", roles: ALL, description: "Studio pitch, Vritta and coaching decks" },
       { label: "Operations Library", href: "/hq/docs", icon: "FolderOpen", roles: ALL, description: "SOPs, playbooks, policies — versioned" },
+      { label: "Brand Kit", href: "/hq/brand", icon: "Palette", roles: ALL, description: "4K logo and icon, colours and type" },
       { label: "Printables", href: "/hq/printables", icon: "Printer", roles: ALL, description: "Letterhead, cards, ID cards, forms, brochures" },
       { label: "File Vault", href: "/hq/files", icon: "Archive", roles: STAFF, description: "Receipts, signed papers, assets" },
     ],
