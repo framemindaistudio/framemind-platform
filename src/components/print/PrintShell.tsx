@@ -32,8 +32,8 @@ function usePaperFit(widthMm: number) {
  * Children should be <A4Page> elements (or sheets of the size named in `paper`). Use the browser's "Save as PDF" to download.
  * `paper` sets the printed page size and scales big sheets down on screen so the whole sheet is visible.
  */
-export function PrintShell({ title, back, children, toolbar, landscape, paper }: { title: string; back?: string; children: React.ReactNode; toolbar?: React.ReactNode; landscape?: boolean; paper?: Paper }) {
-  const size = paper ?? (landscape ? "A4 landscape" : undefined);
+export function PrintShell({ title, back, children, toolbar, landscape, paper, pageMm }: { title: string; back?: string; children: React.ReactNode; toolbar?: React.ReactNode; landscape?: boolean; paper?: Paper; /** a custom page size in mm, e.g. one visiting card with bleed */ pageMm?: [number, number] }) {
+  const size = pageMm ? `${pageMm[0]}mm ${pageMm[1]}mm` : (paper ?? (landscape ? "A4 landscape" : undefined));
   const fit = usePaperFit(paper ? PAPER_WIDTH_MM[paper] : 210);
   return (
     <SignatureProvider>
