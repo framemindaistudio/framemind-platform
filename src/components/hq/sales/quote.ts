@@ -84,9 +84,12 @@ export function blankQuote(rates: RateCard | null, client?: BaseRecord, lead?: B
   const today = todayIso();
   const wanted = (Array.isArray(lead?.services) ? lead.services : Array.isArray(client?.services) ? client.services : []) as string[];
   const lines: QuoteLine[] = [];
+  // an enquiry from the website's pricing page carries exactly what was chosen: start from that
+  const config = (lead?.config && typeof lead.config === "object" ? lead.config : {}) as Record<string, { selections?: Selections; months?: number }>;
   if (rates) {
     for (const s of wanted) {
-      if (rates.services.some((x) => x.id === s)) lines.push(serviceLine(rates, s as ServiceId));
+      const c = config[s];
+      if (rates.services.some((x) => x.id === s)) lines.push(c?.selections && typeof c.selections === "object" ? serviceLine(rates, s as ServiceId, c.selections, Math.max(1, Number(c.months) || 1)) : serviceLine(rates, s as ServiceId));
       else if (s === "coaching") lines.push(coachingLine(rates));
       else if (s === "vritta") lines.push(vrittaLine(rates));
     }

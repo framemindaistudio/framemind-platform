@@ -7,7 +7,8 @@ import { StoreReadOnlyError } from "@/lib/store";
 
 /**
  * Website enquiry forms → HQ "Enquiries" (data/leads.json).
- * POST { kind, name, phone, email, organisation, role, city, services[], budget, timeline, ageTrack, message, page, application (careers form), website(honeypot) }
+ * POST { kind, name, phone, email, organisation, role, city, services[], budget, timeline, ageTrack, message, page, application (careers form),
+ *        config (the pricing page's selections per service), estimate (its total before GST), quoteNo, website(honeypot) }
  *
  * The studio website lives on another address, so the browser asks first (OPTIONS): only the website's own origin
  * (NEXT_PUBLIC_WEBSITE_URL) and this portal may post.
@@ -58,6 +59,25 @@ export async function POST(req: Request) {
 
   const services = Array.isArray(body.services) ? (body.services as unknown[]).map(String).filter((s) => SERVICES.includes(s)) : [];
 
+  // the pricing page sends what was chosen, so HQ can open a quote with the same selections
+  const config: Record<string, { selections: Record<string, string[]>; months?: number }> = {};
+  if (body.config && typeof body.config === "object" && !Array.isArray(body.config)) {
+    for (const [sid, raw] of Object.entries(body.config as Record<string, unknown>).slice(0, 8)) {
+      if (!SERVICES.includes(sid) || !raw || typeof raw !== "object") continue;
+      const r = raw as { selections?: unknown; months?: unknown };
+      const sel: Record<string, string[]> = {};
+      if (r.selections && typeof r.selections === "object" && !Array.isArray(r.selections)) {
+        for (const [gid, ids] of Object.entries(r.selections as Record<string, unknown>).slice(0, 30)) {
+          if (!/^[\w-]{1,48}$/.test(gid) || !Array.isArray(ids)) continue;
+          sel[gid] = ids.map(String).filter((x) => /^[\w-]{1,48}$/.test(x)).slice(0, 30);
+        }
+      }
+      const months = Number(r.months);
+      config[sid] = { selections: sel, ...(Number.isFinite(months) && months >= 1 && months <= 60 ? { months: Math.round(months) } : {}) };
+    }
+  }
+  const estimate = Number(body.estimate);
+
   try {
     await upsertRecord(
       "leads",
@@ -74,6 +94,9 @@ export async function POST(req: Request) {
         services,
         budget: str("budget", 60),
         timeline: str("timeline", 80),
+        ...(Object.keys(config).length ? { config } : {}),
+        ...(Number.isFinite(estimate) && estimate > 0 ? { estimate: Math.round(estimate) } : {}),
+        quoteNo: /^FM-W-[\w-]{4,30}$/.test(str("quoteNo", 40)) ? str("quoteNo", 40) : undefined,
         ageTrack: TRACKS.includes(str("ageTrack")) ? str("ageTrack") : undefined,
         message: str("message", 3000),
         page: str("page", 120),

@@ -8,6 +8,7 @@ import { storeInfo } from "@/lib/store";
 import { deleteProject, ProjectHasInvoices } from "@/lib/hq/project-delete";
 import { ClientHasInvoices, deleteClient } from "@/lib/hq/client-delete";
 import { autoPortalOnPayment } from "@/lib/portal/invite";
+import { ensurePayrollExpense } from "@/lib/hq/payroll-expense";
 
 type Ctx = { params: Promise<{ name: string }> };
 
@@ -105,12 +106,20 @@ export async function POST(req: Request, ctx: Ctx) {
     const body = await req.json();
     if (Array.isArray(body.records)) {
       const list = await Promise.all((body.records as Record<string, unknown>[]).map((r) => guarded(name, r, user.name)));
-      const records = await upsertMany(name, list, user.name);
+      let records = await upsertMany(name, list, user.name);
+      // a payslip saved as paid becomes an expense in Finance (lib/hq/payroll-expense.ts)
+      if (name === "payroll") {
+        const done: typeof records = [];
+        for (const r of records) done.push(await ensurePayrollExpense(r, user.name));
+        records = done;
+      }
       return NextResponse.json({ records });
     }
     if (!body.record || typeof body.record !== "object") return NextResponse.json({ error: "Missing record" }, { status: 400 });
     const before = name === "invoices" && body.record.id ? await getRecord(name, String(body.record.id)) : null;
-    const record = await upsertRecord(name, await guarded(name, body.record, user.name), user.name);
+    let record = await upsertRecord(name, await guarded(name, body.record, user.name), user.name);
+    // a payslip saved as paid becomes an expense in Finance (lib/hq/payroll-expense.ts)
+    if (name === "payroll") record = await ensurePayrollExpense(record, user.name);
     // the first payment on a project's invoice opens the client's portal (when email is set up)
     if (name === "invoices") await autoPortalOnPayment(before, record, user.name);
     return NextResponse.json({ record });

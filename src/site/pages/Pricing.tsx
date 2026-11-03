@@ -159,14 +159,53 @@ function calculateQuote(service: ServiceDef, selections: Selections, steps: Bund
   return { lineItems, subtotal, discountPct, discountAmount, total: subtotal - discountAmount };
 }
 
+// ─── Quote number, escaping, what HQ receives ─────────────────────────────────
+
+/** A quote number the client and the studio can both quote back: FM-W-YYMMDD-XXXX ("W" for website). */
+function newQuoteNo(d: Date) {
+  const code = Array.from(crypto.getRandomValues(new Uint8Array(4)), (b) => "23456789ABCDEFGHJKMNPQRSTUVWXYZ"[b % 31]).join("");
+  return `FM-W-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}-${code}`;
+}
+
+const esc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+
+/** The Studio Bundle's choices → HQ's service ids. */
+const BUNDLE_SERVICES: Record<string, string> = { bs1: "websites", bs2: "brand", bs3: "software", bs4: "automations", bs5: "photography", bs6: "videography", bs7: "social" };
+
+/** What was chosen, in the shape HQ's quote builder takes (lists of option ids per group; social's contract as months). */
+function hqConfig(service: ServiceDef, selections: Selections) {
+  if (service.id === "bundle") {
+    const picked = ((selections["services"] as string[] | undefined) ?? []).map((id) => BUNDLE_SERVICES[id]).filter(Boolean);
+    return { services: picked, config: undefined };
+  }
+  const sel: Record<string, string[]> = {};
+  let months: number | undefined;
+  for (const [gid, v] of Object.entries(selections)) {
+    if (gid === "contract") {
+      const label = service.groups.find((g) => g.id === "contract")?.options.find((o) => o.id === v)?.label ?? "";
+      months = Number(/\d+/.exec(label)?.[0] ?? 1);
+      continue;
+    }
+    const ids = Array.isArray(v) ? v : v ? [v] : [];
+    if (ids.length) sel[gid] = ids;
+  }
+  return { services: [service.id], config: { [service.id]: { selections: sel, ...(months ? { months } : {}) } } };
+}
+
 // ─── PDF Generation ───────────────────────────────────────────────────────────
 
-async function downloadQuotePDF(clientName: string, service: ServiceDef, quote: QuoteResult, selections: Selections, gstOn: boolean | null) {
+interface QuoteFor {
+  name: string;
+  business: string;
+  quoteNo: string;
+}
+
+async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: QuoteResult, selections: Selections, gstOn: boolean | null, opened: Window | null) {
   const now = new Date();
   const date = now.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
   const validUntil = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
     .toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
-  const refNum = `FM-${now.getFullYear().toString().slice(-2)}${String(now.getMonth() + 1).padStart(2, "0")}-${Date.now().toString().slice(-5)}`;
+  const refNum = esc(who.quoteNo);
   const fmt = (n: number) => `₹${n.toLocaleString("en-IN")}`;
   const unit = service.unit === "month" ? "/month" : "";
 
@@ -418,7 +457,7 @@ async function downloadQuotePDF(clientName: string, service: ServiceDef, quote: 
   <div class="meta">
     <div class="meta-cell">
       <div class="meta-label">Prepared for</div>
-      <div class="meta-name">${clientName || "Valued Client"}</div>
+      <div class="meta-name">${esc(who.name) || "Valued Client"}</div>${who.business ? `<div class="meta-sub" style="margin-top:4px;">${esc(who.business)}</div>` : ""}
       <div class="meta-sub">This quotation has been prepared exclusively<br>for the above-named client.</div>
     </div>
     <div class="meta-cell">
@@ -482,7 +521,8 @@ async function downloadQuotePDF(clientName: string, service: ServiceDef, quote: 
 </body>
 </html>`;
 
-  const win = window.open("", "_blank");
+  // the window is opened on the click itself (a window opened after an await is blocked as a pop-up)
+  const win = opened ?? window.open("", "_blank");
   if (!win) return;
   win.document.write(html);
   win.document.close();
@@ -592,9 +632,15 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
   const [allSelections, setAllSelections] = useState<Record<ServiceId, Selections>>(
     () => Object.fromEntries(SERVICES.map(s => [s.id, {}])) as Record<ServiceId, Selections>
   );
+  // the details asked before the download: the quote is filed in HQ as an enquiry, then the PDF opens
+  const [asking, setAsking] = useState(false);
   const [clientName, setClientName] = useState("");
-  // optional: a phone or email files the quote in HQ as an enquiry, so the studio can follow up
-  const [clientContact, setClientContact] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [business, setBusiness] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [askError, setAskError] = useState("");
+  const [sentNo, setSentNo] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const service = SERVICES.find(s => s.id === activeId)!;
@@ -853,52 +899,12 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                       </div>
                     )}
 
-                    {/* Client name input */}
-                    <div className="mb-3">
-                      <label className="font-mono text-[9px] text-[#aaa] uppercase tracking-widest block mb-1.5">
-                        Your name (appears on the PDF)
-                      </label>
-                      <input
-                        type="text"
-                        value={clientName}
-                        onChange={e => setClientName(e.target.value)}
-                        placeholder="e.g. Rahul Sharma"
-                        className="w-full bg-[#0a0a0a] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#F5F4F0] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50 transition-colors"
-                      />
-                    </div>
-
-                    {/* Contact (optional) — sends the quote to the studio */}
-                    <div className="mb-3">
-                      <label className="font-mono text-[9px] text-[#aaa] uppercase tracking-widest block mb-1.5">
-                        Phone or email (optional — we&apos;ll follow up)
-                      </label>
-                      <input
-                        type="text"
-                        value={clientContact}
-                        onChange={e => setClientContact(e.target.value)}
-                        placeholder="e.g. 98450 12345 or you@company.com"
-                        className="w-full bg-[#0a0a0a] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#F5F4F0] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50 transition-colors"
-                      />
-                    </div>
-
-                    {/* Download button */}
+                    {/* Download button: asks name and phone first */}
                     <button
                       onClick={() => {
                         if (!hasSelections) return;
-                        downloadQuotePDF(clientName, service, quote, selections, gstOn);
-                        const contact = clientContact.trim();
-                        if (contact) {
-                          const isEmail = contact.includes("@");
-                          void submitLead({
-                            kind: "project",
-                            name: clientName.trim() || "Pricing page visitor",
-                            email: isEmail ? contact : undefined,
-                            phone: isEmail ? undefined : contact,
-                            services: service.id === "bundle" ? [] : [service.id],
-                            budget: `₹${quote.total.toLocaleString("en-IN")}${service.unit === "month" ? "/month" : ""} (website estimate)`,
-                            message: [`Downloaded a quote for ${service.name}:`, ...quote.lineItems.map(l => `• ${l.label} — ₹${l.price.toLocaleString("en-IN")}`), quote.discountAmount ? `Discount ${quote.discountPct}%: −₹${quote.discountAmount.toLocaleString("en-IN")}` : ""].filter(Boolean).join("\n"),
-                          });
-                        }
+                        setAskError("");
+                        setAsking(true);
                       }}
                       disabled={!hasSelections}
                       className="w-full bg-[#C8F135] text-[#0D0D0D] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -907,11 +913,15 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                       Download Quote as PDF
                     </button>
 
-                    {hasSelections && (
+                    {sentNo ? (
+                      <p className="text-[10px] text-[#C8F135] text-center mt-2.5 leading-relaxed">
+                        Quote {sentNo} is with us — we&apos;ll be in touch. Your PDF opened in a new tab.
+                      </p>
+                    ) : hasSelections ? (
                       <p className="text-[10px] text-[#aaa] text-center mt-2.5 leading-relaxed">
                         Estimate only. Final price confirmed after a discovery call.
                       </p>
-                    )}
+                    ) : null}
 
                     {/* Talk to us */}
                     <div className="mt-5 pt-4 border-t border-[#1a1a1a] flex flex-col gap-2">
@@ -968,6 +978,90 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
         </section>
 
       </div>
+      {/* name and phone before the download: the quote is filed in HQ, then the PDF opens */}
+      {asking && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4" role="dialog" aria-modal="true" aria-labelledby="quote-form-title" onClick={() => !busy && setAsking(false)}>
+          <form
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setAskError("");
+              if (!clientName.trim()) return setAskError("Please enter your name.");
+              if (!/^[+\d][\d\s-]{7,15}$/.test(phone.trim())) return setAskError("Please enter a valid phone number.");
+              if (email.trim() && !/^\S+@\S+\.\S+$/.test(email.trim())) return setAskError("Please enter a valid email, or leave it empty.");
+              const quoteNo = newQuoteNo(new Date());
+              const { services: hqServices, config } = hqConfig(service, selections);
+              // open the window now, while the click still counts as the user's
+              const win = window.open("", "_blank");
+              setBusy(true);
+              const r = await submitLead({
+                kind: "project",
+                name: clientName.trim(),
+                phone: phone.trim(),
+                email: email.trim() || undefined,
+                organisation: business.trim() || undefined,
+                services: hqServices,
+                config,
+                estimate: quote.total,
+                quoteNo,
+                budget: `₹${quote.total.toLocaleString("en-IN")}${service.unit === "month" ? "/month" : ""} (website estimate)`,
+                message: [
+                  `Quote ${quoteNo} downloaded from the website: ${service.name}.`,
+                  ...quote.lineItems.map((l) => `• ${l.label}: ₹${l.price.toLocaleString("en-IN")}`),
+                  quote.discountAmount ? `Discount ${quote.discountPct}%: −₹${quote.discountAmount.toLocaleString("en-IN")}` : "",
+                  `Total: ₹${quote.total.toLocaleString("en-IN")}${service.unit === "month" ? "/month" : ""}${gstOn === true ? " + GST" : ""}`,
+                ].filter(Boolean).join("\n"),
+              });
+              setBusy(false);
+              if (!r.ok) {
+                win?.close();
+                return setAskError(r.error);
+              }
+              await downloadQuotePDF({ name: clientName.trim(), business: business.trim(), quoteNo }, service, quote, selections, gstOn, win);
+              setSentNo(quoteNo);
+              setAsking(false);
+            }}
+            className="relative w-full max-w-md rounded-sm border border-[#1e1e1e] bg-[#0D0D0D] p-6 sm:p-8"
+            noValidate
+          >
+            <p className="font-mono text-[9px] text-[#C8F135] uppercase tracking-widest mb-2">Your quote</p>
+            <h2 id="quote-form-title" className="text-xl font-semibold text-[#F5F4F0] mb-1">Where should we send it?</h2>
+            <p className="text-xs text-[#888] mb-5 leading-relaxed">Your PDF opens right after. We keep a copy so we can talk it through with you.</p>
+            <div className="flex flex-col gap-3">
+              {(
+                [
+                  ["Your name", clientName, setClientName, "e.g. Rahul Sharma", "text", "name", true],
+                  ["Phone (WhatsApp)", phone, setPhone, "e.g. 98450 12345", "tel", "tel", true],
+                  ["Email (optional)", email, setEmail, "you@company.com", "email", "email", false],
+                  ["Business (optional)", business, setBusiness, "Your company or brand", "text", "organization", false],
+                ] as [string, string, (v: string) => void, string, string, string, boolean][]
+              ).map(([label, value, set, ph, type, auto, required]) => (
+                <label key={label} className="block">
+                  <span className="font-mono text-[9px] text-[#aaa] uppercase tracking-widest block mb-1.5">{label}</span>
+                  <input
+                    type={type}
+                    value={value}
+                    onChange={(e) => set(e.target.value)}
+                    placeholder={ph}
+                    autoComplete={auto}
+                    required={required}
+                    className="w-full bg-[#0a0a0a] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#F5F4F0] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50 transition-colors"
+                  />
+                </label>
+              ))}
+            </div>
+            {askError && <p className="mt-3 text-xs text-[#ff7a7a]">{askError}</p>}
+            <div className="mt-5 flex gap-2">
+              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-[#1e1e1e] text-[#888] hover:text-[#F5F4F0] py-3 text-sm rounded-sm transition-colors">
+                Cancel
+              </button>
+              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#0D0D0D] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
+                <Download size={13} /> {busy ? "Saving your quote…" : "Get my quote"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </>
   );
 }

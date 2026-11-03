@@ -15,7 +15,7 @@ import { CollectionManager, type ExtraColumn } from "@/components/hq/CollectionM
 import { useCollection, useHq } from "@/components/hq/data";
 import { RecordForm } from "@/components/hq/fields";
 import { PageHeader, StatCard } from "@/components/hq/ui";
-import { cn, formatDate, formatDateTime, formatNumber, isoDate } from "@/lib/utils";
+import { cn, formatDate, formatDateTime, formatINR, formatNumber, isoDate } from "@/lib/utils";
 import { introMessage, introSubject, phoneDigits, telHref, whatsappHref } from "./contact";
 import { addDays, isWithinDays, relativeDay, str, todayIso } from "./crm";
 import { ContactButtons, Notice } from "./bits";
@@ -37,7 +37,7 @@ const TRACK_OPTIONS = leadsDef.fields.find((f) => f.key === "ageTrack")?.options
  * enquiry about the learner's age track; an application about the role — so nobody sees boxes that do not apply.
  */
 const KIND_FIELDS: Record<string, string[]> = {
-  project: ["channel", "organisation", "role", "phone", "email", "city", "services", "budget", "timeline", "clientId"],
+  project: ["channel", "organisation", "role", "phone", "email", "city", "services", "estimate", "quoteNo", "budget", "timeline", "clientId"],
   coaching: ["channel", "role", "phone", "email", "city", "ageTrack", "budget"],
   vritta: ["channel", "organisation", "role", "phone", "email", "city", "clientId"],
   careers: ["channel", "role", "phone", "email", "city"],
@@ -376,6 +376,8 @@ function LeadDetail({ lead, canWrite }: { lead: BaseRecord; canWrite: boolean })
       ["channel", str(lead.channel)],
       ["services", servicesOfLead(lead).map(serviceLabel).join(", ")],
       ["budget", str(lead.budget)],
+      ["estimate", Number(lead.estimate) > 0 ? <span className="tabular">{formatINR(Number(lead.estimate))}</span> : ""],
+      ["quoteNo", str(lead.quoteNo)],
       ["timeline", str(lead.timeline)],
       ["ageTrack", TRACK_OPTIONS.find((o) => o.value === lead.ageTrack)?.label ?? ""],
       ["page", str(lead.page)],

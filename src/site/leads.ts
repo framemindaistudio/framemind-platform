@@ -13,6 +13,10 @@ export interface LeadInput {
   budget?: string;
   timeline?: string;
   message?: string;
+  /** the pricing page: what was chosen per service (HQ opens a quote with the same choices), its total and quote number */
+  config?: Record<string, { selections: Record<string, string[]>; months?: number }>;
+  estimate?: number;
+  quoteNo?: string;
   /** the careers form's answers (kind "careers"), checked by the server against src/lib/content/careers.ts */
   application?: Record<string, unknown>;
   /** the hidden honeypot field: people never fill it */
