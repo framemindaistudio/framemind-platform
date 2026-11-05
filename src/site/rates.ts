@@ -10,7 +10,7 @@ export const RATECARD_TAG = "ratecard";
 /**
  * The prices the public pages show: the services, contract discounts, bundle steps and Vritta fees of HQ's rate card.
  * Read from the private data repository once and cached, so visitors never wait on (or use up) the GitHub API; saving
- * the rate card in HQ expires it at once, and it refreshes by itself every 10 minutes. Costs, margins, coaching fees
+ * the rate card in HQ expires it at once, and it refreshes by itself once a day. Costs, margins, coaching fees
  * and the business plan are never part of it. Null when no rate card is saved or the repository cannot be read: the
  * pages then show the published price list.
  */
@@ -27,7 +27,7 @@ export const publicRateCard = unstable_cache(
     }
   },
   ["public-ratecard"],
-  { tags: [RATECARD_TAG], revalidate: 600 },
+  { tags: [RATECARD_TAG], revalidate: 86400 },
 );
 
 /** The cache tag HQ expires when company settings are saved (/api/hq/settings). */
@@ -47,5 +47,5 @@ export const publicGstOn = unstable_cache(
     }
   },
   ["public-gst-on"],
-  { tags: [SETTINGS_TAG], revalidate: 600 },
+  { tags: [SETTINGS_TAG], revalidate: 86400 },
 );

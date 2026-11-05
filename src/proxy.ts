@@ -63,5 +63,13 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|images/|brand/|videos/|icon|apple-icon|opengraph-image).*)"],
+  // Only HQ needs the sign-in check. Public pages skip the proxy so they are served straight from the CDN and never
+  // start a function (this used to run on every page view and used up the free Fluid CPU allowance).
+  matcher: [
+    "/hq",
+    "/hq/:path*",
+    "/api/hq/:path*",
+    // hq.<domain> → /hq (only when that domain is in use)
+    { source: "/((?!hq|api|_next|.*\\..*).*)", has: [{ type: "header", key: "host", value: "hq\\..*" }] },
+  ],
 };
