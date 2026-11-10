@@ -33,6 +33,12 @@ export const PAGE_SEO: Record<string, PageSeo> = {
     "keywords": "institutional newsletter software India, NAAC evidence software, activity record schools colleges India, department newsletter platform, education software India, IQAC software, accreditation evidence India, college newsletter automation",
     "ogImageAlt": "Vritta — Departmental Activity Record & Newsletter Platform by FrameMind AI Studio"
   },
+  "/real-estate": {
+    "title": "Real Estate Digital Platform — Layout Websites & Interactive Plot Maps",
+    "description": "Area-based pricing for plotted layouts, villas and townships: project websites, interactive plot maps with live availability, and 3D masterplans. From ₹1.00 per sq ft, with a minimum and a maximum.",
+    "keywords": "real estate website India, layout website, interactive plot map, plot availability website, 3D masterplan, plotted development website, FrameMind real estate",
+    "ogImageAlt": "FrameMind AI Studio — Real Estate Digital Platform"
+  },
   "/360vue": {
     "title": "360VUE — 360° Virtual Tours, SkyVUE Aerial 360° & Google Maps",
     "description": "360VUE makes 360° virtual tours, SkyVUE drone 360° aerial views and Google Maps listings for restaurants, hotels, showrooms, hospitals, colleges and real estate across South India. A FrameMind AI Studio company.",

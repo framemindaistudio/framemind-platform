@@ -140,6 +140,7 @@ export const SERVICE_OPTS = opts(
   ["social", "Social media"],
   ["coaching", "1:1 AI coaching"],
   ["vritta", "Vritta"],
+  ["realestate", "Real estate platform"],
   ["other", "Other"],
 );
 

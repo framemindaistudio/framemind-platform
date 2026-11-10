@@ -14,7 +14,7 @@ import { StoreReadOnlyError } from "@/lib/store";
  * (NEXT_PUBLIC_WEBSITE_URL) and this portal may post.
  */
 const KINDS = ["project", "coaching", "vritta", "contact", "careers", "partner"];
-const SERVICES = ["websites", "brand", "software", "automations", "photography", "videography", "social", "coaching", "vritta", "other"];
+const SERVICES = ["websites", "brand", "software", "automations", "photography", "videography", "social", "coaching", "vritta", "realestate", "other"];
 const TRACKS = ["10-20", "21-35", "36-60"];
 
 function cors(req: Request): Record<string, string> {

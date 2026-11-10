@@ -5,6 +5,7 @@ import { Link } from "@/site/router";
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/pricing", label: "Services" },
+  { to: "/real-estate", label: "Real Estate Platform" },
   { to: "/vritta", label: "Vritta" },
   { to: "/jove", label: "JOVE" },
   { to: "/360vue", label: "360VUE" },
