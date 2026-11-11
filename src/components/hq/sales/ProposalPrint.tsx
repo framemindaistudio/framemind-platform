@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { COACHING, SERVICES, TERMS, VRITTA } from "@/lib/content/catalog";
 import type { BaseRecord } from "@/lib/hq/collections";
@@ -415,6 +415,263 @@ function TermsPage({ c, page }: { c: Ctx; page: string }) {
   );
 }
 
+/* ─────────────────────────── the simple quote: one page to print ─────────────────────────── */
+
+/** The chosen options of a line in one short run of text ("Ready package ₹25,000 · 5 pages · Logo"). */
+function lineDetail(l: QuoteLine) {
+  const rows =
+    l.kind === "service" || l.kind === "custom" || l.kind === "realestate"
+      ? l.items
+      : l.kind === "vritta"
+        ? [{ group: "", label: `${VRITTA.editions.find((e) => e.id === l.edition)?.name} edition, ${l.billing} licence (${l.segment})${l.group ? ", group rate" : ""}`, price: l.licence }, ...l.oneTime]
+        : [{ group: "", label: `${COACHING.days}-day 1:1 programme, ${l.mode} × ${l.learners} learner${l.learners === 1 ? "" : "s"}`, price: 0 }];
+  return rows.map((r) => (r.price ? `${r.label} ${formatINR(r.price)}` : r.label)).join("  ·  ");
+}
+
+/**
+ * The quote on one sheet, in black on white so it prints cheaply: company and client, one table of the work with
+ * what was chosen, the totals, payment, the key terms and signatures. A long quote shrinks a little to fit, and only
+ * a very long one runs on to a second page (A4Page).
+ */
+function SimpleQuote({ c }: { c: Ctx }) {
+  const { quote, client, money: m, settings: st } = c;
+  const extra = extraItemsOf(quote);
+  const weeks = Number(quote.timelineWeeks) || 0;
+  const revisions = Number(quote.revisionRounds);
+  const address = [st.addressLine1, st.addressLine2, [st.city, st.pincode].filter(Boolean).join(" "), st.state].filter(Boolean).join(", ");
+  const bank = [
+    st.bankAccountName && ["Account name", st.bankAccountName],
+    st.bankName && ["Bank", st.bankName],
+    st.bankAccountNumber && ["Account no.", st.bankAccountNumber],
+    st.bankIfsc && ["IFSC", st.bankIfsc],
+    st.upiId && ["UPI", st.upiId],
+  ].filter(Boolean) as [string, string][];
+  const to = [
+    str(client?.contactName) && `Attn: ${[str(client?.contactName), str(client?.contactRole)].filter(Boolean).join(", ")}`,
+    str(client?.address) || str(client?.city),
+    [str(client?.phone), str(client?.email)].filter(Boolean).join(" · "),
+    str(client?.gstin) && `GSTIN ${str(client?.gstin)}`,
+  ].filter(Boolean) as string[];
+  const terms = [
+    `${m.gstPercent > 0 ? TERMS.tax : TERMS.taxNone} This quote is valid until ${formatDate(str(quote.validUntil))}.`,
+    Number.isFinite(revisions) ? `${revisions} round${revisions === 1 ? "" : "s"} of revisions per design stage; scope changes are quoted before we start them.` : TERMS.revisionPolicy,
+    TERMS.thirdParty,
+    TERMS.delays,
+  ];
+  const row = "border-b border-graphite/12";
+  return (
+    <A4Page className="text-[8.5pt]">
+      <div className="flex items-start justify-between gap-6 border-b-2 border-graphite pb-[4mm]">
+        <div className="flex items-start gap-3">
+          <Image src="/brand/fm-mark-light.png" alt="" width={512} height={512} className="size-[13mm]" priority />
+          <div className="leading-snug">
+            <p className="text-[13pt] font-semibold tracking-[-0.01em] text-graphite">{st.legalName || st.brandName || "FrameMind AI Studio"}</p>
+            {address && <p className="text-[7.5pt] text-charcoal">{address}</p>}
+            <p className="text-[7.5pt] text-charcoal">{[st.phone, st.email, st.website].filter(Boolean).join("  ·  ")}</p>
+            {(st.gstin || st.udyamNumber) && <p className="text-[7.5pt] text-charcoal">{[st.gstin && `GSTIN ${st.gstin}`, st.udyamNumber && `Udyam ${st.udyamNumber}`].filter(Boolean).join("  ·  ")}</p>}
+          </div>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="text-[16pt] font-semibold tracking-[0.08em] text-graphite">QUOTATION</p>
+          <dl className="mt-1 grid grid-cols-[auto_auto] gap-x-3 text-[8pt]">
+            <dt className="text-blueprint">No.</dt>
+            <dd className="font-mono font-semibold">{c.number}</dd>
+            <dt className="text-blueprint">Date</dt>
+            <dd>{formatDate(str(quote.date))}</dd>
+            <dt className="text-blueprint">Valid until</dt>
+            <dd>{formatDate(str(quote.validUntil))}</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div className="mt-[4mm] grid grid-cols-2 gap-6">
+        <div>
+          <p className={LABEL}>Quote for</p>
+          <p className="mt-1 text-[11pt] font-semibold text-graphite">{c.clientName}</p>
+          {to.map((t) => (
+            <p key={t} className="text-[8pt] text-charcoal">
+              {t}
+            </p>
+          ))}
+        </div>
+        {str(quote.title) && (
+          <div>
+            <p className={LABEL}>Project</p>
+            <p className="mt-1 text-[10pt] font-medium text-graphite">{str(quote.title)}</p>
+          </div>
+        )}
+      </div>
+
+      <table className="mt-[5mm] w-full">
+        <thead>
+          <tr className="border-y border-graphite text-left text-[7pt] uppercase tracking-[0.14em] text-blueprint">
+            <th className="w-[8mm] py-[1.6mm] font-semibold">#</th>
+            <th className="py-[1.6mm] font-semibold">Description</th>
+            <th className="w-[34mm] py-[1.6mm] text-right font-semibold">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {c.lines.map((l, i) => {
+            const monthly = (l.kind === "service" || l.kind === "custom") && l.billing === "month";
+            const detail = lineDetail(l);
+            return (
+              <tr key={l.key} className={row}>
+                <td className="py-[2mm] align-top font-mono text-[7.5pt] text-blueprint">{pad2(i + 1)}</td>
+                <td className="py-[2mm] pr-4 align-top">
+                  <p className="font-semibold text-graphite">{l.title}</p>
+                  {detail && <p className="mt-0.5 text-[7.5pt] leading-snug text-charcoal">{detail}</p>}
+                  {l.note && <p className="mt-0.5 text-[7.5pt] italic text-charcoal">Note: {l.note}</p>}
+                </td>
+                <td className="tabular py-[2mm] text-right align-top font-semibold">
+                  {formatINR(l.amount)}
+                  {monthly && <span className="block text-[7pt] font-normal text-charcoal">per month{l.kind === "service" && (l.months ?? 1) > 1 ? ` × ${l.months}` : ""}</span>}
+                </td>
+              </tr>
+            );
+          })}
+          {extra.map((x, i) => (
+            <tr key={`x${i}`} className={row}>
+              <td className="py-[2mm] font-mono text-[7.5pt] text-blueprint">{pad2(c.lines.length + i + 1)}</td>
+              <td className="py-[2mm] pr-4">
+                {x.description}
+                {Number(x.qty) > 1 ? ` × ${x.qty}` : ""}
+              </td>
+              <td className="tabular py-[2mm] text-right font-semibold">{formatINR((Number(x.qty) || 0) * (Number(x.rate) || 0))}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="mt-[3mm] flex justify-end">
+        <dl className="w-[78mm] text-[8.5pt]">
+          <div className="flex justify-between py-[0.8mm]">
+            <dt>
+              Subtotal
+              {m.monthly > 0 && (
+                <span className="text-charcoal">
+                  {" "}
+                  (monthly fees × {m.months} month{m.months === 1 ? "" : "s"})
+                </span>
+              )}
+            </dt>
+            <dd className="tabular">{formatINR(m.oneTime + m.monthly * m.months)}</dd>
+          </div>
+          {m.bundleAmount > 0 && (
+            <div className="flex justify-between py-[0.8mm] text-charcoal">
+              <dt>Bundle discount ({m.bundlePercent}%)</dt>
+              <dd className="tabular">− {formatINR(m.bundleAmount)}</dd>
+            </div>
+          )}
+          {m.extraAmount > 0 && (
+            <div className="flex justify-between py-[0.8mm] text-charcoal">
+              <dt>Discount ({m.extraPercent}%)</dt>
+              <dd className="tabular">− {formatINR(m.extraAmount)}</dd>
+            </div>
+          )}
+          {m.gstPercent > 0 && (
+            <>
+              <div className="flex justify-between py-[0.8mm]">
+                <dt>Amount before GST</dt>
+                <dd className="tabular">{formatINR(m.taxable)}</dd>
+              </div>
+              <div className="flex justify-between py-[0.8mm]">
+                <dt>GST {m.gstPercent}%</dt>
+                <dd className="tabular">{formatINR(m.gst)}</dd>
+              </div>
+            </>
+          )}
+          <div className="mt-[1mm] flex justify-between border-y-2 border-graphite py-[1.6mm] text-[11pt] font-semibold">
+            <dt>Total{m.gstPercent > 0 ? "" : " (no GST)"}</dt>
+            <dd className="tabular">{formatINR(m.total)}</dd>
+          </div>
+          <p className="mt-1 text-right text-[7pt] text-charcoal">{amountInWords(Math.round(m.total))}</p>
+        </dl>
+      </div>
+
+      <div className="mt-[4mm] grid grid-cols-2 gap-6 border-t border-graphite/15 pt-[3mm]">
+        <div className="space-y-[2mm]">
+          {c.plan.some((p) => p.amount > 0) && (
+            <div>
+              <p className={LABEL}>Payment schedule</p>
+              {c.plan.map((p) => (
+                <p key={p.label} className="mt-0.5 flex justify-between gap-3">
+                  <span>
+                    {p.percent}% · {p.label}
+                  </span>
+                  <span className="tabular">
+                    {formatINR(p.amount)}
+                    {m.gstPercent > 0 ? " + GST" : ""}
+                  </span>
+                </p>
+              ))}
+              {m.monthly > 0 && (
+                <p className="mt-0.5 text-[7.5pt] text-charcoal">
+                  Monthly fees ({formatINR(m.monthlyNet)}
+                  {m.gstPercent > 0 ? " + GST" : ""}) are invoiced at the start of each month.
+                </p>
+              )}
+            </div>
+          )}
+          <div>
+            <p className={LABEL}>Timeline</p>
+            <p className="mt-0.5">{weeks > 0 ? `About ${weeks} week${weeks === 1 ? "" : "s"} from the advance and your content` : TERMS.timelines}</p>
+          </div>
+        </div>
+        <div>
+          <p className={LABEL}>Bank details</p>
+          {bank.length ? (
+            <dl className="mt-0.5 grid grid-cols-[auto_1fr] gap-x-3">
+              {bank.map(([k, v]) => (
+                <Fragment key={k}>
+                  <dt className="text-charcoal">{k}</dt>
+                  <dd className="font-medium">{v}</dd>
+                </Fragment>
+              ))}
+            </dl>
+          ) : (
+            <p className="mt-0.5 text-charcoal">Shared with the invoice.</p>
+          )}
+        </div>
+      </div>
+
+      {str(quote.notes) && (
+        <div className="mt-[3mm] border-l-[3px] border-graphite pl-3">
+          <p className={LABEL}>Notes</p>
+          <p className="mt-0.5 whitespace-pre-line leading-snug text-charcoal">{str(quote.notes)}</p>
+        </div>
+      )}
+
+      {quote.includeTerms !== false && (
+        <div className="mt-[3mm]">
+          <p className={LABEL}>Terms</p>
+          <ol className="mt-0.5 list-decimal space-y-0.5 pl-4 text-[7.5pt] leading-snug text-charcoal">
+            {terms.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      <div className="mt-[8mm] grid grid-cols-2 gap-[12mm]">
+        <div>
+          <p className={LABEL}>For {st.brandName || "FrameMind AI Studio"}</p>
+          <SignatureSpace name={c.signatory.name} align="left" className="h-[13mm]" />
+          <div className="border-t border-graphite/60 pt-1">
+            <p className="font-semibold text-graphite">{c.signatory.name}</p>
+            <p className="text-charcoal">{c.signatory.title}</p>
+          </div>
+        </div>
+        <div>
+          <p className={LABEL}>Accepted by {c.clientName}</p>
+          <div className="mt-[13mm] border-t border-graphite/60 pt-1">
+            <p className="text-charcoal">Name, signature &amp; date</p>
+          </div>
+        </div>
+      </div>
+    </A4Page>
+  );
+}
+
 /* ─────────────────────────── the document ─────────────────────────── */
 
 function Notice({ title, body }: { title: string; body: string }) {
@@ -432,6 +689,8 @@ export function ProposalPrint({ id }: { id: string }) {
   const { settings, loading: settingsLoading } = useSettings();
   const { store } = useHq();
   const rates = useRates();
+  // the one-page quote prints by default; the full proposal (cover, scope, investment, how we work) is a click away
+  const [full, setFull] = useState(false);
 
   const quote = proposals.records.find((r) => r.id === id);
   const client = quote ? clients.records.find((s) => s.id === quote.clientId) : undefined;
@@ -493,18 +752,31 @@ export function ProposalPrint({ id }: { id: string }) {
           <Badge tone={statusTone(str(quote.status))} dot>
             {str(quote.status) || "draft"}
           </Badge>
+          <span className="inline-flex rounded-full border border-graphite/20 p-0.5 text-xs font-semibold">
+            {([[false, "Simple · 1 page"], [true, `Full proposal · ${total} pages`]] as const).map(([v, t]) => (
+              <button key={t} type="button" onClick={() => setFull(v)} className={`rounded-full px-3 py-1 ${full === v ? "bg-graphite text-paper" : "text-charcoal hover:bg-graphite/5"}`}>
+                {t}
+              </button>
+            ))}
+          </span>
           <Button size="sm" variant="secondary" href={`/hq/proposals/${quote.id}`}>
             {store.writable ? "Edit quote" : "Open quote"}
           </Button>
         </>
       }
     >
-      <Cover c={c} />
-      {scope.map((page, i) => {
-        return <ScopePage key={i} c={c} lines={page} start={starts[i]} page={label(i + 2)} first={i === 0} />;
-      })}
-      <InvestmentPage c={c} page={label(scope.length + 2)} />
-      <TermsPage c={c} page={label(scope.length + 3)} />
+      {full ? (
+        <>
+          <Cover c={c} />
+          {scope.map((page, i) => {
+            return <ScopePage key={i} c={c} lines={page} start={starts[i]} page={label(i + 2)} first={i === 0} />;
+          })}
+          <InvestmentPage c={c} page={label(scope.length + 2)} />
+          <TermsPage c={c} page={label(scope.length + 3)} />
+        </>
+      ) : (
+        <SimpleQuote c={c} />
+      )}
     </PrintShell>
   );
 }
