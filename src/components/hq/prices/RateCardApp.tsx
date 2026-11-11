@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, Loader2, Plus, Save, Trash2, TriangleAlert, Undo2 } from "lucide-react";
 import type { Service, ServiceGroup, ServiceOption, VrittaEdition, VrittaSegment } from "@/lib/content/catalog";
 import { VRITTA } from "@/lib/content/catalog";
+import { ADD_ONS as RE_ADD_ONS, PLANS as RE_PLANS, type RealEstateRates } from "@/lib/content/real-estate";
 import type { PriceBook, RateCard } from "@/lib/pricebook/types";
 import { can, LEADERSHIP } from "@/lib/hq/roles";
 import { cn, formatDateTime, formatINR, uid } from "@/lib/utils";
@@ -14,8 +15,8 @@ import { EmptyState, Loading, PageHeader, Panel } from "@/components/hq/ui";
 import { Button } from "@/components/ui/Button";
 import { Tabs } from "@/components/ui/Tabs";
 
-type TabId = "services" | "discounts" | "vritta" | "coaching" | "terms";
-const TAB_NAMES: Record<TabId, string> = { services: "Services", discounts: "Bundles & retainers", vritta: "Vritta", coaching: "AI Coaching", terms: "Terms & GST" };
+type TabId = "services" | "discounts" | "realestate" | "vritta" | "coaching" | "terms";
+const TAB_NAMES: Record<TabId, string> = { services: "Services", discounts: "Bundles & retainers", realestate: "Real estate", vritta: "Vritta", coaching: "AI Coaching", terms: "Terms & GST" };
 const LEAVE_QUESTION = "You have changes that are not saved. Leave this page without saving them?";
 
 interface Loaded {
@@ -249,6 +250,8 @@ export function RateCardApp() {
               </Panel>
             </div>
           )}
+
+          {tab === "realestate" && <RealEstatePrices value={rates.realEstate} editable={editable} onChange={(realEstate) => setRates((r) => ({ ...r, realEstate }))} />}
 
           {tab === "vritta" && <VrittaRates rates={rates} editable={editable} setRates={setRates} />}
 
@@ -485,6 +488,98 @@ function ServiceEditor({ service, editable, onChange }: { service: Service; edit
           <Plus className="size-4" /> Add a group of options
         </Button>
       )}
+    </div>
+  );
+}
+
+/** A price per sq ft with paise (₹0.75): keeps what is typed until it is a number, so "0." can be typed. */
+function Rate({ value, onChange, disabled, label }: { value: number; onChange: (v: number) => void; disabled?: boolean; label: string }) {
+  const [txt, setTxt] = useState(String(value));
+  // the value changed from outside (Undo, a reload): show it
+  if (txt !== "" && !txt.endsWith(".") && Number(txt) !== value) setTxt(String(value));
+  return (
+    <div className="relative">
+      <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs text-blueprint">₹</span>
+      <input
+        aria-label={label}
+        inputMode="decimal"
+        disabled={disabled}
+        value={txt}
+        onChange={(e) => {
+          const t = e.target.value.replace(/[^\d.]/g, "");
+          setTxt(t);
+          const n = Number(t);
+          if (t !== "" && Number.isFinite(n)) onChange(n);
+        }}
+        className={cn(box, "tabular pl-6 text-right font-mono")}
+      />
+    </div>
+  );
+}
+
+/** HQ → Rate Card → Real estate: the per-sq-ft plans and add-ons of the website's /real-estate page and of quotes. */
+function RealEstatePrices({ value, editable, onChange }: { value: RealEstateRates; editable: boolean; onChange: (v: RealEstateRates) => void }) {
+  const setPlan = (id: string, k: string, v: number) => onChange({ ...value, plans: value.plans.map((p) => (p.id === id ? { ...p, [k]: v } : p)) });
+  const setAdd = (id: string, k: string, v: number) => onChange({ ...value, addOns: value.addOns.map((a) => (a.id === id ? { ...a, [k]: v } : a)) });
+  const head = "pb-2 text-right font-medium";
+  return (
+    <div className="space-y-6">
+      <Panel title="Plans" subtitle="Project cost = rate × total project area, never below the minimum and never above the maximum. The website and new quotes use these at once.">
+        <div className="hq-scroll overflow-x-auto">
+          <table className="w-full min-w-[680px] text-sm">
+            <thead>
+              <tr className="annot text-left text-[10px] text-blueprint">
+                <th className="pb-2 font-medium">Plan</th>
+                <th className={head}>Per sq ft</th>
+                <th className={head}>Minimum</th>
+                <th className={head}>Maximum</th>
+                <th className={head}>Free maintenance (months)</th>
+                <th className={head}>Then per month</th>
+              </tr>
+            </thead>
+            <tbody>
+              {value.plans.map((p) => {
+                const name = RE_PLANS.find((x) => x.id === p.id)?.name ?? p.id;
+                return (
+                  <tr key={p.id} className="border-t border-graphite/8">
+                    <td className="py-2 pr-3 font-medium">{name}</td>
+                    <td className="py-1.5 pl-2"><Rate label={`${name} rate per sq ft`} value={p.rate} disabled={!editable} onChange={(v) => setPlan(p.id, "rate", v)} /></td>
+                    <td className="py-1.5 pl-2"><Money label={`${name} minimum`} value={p.min} disabled={!editable} onChange={(v) => setPlan(p.id, "min", v)} /></td>
+                    <td className="py-1.5 pl-2"><Money label={`${name} maximum`} value={p.max} disabled={!editable} onChange={(v) => setPlan(p.id, "max", v)} /></td>
+                    <td className="py-1.5 pl-2"><Money label={`${name} free months`} suffix="count" value={p.freeMonths} disabled={!editable} onChange={(v) => setPlan(p.id, "freeMonths", v)} /></td>
+                    <td className="py-1.5 pl-2"><Money label={`${name} monthly maintenance`} value={p.monthly} disabled={!editable} onChange={(v) => setPlan(p.id, "monthly", v)} /></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+      <Panel title="Add-ons" subtitle="Per-sq-ft add-ons are priced on the project area between their minimum and maximum; the others show as a range, and quotes use the starting price.">
+        <div className="space-y-2">
+          {value.addOns.map((a) => {
+            const label = RE_ADD_ONS.find((x) => x.id === a.id)?.label ?? a.id;
+            return (
+              <div key={a.id} className="grid items-center gap-2 border-t border-graphite/8 pt-2 sm:grid-cols-[1fr_120px_140px_140px]">
+                <span className="text-sm font-medium">{label}</span>
+                {a.rate !== undefined ? (
+                  <>
+                    <Rate label={`${label} per sq ft`} value={a.rate} disabled={!editable} onChange={(v) => setAdd(a.id, "rate", v)} />
+                    <Money label={`${label} minimum`} value={a.min ?? 0} disabled={!editable} onChange={(v) => setAdd(a.id, "min", v)} />
+                    <Money label={`${label} maximum`} value={a.max ?? 0} disabled={!editable} onChange={(v) => setAdd(a.id, "max", v)} />
+                  </>
+                ) : (
+                  <>
+                    <span className="annot text-[10px] text-blueprint sm:text-right">From – to</span>
+                    <Money label={`${label} from`} value={a.from ?? 0} disabled={!editable} onChange={(v) => setAdd(a.id, "from", v)} />
+                    <Money label={`${label} to (0 = open)`} value={a.to ?? 0} disabled={!editable} onChange={(v) => setAdd(a.id, "to", v)} />
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
     </div>
   );
 }

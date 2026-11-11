@@ -14,6 +14,7 @@
  * Quotes copy the prices they use at the moment they are made, so changing a rate never changes a quote already sent.
  */
 import type { Service, VrittaEdition, VrittaSegment } from "@/lib/content/catalog";
+import type { RealEstateRates } from "@/lib/content/real-estate";
 
 export interface SocialContract {
   months: number;
@@ -67,6 +68,8 @@ export interface RateCard {
   bundleSteps: BundleStep[];
   vritta: VrittaRates;
   coaching: CoachingFees;
+  /** the Real Estate Digital Platform: per-sq-ft plans and add-ons (website /real-estate and quotes) */
+  realEstate: RealEstateRates;
   terms: QuoteTerms;
 }
 

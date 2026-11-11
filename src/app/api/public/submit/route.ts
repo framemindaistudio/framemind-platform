@@ -60,10 +60,19 @@ export async function POST(req: Request) {
   const services = Array.isArray(body.services) ? (body.services as unknown[]).map(String).filter((s) => SERVICES.includes(s)) : [];
 
   // the pricing page sends what was chosen, so HQ can open a quote with the same selections
-  const config: Record<string, { selections: Record<string, string[]>; months?: number }> = {};
+  const config: Record<string, { selections: Record<string, string[]>; months?: number } | { plan: string; sqft: number; addOns: string[] }> = {};
   if (body.config && typeof body.config === "object" && !Array.isArray(body.config)) {
     for (const [sid, raw] of Object.entries(body.config as Record<string, unknown>).slice(0, 8)) {
       if (!SERVICES.includes(sid) || !raw || typeof raw !== "object") continue;
+      // the real estate page sends its plan, area (sq ft) and add-ons
+      if (sid === "realestate") {
+        const r = raw as { plan?: unknown; sqft?: unknown; addOns?: unknown };
+        const plan = ["essential", "professional", "enterprise"].includes(String(r.plan)) ? String(r.plan) : "professional";
+        const sqft = Number(r.sqft);
+        const addOns = Array.isArray(r.addOns) ? r.addOns.map(String).filter((x) => /^[\w-]{1,48}$/.test(x)).slice(0, 12) : [];
+        if (Number.isFinite(sqft) && sqft > 0 && sqft <= 1e9) config.realestate = { plan, sqft: Math.round(sqft), addOns };
+        continue;
+      }
       const r = raw as { selections?: unknown; months?: unknown };
       const sel: Record<string, string[]> = {};
       if (r.selections && typeof r.selections === "object" && !Array.isArray(r.selections)) {

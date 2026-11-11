@@ -3,6 +3,7 @@
  * (HQ → Money → Rate Card), so a slide never carries a number typed into it.
  */
 import { BUNDLE, COACHING, SERVICES, TERMS, VRITTA } from "@/lib/content/catalog";
+import { DEFAULT_RE_RATES } from "@/lib/content/real-estate";
 import type { RateCard } from "@/lib/pricebook/types";
 import { formatINR } from "@/lib/utils";
 import type { DeckTheme, IconName } from "./types";
@@ -29,6 +30,7 @@ export function card(rates?: RateCard | null): RateCard {
     bundleSteps: BUNDLE.steps,
     vritta: { rates: VRITTA.rates, oneTime: VRITTA.oneTime, groupLicencePercent: VRITTA.groupLicencePercent, amcPercent: VRITTA.amcPercent },
     coaching: { online: COACHING.fees.online, offline: COACHING.fees.offline, sessions: 0 },
+    realEstate: DEFAULT_RE_RATES,
     terms: { validityDays: TERMS.validityDays, revisionRounds: TERMS.revisionRounds, milestones: TERMS.defaultMilestones },
   };
 }

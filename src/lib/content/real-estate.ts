@@ -194,3 +194,55 @@ export function addOnPrice(a: AddOn, sqft: number) {
 
 /** How far below the typical market price a plan starts, in whole percent (0 when it is not below). */
 export const belowMarket = (plan: Plan) => Math.max(0, Math.round((1 - plan.min / plan.marketFrom) * 100));
+
+/* ── the prices HQ controls (Money → Rate Card → Real estate) ── */
+
+/** The numbers of the real estate pricing that the founders edit in HQ. The words stay in this file. */
+export interface RealEstateRates {
+  plans: { id: PlanId; rate: number; min: number; max: number; freeMonths: number; monthly: number }[];
+  addOns: { id: string; rate?: number; min?: number; max?: number; from?: number; to?: number }[];
+}
+
+/** The published prices, used until HQ saves its own. */
+export const DEFAULT_RE_RATES: RealEstateRates = {
+  plans: PLANS.map(({ id, rate, min, max, freeMonths, monthly }) => ({ id, rate, min, max, freeMonths, monthly })),
+  addOns: ADD_ONS.map((a) => (a.perSqft ? { id: a.id, rate: a.perSqft.rate, min: a.perSqft.min, max: a.perSqft.max } : { id: a.id, from: a.range?.from ?? 0, ...(a.range?.to ? { to: a.range.to } : {}) })),
+};
+
+/** The plans and add-ons with HQ's numbers put in (anything HQ has not set keeps the published price). */
+export function realEstateWith(rates?: RealEstateRates | null): { plans: Plan[]; addOns: AddOn[] } {
+  const plans = PLANS.map((p) => {
+    const r = rates?.plans.find((x) => x.id === p.id);
+    return r ? { ...p, rate: r.rate, min: r.min, max: Math.max(r.min, r.max), freeMonths: r.freeMonths, monthly: r.monthly } : p;
+  });
+  const addOns = ADD_ONS.map((a) => {
+    const r = rates?.addOns.find((x) => x.id === a.id);
+    if (!r) return a;
+    if (a.perSqft) return { ...a, perSqft: { rate: r.rate ?? a.perSqft.rate, min: r.min ?? a.perSqft.min, max: Math.max(r.min ?? a.perSqft.min, r.max ?? a.perSqft.max) } };
+    return { ...a, range: { from: r.from ?? a.range?.from ?? 0, ...(r.to ? { to: r.to } : {}) } };
+  });
+  return { plans, addOns };
+}
+
+/** The comparison table, with the maintenance row following the plans' included months. */
+export const comparisonFor = (plans: Plan[]) =>
+  COMPARISON.map((row) => (row.feature === "Maintenance included" ? { ...row, values: plans.map((p) => `${p.freeMonths} months`) as [string, string, string] } : row));
+
+/** In Enterprise, 3D modelling and CRM are part of the plan. */
+export const addOnsFor = (planId: PlanId, addOns: AddOn[]) => addOns.filter((a) => !(planId === "enterprise" && (a.id === "layout-3d" || a.id === "crm")));
+
+const sqftText = (sqft: number) => `${Math.round(sqft).toLocaleString("en-IN")} sq ft`;
+
+/** A priced real estate project: one row for the plan and one per add-on. Used by the website's estimate and HQ's quotes. */
+export function priceRealEstate(rates: RealEstateRates | null | undefined, planId: PlanId, sqft: number, addOnIds: string[]) {
+  const { plans, addOns } = realEstateWith(rates);
+  const plan = plans.find((p) => p.id === planId) ?? plans[1];
+  const base = planPrice(plan, sqft);
+  const rule = base.rule === "minimum" ? " (minimum billing)" : base.rule === "maximum" ? " (maximum billing)" : "";
+  const chosen = addOnsFor(plan.id, addOns).filter((a) => addOnIds.includes(a.id));
+  const items = [
+    { group: "Plan", label: `${plan.name} plan — ₹${plan.rate.toFixed(2)}/sq ft × ${sqftText(sqft)}${rule}`, price: base.price },
+    ...chosen.map((a) => ({ group: "Add-ons", label: a.perSqft ? a.label : `${a.label} (from)`, price: addOnPrice(a, sqft) })),
+  ];
+  return { plan, items, amount: items.reduce((s, i) => s + i.price, 0), maintenance: `${plan.freeMonths} months of maintenance included, then ₹${plan.monthly.toLocaleString("en-IN")}/month.` };
+}

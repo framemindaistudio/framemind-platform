@@ -35,7 +35,7 @@ export const PAGE_SEO: Record<string, PageSeo> = {
   },
   "/real-estate": {
     "title": "Real Estate Digital Platform — Layout Websites & Interactive Plot Maps",
-    "description": "Area-based pricing for plotted layouts, villas and townships: project websites, interactive plot maps with live availability, and 3D masterplans. From ₹0.75 per sq ft, with a minimum and a maximum.",
+    "description": "Area-based pricing for plotted layouts, villas and townships: project websites, interactive plot maps with live availability, and 3D masterplans. Priced per sq ft, with a minimum and a maximum.",
     "keywords": "real estate website India, layout website, interactive plot map, plot availability website, 3D masterplan, plotted development website, FrameMind real estate",
     "ogImageAlt": "FrameMind AI Studio — Real Estate Digital Platform"
   },

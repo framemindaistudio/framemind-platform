@@ -130,7 +130,7 @@ function Cover({ c }: { c: Ctx }) {
 
 /** How tall a line is on paper, in rows (used to split lines over pages). */
 function rowsOf(l: QuoteLine) {
-  const items = l.kind === "service" || l.kind === "custom" ? l.items.length : l.kind === "vritta" ? 1 + l.oneTime.length : 1;
+  const items = l.kind === "service" || l.kind === "custom" || l.kind === "realestate" ? l.items.length : l.kind === "vritta" ? 1 + l.oneTime.length : 1;
   const included = l.kind === "service" ? Math.ceil((SERVICES.find((s) => s.id === l.serviceId)?.included.length ?? 0) / 2) : 0;
   return 4 + items + included + (l.note ? 1 : 0);
 }
@@ -156,7 +156,7 @@ function chunk(lines: QuoteLine[], budget = 36) {
 function LineBlock({ line, n }: { line: QuoteLine; n: number }) {
   const service = line.kind === "service" ? SERVICES.find((s) => s.id === line.serviceId) : undefined;
   const rows: { group: string; label: string; price: number }[] =
-    line.kind === "service" || line.kind === "custom"
+    line.kind === "service" || line.kind === "custom" || line.kind === "realestate"
       ? line.items
       : line.kind === "vritta"
         ? [{ group: "Licence", label: `${VRITTA.editions.find((e) => e.id === line.edition)?.name} edition — ${line.billing} licence (${line.segment})${line.group ? `, group rate` : ""}`, price: line.licence }, ...line.oneTime]
@@ -177,6 +177,7 @@ function LineBlock({ line, n }: { line: QuoteLine; n: number }) {
       {service && <p className="mt-1 max-w-[150mm] text-[8.5pt] leading-snug text-charcoal">{service.description}</p>}
       {line.kind === "vritta" && <p className="mt-1 max-w-[150mm] text-[8.5pt] leading-snug text-charcoal">{VRITTA.line}</p>}
       {line.kind === "coaching" && <p className="mt-1 max-w-[150mm] text-[8.5pt] leading-snug text-charcoal">{COACHING.line}</p>}
+      {line.kind === "realestate" && <p className="mt-1 max-w-[150mm] text-[8.5pt] leading-snug text-charcoal">Area-based pricing on the gross project area ({line.sqft.toLocaleString("en-IN")} sq ft): plots, roads, parks and common areas. Domain, hosting and third-party subscriptions are bought in the client&apos;s name.</p>}
       <table className="mt-[3mm] w-full text-[8.5pt]">
         <tbody>
           {rows.map((r, i) => (

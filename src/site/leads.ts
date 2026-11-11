@@ -14,7 +14,8 @@ export interface LeadInput {
   timeline?: string;
   message?: string;
   /** the pricing page: what was chosen per service (HQ opens a quote with the same choices), its total and quote number */
-  config?: Record<string, { selections: Record<string, string[]>; months?: number }>;
+  /** per service: the pricing page's selections; for "realestate", the plan, area and add-ons of /real-estate */
+  config?: Record<string, { selections: Record<string, string[]>; months?: number } | { plan: string; sqft: number; addOns: string[] }>;
   estimate?: number;
   quoteNo?: string;
   /** the careers form's answers (kind "careers"), checked by the server against src/lib/content/careers.ts */

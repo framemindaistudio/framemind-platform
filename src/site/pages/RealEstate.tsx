@@ -5,11 +5,12 @@ import { ArrowRight, Check, Download, Minus } from "lucide-react";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
 import { submitLead } from "@/site/leads";
-import { ADD_ONS, AREA_UNITS, COMPARISON, PLANS, TERMS, addOnPrice, belowMarket, planPrice, toSqft, type AreaUnit, type PlanId } from "@/lib/content/real-estate";
+import { AREA_UNITS, TERMS, addOnPrice, addOnsFor, belowMarket, comparisonFor, priceRealEstate, realEstateWith, toSqft, type AreaUnit, type Plan, type PlanId, type RealEstateRates } from "@/lib/content/real-estate";
 
 /*
  * Real Estate Digital Platform: FrameMind's area-based standard pricing for plotted layouts, villas and townships.
- * Every price comes from src/lib/content/real-estate.ts.
+ * The words come from src/lib/content/real-estate.ts; the numbers from HQ → Money → Rate Card → Real estate (passed in
+ * as `rates`), or the published ones there when HQ has none.
  */
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
@@ -33,7 +34,9 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 const Cell = ({ v }: { v: string }) =>
   v === "✓" ? <Check size={15} className="mx-auto text-[#5a9e00]" aria-label="Included" /> : v === "—" ? <Minus size={14} className="mx-auto text-muted-foreground/50" aria-label="Not included" /> : <span className="text-xs font-medium">{v}</span>;
 
-export default function RealEstate() {
+export default function RealEstate({ rates }: { rates?: RealEstateRates | null }) {
+  const { plans: PLANS, addOns: ADD_ONS } = realEstateWith(rates);
+  const COMPARISON = comparisonFor(PLANS);
   const [area, setArea] = useState("5");
   const [unit, setUnit] = useState<AreaUnit>("acre");
   const [planId, setPlanId] = useState<PlanId>("professional");
@@ -45,15 +48,10 @@ export default function RealEstate() {
   const [sentNo, setSentNo] = useState("");
 
   const sqft = toSqft(Number(area) || 0, unit);
-  const plan = PLANS.find((p) => p.id === planId)!;
-  const base = planPrice(plan, sqft);
-  // in Enterprise, 3D modelling and CRM are part of the plan
-  const available = ADD_ONS.filter((a) => !(plan.id === "enterprise" && (a.id === "layout-3d" || a.id === "crm")));
-  const chosen = available.filter((a) => extras.includes(a.id));
-  const lines = [
-    { label: `${plan.name} plan — ${rate(plan.rate)}/sq ft × ${Math.round(sqft).toLocaleString("en-IN")} sq ft${base.rule === "minimum" ? " (minimum billing)" : base.rule === "maximum" ? " (maximum billing)" : ""}`, price: base.price },
-    ...chosen.map((a) => ({ label: a.perSqft ? a.label : `${a.label} (from)`, price: addOnPrice(a, sqft) })),
-  ];
+  const priced = priceRealEstate(rates, planId, sqft, extras);
+  const plan = priced.plan;
+  const available = addOnsFor(plan.id, ADD_ONS);
+  const lines = priced.items.map(({ label, price }) => ({ label, price }));
   const total = lines.reduce((s, l) => s + l.price, 0);
 
   async function getQuote(e: React.FormEvent) {
@@ -74,6 +72,7 @@ export default function RealEstate() {
       email: f.email.trim() || undefined,
       organisation: f.business.trim() || undefined,
       services: ["realestate"],
+      config: { realestate: { plan: plan.id, sqft: Math.round(sqft), addOns: available.filter((a) => extras.includes(a.id)).map((a) => a.id) } },
       estimate: total,
       quoteNo,
       budget: `${inr(total)} (website estimate)`,
@@ -101,7 +100,7 @@ export default function RealEstate() {
     <>
       <SEO
         title="Real Estate Digital Platform — Layout Websites & Interactive Plot Maps"
-        description="Area-based pricing for plotted layouts, villas and townships: project websites, interactive plot maps with live availability, and 3D masterplans. From ₹0.75 per sq ft, with a minimum and a maximum."
+        description="Area-based pricing for plotted layouts, villas and townships: project websites, interactive plot maps with live availability, and 3D masterplans. Priced per sq ft, with a minimum and a maximum."
         path="/real-estate"
         keywords="real estate website India, layout website, interactive plot map, plot availability website, 3D masterplan, plotted development website, FrameMind real estate"
         ogImageAlt="FrameMind AI Studio — Real Estate Digital Platform"
@@ -467,7 +466,7 @@ export default function RealEstate() {
 /** A printable quote in a new window (opened on the click, so it is never blocked as a pop-up). */
 function openQuote(
   win: Window | null,
-  q: { quoteNo: string; name: string; business: string; project: string; areaText: string; lines: { label: string; price: number }[]; total: number; plan: (typeof PLANS)[number] },
+  q: { quoteNo: string; name: string; business: string; project: string; areaText: string; lines: { label: string; price: number }[]; total: number; plan: Plan },
 ) {
   const w = win ?? window.open("", "_blank");
   if (!w) return;

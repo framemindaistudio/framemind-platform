@@ -1,6 +1,7 @@
 import "server-only";
 import { store, StoreConflictError } from "@/lib/store";
 import { COACHING, SERVICES, SOCIAL_CONTRACTS, BUNDLE, TERMS, VRITTA, type Service, type ServiceGroup, type ServiceId, type VrittaEdition, type VrittaSegment } from "@/lib/content/catalog";
+import { DEFAULT_RE_RATES, type RealEstateRates } from "@/lib/content/real-estate";
 import type { MoneyLine, PriceBook, RateCard, RevenueStream, VrittaRate } from "@/lib/pricebook/types";
 import { uid } from "@/lib/utils";
 import { ValidationError } from "./records";
@@ -27,6 +28,7 @@ export function startingBook(): PriceBook {
       bundleSteps: structuredClone(BUNDLE.steps),
       vritta: { rates: structuredClone(VRITTA.rates), oneTime: structuredClone(VRITTA.oneTime), groupLicencePercent: VRITTA.groupLicencePercent, amcPercent: VRITTA.amcPercent },
       coaching: { online: COACHING.fees.online, offline: COACHING.fees.offline, sessions: 0 },
+      realEstate: structuredClone(DEFAULT_RE_RATES),
       terms: { validityDays: TERMS.validityDays, revisionRounds: TERMS.revisionRounds, milestones: structuredClone(TERMS.defaultMilestones) },
     },
     planner: {
@@ -115,6 +117,33 @@ const cleanStreams = (v: unknown): RevenueStream[] =>
     })
     .filter((l) => l.name);
 
+/** Real estate prices: the plans and add-ons are fixed (the website and quotes name them); their numbers are the founders'. */
+function cleanRealEstate(v: unknown, base: RealEstateRates): RealEstateRates {
+  const i = obj(v);
+  const plansIn = Array.isArray(i.plans) ? i.plans.map(obj) : [];
+  const addIn = Array.isArray(i.addOns) ? i.addOns.map(obj) : [];
+  const M = 100_000_000;
+  return {
+    plans: DEFAULT_RE_RATES.plans.map((d) => {
+      const b = base.plans.find((x) => x.id === d.id) ?? d;
+      const r = plansIn.find((x) => x.id === d.id) ?? {};
+      const min = num(r.min, b.min, 0, M);
+      return { id: d.id, rate: num(r.rate, b.rate, 0, 10_000, 2), min, max: Math.max(min, num(r.max, b.max, 0, M)), freeMonths: num(r.freeMonths, b.freeMonths, 0, 60), monthly: num(r.monthly, b.monthly, 0, M) };
+    }),
+    addOns: DEFAULT_RE_RATES.addOns.map((d) => {
+      const b = base.addOns.find((x) => x.id === d.id) ?? d;
+      const r = addIn.find((x) => x.id === d.id) ?? {};
+      if (d.rate !== undefined) {
+        const min = num(r.min, b.min ?? 0, 0, M);
+        return { id: d.id, rate: num(r.rate, b.rate ?? 0, 0, 10_000, 2), min, max: Math.max(min, num(r.max, b.max ?? 0, 0, M)) };
+      }
+      const from = num(r.from, b.from ?? 0, 0, M);
+      const to = num(r.to, b.to ?? 0, 0, M);
+      return { id: d.id, from, ...(to > from ? { to } : {}) };
+    }),
+  };
+}
+
 function cleanRates(input: unknown, base: RateCard): RateCard {
   const i = obj(input);
   const v = obj(i.vritta);
@@ -170,6 +199,7 @@ function cleanRates(input: unknown, base: RateCard): RateCard {
       amcPercent: num(v.amcPercent, base.vritta.amcPercent, 0, 100, 1),
     },
     coaching: { online: num(c.online, base.coaching.online, 0, 10_000_000), offline: num(c.offline, base.coaching.offline, 0, 10_000_000), sessions: num(c.sessions, base.coaching.sessions, 0, 500) },
+    realEstate: cleanRealEstate(i.realEstate, base.realEstate ?? DEFAULT_RE_RATES),
     terms: { validityDays: num(t.validityDays, base.terms.validityDays, 1, 365), revisionRounds: num(t.revisionRounds, base.terms.revisionRounds, 0, 20), milestones },
   };
 }

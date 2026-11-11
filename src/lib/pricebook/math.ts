@@ -3,6 +3,7 @@
  * screen while the founders type, and by the quote builder, the quote print and the project screens.
  */
 import type { Service, ServiceId, VrittaEdition, VrittaSegment } from "@/lib/content/catalog";
+import type { AreaUnit, PlanId } from "@/lib/content/real-estate";
 import type { BundleStep, RateCard, SocialContract } from "./types";
 
 /* ───────────────────────────── one service, configured ───────────────────────────── */
@@ -71,6 +72,7 @@ export type QuoteLine =
   | { kind: "service"; key: string; serviceId: ServiceId; title: string; selections: Selections; items: PricedItem[]; amount: number; billing: "project" | "month"; months?: number; contractDiscountPercent?: number; note?: string }
   | { kind: "coaching"; key: string; title: string; mode: "online" | "offline"; learners: number; amount: number; note?: string }
   | { kind: "vritta"; key: string; title: string; segment: VrittaSegment; edition: VrittaEdition; billing: "monthly" | "annual" | "perpetual"; licence: number; oneTime: PricedItem[]; group: boolean; amount: number; note?: string }
+  | { kind: "realestate"; key: string; title: string; plan: PlanId; area: number; unit: AreaUnit; sqft: number; addOns: string[]; items: PricedItem[]; amount: number; billing: "project"; note?: string }
   | { kind: "custom"; key: string; title: string; items: PricedItem[]; amount: number; billing: "project" | "month"; note?: string };
 
 export interface QuoteMoney {

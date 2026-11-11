@@ -21,7 +21,8 @@ import { EmptyState, Loading, PageHeader, Panel } from "@/components/hq/ui";
 import { cn, formatDate, formatINR } from "@/lib/utils";
 import { BackLink, Notice } from "./bits";
 import { addDays, str, todayIso } from "./crm";
-import { blankQuote, bookingOf, coachingLine, customLine, extraItemsOf, linesOf, milestonePlan, milestonesOf, moneyOf, projectFromQuote, repriceService, serviceLine, servicesOf, vrittaLine, type Booking } from "./quote";
+import { addOnPrice, addOnsFor, AREA_UNITS, realEstateWith, type AreaUnit, type PlanId } from "@/lib/content/real-estate";
+import { blankQuote, bookingOf, coachingLine, customLine, extraItemsOf, linesOf, milestonePlan, milestonesOf, moneyOf, projectFromQuote, realEstateLine, repriceService, serviceLine, servicesOf, vrittaLine, type Booking } from "./quote";
 
 const proposalsDef = getCollection("proposals")!;
 const STATUS_OPTIONS = proposalsDef.fields.find((f) => f.key === "status")?.options ?? [];
@@ -393,6 +394,9 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
               <button type="button" onClick={() => add(vrittaLine(rates))} className="inline-flex items-center gap-2 rounded-full border border-graphite/20 bg-paper-50 px-3 py-1.5 text-xs font-semibold text-graphite hover:border-graphite hover:bg-lime">
                 <HqIcon name="Newspaper" className="size-3.5" /> Vritta
               </button>
+              <button type="button" onClick={() => add(realEstateLine(rates))} className="inline-flex items-center gap-2 rounded-full border border-graphite/20 bg-paper-50 px-3 py-1.5 text-xs font-semibold text-graphite hover:border-graphite hover:bg-lime">
+                <HqIcon name="Building2" className="size-3.5" /> Real estate
+              </button>
               <button type="button" onClick={() => add(customLine())} className="inline-flex items-center gap-2 rounded-full border border-dashed border-graphite/30 px-3 py-1.5 text-xs font-semibold text-charcoal hover:border-graphite">
                 <Plus className="size-3.5" /> Custom work
               </button>
@@ -613,7 +617,7 @@ function LineCard({
   editable: boolean;
 }) {
   const service = line.kind === "service" ? rates.services.find((s) => s.id === line.serviceId) : undefined;
-  const icon = line.kind === "service" ? (service?.icon ?? "Circle") : line.kind === "coaching" ? "GraduationCap" : line.kind === "vritta" ? "Newspaper" : "Plus";
+  const icon = line.kind === "service" ? (service?.icon ?? "Circle") : line.kind === "coaching" ? "GraduationCap" : line.kind === "vritta" ? "Newspaper" : line.kind === "realestate" ? "Building2" : "Plus";
   // a service line whose stored prices no longer match today's rate card
   const stale = line.kind === "service" && service && priceService(service, line.selections).subtotal !== line.items.reduce((s, i) => s + i.price, 0);
 
@@ -626,7 +630,7 @@ function LineCard({
         <button type="button" onClick={onToggle} className="min-w-0 flex-1 text-left">
           <span className="block truncate text-sm font-semibold text-graphite">{line.title}</span>
           <span className="block truncate text-xs text-blueprint">
-            {line.kind === "service" ? `${line.items.filter((i) => i.price > 0).length} paid option${line.items.filter((i) => i.price > 0).length === 1 ? "" : "s"}${line.billing === "month" ? ` · ${line.months ?? 1}-month contract` : ""}` : line.kind === "vritta" ? `${line.segment} · ${line.billing}${line.group ? " · group rate" : ""}` : line.kind === "coaching" ? `${line.learners} learner${line.learners === 1 ? "" : "s"}` : `${line.items.length} item${line.items.length === 1 ? "" : "s"}`}
+            {line.kind === "service" ? `${line.items.filter((i) => i.price > 0).length} paid option${line.items.filter((i) => i.price > 0).length === 1 ? "" : "s"}${line.billing === "month" ? ` · ${line.months ?? 1}-month contract` : ""}` : line.kind === "vritta" ? `${line.segment} · ${line.billing}${line.group ? " · group rate" : ""}` : line.kind === "coaching" ? `${line.learners} learner${line.learners === 1 ? "" : "s"}` : line.kind === "realestate" ? `${line.sqft.toLocaleString("en-IN")} sq ft${line.addOns.length ? ` · ${line.addOns.length} add-on${line.addOns.length === 1 ? "" : "s"}` : ""}` : `${line.items.length} item${line.items.length === 1 ? "" : "s"}`}
           </span>
         </button>
         <span className="tabular shrink-0 text-right text-sm font-bold">
@@ -739,6 +743,8 @@ function LineCard({
           )}
 
           {line.kind === "vritta" && <VrittaEditor line={line} rates={rates} editable={editable} onChange={onChange} />}
+
+          {line.kind === "realestate" && <RealEstateEditor line={line} rates={rates} editable={editable} onChange={onChange} />}
 
           {line.kind === "custom" && (
             <div className="space-y-3">
@@ -936,3 +942,60 @@ export function planFor(r: Record<string, unknown>, rates: RateCard | null, mone
 
 export { splitMilestones };
 export type { ServiceId };
+
+/** A Real Estate Digital Platform line: plan, project area and add-ons, priced from Rate Card → Real estate. */
+function RealEstateEditor({ line, rates, editable, onChange }: { line: Extract<QuoteLine, { kind: "realestate" }>; rates: RateCard; editable: boolean; onChange: (l: QuoteLine) => void }) {
+  const { plans, addOns } = realEstateWith(rates.realEstate);
+  const redo = (next: Partial<{ plan: PlanId; area: number; unit: AreaUnit; addOns: string[] }>) => {
+    const n = { plan: line.plan, area: line.area, unit: line.unit, addOns: line.addOns, ...next };
+    onChange({ ...realEstateLine(rates, n.plan, n.area, n.unit, n.addOns), key: line.key, note: line.note });
+  };
+  const offered = addOnsFor(line.plan, addOns);
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div>
+          <Label>Plan</Label>
+          <Select value={line.plan} disabled={!editable} onChange={(e) => redo({ plan: e.target.value as PlanId })}>
+            {plans.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} — ₹{p.rate.toFixed(2)}/sq ft
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <Label>Total project area</Label>
+          <Input type="number" min={0} step="any" value={line.area} disabled={!editable} onChange={(e) => redo({ area: Math.max(0, num(e.target.value)) })} className="tabular" />
+        </div>
+        <div>
+          <Label>Unit</Label>
+          <Select value={line.unit} disabled={!editable} onChange={(e) => redo({ unit: e.target.value as AreaUnit })}>
+            {AREA_UNITS.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-sm font-semibold text-graphite">Add-ons</p>
+        <div className="grid gap-1.5 sm:grid-cols-2">
+          {offered.map((a) => {
+            const on = line.addOns.includes(a.id);
+            return (
+              <label key={a.id} className={cn("flex cursor-pointer items-start gap-2.5 rounded-[var(--radius-sm)] border px-3 py-2 text-sm", on ? "border-graphite bg-lime/25" : "border-graphite/12 bg-paper-50 hover:border-graphite/40", !editable && "cursor-default")}>
+                <input type="checkbox" checked={on} disabled={!editable} onChange={(e) => redo({ addOns: e.target.checked ? [...line.addOns, a.id] : line.addOns.filter((x) => x !== a.id) })} className="mt-1 accent-[#0d0d0d]" />
+                <span className="min-w-0 flex-1 font-medium text-graphite">{a.label}</span>
+                <span className="tabular shrink-0 text-xs font-semibold text-charcoal">{a.perSqft ? formatINR(addOnPrice(a, line.sqft)) : `from ${formatINR(a.range?.from ?? 0)}`}</span>
+              </label>
+            );
+          })}
+        </div>
+        {line.plan === "enterprise" && <p className="mt-1.5 text-[11px] text-blueprint">ℹ Enterprise includes 3D modelling and CRM integration.</p>}
+      </div>
+      <p className="text-[11px] text-blueprint">{line.sqft.toLocaleString("en-IN")} sq ft. Prices from Money → Rate Card → Real estate; the fixed-range add-ons are quoted at their starting price, so change the amount in a Custom line if the work is bigger.</p>
+    </div>
+  );
+}
