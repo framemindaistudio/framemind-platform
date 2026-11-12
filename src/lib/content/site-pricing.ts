@@ -804,6 +804,17 @@ export const WEBSITE_SERVICES: ServiceDef[] = [
         ],
       },
       {
+        id: "banners", title: "Banners & Posters",
+        subtitle: "Festival, offer and event creatives for your feeds, stories and WhatsApp, sized for each platform.",
+        note: "Printing is billed separately; print files are made for the month's banners.",
+        type: "checkbox",
+        options: [
+          { id: "bn1", label: "Festival & offer banners (4/month)", price: 4000 },
+          { id: "bn2", label: "Festival & offer banners (8/month)", price: 7000 },
+          { id: "bn3", label: "Print-ready versions (flex, standee, A4 poster)", desc: "Print files of the month's banners, at the sizes your printer needs.", price: 2500 },
+        ],
+      },
+      {
         id: "community", title: "Community Management",
         subtitle: "Reply to comments, basic DMs and FAQs to keep your audience engaged and your brand responsive.",
         note: "Complex customer support, complaints, refunds and order-related queries are handled by the client.",

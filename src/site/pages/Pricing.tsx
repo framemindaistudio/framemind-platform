@@ -720,10 +720,6 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     </button>
                   );
                 })}
-                <Link to="/real-estate"
-                  className="inline-flex items-center gap-1.5 font-mono text-[10px] border border-[#222] text-[#555] hover:border-[#444] hover:text-[#888] px-3 py-1.5 rounded-sm uppercase tracking-widest transition-colors">
-                  <Building2 size={10} />Real Estate
-                </Link>
               </div>
             </div>
           </div>
@@ -773,9 +769,6 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     </button>
                   );
                 })}
-                <Link to="/real-estate" className="shrink-0 flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-medium whitespace-nowrap border border-border text-muted-foreground">
-                  <Building2 size={12} />Real Estate
-                </Link>
               </div>
               {/* Desktop: vertical list */}
               <div className="hidden lg:flex flex-col gap-1.5">
@@ -802,11 +795,6 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     </button>
                   );
                 })}
-                <Link to="/real-estate" className="flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-sm text-sm font-medium transition-all text-left border border-border text-muted-foreground hover:bg-secondary hover:text-foreground">
-                  <Building2 size={14} />
-                  <span className="flex-1">Real Estate</span>
-                  <span className="text-[8px] font-bold bg-[#0D0D0D] text-[#C8F135] px-1 py-0.5 rounded-sm uppercase tracking-wide">Per sq ft</span>
-                </Link>
               </div>
             </div>
 

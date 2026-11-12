@@ -47,6 +47,8 @@ export interface Industry {
   onQuote: string[];
   /** a related product with its own page */
   related?: { label: string; to: string; detail: string };
+  /** two products in one industry: who each one is for, shown as a choice under the hero */
+  chooser?: { self: { who: string; price: string }; other: { who: string; price: string } };
 }
 
 export const TIERS: { id: TierId; name: string; summary: string; includes: string[]; badge?: string }[] = [
@@ -96,6 +98,10 @@ export const INDUSTRIES: Industry[] = [
     market: "Real estate CRMs in India cost ₹399 – ₹2,200 per user a month; 10 users on a mid-tier CRM is about ₹7,000 – ₹22,000 a month.",
     onQuote: ["Property-portal lead sync", "Multiple offices with one owner dashboard"],
     related: { label: "Real Estate Digital Platform", to: "/real-estate", detail: "Building a layout, villa project or township? See the area-based platform with an interactive plot map." },
+    chooser: {
+      self: { who: "I'm a broker, agency or channel partner", price: "Monthly plan" },
+      other: { who: "I'm developing a layout, villa project or township", price: "Priced per sq ft of the project" },
+    },
   },
   {
     id: "clinic",

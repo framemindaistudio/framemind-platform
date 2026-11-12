@@ -130,6 +130,35 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
           </div>
         </section>
 
+        {/* one industry, two products: which one is this visitor's? */}
+        {ind.chooser && ind.related && (
+          <section className="border-b border-border bg-secondary/30">
+            <div className="max-w-6xl mx-auto px-6 py-10">
+              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Which one are you?</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="#price" className="rounded-sm border-2 border-[#0D0D0D] bg-background p-5">
+                  <p className="text-lg font-bold">{ind.chooser.self.who}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {ind.product} — leads, site visits, follow-ups and brokerage. {ind.chooser.self.price}.
+                  </p>
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold">
+                    This page: see your price <ArrowRight size={14} />
+                  </span>
+                </a>
+                <Link to={ind.related.to} className="rounded-sm border border-border bg-background p-5 hover:border-foreground/40">
+                  <p className="text-lg font-bold">{ind.chooser.other.who}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {ind.related.label} — project website, interactive plot map and 3D masterplan. {ind.chooser.other.price}.
+                  </p>
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold">
+                    {ind.related.label} <ArrowRight size={14} />
+                  </span>
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* features */}
         <section className="border-b border-border">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
@@ -151,7 +180,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                 </span>
               ))}
             </div>
-            {ind.related && (
+            {ind.related && !ind.chooser && (
               <div className="mt-6 rounded-sm border border-border bg-secondary/40 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <p className="text-sm text-muted-foreground">{ind.related.detail}</p>
                 <Link to={ind.related.to} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold">
