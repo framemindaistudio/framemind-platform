@@ -1,0 +1,7 @@
+:HL["/demos/real-estate/_next/static/chunks/13u_8b973ax0k.css","style"]
+:HL["/demos/real-estate/_next/static/media/82450a180bcad83c-s.p.0p-wng2nn8o-p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/demos/real-estate/_next/static/media/edb99fec956915f8-s.p.32sris142tqlb.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+3:[["children",{"s":"__PAGE__","h":160}]]
+2:[["children",{"s":"property","h":96,"c":"$Q3"}]]
+1:[["children",{"s":"agent","h":96,"c":"$Q2"}]]
+0:{"b":"YDpuGifD8ryhvAp_gUUIe","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

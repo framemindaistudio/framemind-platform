@@ -5,6 +5,7 @@
 import { COACHING, VRITTA, type ServiceId, type VrittaEdition, type VrittaSegment } from "@/lib/content/catalog";
 import type { BaseRecord, LineItem } from "@/lib/hq/collections";
 import { AREA_UNITS, priceRealEstate, toSqft, type AreaUnit, type PlanId } from "@/lib/content/real-estate";
+import { priceIndustry, type IndustryId, type TierId } from "@/lib/content/industries";
 import { defaultSelections, priceService, priceVritta, quoteMoney, socialMonthly, splitMilestones, type QuoteLine, type QuoteMoney, type Selections } from "@/lib/pricebook/math";
 import type { Milestone, RateCard } from "@/lib/pricebook/types";
 import { uid } from "@/lib/utils";
@@ -95,6 +96,25 @@ export function realEstateLine(rates: RateCard, plan: PlanId = "professional", a
   };
 }
 
+/** An industry app: setup and add-ons once, then the plan for every branch, per month or per year (Rate Card → Industries). By default a quote shows one year: 12 months, or 1 year. */
+export function industryLine(rates: RateCard, industry: IndustryId = "clinic", tier: TierId = "growth", plan: "monthly" | "annual" = "annual", branches = 1, addOns: string[] = [], periods?: number): QuoteLine {
+  const q = priceIndustry(rates.industries, industry, tier, plan, branches, addOns);
+  return {
+    kind: "industry",
+    key: uid("ln"),
+    title: `${q.industry.product} — ${q.tier.name} plan${q.branches > 1 ? `, ${q.branches} branches` : ""}`,
+    industry: q.industry.id,
+    tier: q.tier.id,
+    plan,
+    branches: q.branches,
+    addOns: q.addOns.map((a) => a.id),
+    items: q.oneTimeItems,
+    setup: q.oneTimeItems.reduce((s, i) => s + i.price, 0),
+    amount: q.recurring,
+    periods: Math.max(1, Math.round(periods ?? (plan === "annual" ? 1 : 12))),
+  };
+}
+
 export function customLine(): QuoteLine {
   return { kind: "custom", key: uid("ln"), title: "Custom work", items: [{ group: "Custom", label: "Describe the work", price: 0 }], amount: 0, billing: "project" };
 }
@@ -106,14 +126,18 @@ export function blankQuote(rates: RateCard | null, client?: BaseRecord, lead?: B
   const wanted = (Array.isArray(lead?.services) ? lead.services : Array.isArray(client?.services) ? client.services : []) as string[];
   const lines: QuoteLine[] = [];
   // an enquiry from the website's pricing page carries exactly what was chosen: start from that
-  const config = (lead?.config && typeof lead.config === "object" ? lead.config : {}) as Record<string, { selections?: Selections; months?: number; plan?: PlanId; sqft?: number; addOns?: string[] }>;
+  const config = (lead?.config && typeof lead.config === "object" ? lead.config : {}) as Record<string, { selections?: Selections; months?: number; plan?: PlanId; sqft?: number; addOns?: string[]; industry?: IndustryId; tier?: TierId; billing?: "monthly" | "annual"; branches?: number }>;
   if (rates) {
     for (const s of wanted) {
       const c = config[s];
       if (rates.services.some((x) => x.id === s)) lines.push(c?.selections && typeof c.selections === "object" ? serviceLine(rates, s as ServiceId, c.selections, Math.max(1, Number(c.months) || 1)) : serviceLine(rates, s as ServiceId));
       else if (s === "coaching") lines.push(coachingLine(rates));
       else if (s === "vritta") lines.push(vrittaLine(rates));
-      else if (s === "realestate") {
+      else if (s === "industry") {
+        // an industry page sends its industry, plan, billing, branches and add-ons
+        const c3 = config.industry;
+        lines.push(industryLine(rates, c3?.industry ?? "clinic", c3?.tier ?? "growth", c3?.billing === "monthly" ? "monthly" : "annual", Number(c3?.branches) || 1, Array.isArray(c3?.addOns) ? c3.addOns : []));
+      } else if (s === "realestate") {
         // the real estate page sends its plan, area (sq ft) and add-ons
         const c2 = config.realestate;
         lines.push(c2?.sqft ? realEstateLine(rates, c2.plan ?? "professional", Number(c2.sqft), "sqft", Array.isArray(c2.addOns) ? c2.addOns : []) : realEstateLine(rates));
@@ -144,7 +168,7 @@ export function blankQuote(rates: RateCard | null, client?: BaseRecord, lead?: B
 /** The services a quote covers, for the record's `services` field (lists, CRM, filters). */
 export function servicesOf(lines: QuoteLine[]): string[] {
   const out = new Set<string>();
-  for (const l of lines) out.add(l.kind === "service" ? l.serviceId : l.kind === "coaching" ? "coaching" : l.kind === "vritta" ? "vritta" : l.kind === "realestate" ? "realestate" : "other");
+  for (const l of lines) out.add(l.kind === "service" ? l.serviceId : l.kind === "coaching" ? "coaching" : l.kind === "vritta" ? "vritta" : l.kind === "realestate" ? "realestate" : l.kind === "industry" ? "industry" : "other");
   return [...out];
 }
 
@@ -164,7 +188,7 @@ export function bookingOf(r: BaseRecord): Booking | null {
 /** Milestones with their amounts (on the total before GST), for the project and its invoices. */
 export function milestonePlan(r: Record<string, unknown>, money: QuoteMoney, fallback: Milestone[]) {
   const ms = milestonesOf(r, fallback);
-  const oneTimeTaxable = Math.max(0, money.taxable - money.monthlyNet * money.months);
+  const oneTimeTaxable = Math.max(0, money.taxable - money.monthlyNet * money.months - money.planNet);
   const amounts = splitMilestones(oneTimeTaxable, ms.map((m) => m.percent));
   return ms.map((m, i) => ({ label: m.label, percent: m.percent, amount: amounts[i] ?? 0 }));
 }

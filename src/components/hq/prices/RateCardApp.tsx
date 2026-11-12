@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, Loader2, Plus, Save, Trash2, TriangleAlert, Undo2 } from "lucide-react";
 import type { Service, ServiceGroup, ServiceOption, VrittaEdition, VrittaSegment } from "@/lib/content/catalog";
 import { VRITTA } from "@/lib/content/catalog";
+import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, type IndustryRates } from "@/lib/content/industries";
 import { ADD_ONS as RE_ADD_ONS, PLANS as RE_PLANS, type RealEstateRates } from "@/lib/content/real-estate";
 import type { PriceBook, RateCard } from "@/lib/pricebook/types";
 import { can, LEADERSHIP } from "@/lib/hq/roles";
@@ -15,8 +16,8 @@ import { EmptyState, Loading, PageHeader, Panel } from "@/components/hq/ui";
 import { Button } from "@/components/ui/Button";
 import { Tabs } from "@/components/ui/Tabs";
 
-type TabId = "services" | "discounts" | "realestate" | "vritta" | "coaching" | "terms";
-const TAB_NAMES: Record<TabId, string> = { services: "Services", discounts: "Bundles & retainers", realestate: "Real estate", vritta: "Vritta", coaching: "AI Coaching", terms: "Terms & GST" };
+type TabId = "services" | "discounts" | "industries" | "realestate" | "vritta" | "coaching" | "terms";
+const TAB_NAMES: Record<TabId, string> = { services: "Services", discounts: "Bundles & retainers", industries: "Industry apps", realestate: "Real estate", vritta: "Vritta", coaching: "AI Coaching", terms: "Terms & GST" };
 const LEAVE_QUESTION = "You have changes that are not saved. Leave this page without saving them?";
 
 interface Loaded {
@@ -250,6 +251,8 @@ export function RateCardApp() {
               </Panel>
             </div>
           )}
+
+          {tab === "industries" && <IndustryPrices value={rates.industries} editable={editable} onChange={(industries) => setRates((r) => ({ ...r, industries }))} />}
 
           {tab === "realestate" && <RealEstatePrices value={rates.realEstate} editable={editable} onChange={(realEstate) => setRates((r) => ({ ...r, realEstate }))} />}
 
@@ -513,6 +516,83 @@ function Rate({ value, onChange, disabled, label }: { value: number; onChange: (
         }}
         className={cn(box, "tabular pl-6 text-right font-mono")}
       />
+    </div>
+  );
+}
+
+/** HQ → Rate Card → Industry apps: setup, monthly plans per industry, branches and add-ons (website /industries and quotes). */
+function IndustryPrices({ value, editable, onChange }: { value: IndustryRates; editable: boolean; onChange: (v: IndustryRates) => void }) {
+  const head = "pb-2 text-right font-medium";
+  const setPlan = (id: string, k: number, v: number) => onChange({ ...value, plans: value.plans.map((p) => (p.id === id ? { ...p, monthly: p.monthly.map((x, j) => (j === k ? v : x)) as [number, number, number] } : p)) });
+  return (
+    <div className="space-y-6">
+      <Panel title="Every industry app" subtitle="One-time setup (name, logo, colours, data import, training, go-live) and how plans grow. The website and new quotes use these at once.">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <label className="block">
+            <span className="annot mb-1.5 block text-blueprint">Setup fee</span>
+            <Money label="Setup fee" value={value.setup} disabled={!editable} onChange={(v) => onChange({ ...value, setup: v })} />
+          </label>
+          <label className="block">
+            <span className="annot mb-1.5 block text-blueprint">Months free on yearly billing</span>
+            <Money label="Months free" suffix="count" value={value.annualFreeMonths} disabled={!editable} onChange={(v) => onChange({ ...value, annualFreeMonths: v })} />
+          </label>
+          <label className="block">
+            <span className="annot mb-1.5 block text-blueprint">Each extra branch</span>
+            <Money label="Branch percent" suffix="%" value={value.branchPercent} disabled={!editable} onChange={(v) => onChange({ ...value, branchPercent: v })} />
+            <span className="mt-1 block text-[11px] text-blueprint">of the plan, per month</span>
+          </label>
+        </div>
+      </Panel>
+      <Panel title="Monthly plans" subtitle="Per branch / outlet / property, before GST.">
+        <div className="hq-scroll overflow-x-auto">
+          <table className="w-full min-w-[620px] text-sm">
+            <thead>
+              <tr className="annot text-left text-[10px] text-blueprint">
+                <th className="pb-2 font-medium">App</th>
+                {TIERS.map((t) => (
+                  <th key={t.id} className={head}>
+                    {t.name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {value.plans.map((p) => {
+                const ind = INDUSTRIES.find((x) => x.id === p.id);
+                return (
+                  <tr key={p.id} className="border-t border-graphite/8">
+                    <td className="py-2 pr-3">
+                      <span className="block font-medium">{ind?.product ?? p.id}</span>
+                      <span className="block text-[11px] text-blueprint">{ind?.unit}</span>
+                    </td>
+                    {p.monthly.map((m, k) => (
+                      <td key={k} className="py-1.5 pl-2">
+                        <Money label={`${ind?.product} ${TIERS[k].name}`} value={m} disabled={!editable} onChange={(v) => setPlan(p.id, k, v)} />
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+      <Panel title="Add-ons" subtitle="One-time prices, for any industry app.">
+        <div className="space-y-2">
+          {value.addOns.map((a) => {
+            const meta = INDUSTRY_ADD_ONS.find((x) => x.id === a.id);
+            return (
+              <div key={a.id} className="grid items-center gap-2 border-t border-graphite/8 pt-2 sm:grid-cols-[1fr_160px]">
+                <span>
+                  <span className="block text-sm font-medium">{meta?.label ?? a.id}</span>
+                  <span className="block text-[11px] text-blueprint">{meta?.detail}</span>
+                </span>
+                <Money label={meta?.label ?? a.id} value={a.price} disabled={!editable} onChange={(v) => onChange({ ...value, addOns: value.addOns.map((x) => (x.id === a.id ? { ...x, price: v } : x)) })} />
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
     </div>
   );
 }

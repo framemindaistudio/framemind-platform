@@ -10,8 +10,8 @@ export const OG_IMAGE = "/og-image.png?v=3";
  * The metadata of one public page, as the Figma site's SEO component wrote it: "<title> | FrameMind AI Studio" (the
  * name is not added twice when the title already carries it).
  */
-export function pageMetadata(path: string): Metadata {
-  const seo = PAGE_SEO[path];
+export function pageMetadata(path: string, own?: { title: string; description: string; keywords?: string; ogImageAlt?: string }): Metadata {
+  const seo = own ?? PAGE_SEO[path];
   const title = seo.title.includes(SITE_NAME) ? seo.title : `${seo.title} | ${SITE_NAME}`;
   const url = `${site.url}${path === "/" ? "" : path}`;
   const image = { url: OG_IMAGE, width: 1200, height: 630, alt: seo.ogImageAlt ?? title };

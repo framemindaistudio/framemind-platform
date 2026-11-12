@@ -26,7 +26,25 @@ const nextConfig: NextConfig = {
       { source: "/papers/:token", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }, { key: "Referrer-Policy", value: "no-referrer" }] },
       { source: "/verify/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }, { key: "Referrer-Policy", value: "strict-origin" }] },
       { source: "/site/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      // the industry app demos (public/demos/<name>): made-up data, so kept out of search results
+      { source: "/demos/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      { source: "/demos/:app/_next/static/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
+  },
+  /**
+   * The industry app demos are static exports in public/demos/<name>/, one folder per page with an index.html. A page
+   * address (/demos/clinic/book) has no file of its own, so it is served that folder's index.html. Files that exist
+   * (scripts, styles, pictures) are served first, before these rules are looked at.
+   */
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [
+        { source: "/demos/:app", destination: "/demos/:app/index.html" },
+        { source: "/demos/:app/:path*", destination: "/demos/:app/:path*/index.html" },
+      ],
+      fallback: [],
+    };
   },
 };
 

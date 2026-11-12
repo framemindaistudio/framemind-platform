@@ -1,0 +1,7 @@
+:HL["/demos/pg-hostel/_next/static/chunks/1rfi19n5o7j-c.css","style"]
+:HL["/demos/pg-hostel/_next/static/media/d8aeca813a9ab546-s.p.18rizl4rsrl42.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/demos/pg-hostel/_next/static/media/edb99fec956915f8-s.p.32sris142tqlb.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+3:[["children",{"s":"__PAGE__","h":160}]]
+2:[["children",{"s":"complaints","h":96,"c":"$Q3"}]]
+1:[["children",{"s":"manager","h":96,"c":"$Q2"}]]
+0:{"b":"4JQ9-oxIsSP37pUCnr7lJ","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

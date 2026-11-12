@@ -126,11 +126,34 @@ function Cover({ c }: { c: Ctx }) {
   );
 }
 
+/* ─────────────────────────── industry apps: one-time + monthly ─────────────────────────── */
+
+type IndustryLine = Extract<QuoteLine, { kind: "industry" }>;
+
+/** The plan row of an industry app line: per month for all branches, for the months quoted. */
+const planRow = (l: IndustryLine) => ({
+  group: "Monthly plan",
+  label: `Plan${l.branches > 1 ? ` for ${l.branches} branches` : ""} — ${formatINR(l.amount)} ${l.plan === "annual" ? "a year" : "a month"} × ${l.periods} ${l.plan === "annual" ? (l.periods === 1 ? "year" : "years") : l.periods === 1 ? "month" : "months"}`,
+  price: l.amount * l.periods,
+});
+
+/** An industry app's price: the one-time setup, then the plan per month. */
+function IndustryAmount({ line }: { line: IndustryLine }) {
+  return (
+    <>
+      {formatINR(line.setup)}
+      <span className="block text-[7pt] font-normal text-charcoal">
+        one-time, then {formatINR(line.amount)}/{line.plan === "annual" ? "year" : "month"}
+      </span>
+    </>
+  );
+}
+
 /* ─────────────────────────── 2 · scope pages ─────────────────────────── */
 
 /** How tall a line is on paper, in rows (used to split lines over pages). */
 function rowsOf(l: QuoteLine) {
-  const items = l.kind === "service" || l.kind === "custom" || l.kind === "realestate" ? l.items.length : l.kind === "vritta" ? 1 + l.oneTime.length : 1;
+  const items = l.kind === "service" || l.kind === "custom" || l.kind === "realestate" ? l.items.length : l.kind === "industry" ? l.items.length + 1 : l.kind === "vritta" ? 1 + l.oneTime.length : 1;
   const included = l.kind === "service" ? Math.ceil((SERVICES.find((s) => s.id === l.serviceId)?.included.length ?? 0) / 2) : 0;
   return 4 + items + included + (l.note ? 1 : 0);
 }
@@ -158,9 +181,13 @@ function LineBlock({ line, n }: { line: QuoteLine; n: number }) {
   const rows: { group: string; label: string; price: number }[] =
     line.kind === "service" || line.kind === "custom" || line.kind === "realestate"
       ? line.items
-      : line.kind === "vritta"
+      : line.kind === "industry"
+        ? [...line.items, planRow(line)]
+        : line.kind === "vritta"
         ? [{ group: "Licence", label: `${VRITTA.editions.find((e) => e.id === line.edition)?.name} edition — ${line.billing} licence (${line.segment})${line.group ? `, group rate` : ""}`, price: line.licence }, ...line.oneTime]
-        : [{ group: "Programme", label: `${COACHING.days}-day 1:1 programme, ${line.mode} × ${line.learners} learner${line.learners === 1 ? "" : "s"}`, price: line.amount }];
+        : line.kind === "coaching"
+          ? [{ group: "Programme", label: `${COACHING.days}-day 1:1 programme, ${line.mode} × ${line.learners} learner${line.learners === 1 ? "" : "s"}`, price: line.amount }]
+          : [];
   const monthly = (line.kind === "service" || line.kind === "custom") && line.billing === "month";
   return (
     <article className="break-inside-avoid border-t border-graphite/80 pt-[4mm]">
@@ -170,7 +197,7 @@ function LineBlock({ line, n }: { line: QuoteLine; n: number }) {
           {line.title}
         </h3>
         <p className="tabular text-[12pt] font-semibold text-graphite">
-          {formatINR(line.amount)}
+          {line.kind === "industry" ? <IndustryAmount line={line} /> : formatINR(line.amount)}
           {monthly && <span className="text-[8pt] font-normal text-charcoal"> /month{line.kind === "service" && (line.months ?? 1) > 1 ? ` × ${line.months}` : ""}</span>}
         </p>
       </div>
@@ -250,8 +277,14 @@ function InvestmentPage({ c, page }: { c: Ctx; page: string }) {
                   {l.title}
                 </td>
                 <td className="tabular py-[2mm] text-right">
-                  {formatINR(l.amount)}
-                  {"billing" in l && l.billing === "month" ? <span className="text-[7.5pt] text-charcoal"> /mo</span> : null}
+                  {l.kind === "industry" ? (
+                    <IndustryAmount line={l} />
+                  ) : (
+                    <>
+                      {formatINR(l.amount)}
+                      {"billing" in l && l.billing === "month" ? <span className="text-[7.5pt] text-charcoal"> /mo</span> : null}
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
@@ -422,9 +455,13 @@ function lineDetail(l: QuoteLine) {
   const rows =
     l.kind === "service" || l.kind === "custom" || l.kind === "realestate"
       ? l.items
+      : l.kind === "industry"
+        ? [...l.items, planRow(l)]
       : l.kind === "vritta"
         ? [{ group: "", label: `${VRITTA.editions.find((e) => e.id === l.edition)?.name} edition, ${l.billing} licence (${l.segment})${l.group ? ", group rate" : ""}`, price: l.licence }, ...l.oneTime]
-        : [{ group: "", label: `${COACHING.days}-day 1:1 programme, ${l.mode} × ${l.learners} learner${l.learners === 1 ? "" : "s"}`, price: 0 }];
+        : l.kind === "coaching"
+          ? [{ group: "", label: `${COACHING.days}-day 1:1 programme, ${l.mode} × ${l.learners} learner${l.learners === 1 ? "" : "s"}`, price: 0 }]
+          : [];
   return rows.map((r) => (r.price ? `${r.label} ${formatINR(r.price)}` : r.label)).join("  ·  ");
 }
 
@@ -523,7 +560,7 @@ function SimpleQuote({ c }: { c: Ctx }) {
                   {l.note && <p className="mt-0.5 text-[7.5pt] italic text-charcoal">Note: {l.note}</p>}
                 </td>
                 <td className="tabular py-[2mm] text-right align-top font-semibold">
-                  {formatINR(l.amount)}
+                  {l.kind === "industry" ? <IndustryAmount line={l} /> : formatINR(l.amount)}
                   {monthly && <span className="block text-[7pt] font-normal text-charcoal">per month{l.kind === "service" && (l.months ?? 1) > 1 ? ` × ${l.months}` : ""}</span>}
                 </td>
               </tr>
@@ -554,7 +591,7 @@ function SimpleQuote({ c }: { c: Ctx }) {
                 </span>
               )}
             </dt>
-            <dd className="tabular">{formatINR(m.oneTime + m.monthly * m.months)}</dd>
+            <dd className="tabular">{formatINR(m.oneTime + m.monthly * m.months + m.planTotal)}</dd>
           </div>
           {m.bundleAmount > 0 && (
             <div className="flex justify-between py-[0.8mm] text-charcoal">

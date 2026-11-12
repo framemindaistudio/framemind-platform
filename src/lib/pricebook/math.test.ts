@@ -44,3 +44,18 @@ test("the bundle discount applies to one-time work only, never on top of a contr
   assert.equal(m.taxable, 100000 + 27000 * 6 - 5000);
   assert.equal(m.monthlyNet, 27000, "the retainer keeps only its contract discount");
 });
+
+test("an industry app: setup once, the yearly plan exactly, and other retainers keep their own months", async () => {
+  const { priceIndustry } = await import("../content/industries.ts");
+  // Real Estate Broker App, Pro (₹5,999), 2 branches (+50%), yearly (2 months free), WhatsApp add-on
+  const q = priceIndustry(null, "realestate", "pro", "annual", 2, ["whatsapp"]);
+  assert.equal(q.monthly, 8999, "5,999 + 50% for the second branch, rounded");
+  assert.equal(q.recurring, 89990, "a year = 10 months");
+  assert.equal(q.firstPayment, 14999 + 4999 + 89990);
+  const app: QuoteLine = { kind: "industry", key: "a", title: "App", industry: "realestate", tier: "pro", plan: "annual", branches: 2, addOns: ["whatsapp"], items: q.oneTimeItems, setup: 19998, amount: q.recurring, periods: 1 };
+  const social: QuoteLine = { kind: "custom", key: "s", title: "Social", items: [], amount: 30000, billing: "month" };
+  const m = quoteMoney([app, social], { applyBundle: false, bundleSteps: [], extraPercent: 0, gstPercent: 0 });
+  assert.equal(m.planTotal, 89990, "the yearly plan counts exactly, with no rounding through months");
+  assert.equal(m.months, 1, "the app plan does not stretch the social retainer to 12 months");
+  assert.equal(m.taxable, 19998 + 89990 + 30000);
+});

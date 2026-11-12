@@ -4,6 +4,7 @@ import { Link } from "@/site/router";
 
 const navLinks = [
   { to: "/", label: "Home" },
+  { to: "/industries", label: "Industry Apps" },
   { to: "/pricing", label: "Services" },
   { to: "/real-estate", label: "Real Estate Platform" },
   { to: "/vritta", label: "Vritta" },

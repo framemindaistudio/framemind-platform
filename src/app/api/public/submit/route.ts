@@ -1,3 +1,4 @@
+import { INDUSTRIES } from "@/lib/content/industries";
 import { NextResponse } from "next/server";
 import { upsertRecord } from "@/lib/hq/records";
 import { apiError, clientIp, rateLimit } from "@/lib/hq/api";
@@ -14,7 +15,8 @@ import { StoreReadOnlyError } from "@/lib/store";
  * (NEXT_PUBLIC_WEBSITE_URL) and this portal may post.
  */
 const KINDS = ["project", "coaching", "vritta", "contact", "careers", "partner"];
-const SERVICES = ["websites", "brand", "software", "automations", "photography", "videography", "social", "coaching", "vritta", "realestate", "other"];
+const INDUSTRY_IDS = INDUSTRIES.map((i) => i.id) as string[];
+const SERVICES = ["websites", "brand", "software", "automations", "photography", "videography", "social", "coaching", "vritta", "realestate", "industry", "other"];
 const TRACKS = ["10-20", "21-35", "36-60"];
 
 function cors(req: Request): Record<string, string> {
@@ -60,11 +62,21 @@ export async function POST(req: Request) {
   const services = Array.isArray(body.services) ? (body.services as unknown[]).map(String).filter((s) => SERVICES.includes(s)) : [];
 
   // the pricing page sends what was chosen, so HQ can open a quote with the same selections
-  const config: Record<string, { selections: Record<string, string[]>; months?: number } | { plan: string; sqft: number; addOns: string[] }> = {};
+  const config: Record<string, { selections: Record<string, string[]>; months?: number } | { plan: string; sqft: number; addOns: string[] } | { industry: string; tier: string; billing: string; branches: number; addOns: string[] }> = {};
   if (body.config && typeof body.config === "object" && !Array.isArray(body.config)) {
     for (const [sid, raw] of Object.entries(body.config as Record<string, unknown>).slice(0, 8)) {
       if (!SERVICES.includes(sid) || !raw || typeof raw !== "object") continue;
       // the real estate page sends its plan, area (sq ft) and add-ons
+      // an industry page sends its industry, plan, billing, branches and add-ons
+      if (sid === "industry") {
+        const r = raw as { industry?: unknown; tier?: unknown; billing?: unknown; branches?: unknown; addOns?: unknown };
+        const industry = INDUSTRY_IDS.includes(String(r.industry)) ? String(r.industry) : "";
+        const tier = ["starter", "growth", "pro"].includes(String(r.tier)) ? String(r.tier) : "growth";
+        const branches = Math.min(50, Math.max(1, Math.round(Number(r.branches)) || 1));
+        const addOns = Array.isArray(r.addOns) ? r.addOns.map(String).filter((x) => /^[\w-]{1,48}$/.test(x)).slice(0, 12) : [];
+        if (industry) config.industry = { industry, tier, billing: r.billing === "monthly" ? "monthly" : "annual", branches, addOns };
+        continue;
+      }
       if (sid === "realestate") {
         const r = raw as { plan?: unknown; sqft?: unknown; addOns?: unknown };
         const plan = ["essential", "professional", "enterprise"].includes(String(r.plan)) ? String(r.plan) : "professional";

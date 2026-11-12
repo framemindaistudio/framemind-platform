@@ -1,0 +1,8 @@
+:HL["/demos/salon/_next/static/chunks/1zoldqcj5yh32.css","style"]
+:HL["/demos/salon/_next/static/media/9d036f80216c14ee-s.p.3u4lli0-axodc.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/demos/salon/_next/static/media/c0680f1bdb3a2e90-s.p.1gsd1jahc5dg_.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/demos/salon/_next/static/media/f462257512209772-s.p.39pl-v7c3qrze.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+3:[["children",{"s":"__PAGE__","h":160}]]
+2:[["children",{"s":"earnings","h":96,"c":"$Q3"}]]
+1:[["children",{"s":"staff","h":96,"c":"$Q2"}]]
+0:{"b":"Yy1IQ3X_Y4r32KES1e6lR","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

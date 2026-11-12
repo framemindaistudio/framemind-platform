@@ -4,6 +4,7 @@
  */
 import { BUNDLE, COACHING, SERVICES, TERMS, VRITTA } from "@/lib/content/catalog";
 import { DEFAULT_RE_RATES } from "@/lib/content/real-estate";
+import { DEFAULT_INDUSTRY_RATES } from "@/lib/content/industries";
 import type { RateCard } from "@/lib/pricebook/types";
 import { formatINR } from "@/lib/utils";
 import type { DeckTheme, IconName } from "./types";
@@ -31,6 +32,7 @@ export function card(rates?: RateCard | null): RateCard {
     vritta: { rates: VRITTA.rates, oneTime: VRITTA.oneTime, groupLicencePercent: VRITTA.groupLicencePercent, amcPercent: VRITTA.amcPercent },
     coaching: { online: COACHING.fees.online, offline: COACHING.fees.offline, sessions: 0 },
     realEstate: DEFAULT_RE_RATES,
+    industries: DEFAULT_INDUSTRY_RATES,
     terms: { validityDays: TERMS.validityDays, revisionRounds: TERMS.revisionRounds, milestones: TERMS.defaultMilestones },
   };
 }

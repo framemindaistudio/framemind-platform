@@ -15,6 +15,7 @@
  */
 import type { Service, VrittaEdition, VrittaSegment } from "@/lib/content/catalog";
 import type { RealEstateRates } from "@/lib/content/real-estate";
+import type { IndustryRates } from "@/lib/content/industries";
 
 export interface SocialContract {
   months: number;
@@ -70,6 +71,8 @@ export interface RateCard {
   coaching: CoachingFees;
   /** the Real Estate Digital Platform: per-sq-ft plans and add-ons (website /real-estate and quotes) */
   realEstate: RealEstateRates;
+  /** industry apps: setup, monthly plans per industry, branches and add-ons (website /industries and quotes) */
+  industries: IndustryRates;
   terms: QuoteTerms;
 }
 

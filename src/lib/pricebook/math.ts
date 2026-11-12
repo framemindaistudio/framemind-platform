@@ -4,6 +4,7 @@
  */
 import type { Service, ServiceId, VrittaEdition, VrittaSegment } from "@/lib/content/catalog";
 import type { AreaUnit, PlanId } from "@/lib/content/real-estate";
+import type { IndustryId, TierId } from "@/lib/content/industries";
 import type { BundleStep, RateCard, SocialContract } from "./types";
 
 /* ───────────────────────────── one service, configured ───────────────────────────── */
@@ -73,6 +74,7 @@ export type QuoteLine =
   | { kind: "coaching"; key: string; title: string; mode: "online" | "offline"; learners: number; amount: number; note?: string }
   | { kind: "vritta"; key: string; title: string; segment: VrittaSegment; edition: VrittaEdition; billing: "monthly" | "annual" | "perpetual"; licence: number; oneTime: PricedItem[]; group: boolean; amount: number; note?: string }
   | { kind: "realestate"; key: string; title: string; plan: PlanId; area: number; unit: AreaUnit; sqft: number; addOns: string[]; items: PricedItem[]; amount: number; billing: "project"; note?: string }
+  | { kind: "industry"; key: string; title: string; industry: IndustryId; tier: TierId; plan: "monthly" | "annual"; branches: number; addOns: string[]; items: PricedItem[]; setup: number; /** the plan per billing period: a month, or a year when plan is "annual" */ amount: number; /** billing periods on the quote: months, or years */ periods: number; note?: string }
   | { kind: "custom"; key: string; title: string; items: PricedItem[]; amount: number; billing: "project" | "month"; note?: string };
 
 export interface QuoteMoney {
@@ -82,6 +84,10 @@ export interface QuoteMoney {
   monthly: number;
   /** months the retainers run for (the longest contract on the quote) */
   months: number;
+  /** industry app plans for the periods quoted (their setup is in oneTime) */
+  planTotal: number;
+  /** the same after the extra discount */
+  planNet: number;
   /** distinct studio services on the quote (coaching, Vritta and custom lines do not count) */
   serviceCount: number;
   bundlePercent: number;
@@ -102,9 +108,16 @@ export function quoteMoney(lines: QuoteLine[], o: { applyBundle: boolean; bundle
   let oneTime = 0;
   let monthly = 0;
   let months = 0;
+  let planTotal = 0;
   const services = new Set<string>();
   for (const l of lines) {
     if (l.kind === "service") services.add(l.serviceId);
+    // an industry app: its setup and add-ons are one-time; its plan counts for exactly the periods quoted
+    if (l.kind === "industry") {
+      oneTime += l.setup;
+      planTotal += l.amount * Math.max(1, l.periods);
+      continue;
+    }
     const isMonthly = (l.kind === "service" || l.kind === "custom") && l.billing === "month";
     if (isMonthly) {
       const m = l.kind === "service" ? Math.max(1, l.months ?? 1) : 1;
@@ -113,7 +126,7 @@ export function quoteMoney(lines: QuoteLine[], o: { applyBundle: boolean; bundle
     } else oneTime += l.amount;
   }
   if (monthly > 0 && months === 0) months = 1;
-  const gross = oneTime + monthly * months;
+  const gross = oneTime + monthly * months + planTotal;
   const bPct = o.applyBundle ? bundlePercent(services.size, o.bundleSteps) : 0;
   // the bundle discount is on one-time work only: monthly retainers already carry their contract-length discount
   const bundleAmount = Math.round((oneTime * bPct) / 100);
@@ -126,6 +139,8 @@ export function quoteMoney(lines: QuoteLine[], o: { applyBundle: boolean; bundle
     oneTime,
     monthly,
     months,
+    planTotal,
+    planNet: Math.round(planTotal * keep),
     serviceCount: services.size,
     bundlePercent: bPct,
     bundleAmount,

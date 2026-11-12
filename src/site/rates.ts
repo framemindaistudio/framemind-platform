@@ -15,12 +15,12 @@ export const RATECARD_TAG = "ratecard";
  * pages then show the published price list.
  */
 export const publicRateCard = unstable_cache(
-  async (): Promise<Pick<RateCard, "services" | "socialContracts" | "bundleSteps" | "vritta" | "realEstate"> | null> => {
+  async (): Promise<Pick<RateCard, "services" | "socialContracts" | "bundleSteps" | "vritta" | "realEstate" | "industries"> | null> => {
     try {
       const { book, exists } = await readPriceBook();
       if (!exists) return null;
-      const { services, socialContracts, bundleSteps, vritta, realEstate } = book.rates;
-      return { services, socialContracts, bundleSteps, vritta, realEstate };
+      const { services, socialContracts, bundleSteps, vritta, realEstate, industries } = book.rates;
+      return { services, socialContracts, bundleSteps, vritta, realEstate, industries };
     } catch (e) {
       console.error("[website prices] could not read the rate card, showing the published prices:", e instanceof Error ? e.message : e);
       return null;

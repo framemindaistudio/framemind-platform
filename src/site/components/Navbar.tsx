@@ -6,12 +6,12 @@ import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { to: "/", label: "Home" },
+  { to: "/industries", label: "Industries" },
   { to: "/pricing", label: "Services" },
   { to: "/vritta", label: "Vritta" },
   { to: "/jove", label: "JOVE" },
   { to: "/360vue", label: "360VUE" },
   { to: "/personal-coaching", label: "1:1 Coaching" },
-  { to: "/testimonials", label: "Testimonials" },
   { to: "/team", label: "Team" },
   { to: "/connect", label: "Let's Talk" },
 ];

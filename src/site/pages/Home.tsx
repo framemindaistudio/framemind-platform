@@ -1,6 +1,8 @@
 "use client";
 
 import { Link } from "@/site/router";
+import { INDUSTRIES } from "@/lib/content/industries";
+import { INDUSTRY_ICONS } from "@/site/pages/Industries";
 import {
   ArrowRight, Globe, Palette, Code2, Zap, Brain,
   Sparkles, ShieldCheck,
@@ -254,7 +256,7 @@ export default function Home() {
             <div className="w-full max-w-[280px] sm:max-w-sm mx-auto sm:mx-0 text-center sm:text-left">
               <div className="inline-flex items-center gap-2 border border-[#2a2a2a] rounded-full px-3 py-1.5 mb-5 w-fit mx-auto sm:mx-0">
                 <Sparkles size={10} className="text-[#C8F135]" />
-                <span className="font-mono text-[10px] text-[#888] uppercase tracking-widest">Design & Software Studio</span>
+                <span className="font-mono text-[10px] text-[#888] uppercase tracking-widest">Industry Apps · Design · Software</span>
               </div>
               <h1 className="text-[2rem] leading-[1.1] sm:text-4xl md:text-5xl lg:text-[64px] font-semibold text-[#F5F4F0] tracking-tight lg:leading-[1.0]">
                 We build what<br />
@@ -283,11 +285,11 @@ export default function Home() {
 
               {/* Buttons */}
               <div className="flex gap-2 w-full sm:w-auto">
-                <Link to="/connect" className="flex-1 sm:flex-none bg-[#C8F135] text-[#0D0D0D] px-5 py-3 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2">
-                  Start a Project <ArrowRight size={13} />
+                <Link to="/industries" className="flex-1 sm:flex-none bg-[#C8F135] text-[#0D0D0D] px-5 py-3 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2">
+                  Find your industry&apos;s app <ArrowRight size={13} />
                 </Link>
-                <Link to="/testimonials" className="flex-1 sm:flex-none border border-[#2a2a2a] text-[#888] px-5 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#aaa] transition-colors text-center flex items-center justify-center">
-                  See Our Work
+                <Link to="/connect" className="flex-1 sm:flex-none border border-[#2a2a2a] text-[#888] px-5 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#aaa] transition-colors text-center flex items-center justify-center">
+                  Start a Project
                 </Link>
               </div>
 
@@ -308,6 +310,9 @@ export default function Home() {
 
       {/* ── Marquee ── */}
       <Marquee items={marqueeItems} />
+
+      {/* ── Industry apps ── */}
+      <IndustriesStrip />
 
       {/* ── What We Do ── */}
       <ServicesSection />
@@ -391,5 +396,37 @@ export default function Home() {
       <Marquee items={marqueeItems} />
 
     </div>
+  );
+}
+
+/** Ready-made industry apps, highest-value industry first: the studio's product line. */
+function IndustriesStrip() {
+  return (
+    <section className="border-b border-border">
+      <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-3">Industry apps</p>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight leading-snug">Your industry&apos;s app, already built.</h2>
+            <p className="mt-2 text-sm text-muted-foreground max-w-xl">Ready-made apps with your name and logo, live in 3–4 weeks — a one-time setup and a simple monthly plan.</p>
+          </div>
+          <Link to="/industries" className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest shrink-0 mb-1">
+            All industries <ArrowRight size={12} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {INDUSTRIES.map((ind, i) => {
+            const Icon = INDUSTRY_ICONS[ind.icon] ?? Sparkles;
+            return (
+              <Link key={ind.id} to={`/industries/${ind.slug}`} className={`group rounded-sm border p-4 transition-colors ${i === 0 ? "border-[#0D0D0D] bg-[#0D0D0D] text-[#F5F4F0]" : "border-border hover:border-foreground/40"}`}>
+                <Icon size={18} className={i === 0 ? "text-[#C8F135]" : "text-muted-foreground"} />
+                <p className="mt-3 text-sm font-semibold">{ind.name}</p>
+                <p className={`mt-0.5 text-[11px] leading-snug ${i === 0 ? "text-[#888]" : "text-muted-foreground"}`}>{ind.tagline}</p>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }

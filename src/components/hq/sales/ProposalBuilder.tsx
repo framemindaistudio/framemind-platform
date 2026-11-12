@@ -22,7 +22,8 @@ import { cn, formatDate, formatINR } from "@/lib/utils";
 import { BackLink, Notice } from "./bits";
 import { addDays, str, todayIso } from "./crm";
 import { addOnPrice, addOnsFor, AREA_UNITS, realEstateWith, type AreaUnit, type PlanId } from "@/lib/content/real-estate";
-import { blankQuote, bookingOf, coachingLine, customLine, extraItemsOf, linesOf, milestonePlan, milestonesOf, moneyOf, projectFromQuote, realEstateLine, repriceService, serviceLine, servicesOf, vrittaLine, type Booking } from "./quote";
+import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, tierPrice, type IndustryId, type TierId } from "@/lib/content/industries";
+import { blankQuote, bookingOf, coachingLine, customLine, extraItemsOf, linesOf, milestonePlan, milestonesOf, moneyOf, projectFromQuote, industryLine, realEstateLine, repriceService, serviceLine, servicesOf, vrittaLine, type Booking } from "./quote";
 
 const proposalsDef = getCollection("proposals")!;
 const STATUS_OPTIONS = proposalsDef.fields.find((f) => f.key === "status")?.options ?? [];
@@ -394,6 +395,9 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
               <button type="button" onClick={() => add(vrittaLine(rates))} className="inline-flex items-center gap-2 rounded-full border border-graphite/20 bg-paper-50 px-3 py-1.5 text-xs font-semibold text-graphite hover:border-graphite hover:bg-lime">
                 <HqIcon name="Newspaper" className="size-3.5" /> Vritta
               </button>
+              <button type="button" onClick={() => add(industryLine(rates))} className="inline-flex items-center gap-2 rounded-full border border-graphite/20 bg-paper-50 px-3 py-1.5 text-xs font-semibold text-graphite hover:border-graphite hover:bg-lime">
+                <HqIcon name="AppWindow" className="size-3.5" /> Industry app
+              </button>
               <button type="button" onClick={() => add(realEstateLine(rates))} className="inline-flex items-center gap-2 rounded-full border border-graphite/20 bg-paper-50 px-3 py-1.5 text-xs font-semibold text-graphite hover:border-graphite hover:bg-lime">
                 <HqIcon name="Building2" className="size-3.5" /> Real estate
               </button>
@@ -617,7 +621,7 @@ function LineCard({
   editable: boolean;
 }) {
   const service = line.kind === "service" ? rates.services.find((s) => s.id === line.serviceId) : undefined;
-  const icon = line.kind === "service" ? (service?.icon ?? "Circle") : line.kind === "coaching" ? "GraduationCap" : line.kind === "vritta" ? "Newspaper" : line.kind === "realestate" ? "Building2" : "Plus";
+  const icon = line.kind === "service" ? (service?.icon ?? "Circle") : line.kind === "coaching" ? "GraduationCap" : line.kind === "vritta" ? "Newspaper" : line.kind === "realestate" ? "Building2" : line.kind === "industry" ? "AppWindow" : "Plus";
   // a service line whose stored prices no longer match today's rate card
   const stale = line.kind === "service" && service && priceService(service, line.selections).subtotal !== line.items.reduce((s, i) => s + i.price, 0);
 
@@ -630,11 +634,12 @@ function LineCard({
         <button type="button" onClick={onToggle} className="min-w-0 flex-1 text-left">
           <span className="block truncate text-sm font-semibold text-graphite">{line.title}</span>
           <span className="block truncate text-xs text-blueprint">
-            {line.kind === "service" ? `${line.items.filter((i) => i.price > 0).length} paid option${line.items.filter((i) => i.price > 0).length === 1 ? "" : "s"}${line.billing === "month" ? ` · ${line.months ?? 1}-month contract` : ""}` : line.kind === "vritta" ? `${line.segment} · ${line.billing}${line.group ? " · group rate" : ""}` : line.kind === "coaching" ? `${line.learners} learner${line.learners === 1 ? "" : "s"}` : line.kind === "realestate" ? `${line.sqft.toLocaleString("en-IN")} sq ft${line.addOns.length ? ` · ${line.addOns.length} add-on${line.addOns.length === 1 ? "" : "s"}` : ""}` : `${line.items.length} item${line.items.length === 1 ? "" : "s"}`}
+            {line.kind === "service" ? `${line.items.filter((i) => i.price > 0).length} paid option${line.items.filter((i) => i.price > 0).length === 1 ? "" : "s"}${line.billing === "month" ? ` · ${line.months ?? 1}-month contract` : ""}` : line.kind === "vritta" ? `${line.segment} · ${line.billing}${line.group ? " · group rate" : ""}` : line.kind === "coaching" ? `${line.learners} learner${line.learners === 1 ? "" : "s"}` : line.kind === "industry" ? `${formatINR(line.setup)} one-time · then ${formatINR(line.amount)} ${line.plan === "annual" ? "a year" : "a month"} × ${line.periods}` : line.kind === "realestate" ? `${line.sqft.toLocaleString("en-IN")} sq ft${line.addOns.length ? ` · ${line.addOns.length} add-on${line.addOns.length === 1 ? "" : "s"}` : ""}` : `${line.items.length} item${line.items.length === 1 ? "" : "s"}`}
           </span>
         </button>
         <span className="tabular shrink-0 text-right text-sm font-bold">
-          {formatINR(line.amount)}
+          {/* an industry app shows its whole line: setup and add-ons, plus the plan for the periods quoted */}
+          {formatINR(line.kind === "industry" ? line.setup + line.amount * line.periods : line.amount)}
           {"billing" in line && line.billing === "month" && <span className="block text-[10px] font-normal text-blueprint">per month</span>}
         </span>
         <button type="button" onClick={onToggle} className="rounded p-1.5 text-blueprint hover:bg-graphite/5" aria-label={open ? "Collapse" : "Expand"}>
@@ -743,6 +748,8 @@ function LineCard({
           )}
 
           {line.kind === "vritta" && <VrittaEditor line={line} rates={rates} editable={editable} onChange={onChange} />}
+
+          {line.kind === "industry" && <IndustryEditor line={line} rates={rates} editable={editable} onChange={onChange} />}
 
           {line.kind === "realestate" && <RealEstateEditor line={line} rates={rates} editable={editable} onChange={onChange} />}
 
@@ -996,6 +1003,78 @@ function RealEstateEditor({ line, rates, editable, onChange }: { line: Extract<Q
         {line.plan === "enterprise" && <p className="mt-1.5 text-[11px] text-blueprint">ℹ Enterprise includes 3D modelling and CRM integration.</p>}
       </div>
       <p className="text-[11px] text-blueprint">{line.sqft.toLocaleString("en-IN")} sq ft. Prices from Money → Rate Card → Real estate; the fixed-range add-ons are quoted at their starting price, so change the amount in a Custom line if the work is bigger.</p>
+    </div>
+  );
+}
+
+/** An industry app line: which app, plan, billing, branches, months quoted and add-ons, priced from Rate Card → Industries. */
+function IndustryEditor({ line, rates, editable, onChange }: { line: Extract<QuoteLine, { kind: "industry" }>; rates: RateCard; editable: boolean; onChange: (l: QuoteLine) => void }) {
+  const redo = (next: Partial<{ industry: IndustryId; tier: TierId; plan: "monthly" | "annual"; branches: number; addOns: string[]; periods: number }>) => {
+    const n = { industry: line.industry, tier: line.tier, plan: line.plan, branches: line.branches, addOns: line.addOns, periods: line.periods, ...next };
+    // switching between monthly and yearly billing shows one year again: 12 months, or 1 year
+    const periods = next.plan && next.plan !== line.plan ? (next.plan === "annual" ? 1 : 12) : n.periods;
+    onChange({ ...industryLine(rates, n.industry, n.tier, n.plan, n.branches, n.addOns, periods), key: line.key, note: line.note });
+  };
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="sm:col-span-2">
+          <Label>App</Label>
+          <Select value={line.industry} disabled={!editable} onChange={(e) => redo({ industry: e.target.value as IndustryId })}>
+            {INDUSTRIES.map((i) => (
+              <option key={i.id} value={i.id}>
+                {i.product} ({i.unit})
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <Label>Plan</Label>
+          <Select value={line.tier} disabled={!editable} onChange={(e) => redo({ tier: e.target.value as TierId })}>
+            {TIERS.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name} — {formatINR(tierPrice(rates.industries, line.industry, t.id))}/month
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <Label>Billing</Label>
+          <Select value={line.plan} disabled={!editable} onChange={(e) => redo({ plan: e.target.value === "monthly" ? "monthly" : "annual" })}>
+            <option value="annual">Yearly — {rates.industries.annualFreeMonths} months free</option>
+            <option value="monthly">Monthly</option>
+          </Select>
+        </div>
+        <div>
+          <Label>Branches</Label>
+          <Input type="number" min={1} max={50} value={line.branches} disabled={!editable} onChange={(e) => redo({ branches: Math.max(1, num(e.target.value)) })} className="tabular" />
+        </div>
+        <div>
+          <Label>{line.plan === "annual" ? "Years on this quote" : "Months on this quote"}</Label>
+          <Input type="number" min={1} max={line.plan === "annual" ? 5 : 60} value={line.periods} disabled={!editable} onChange={(e) => redo({ periods: Math.max(1, num(e.target.value)) })} className="tabular" />
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-sm font-semibold text-graphite">Add-ons (one-time)</p>
+        <div className="grid gap-1.5 sm:grid-cols-2">
+          {INDUSTRY_ADD_ONS.map((a) => {
+            const on = line.addOns.includes(a.id);
+            return (
+              <label key={a.id} className={cn("flex cursor-pointer items-start gap-2.5 rounded-[var(--radius-sm)] border px-3 py-2 text-sm", on ? "border-graphite bg-lime/25" : "border-graphite/12 bg-paper-50 hover:border-graphite/40", !editable && "cursor-default")}>
+                <input type="checkbox" checked={on} disabled={!editable} onChange={(e) => redo({ addOns: e.target.checked ? [...line.addOns, a.id] : line.addOns.filter((x) => x !== a.id) })} className="mt-1 accent-[#0d0d0d]" />
+                <span className="min-w-0 flex-1">
+                  <span className="block font-medium text-graphite">{a.label}</span>
+                  <span className="block text-[11px] leading-snug text-blueprint">{a.detail}</span>
+                </span>
+                <span className="tabular shrink-0 text-xs font-semibold text-charcoal">{formatINR(addOnPriceOf(rates.industries, a.id))}</span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+      <p className="text-[11px] text-blueprint">
+        Setup {formatINR(rates.industries.setup)} once; each extra branch adds {rates.industries.branchPercent}% of the plan. The quote counts the setup and add-ons once and the plan for the months or years above; payment milestones split only the one-time part. Prices from Money → Rate Card → Industries.
+      </p>
     </div>
   );
 }

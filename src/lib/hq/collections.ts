@@ -141,6 +141,7 @@ export const SERVICE_OPTS = opts(
   ["coaching", "1:1 AI coaching"],
   ["vritta", "Vritta"],
   ["realestate", "Real estate platform"],
+  ["industry", "Industry app"],
   ["other", "Other"],
 );
 

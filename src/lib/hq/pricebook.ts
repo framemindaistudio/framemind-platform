@@ -2,6 +2,7 @@ import "server-only";
 import { store, StoreConflictError } from "@/lib/store";
 import { COACHING, SERVICES, SOCIAL_CONTRACTS, BUNDLE, TERMS, VRITTA, type Service, type ServiceGroup, type ServiceId, type VrittaEdition, type VrittaSegment } from "@/lib/content/catalog";
 import { DEFAULT_RE_RATES, type RealEstateRates } from "@/lib/content/real-estate";
+import { DEFAULT_INDUSTRY_RATES, type IndustryRates } from "@/lib/content/industries";
 import type { MoneyLine, PriceBook, RateCard, RevenueStream, VrittaRate } from "@/lib/pricebook/types";
 import { uid } from "@/lib/utils";
 import { ValidationError } from "./records";
@@ -29,6 +30,7 @@ export function startingBook(): PriceBook {
       vritta: { rates: structuredClone(VRITTA.rates), oneTime: structuredClone(VRITTA.oneTime), groupLicencePercent: VRITTA.groupLicencePercent, amcPercent: VRITTA.amcPercent },
       coaching: { online: COACHING.fees.online, offline: COACHING.fees.offline, sessions: 0 },
       realEstate: structuredClone(DEFAULT_RE_RATES),
+      industries: structuredClone(DEFAULT_INDUSTRY_RATES),
       terms: { validityDays: TERMS.validityDays, revisionRounds: TERMS.revisionRounds, milestones: structuredClone(TERMS.defaultMilestones) },
     },
     planner: {
@@ -144,6 +146,30 @@ function cleanRealEstate(v: unknown, base: RealEstateRates): RealEstateRates {
   };
 }
 
+/** Industry apps: the industries and add-ons are fixed (the website and quotes name them); their numbers are the founders'. */
+function cleanIndustries(v: unknown, base: IndustryRates): IndustryRates {
+  const i = obj(v);
+  const M = 100_000_000;
+  const plansIn = Array.isArray(i.plans) ? i.plans.map(obj) : [];
+  const addIn = Array.isArray(i.addOns) ? i.addOns.map(obj) : [];
+  return {
+    setup: num(i.setup, base.setup, 0, M),
+    annualFreeMonths: num(i.annualFreeMonths, base.annualFreeMonths, 0, 6),
+    branchPercent: num(i.branchPercent, base.branchPercent, 0, 100, 1),
+    plans: DEFAULT_INDUSTRY_RATES.plans.map((d) => {
+      const b = base.plans.find((x) => x.id === d.id) ?? d;
+      const r = plansIn.find((x) => x.id === d.id);
+      const m = Array.isArray(r?.monthly) ? (r!.monthly as unknown[]) : [];
+      return { id: d.id, monthly: [0, 1, 2].map((k) => num(m[k], b.monthly[k], 0, M)) as [number, number, number] };
+    }),
+    addOns: DEFAULT_INDUSTRY_RATES.addOns.map((d) => {
+      const b = base.addOns.find((x) => x.id === d.id) ?? d;
+      const r = addIn.find((x) => x.id === d.id) ?? {};
+      return { id: d.id, price: num(r.price, b.price, 0, M) };
+    }),
+  };
+}
+
 function cleanRates(input: unknown, base: RateCard): RateCard {
   const i = obj(input);
   const v = obj(i.vritta);
@@ -200,6 +226,7 @@ function cleanRates(input: unknown, base: RateCard): RateCard {
     },
     coaching: { online: num(c.online, base.coaching.online, 0, 10_000_000), offline: num(c.offline, base.coaching.offline, 0, 10_000_000), sessions: num(c.sessions, base.coaching.sessions, 0, 500) },
     realEstate: cleanRealEstate(i.realEstate, base.realEstate ?? DEFAULT_RE_RATES),
+    industries: cleanIndustries(i.industries, base.industries ?? DEFAULT_INDUSTRY_RATES),
     terms: { validityDays: num(t.validityDays, base.terms.validityDays, 1, 365), revisionRounds: num(t.revisionRounds, base.terms.revisionRounds, 0, 20), milestones },
   };
 }

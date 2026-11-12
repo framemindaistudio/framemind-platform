@@ -33,6 +33,12 @@ export const PAGE_SEO: Record<string, PageSeo> = {
     "keywords": "institutional newsletter software India, NAAC evidence software, activity record schools colleges India, department newsletter platform, education software India, IQAC software, accreditation evidence India, college newsletter automation",
     "ogImageAlt": "Vritta — Departmental Activity Record & Newsletter Platform by FrameMind AI Studio"
   },
+  "/industries": {
+    "title": "Industry Apps — Ready-made Software for Real Estate, Clinics, Restaurants, Gyms & more",
+    "description": "Ready-made apps for real estate, clinics, dental clinics, labs, restaurants, gyms, salons and PGs — with your name and logo, live in 3–4 weeks. A one-time setup and a simple monthly plan.",
+    "keywords": "clinic app India, real estate CRM India, restaurant QR menu app, gym management app, salon booking app, PG management app, lab software India, dental clinic software, FrameMind industry apps",
+    "ogImageAlt": "FrameMind AI Studio — Industry Apps"
+  },
   "/real-estate": {
     "title": "Real Estate Digital Platform — Layout Websites & Interactive Plot Maps",
     "description": "Area-based pricing for plotted layouts, villas and townships: project websites, interactive plot maps with live availability, and 3D masterplans. Priced per sq ft, with a minimum and a maximum.",

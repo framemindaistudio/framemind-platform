@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { INDUSTRIES } from "@/lib/content/industries";
+import { INDUSTRY_ICONS } from "@/site/pages/Industries";
 import { Link } from "@/site/router";
 import {
   Globe, Palette, Code2, Zap, Camera, Video, Share2, Layers,
@@ -723,6 +725,26 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                   <Building2 size={10} />Real Estate
                 </Link>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Industry apps ── */}
+        <section className="border-b border-border bg-secondary/30">
+          <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col lg:flex-row lg:items-center gap-4">
+            <div className="shrink-0">
+              <p className="text-sm font-bold">Running a business in one of these industries?</p>
+              <p className="text-xs text-muted-foreground">Get a ready-made app with your name — a setup fee and a monthly plan.</p>
+            </div>
+            <div className="flex flex-wrap gap-2 lg:ml-auto">
+              {INDUSTRIES.map((ind) => {
+                const Icon = INDUSTRY_ICONS[ind.icon] ?? Building2;
+                return (
+                  <Link key={ind.id} to={`/industries/${ind.slug}`} className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-background px-3 py-1.5 text-xs font-medium hover:border-foreground/40">
+                    <Icon size={12} /> {ind.name}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>

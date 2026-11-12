@@ -1,4 +1,5 @@
 import {
+  AppWindow,
   Aperture,
   Archive,
   Award,
@@ -65,6 +66,7 @@ import {
 
 /** Explicit icon map (keeps the bundle small — never import * from lucide). */
 const ICONS: Record<string, LucideIcon> = {
+  AppWindow,
   UserCheck,
   Trophy,
   HandCoins,
