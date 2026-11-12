@@ -1,5 +1,6 @@
 "use client";
 
+import { INDUSTRIES } from "@/lib/content/industries";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Award, ExternalLink, Printer, Search } from "lucide-react";
@@ -56,6 +57,19 @@ const GENERATORS: Gen[] = [
       { k: "coaching", label: "Add 1:1 AI coaching", t: "checkbox", help: "Only printed once the coaching fee is set in the Rate Card." },
       { k: "vritta", label: "Add Vritta licence fees", t: "checkbox" },
     ],
+  },
+  {
+    id: "industry-flyers",
+    group: "sales",
+    title: "Industry app flyers",
+    blurb: "One A4 flyer per industry app: what it does, who logs in, the three plans (monthly and yearly), setup and add-ons, and a QR code to its page with the live demo. Prices from the live Rate Card.",
+    route: "/hq/print/brochures/industries",
+    sheet: "A4 · one page per industry",
+    fields: [
+      { k: "industry", label: "Industry", t: "select", options: [["all", "All 8 industries"], ...INDUSTRIES.map((i): [string, string] => [i.id, i.product])], help: "All prints the 8 flyers in order, real estate first." },
+      { k: "for", label: "Prepared for (optional)", t: "text", ph: "e.g. the client's business", help: "Printed under the title. Leave empty for a general copy." },
+    ],
+    defaults: { industry: "all" },
   },
   ...([
     ["pricing", "Pricing booklet", "Every service with its ready packages, options and prices, the Studio Bundle, retainer discounts, coaching fees and the terms — read from the live Rate Card, so it always matches the website.", "About 16 A4 pages · A3, folded"],
