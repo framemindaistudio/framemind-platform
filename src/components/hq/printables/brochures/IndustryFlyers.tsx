@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 import { PrintShell, A4Page } from "@/components/print/PrintShell";
 import { useRates, useSettings } from "@/components/hq/data";
 import { Loading } from "@/components/hq/ui";
-import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, tierPrice, type Industry } from "@/lib/content/industries";
+import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, setupFor, tierPrice, type Industry } from "@/lib/content/industries";
 import { realEstateWith } from "@/lib/content/real-estate";
 import { TERMS } from "@/lib/content/catalog";
 import { site } from "@/lib/site";
@@ -83,7 +83,7 @@ function Flyer({
 }) {
   const free = rates?.annualFreeMonths ?? 2;
   const branchPct = rates?.branchPercent ?? 50;
-  const setup = rates?.setup ?? 0;
+  const setup = setupFor(rates, ind.id);
   const developer = realEstate ? realEstateWith(realEstate).plans : null;
   return (
     <A4Page className="flex flex-col text-[8.5pt]">

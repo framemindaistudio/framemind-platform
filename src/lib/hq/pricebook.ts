@@ -160,7 +160,8 @@ function cleanIndustries(v: unknown, base: IndustryRates): IndustryRates {
       const b = base.plans.find((x) => x.id === d.id) ?? d;
       const r = plansIn.find((x) => x.id === d.id);
       const m = Array.isArray(r?.monthly) ? (r!.monthly as unknown[]) : [];
-      return { id: d.id, monthly: [0, 1, 2].map((k) => num(m[k], b.monthly[k], 0, M)) as [number, number, number] };
+      const setup = d.setup !== undefined || r?.setup !== undefined ? num(r?.setup, b.setup ?? d.setup ?? 0, 0, M) : undefined;
+      return { id: d.id, monthly: [0, 1, 2].map((k) => num(m[k], b.monthly[k], 0, M)) as [number, number, number], ...(setup !== undefined ? { setup } : {}) };
     }),
     addOns: DEFAULT_INDUSTRY_RATES.addOns.map((d) => {
       const b = base.addOns.find((x) => x.id === d.id) ?? d;

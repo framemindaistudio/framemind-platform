@@ -16,9 +16,10 @@
  *   salon        ₹499 (SalonBoost) · ₹833 per outlet (Salon360) · ≈ ₹2,500 (MioSalon)         capterra.in, techjockey.com
  *   pg           ₹299–₹999 (TrackMyPG) · ₹999–₹2,499 (Wonder PG)                              sourceforge.net
  *   realestate   ₹399–₹2,200 per user (Realatic, Telecrm, Zoho, Sell.do)                      sell.do, telecrm.in
+ *   distribution ₹1,799–₹3,999 flat (Mulberry Sales) · ₹2,000–₹5,000 per distributor (DMS buyer's guide) · ₹1,500–₹4,000 per user (BeatRoute)   goodfirms.co, aiaccountant.com
  */
 
-export type IndustryId = "realestate" | "clinic" | "dental" | "lab" | "restaurant" | "gym" | "salon" | "pg";
+export type IndustryId = "distribution" | "realestate" | "clinic" | "dental" | "lab" | "restaurant" | "gym" | "salon" | "pg";
 export type TierId = "starter" | "growth" | "pro";
 
 export interface Industry {
@@ -47,6 +48,10 @@ export interface Industry {
   onQuote: string[];
   /** a related product with its own page */
   related?: { label: string; to: string; detail: string };
+  /** a setup fee of its own, when it differs from every other app's */
+  setup?: number;
+  /** a short label on its card: "New", "Highest value" … */
+  badge?: string;
   /** two products in one industry: who each one is for, shown as a choice under the hero */
   chooser?: { self: { who: string; price: string }; other: { who: string; price: string } };
 }
@@ -75,6 +80,32 @@ export const TIERS: { id: TierId; name: string; summary: string; includes: strin
 
 export const INDUSTRIES: Industry[] = [
   {
+    id: "distribution",
+    slug: "distribution",
+    name: "Wholesale & Distributors",
+    product: "TradeOS",
+    icon: "Truck",
+    tagline: "Orders, stock, dispatch and collections — one platform.",
+    who: "FMCG, electrical and building-material distributors and wholesalers",
+    demoBrand: "Sahyadri Distributors",
+    badge: "New · TradeOS",
+    setup: 15000,
+    features: [
+      { title: "Retailer ordering app", detail: "Your retailers order at their own prices, see live stock, repeat orders and track every delivery." },
+      { title: "Approvals with credit check", detail: "Each order is checked against stock and the retailer's credit limit; going above it needs a reason." },
+      { title: "Salesperson app", detail: "Today's route, check-ins, orders booked at the shop and collections recorded on the spot." },
+      { title: "Godown dispatch", detail: "Pick lists with unit conversions, packing, the vehicle number and who received the goods." },
+      { title: "Stock you can trust", detail: "Every receipt and dispatch is a movement; stock held for approved orders is kept apart." },
+      { title: "Outstanding & collections", detail: "Invoice on delivery, payments settled oldest-first, and every retailer's balance against their limit." },
+    ],
+    roles: ["Retailer", "Salesperson", "Godown", "Distributor"],
+    unit: "per business",
+    monthly: [999, 1499, 1999],
+    limits: ["Up to 100 retailers", "Up to 500 retailers", "Unlimited retailers"],
+    market: "Distributor management software in India typically costs ₹1,799 – ₹3,999 a month, or ₹2,000 – ₹5,000 per distributor; salesman apps ₹1,500 – ₹4,000 per user a month.",
+    onQuote: ["TallyPrime sync", "Several godowns with transfers", "Batch, expiry & serial tracking", "Barcode scanning", "AI reorder suggestions & insights", "Offline salesperson app"],
+  },
+  {
     id: "realestate",
     slug: "real-estate",
     name: "Real Estate",
@@ -83,6 +114,7 @@ export const INDUSTRIES: Industry[] = [
     tagline: "Every enquiry, site visit and brokerage in one app.",
     who: "Property brokers, real estate offices and channel partners",
     demoBrand: "Skyline Realty",
+    badge: "Highest value",
     features: [
       { title: "Property search", detail: "Buy or rent, BHK, budget, area and parking filters, with photos, a video tour and amenities." },
       { title: "Instant enquiry alerts", detail: "Every enquiry lands in one lead list, with a WhatsApp auto-reply and one-tap call." },
@@ -280,7 +312,6 @@ export const MORE_INDUSTRIES: { name: string; icon: string; examples: string }[]
   { name: "Hospitals", icon: "Hospital", examples: "OPD, IPD beds, billing, pharmacy and lab in one system" },
   { name: "Jewellers", icon: "Gem", examples: "Daily gold rate, savings schemes, orders and repairs" },
   { name: "Hotels & Homestays", icon: "Hotel", examples: "Direct bookings, rooms, check-in and guest requests" },
-  { name: "Distributors & Wholesale", icon: "Truck", examples: "Retailer ordering, credit limits, dispatch and collections" },
   { name: "Automobile Dealers & Garages", icon: "Car", examples: "Bookings, job cards, service reminders and parts" },
   { name: "Pharmacies", icon: "Pill", examples: "Stock with expiry, refill reminders and home delivery" },
 ];
@@ -294,7 +325,8 @@ export interface IndustryRates {
   annualFreeMonths: number;
   /** each extra branch / outlet, as a percent of the plan */
   branchPercent: number;
-  plans: { id: IndustryId; monthly: [number, number, number] }[];
+  /** `setup` is the app's own setup fee when it has one; otherwise the common `setup` above applies */
+  plans: { id: IndustryId; monthly: [number, number, number]; setup?: number }[];
   addOns: { id: string; price: number }[];
 }
 
@@ -310,7 +342,7 @@ export const DEFAULT_INDUSTRY_RATES: IndustryRates = {
   setup: 14999,
   annualFreeMonths: 2,
   branchPercent: 50,
-  plans: INDUSTRIES.map((i) => ({ id: i.id, monthly: [...i.monthly] as [number, number, number] })),
+  plans: INDUSTRIES.map((i) => ({ id: i.id, monthly: [...i.monthly] as [number, number, number], ...(i.setup ? { setup: i.setup } : {}) })),
   addOns: [
     { id: "whatsapp", price: 4999 },
     { id: "payments", price: 4999 },
@@ -328,6 +360,12 @@ export const industryById = (id: string) => INDUSTRIES.find((i) => i.id === id);
 export function tierPrice(rates: IndustryRates | null | undefined, id: IndustryId, tier: TierId) {
   const r = rates?.plans.find((p) => p.id === id)?.monthly ?? industryById(id)?.monthly ?? [0, 0, 0];
   return r[TIER_INDEX[tier]] ?? 0;
+}
+
+/** The setup fee of an app: its own when it has one, otherwise the common fee. */
+export function setupFor(rates: IndustryRates | null | undefined, id: IndustryId) {
+  const r = rates ?? DEFAULT_INDUSTRY_RATES;
+  return r.plans.find((p) => p.id === id)?.setup ?? DEFAULT_INDUSTRY_RATES.plans.find((p) => p.id === id)?.setup ?? r.setup;
 }
 
 export function addOnPriceOf(rates: IndustryRates | null | undefined, id: string) {
@@ -362,12 +400,13 @@ export function priceIndustry(rates: IndustryRates | null | undefined, id: Indus
   const tier = TIERS.find((t) => t.id === tierId) ?? TIERS[1];
   const b = Math.max(1, Math.min(50, Math.round(branches) || 1));
   const plan = tierPrice(r, industry.id, tier.id);
+  const setup = setupFor(r, industry.id);
   const monthly = Math.round(plan + plan * (b - 1) * (r.branchPercent / 100));
   const year = monthly * Math.max(0, 12 - r.annualFreeMonths);
   const recurring = billing === "annual" ? year : monthly;
   const perMonth = billing === "annual" ? Math.round(year / 12) : monthly;
   const addOns = INDUSTRY_ADD_ONS.filter((a) => addOnIds.includes(a.id)).map((a) => ({ id: a.id, label: a.label, price: addOnPriceOf(r, a.id) }));
-  const oneTimeItems = [{ group: "One-time", label: `Setup — ${industry.product} with your name, logo and colours, data import, training and go-live`, price: r.setup }, ...addOns.map((a) => ({ group: "Add-ons", label: a.label, price: a.price }))];
+  const oneTimeItems = [{ group: "One-time", label: `Setup — ${industry.product} with your name, logo and colours, data import, training and go-live`, price: setup }, ...addOns.map((a) => ({ group: "Add-ons", label: a.label, price: a.price }))];
   return {
     industry,
     tier,
@@ -377,7 +416,7 @@ export function priceIndustry(rates: IndustryRates | null | undefined, id: Indus
     monthly,
     recurring,
     perMonth,
-    setup: r.setup,
+    setup,
     addOns,
     firstPayment: oneTimeItems.reduce((s, i) => s + i.price, 0) + recurring,
     oneTimeItems,

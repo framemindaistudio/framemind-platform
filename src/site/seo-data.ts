@@ -34,9 +34,9 @@ export const PAGE_SEO: Record<string, PageSeo> = {
     "ogImageAlt": "Vritta — Departmental Activity Record & Newsletter Platform by FrameMind AI Studio"
   },
   "/industries": {
-    "title": "Industry Apps — Ready-made Software for Real Estate, Clinics, Restaurants, Gyms & more",
-    "description": "Ready-made apps for real estate, clinics, dental clinics, labs, restaurants, gyms, salons and PGs — with your name and logo, live in 3–4 weeks. A one-time setup and a simple monthly plan.",
-    "keywords": "clinic app India, real estate CRM India, restaurant QR menu app, gym management app, salon booking app, PG management app, lab software India, dental clinic software, FrameMind industry apps",
+    "title": "Industry Apps — Ready-made Software for Distributors, Real Estate, Clinics, Restaurants & more",
+    "description": "Ready-made apps for distributors and wholesalers, real estate, clinics, dental clinics, labs, restaurants, gyms, salons and PGs — with your name and logo, live in 3–4 weeks. A one-time setup and a simple monthly plan.",
+    "keywords": "distributor management software India, wholesale ordering app, clinic app India, real estate CRM India, restaurant QR menu app, gym management app, salon booking app, PG management app, lab software India, dental clinic software, FrameMind industry apps",
     "ogImageAlt": "FrameMind AI Studio — Industry Apps"
   },
   "/real-estate": {

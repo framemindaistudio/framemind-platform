@@ -28,8 +28,8 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
   return (
     <>
       <SEO
-        title="Industry Apps — Ready-made Software for Clinics, Real Estate, Restaurants, Gyms & more"
-        description="Ready-made apps for real estate, clinics, dental clinics, labs, restaurants, gyms, salons and PGs — with your name and logo, live in 3–4 weeks. A one-time setup and a simple monthly plan."
+        title="Industry Apps — Ready-made Software for Distributors, Real Estate, Clinics, Restaurants & more"
+        description="Ready-made apps for distributors and wholesalers, real estate, clinics, dental clinics, labs, restaurants, gyms, salons and PGs — with your name and logo, live in 3–4 weeks. A one-time setup and a simple monthly plan."
         path="/industries"
         keywords="clinic app India, real estate CRM India, restaurant QR menu app, gym management app, salon booking app, PG management app, lab software India, dental clinic software, FrameMind industry apps"
         ogImageAlt="FrameMind AI Studio — Industry Apps"
@@ -54,8 +54,8 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1a1a1a] border border-[#1a1a1a] rounded-sm overflow-hidden">
               {[
-                ["8 industries", "Ready to demo today"],
-                [`${inr(setup)} setup`, "Once, then a monthly plan"],
+                [`${INDUSTRIES.length} industries`, "Ready to demo today"],
+                [`From ${inr(setup)} setup`, "Once, then a monthly plan"],
                 ["Your own brand", "Name, logo, colours, domain"],
                 ["Live in 3–4 weeks", "With your data imported"],
               ].map(([t, d]) => (
@@ -86,7 +86,7 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
                       <span className={`grid size-11 place-items-center rounded-sm ${featured ? "bg-[#C8F135] text-[#0D0D0D]" : "bg-secondary"}`}>
                         <Icon size={20} />
                       </span>
-                      {featured && <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-[#C8F135]">Highest value</span>}
+                      {ind.badge && <span className={`font-mono text-[9px] font-bold uppercase tracking-widest ${featured ? "text-[#C8F135]" : "text-muted-foreground"}`}>{ind.badge}</span>}
                     </div>
                     <h2 className="mt-5 text-2xl font-black tracking-tight">{ind.name}</h2>
                     <p className={`mt-1 text-sm ${featured ? "text-[#888]" : "text-muted-foreground"}`}>{ind.tagline}</p>

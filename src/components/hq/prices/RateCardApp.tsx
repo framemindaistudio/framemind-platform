@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, Loader2, Plus, Save, Trash2, TriangleAlert, Undo2 } from "lucide-react";
 import type { Service, ServiceGroup, ServiceOption, VrittaEdition, VrittaSegment } from "@/lib/content/catalog";
 import { VRITTA } from "@/lib/content/catalog";
-import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, type IndustryRates } from "@/lib/content/industries";
+import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, setupFor, type IndustryRates } from "@/lib/content/industries";
 import { ADD_ONS as RE_ADD_ONS, PLANS as RE_PLANS, type RealEstateRates } from "@/lib/content/real-estate";
 import type { PriceBook, RateCard } from "@/lib/pricebook/types";
 import { can, LEADERSHIP } from "@/lib/hq/roles";
@@ -543,9 +543,9 @@ function IndustryPrices({ value, editable, onChange }: { value: IndustryRates; e
           </label>
         </div>
       </Panel>
-      <Panel title="Monthly plans" subtitle="Per branch / outlet / property, before GST.">
+      <Panel title="Monthly plans" subtitle="Per branch / outlet / property, before GST. Setup: the app's one-time fee (the common fee above unless set here).">
         <div className="hq-scroll overflow-x-auto">
-          <table className="w-full min-w-[620px] text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="annot text-left text-[10px] text-blueprint">
                 <th className="pb-2 font-medium">App</th>
@@ -554,6 +554,7 @@ function IndustryPrices({ value, editable, onChange }: { value: IndustryRates; e
                     {t.name}
                   </th>
                 ))}
+                <th className={head}>Setup</th>
               </tr>
             </thead>
             <tbody>
@@ -570,6 +571,9 @@ function IndustryPrices({ value, editable, onChange }: { value: IndustryRates; e
                         <Money label={`${ind?.product} ${TIERS[k].name}`} value={m} disabled={!editable} onChange={(v) => setPlan(p.id, k, v)} />
                       </td>
                     ))}
+                    <td className="py-1.5 pl-2">
+                      <Money label={`${ind?.product} setup`} value={setupFor(value, p.id)} disabled={!editable} onChange={(v) => onChange({ ...value, plans: value.plans.map((x) => (x.id === p.id ? { ...x, setup: v } : x)) })} />
+                    </td>
                   </tr>
                 );
               })}

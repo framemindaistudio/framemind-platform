@@ -59,3 +59,12 @@ test("an industry app: setup once, the yearly plan exactly, and other retainers 
   assert.equal(m.months, 1, "the app plan does not stretch the social retainer to 12 months");
   assert.equal(m.taxable, 19998 + 89990 + 30000);
 });
+
+test("TradeOS has its own setup fee; the other apps keep the common one", async () => {
+  const { priceIndustry, INDUSTRIES } = await import("../content/industries.ts");
+  assert.equal(INDUSTRIES[0].id, "distribution", "wholesale & distributors comes first");
+  const t = priceIndustry(null, "distribution", "growth", "monthly", 1, []);
+  assert.equal(t.setup, 15000);
+  assert.equal(t.firstPayment, 15000 + 1499);
+  assert.equal(priceIndustry(null, "clinic", "growth", "monthly", 1, []).setup, 14999);
+});

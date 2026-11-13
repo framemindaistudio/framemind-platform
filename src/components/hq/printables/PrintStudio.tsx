@@ -66,7 +66,7 @@ const GENERATORS: Gen[] = [
     route: "/hq/print/brochures/industries",
     sheet: "A4 · one page per industry",
     fields: [
-      { k: "industry", label: "Industry", t: "select", options: [["all", "All 8 industries"], ...INDUSTRIES.map((i): [string, string] => [i.id, i.product])], help: "All prints the 8 flyers in order, real estate first." },
+      { k: "industry", label: "Industry", t: "select", options: [["all", `All ${INDUSTRIES.length} industries`], ...INDUSTRIES.map((i): [string, string] => [i.id, i.product])], help: "All prints every flyer in order, starting with TradeOS (wholesale & distributors)." },
       { k: "for", label: "Prepared for (optional)", t: "text", ph: "e.g. the client's business", help: "Printed under the title. Leave empty for a general copy." },
     ],
     defaults: { industry: "all" },
