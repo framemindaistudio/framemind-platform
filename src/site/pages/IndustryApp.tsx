@@ -54,7 +54,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
   const freeMonths = rates?.annualFreeMonths ?? 2;
   const branchPct = rates?.branchPercent ?? 50;
   const chosenStudio = studio.filter((s) => studioPicked.includes(s.id));
-  const demo = `/demos/${ind.slug}/`;
+  const demo = ind.demoUrl ?? `/demos/${ind.slug}/`;
 
   async function getQuote(e: React.FormEvent) {
     e.preventDefault();
@@ -126,7 +126,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                 Get your price <ArrowRight size={14} />
               </a>
             </div>
-            <p className="mt-3 text-[11px] text-[#555]">The demo runs on made-up data ({ind.demoBrand}) and keeps it only in your browser.</p>
+            <p className="mt-3 text-[11px] text-[#555]">{ind.demoUrl ? `The ${ind.product} prototype opens in a new tab, with sample data.` : `The demo runs on made-up data (${ind.demoBrand}) and keeps it only in your browser.`}</p>
           </div>
         </section>
 

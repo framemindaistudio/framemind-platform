@@ -24,7 +24,7 @@ export type TierId = "starter" | "growth" | "pro";
 
 export interface Industry {
   id: IndustryId;
-  /** the URL: /industries/<slug>; the demo: /demos/<slug>/ */
+  /** the URL: /industries/<slug>; the demo: /demos/<slug>/ unless `demoUrl` points elsewhere */
   slug: string;
   name: string;
   /** "Clinic App" */
@@ -34,6 +34,8 @@ export interface Industry {
   who: string;
   /** the demo business, shown so visitors know the names in it are made up */
   demoBrand: string;
+  /** a demo hosted elsewhere (e.g. the founder's Figma Sites prototype), opened instead of /demos/<slug>/ */
+  demoUrl?: string;
   features: { title: string; detail: string }[];
   /** the roles that log in to their own screens */
   roles: string[];
@@ -90,6 +92,7 @@ export const INDUSTRIES: Industry[] = [
     tagline: "One free app where your shops order from you — and from every distributor they buy from.",
     who: "FMCG, electrical and building-material distributors and wholesalers",
     demoBrand: "Sahyadri Distributors",
+    demoUrl: "https://framemind-tradeos.figma.site",
     badge: "New · TradeOS",
     setup: 15000,
     pitch: [
