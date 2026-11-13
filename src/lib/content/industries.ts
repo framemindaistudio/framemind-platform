@@ -52,6 +52,8 @@ export interface Industry {
   setup?: number;
   /** a short label on its card: "New", "Highest value" … */
   badge?: string;
+  /** the three points that sell this app, shown as cards under the hero and on the flyer */
+  pitch?: { title: string; detail: string }[];
   /** two products in one industry: who each one is for, shown as a choice under the hero */
   chooser?: { self: { who: string; price: string }; other: { who: string; price: string } };
 }
@@ -85,25 +87,30 @@ export const INDUSTRIES: Industry[] = [
     name: "Wholesale & Distributors",
     product: "TradeOS",
     icon: "Truck",
-    tagline: "Orders, stock, dispatch and collections — one platform.",
+    tagline: "One free app where your shops order from you — and from every distributor they buy from.",
     who: "FMCG, electrical and building-material distributors and wholesalers",
     demoBrand: "Sahyadri Distributors",
     badge: "New · TradeOS",
     setup: 15000,
-    features: [
-      { title: "Retailer ordering app", detail: "Your retailers order at their own prices, see live stock, repeat orders and track every delivery." },
-      { title: "Approvals with credit check", detail: "Each order is checked against stock and the retailer's credit limit; going above it needs a reason." },
-      { title: "Salesperson app", detail: "Today's route, check-ins, orders booked at the shop and collections recorded on the spot." },
-      { title: "Godown dispatch", detail: "Pick lists with unit conversions, packing, the vehicle number and who received the goods." },
-      { title: "Stock you can trust", detail: "Every receipt and dispatch is a movement; stock held for approved orders is kept apart." },
-      { title: "Outstanding & collections", detail: "Invoice on delivery, payments settled oldest-first, and every retailer's balance against their limit." },
+    pitch: [
+      { title: "Free for your shops", detail: "Shops install one app and order from every distributor on TradeOS. You pay; they never do." },
+      { title: "Your brand inside the app", detail: "Your name and colours on your products and orders, next to the other distributors your shops buy from." },
+      { title: "Just ordering — the rest only if you want it", detail: "No prices, invoices or stock counts to keep up. Add them later, one at a time, when you need them." },
     ],
-    roles: ["Retailer", "Salesperson", "Godown", "Distributor"],
-    unit: "per business",
+    features: [
+      { title: "One app, every distributor", detail: "A shop sees the products of all the distributors who added it in one list, and orders everything in one go." },
+      { title: "Orders split automatically", detail: "The shop's cart is sent as one order to each distributor — you only ever see your part." },
+      { title: "Available or not available", detail: "One switch per product. No stock counts: switch it off and shops see it at once." },
+      { title: "Accept, dispatch, deliver", detail: "Untick what you can't send this time, decline with a reason, and the shop follows every step live." },
+      { title: "Salesperson ordering", detail: "Your salespeople book orders for your shops on the visit, from your own products." },
+      { title: "Bring your shops", detail: "Send your shop list; shops already on TradeOS through another distributor are linked, not duplicated." },
+    ],
+    roles: ["Shop (free app)", "Salesperson", "Distributor"],
+    unit: "per distributor",
     monthly: [999, 1499, 1999],
-    limits: ["Up to 100 retailers", "Up to 500 retailers", "Unlimited retailers"],
-    market: "Distributor management software in India typically costs ₹1,799 – ₹3,999 a month, or ₹2,000 – ₹5,000 per distributor; salesman apps ₹1,500 – ₹4,000 per user a month.",
-    onQuote: ["TallyPrime sync", "Several godowns with transfers", "Batch, expiry & serial tracking", "Barcode scanning", "AI reorder suggestions & insights", "Offline salesperson app"],
+    limits: ["Up to 100 shops", "Up to 500 shops", "Unlimited shops"],
+    market: "Distributor ordering and management software in India typically costs ₹1,799 – ₹3,999 a month, or ₹2,000 – ₹5,000 per distributor — and each one is its own app for the shop. With TradeOS your shops use one free app for all their distributors.",
+    onQuote: ["Prices & price lists", "Invoices with GST", "Stock quantities", "Credit & collections", "TallyPrime sync", "Salesperson routes & GPS check-ins", "WhatsApp alerts", "AI insights"],
   },
   {
     id: "realestate",

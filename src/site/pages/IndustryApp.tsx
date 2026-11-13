@@ -159,6 +159,20 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
           </section>
         )}
 
+        {/* what sells this app, in three cards */}
+        {ind.pitch ? (
+          <section className="border-b border-border bg-secondary/30">
+            <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+              {ind.pitch.map((x) => (
+                <div key={x.title} className="rounded-sm border-2 border-[#0D0D0D] bg-background p-5">
+                  <p className="text-lg font-bold">{x.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{x.detail}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         {/* features */}
         <section className="border-b border-border">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">

@@ -104,6 +104,18 @@ function Flyer({
         )}
       </header>
 
+      {/* what sells this app */}
+      {ind.pitch ? (
+        <section className="mt-[4mm] grid grid-cols-3 gap-[3mm]">
+          {ind.pitch.map((x) => (
+            <div key={x.title} className="rounded-[2mm] border-2 border-ink p-[2.5mm]">
+              <p className="font-bold leading-snug">{x.title}</p>
+              <p className="mt-[1mm] text-[7.5pt] leading-snug text-charcoal">{x.detail}</p>
+            </div>
+          ))}
+        </section>
+      ) : null}
+
       {/* features */}
       <section className="mt-[4mm]">
         <p className="text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">What the app does</p>
