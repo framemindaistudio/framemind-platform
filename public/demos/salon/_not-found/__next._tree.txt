@@ -1,4 +1,0 @@
-:HL["/demos/salon/_next/static/chunks/1zoldqcj5yh32.css","style"]
-2:[["children",{"s":"__PAGE__","h":160}]]
-1:[["children",{"s":"/_not-found","h":96,"c":"$Q2"}]]
-0:{"b":"Yy1IQ3X_Y4r32KES1e6lR","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

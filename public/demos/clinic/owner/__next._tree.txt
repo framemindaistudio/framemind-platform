@@ -1,6 +1,0 @@
-:HL["/demos/clinic/_next/static/chunks/396g62jkzp4bj.css","style"]
-:HL["/demos/clinic/_next/static/media/c0680f1bdb3a2e90-s.p.1gsd1jahc5dg_.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-:HL["/demos/clinic/_next/static/media/d8aeca813a9ab546-s.p.18rizl4rsrl42.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-2:[["children",{"s":"__PAGE__","h":160}]]
-1:[["children",{"s":"owner","h":96,"c":"$Q2"}]]
-0:{"b":"DGyPdnZ3yVhtoP5Cf82L3","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

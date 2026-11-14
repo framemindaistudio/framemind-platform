@@ -24,7 +24,7 @@ export type TierId = "starter" | "growth" | "pro";
 
 export interface Industry {
   id: IndustryId;
-  /** the URL: /industries/<slug>; the demo: /demos/<slug>/ unless `demoUrl` points elsewhere */
+  /** the URL: /industries/<slug>; the demo button opens `demoUrl`, or says "coming soon" when it is not set */
   slug: string;
   name: string;
   /** "Clinic App" */
@@ -34,7 +34,7 @@ export interface Industry {
   who: string;
   /** the demo business, shown so visitors know the names in it are made up */
   demoBrand: string;
-  /** a demo hosted elsewhere (e.g. the founder's Figma Sites prototype), opened instead of /demos/<slug>/ */
+  /** a demo hosted elsewhere (e.g. the founder's Figma Sites prototype), opened in a new tab */
   demoUrl?: string;
   features: { title: string; detail: string }[];
   /** the roles that log in to their own screens */

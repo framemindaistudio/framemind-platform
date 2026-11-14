@@ -1,7 +1,0 @@
-:HL["/demos/restaurant/_next/static/chunks/3s-pteiguz3fb.css","style"]
-:HL["/demos/restaurant/_next/static/media/660acf689794c992-s.p.2_mbdogr7ni8i.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-:HL["/demos/restaurant/_next/static/media/edb99fec956915f8-s.p.32sris142tqlb.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-3:[["children",{"s":"__PAGE__","h":160}]]
-2:[["children",{"s":"login","h":96,"c":"$Q3"}]]
-1:[["children",{"s":"(public)","h":96,"c":"$Q2"}]]
-0:{"b":"UBILFCcDWrHL5Mf73GJid","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

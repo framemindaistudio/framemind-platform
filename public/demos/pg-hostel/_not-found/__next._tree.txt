@@ -1,4 +1,0 @@
-:HL["/demos/pg-hostel/_next/static/chunks/1rfi19n5o7j-c.css","style"]
-2:[["children",{"s":"__PAGE__","h":160}]]
-1:[["children",{"s":"/_not-found","h":96,"c":"$Q2"}]]
-0:{"b":"4JQ9-oxIsSP37pUCnr7lJ","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

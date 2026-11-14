@@ -54,7 +54,9 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
   const freeMonths = rates?.annualFreeMonths ?? 2;
   const branchPct = rates?.branchPercent ?? 50;
   const chosenStudio = studio.filter((s) => studioPicked.includes(s.id));
-  const demo = ind.demoUrl ?? `/demos/${ind.slug}/`;
+  // The old template demos were retired (Nov 2026); the new FrameMind apps replace them one by one.
+  // Until an industry has a demoUrl again, its demo buttons say "coming soon" and lead to Book a demo.
+  const demo = ind.demoUrl ?? null;
 
   async function getQuote(e: React.FormEvent) {
     e.preventDefault();
@@ -119,14 +121,20 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
             <h1 className="mt-6 text-5xl sm:text-6xl md:text-[72px] font-black text-[#F5F4F0] tracking-tight leading-[0.98]">{ind.product}</h1>
             <p className="mt-5 text-lg text-[#888] leading-relaxed max-w-2xl">{ind.tagline} With your name, logo and colours, live in 3–4 weeks.</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href={demo} target="_blank" rel="noopener" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
-                <MonitorPlay size={15} /> Try the live demo
-              </a>
+              {demo ? (
+                <a href={demo} target="_blank" rel="noopener" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
+                  <MonitorPlay size={15} /> Try the live demo
+                </a>
+              ) : (
+                <Link to="/connect" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
+                  <MonitorPlay size={15} /> New live demo coming soon — book a demo
+                </Link>
+              )}
               <a href="#price" className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#ccc] px-6 py-3 text-sm font-medium rounded-sm hover:text-white">
                 Get your price <ArrowRight size={14} />
               </a>
             </div>
-            <p className="mt-3 text-[11px] text-[#555]">{ind.demoUrl ? `The ${ind.product} prototype opens in a new tab, with sample data.` : `The demo runs on made-up data (${ind.demoBrand}) and keeps it only in your browser.`}</p>
+            <p className="mt-3 text-[11px] text-[#555]">{demo ? `The ${ind.product} prototype opens in a new tab, with sample data.` : `We're building a new live demo of ${ind.product}. Book a demo and we'll walk you through it.`}</p>
           </div>
         </section>
 
@@ -330,9 +338,15 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                 <button type="button" onClick={() => (setErr(""), setAsking(true))} className="mt-5 w-full bg-[#C8F135] text-[#0D0D0D] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] flex items-center justify-center gap-2">
                   <Download size={14} /> Get this quote as PDF
                 </button>
-                <a href={demo} target="_blank" rel="noopener" className="mt-2 w-full border border-[#2a2a2a] text-[#ccc] py-3 text-sm font-medium rounded-sm hover:text-white flex items-center justify-center gap-2">
-                  <MonitorPlay size={14} /> Try the live demo first
-                </a>
+                {demo ? (
+                  <a href={demo} target="_blank" rel="noopener" className="mt-2 w-full border border-[#2a2a2a] text-[#ccc] py-3 text-sm font-medium rounded-sm hover:text-white flex items-center justify-center gap-2">
+                    <MonitorPlay size={14} /> Try the live demo first
+                  </a>
+                ) : (
+                  <Link to="/connect" className="mt-2 w-full border border-[#2a2a2a] text-[#ccc] py-3 text-sm font-medium rounded-sm hover:text-white flex items-center justify-center gap-2">
+                    <MonitorPlay size={14} /> Live demo coming soon — book a demo
+                  </Link>
+                )}
                 {sentNo && <p className="mt-2.5 text-center text-[11px] text-[#C8F135]">Quote {sentNo} is with us — we&apos;ll be in touch. Your PDF opened in a new tab.</p>}
               </div>
             </div>
