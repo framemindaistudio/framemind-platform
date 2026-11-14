@@ -240,6 +240,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Restaurants",
     product: "Restaurant App",
     icon: "UtensilsCrossed",
+    demoUrl: "/apps/table/",
+    storyUrl: "/apps/table/story/",
     tagline: "QR menu to kitchen screen to bill, and your own direct orders.",
     who: "Restaurants, cafés, cloud kitchens and food courts",
     demoBrand: "Spice Route Kitchen",
