@@ -266,6 +266,8 @@ export const INDUSTRIES: Industry[] = [
     name: "Gyms & Fitness",
     product: "Gym App",
     icon: "Dumbbell",
+    demoUrl: "/apps/fit/",
+    storyUrl: "/apps/fit/story/",
     tagline: "Joining, attendance, plans and renewals that chase themselves.",
     who: "Gyms, fitness studios, yoga and CrossFit boxes",
     demoBrand: "Iron Pulse Fitness",
