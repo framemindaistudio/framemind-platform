@@ -241,6 +241,20 @@ export function milestonePlan(r: Record<string, unknown>, money: QuoteMoney, fal
   return ms.map((m, i) => ({ label: m.label, percent: m.percent, amount: amounts[i] ?? 0 }));
 }
 
+/** The project's deliverables from the quote's "What you get": one per point, planned, due with the project. */
+export function deliverablesFromQuote(q: BaseRecord, projectId: string, dueDate?: string, assignee?: string) {
+  return deliverablesOf(q).map((x) => ({
+    projectId,
+    type: "Other",
+    title: x.title,
+    status: "planned",
+    ...(dueDate ? { dueDate } : {}),
+    ...(assignee ? { assignee } : {}),
+    ...(x.detail ? { notes: x.detail } : {}),
+    fromQuote: str(q.id),
+  }));
+}
+
 /** The project a booked quote becomes. */
 export function projectFromQuote(q: BaseRecord, money: QuoteMoney, fallbackMilestones: Milestone[], client?: BaseRecord) {
   const lines = linesOf(q);
@@ -257,6 +271,9 @@ export function projectFromQuote(q: BaseRecord, money: QuoteMoney, fallbackMiles
     startDate: start,
     ...(weeks > 0 ? { dueDate: addDays(start, Math.round(weeks * 7)) } : {}),
     quoteId: q.id,
+    quoteNumber: str(q.number),
+    // invoices raised later from the project use the GST the quote was accepted at
+    gstPercent: money.gstPercent,
     agreedAmount: money.taxable,
     amountReceived: 0,
     revisionsAllowed: num(q.revisionRounds) || 2,

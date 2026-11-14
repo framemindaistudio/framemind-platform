@@ -23,7 +23,7 @@ import { BackLink, Notice } from "./bits";
 import { addDays, str, todayIso } from "./crm";
 import { addOnPrice, addOnsFor, AREA_UNITS, realEstateWith, type AreaUnit, type PlanId } from "@/lib/content/real-estate";
 import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, tierPrice, type IndustryId, type TierId } from "@/lib/content/industries";
-import { blankQuote, bookingOf, coachingLine, customLine, deliverablesFromFreeExtras, extraItemsOf, suggestedDeliverables, type Deliverable, linesOf, milestonePlan, milestonesOf, moneyOf, projectFromQuote, industryLine, realEstateLine, repriceService, serviceLine, servicesOf, vrittaLine, type Booking } from "./quote";
+import { blankQuote, bookingOf, coachingLine, customLine, deliverablesFromFreeExtras, extraItemsOf, suggestedDeliverables, type Deliverable, linesOf, milestonePlan, milestonesOf, moneyOf, projectFromQuote, deliverablesFromQuote, industryLine, realEstateLine, repriceService, serviceLine, servicesOf, vrittaLine, type Booking } from "./quote";
 
 const proposalsDef = getCollection("proposals")!;
 const STATUS_OPTIONS = proposalsDef.fields.find((f) => f.key === "status")?.options ?? [];
@@ -74,6 +74,7 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
   const clientsCol = useCollection("clients");
   const activities = useCollection("activities");
   const projects = useCollection("projects");
+  const deliverablesCol = useCollection("deliverables");
   const invoices = useCollection(showMoney ? "invoices" : "__none");
   const { settings, loading: settingsLoading } = useSettings();
   const leads = useCollection("leads");
@@ -215,16 +216,25 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
     return notes.length ? ` ${notes.join("; ")}.` : "";
   }
 
-  /** Accepted quote → the project (with its milestones), a draft invoice for the first milestone, the client active. */
-  async function startProject() {
-    if (!form.id || bookingOf(form as BaseRecord)) return;
+  /**
+   * Accepted quote → the project with everything the quote says: its payment milestones, the "What you get" points as
+   * deliverables, the quote's GST, a draft invoice for the first milestone — and the client becomes Active.
+   * `saved` is the quote just saved as accepted (one-click accept); otherwise the quote on screen.
+   */
+  async function startProject(saved?: BaseRecord) {
+    const q = (saved ?? form) as BaseRecord;
+    if (!q.id || bookingOf(q)) return;
+    const qMoney = moneyOf(q, rates);
+    const qPlan = milestonePlan(q, qMoney, rates.terms.milestones);
     setSaving("book");
     setError("");
     try {
-      const q = form as BaseRecord;
-      const project = await projects.save(projectFromQuote(q, money, rates.terms.milestones, client));
+      const project = await projects.save(projectFromQuote(q, qMoney, rates.terms.milestones, client));
+      // the quote's "What you get" points become the project's deliverables (Production board)
+      const dl = deliverablesFromQuote(q, project.id, str(project.dueDate), str(project.lead));
+      for (const d of dl) await deliverablesCol.save(d);
       let invoiceId: string | undefined;
-      const first = plan[0];
+      const first = qPlan[0];
       if (showMoney && first && first.amount > 0) {
         const today = todayIso();
         // the same preparation as Finance → Invoices (number, totals, status), so both routes make the same invoice
@@ -239,9 +249,9 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
             customerGstin: str(client?.gstin),
             customerAddress: [str(client?.address), str(client?.city)].filter(Boolean).join(", "),
             placeOfSupply: settings.state,
-            chargeGst: money.gstPercent > 0,
+            chargeGst: qMoney.gstPercent > 0,
             projectName: str(project.title),
-            gstPercent: money.gstPercent,
+            gstPercent: qMoney.gstPercent,
             items: [{ description: `${str(q.title) || "Studio project"} — ${first.label} (${first.percent}% of quote ${str(q.number)})`, qty: 1, rate: first.amount, sac: settings.sacCode || undefined }],
             status: "draft",
             payments: [],
@@ -255,15 +265,24 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
       }
       if (client) await clientsCol.save({ ...client, stage: "active" });
       const booking: Booking = { bookedOn: todayIso(), projectId: project.id, invoiceId };
-      const saved = await proposals.save({ ...form, status: "accepted", booking });
-      setForm(saved);
-      setSnapshot(JSON.stringify(saved));
-      setNotice(`Project created${invoiceId ? " with a draft invoice for the first milestone" : ""}. The client is now Active.`);
+      const after = await proposals.save({ ...q, status: "accepted", booking });
+      setForm(after);
+      setSnapshot(JSON.stringify(after));
+      setPersistedStatus("accepted");
+      setNotice(
+        `Project created with ${qPlan.length} payment milestone${qPlan.length === 1 ? "" : "s"}${dl.length ? `, ${dl.length} deliverable${dl.length === 1 ? "" : "s"} from “What you get”` : ""}${invoiceId ? " and a draft invoice for the first milestone" : ""}. The client is now Active.`,
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start the project");
     } finally {
       setSaving(null);
     }
+  }
+
+  /** The client said yes: save the quote as accepted and start the project in one go. */
+  async function acceptAndStart() {
+    const saved = await persist({ status: "accepted" }, "save");
+    if (saved && !bookingOf(saved)) await startProject(saved);
   }
 
   async function saveAndOpenPdf() {
@@ -573,17 +592,20 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
                     {saving === "send" ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Send className="size-4" aria-hidden />} Mark sent
                   </Button>
                 </div>
-                {status === "sent" && (
-                  <Button variant="ghost" size="sm" className="w-full" onClick={() => persist({ status: "accepted" }, "save")} disabled={busy}>
-                    Mark accepted — client won
-                  </Button>
+                {!isNew && status !== "accepted" && !booked && (
+                  <div className="rounded-[var(--radius-md)] border border-graphite/15 bg-paper-50 p-3">
+                    <Button variant="lime" className="h-11 w-full" onClick={acceptAndStart} disabled={busy}>
+                      {saving === "book" ? <Loader2 className="size-4 animate-spin" /> : <FolderPlus className="size-4" aria-hidden />} Client accepted — start the project
+                    </Button>
+                    <p className="mt-2 text-[11px] leading-snug text-blueprint">Saves the quote as accepted and creates the project: its payment milestones, “What you get” as deliverables, a draft invoice for the first milestone, and the client Active.</p>
+                  </div>
                 )}
                 {status === "accepted" && !isNew && !booked && (
                   <div className="rounded-[var(--radius-md)] border border-graphite/15 bg-paper-50 p-3">
-                    <Button variant="lime" className="h-11 w-full" onClick={startProject} disabled={busy || dirty} title={dirty ? "Save the changes first" : undefined}>
+                    <Button variant="lime" className="h-11 w-full" onClick={() => startProject()} disabled={busy || dirty} title={dirty ? "Save the changes first" : undefined}>
                       {saving === "book" ? <Loader2 className="size-4 animate-spin" /> : <FolderPlus className="size-4" aria-hidden />} Start the project
                     </Button>
-                    <p className="mt-2 text-[11px] leading-snug text-blueprint">{dirty ? "Save the changes first. " : ""}Creates the project with its payment milestones, a draft invoice for the first milestone, and marks the client Active.</p>
+                    <p className="mt-2 text-[11px] leading-snug text-blueprint">{dirty ? "Save the changes first. " : ""}Creates the project with its payment milestones, “What you get” as deliverables, a draft invoice for the first milestone, and marks the client Active.</p>
                   </div>
                 )}
                 {!isNew && (

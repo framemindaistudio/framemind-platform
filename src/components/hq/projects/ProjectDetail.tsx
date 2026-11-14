@@ -18,6 +18,7 @@ import { useToday } from "@/components/hq/sales/useToday";
 import { formatDate, formatINR } from "@/lib/utils";
 import { DueChip, ProgressBar, ServiceChips, StageBadge } from "./bits";
 import { checklistOf, inputsOf, longDate, num, progressOf, projectMoney, str, type Rec } from "./logic";
+import { deliverablesOf, linesOf } from "@/components/hq/sales/quote";
 import { ProjectFormDrawer } from "./ProjectFormDrawer";
 import { PortalTab } from "./PortalTab";
 import { DevTab } from "@/components/hq/dev/DevTab";
@@ -62,6 +63,8 @@ export function ProjectDetail({ id }: { id: string }) {
   const clientsQ = useCollection(can(user, getCollection("clients")!.read) ? "clients" : "__none");
   const { records: invoices } = useCollection(showMoney ? "invoices" : "__none");
   const { records: deliverables } = useCollection("deliverables");
+  const { records: proposals } = useCollection(can(user, getCollection("proposals")!.read) ? "proposals" : "__none");
+  const quote = project ? proposals.find((q) => q.id === project.quoteId) : undefined;
   const { records: shoots } = useCollection(can(user, getCollection("shoots")!.read) ? "shoots" : "__none");
   const [tab, setTab] = useState<Tab>(() => {
     const t = params.get("tab");
@@ -232,6 +235,7 @@ export function ProjectDetail({ id }: { id: string }) {
               <Panel title="Brief">
                 {project.brief ? <p className="whitespace-pre-line text-sm leading-relaxed text-graphite">{str(project.brief)}</p> : <p className="text-sm text-charcoal">No brief yet. Add what the client wants, who it is for and what success looks like (Edit details).</p>}
               </Panel>
+              {quote ? <FromQuote quote={quote} showMoney={showMoney} /> : null}
               {links.length > 0 && (
                 <Panel title="Links">
                   <div className="flex flex-wrap gap-2">
@@ -286,3 +290,78 @@ export function ProjectDetail({ id }: { id: string }) {
 
 export type Patch = (change: Record<string, unknown> | ((p: Rec) => Record<string, unknown>)) => Promise<void>;
 export type { BaseRecord };
+
+/** What the client accepted: the quote's lines and totals and its "What you get" — the project's source of truth. */
+function FromQuote({ quote, showMoney }: { quote: Rec; showMoney: boolean }) {
+  const lines = linesOf(quote);
+  const points = deliverablesOf(quote);
+  return (
+    <Panel
+      title="From the quote"
+      subtitle={`${str(quote.number) || "Quote"}${quote.date ? ` · ${longDate(str(quote.date))}` : ""} — what the client accepted`}
+      action={
+        <div className="flex gap-2">
+          <Link href={`/hq/proposals/${quote.id}`} className="text-xs font-semibold underline-offset-4 hover:underline">
+            Open quote
+          </Link>
+          <Link href={`/hq/print/proposal/${quote.id}`} target="_blank" className="text-xs font-semibold underline-offset-4 hover:underline">
+            PDF
+          </Link>
+        </div>
+      }
+    >
+      <ul className="divide-y divide-graphite/10 text-sm">
+        {lines.map((l) => (
+          <li key={l.key} className="flex justify-between gap-3 py-2">
+            <span className="min-w-0">
+              <span className="block font-medium text-graphite">{l.title}</span>
+              {"items" in l && l.items.length ? <span className="block truncate text-xs text-blueprint">{l.items.map((i) => i.label).join(" · ")}</span> : null}
+            </span>
+            {showMoney ? (
+              <span className="tabular shrink-0 text-right">
+                {l.kind === "industry" ? (
+                  <>
+                    {formatINR(l.setup)}
+                    <span className="block text-[11px] text-blueprint">
+                      then {formatINR(l.amount)}/{l.plan === "annual" ? "year" : "month"}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    {formatINR(l.amount)}
+                    {"billing" in l && l.billing === "month" ? <span className="block text-[11px] text-blueprint">per month</span> : null}
+                  </>
+                )}
+              </span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+      {showMoney && num(quote.total) ? (
+        <p className="mt-2 flex justify-between border-t border-graphite/15 pt-2 text-sm font-semibold">
+          <span>Agreed (before GST)</span>
+          <span className="tabular">
+            {formatINR(num(quote.total))}
+            {num(quote.grandTotal) > num(quote.total) ? <span className="ml-1 text-xs font-normal text-blueprint">· {formatINR(num(quote.grandTotal))} incl. GST</span> : null}
+          </span>
+        </p>
+      ) : null}
+      {points.length ? (
+        <div className="mt-4">
+          <p className="annot mb-1.5 text-blueprint">What you get · {points.length} deliverables</p>
+          <ul className="grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+            {points.map((x) => (
+              <li key={x.id} className="flex gap-1.5">
+                <span className="text-ok">✓</span>
+                <span>
+                  <span className="font-medium text-graphite">{x.title}</span>
+                  {x.detail ? <span className="text-charcoal"> — {x.detail}</span> : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </Panel>
+  );
+}

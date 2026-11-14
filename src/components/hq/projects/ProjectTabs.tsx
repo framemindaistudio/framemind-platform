@@ -2,19 +2,21 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Camera, Check, CheckCircle2, Circle, ExternalLink, Loader2, MessageCircle, Plus, ReceiptText, RotateCcw, Trash2, Wand2 } from "lucide-react";
+import { Camera, Check, CheckCircle2, Circle, ExternalLink, FileText, IndianRupee, Loader2, MessageCircle, Plus, ReceiptText, RotateCcw, Trash2, Wand2 } from "lucide-react";
 import { getCollection, invoiceTotals } from "@/lib/hq/collections";
 import { can } from "@/lib/hq/roles";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Input, Select } from "@/components/ui/form";
+import { Field, Input, Select } from "@/components/ui/form";
+import { Modal } from "@/components/ui/Overlay";
 import { CollectionManager } from "@/components/hq/CollectionManager";
-import { useCollection, useHq, useSettings } from "@/components/hq/data";
+import { nextNumber, useCollection, useHq, useSettings } from "@/components/hq/data";
+import { invoiceFromProject, invoiceMath, invoicePayments, PAY_MODE_LABELS, prepareInvoice } from "@/components/hq/finance/finance";
 import { Panel } from "@/components/hq/ui";
 import { Notice } from "@/components/hq/sales/bits";
 import { phoneDigits, whatsappHref } from "@/components/hq/sales/contact";
 import { cn, formatDate, formatINR, isoDate, uid } from "@/lib/utils";
-import { addDays, CHECKLISTS, checklistFor, checklistOf, handoverOf, HANDOVER_STEPS, inputsFor, inputsOf, milestonesOf, num, serviceLabel, servicesOf, str, type CheckItem, type ClientInput, type ProjectMilestone, type Rec } from "./logic";
+import { CHECKLISTS, checklistFor, checklistOf, handoverOf, HANDOVER_STEPS, inputsFor, inputsOf, milestonesOf, num, serviceLabel, servicesOf, str, type CheckItem, type ClientInput, type ProjectMilestone, type Rec } from "./logic";
 import type { Patch } from "./ProjectDetail";
 
 /* ─────────────────────────── payments ─────────────────────────── */
@@ -25,32 +27,25 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
   const ms = milestonesOf(project);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  const [paying, setPaying] = useState<ProjectMilestone | null>(null);
   const agreed = num(project.agreedAmount);
   const total = ms.reduce((s, m) => s + m.amount, 0);
 
   const setMs = (next: ProjectMilestone[]) => patch({ milestones: next });
 
+  /** The same invoice Finance → "Invoice a project" makes: number reserved, the quote's GST, SAC code, totals. */
+  async function raiseInvoice(m: ProjectMilestone) {
+    const today = isoDate();
+    const { record } = invoiceFromProject(project, client, settings, today, m);
+    const ready = await prepareInvoice({ ...record, ...(m.dueDate ? { dueDate: m.dueDate } : {}) }, { today, settings, reserveNumber: () => nextNumber("invoice") });
+    return invoicesCol.save(ready);
+  }
+
   async function raise(m: ProjectMilestone) {
     setBusy(m.id);
     setError("");
     try {
-      const today = isoDate();
-      const inv = await invoicesCol.save({
-        date: today,
-        dueDate: m.dueDate || addDays(today, 7),
-        clientId: str(project.clientId),
-        projectId: project.id,
-        milestone: `${m.label} (${m.percent}%)`,
-        customerName: str(client?.name),
-        customerGstin: str(client?.gstin),
-        customerAddress: str(client?.address),
-        projectName: str(project.title),
-        // GST follows HQ → Settings → Tax & bank
-        chargeGst: !!settings.gstRegistered,
-        gstPercent: 18,
-        items: [{ description: `${str(project.title)} — ${m.label}${m.percent ? ` (${m.percent}%)` : ""}`, qty: 1, rate: m.amount }],
-        status: "draft",
-      });
+      const inv = await raiseInvoice(m);
       await setMs(ms.map((x) => (x.id === m.id ? { ...x, status: "invoiced", invoiceId: inv.id } : x)));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not raise the invoice");
@@ -59,26 +54,45 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
     }
   }
 
+  /**
+   * A payment received for a milestone: added to its invoice (raised first when there is none), exactly as Finance
+   * records it — so Finance, the receipt and the project all show the same money. The milestone is paid once its
+   * invoice is settled.
+   */
+  async function recordPayment(m: ProjectMilestone, p: { date: string; amount: number; mode: string; reference: string; tds: number }) {
+    let inv = invoices.find((x) => x.id === m.invoiceId) ?? null;
+    if (!inv) inv = await raiseInvoice(m);
+    const today = isoDate();
+    const pay = { id: uid("pay"), date: p.date, amount: p.amount, mode: p.mode, reference: p.reference, tds: p.tds };
+    const existing = invoicePayments(inv).filter((x) => !x.synthetic);
+    const ready = await prepareInvoice({ ...inv, payments: [...existing, pay] }, { today, settings, reserveNumber: () => nextNumber("invoice") });
+    const saved = await invoicesCol.save(ready);
+    const settled = invoiceMath(saved, settings).balance <= 0.5;
+    await setMs(ms.map((x) => (x.id === m.id ? { ...x, invoiceId: saved.id, status: settled ? "paid" : "invoiced", ...(settled ? { paidOn: p.date } : {}) } : x)));
+    return { invoiceId: saved.id, paymentId: pay.id };
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <Panel title="Payment milestones" subtitle={agreed ? `${formatINR(total)} of the agreed ${formatINR(agreed)} (before GST) is split into milestones` : "Set the agreed amount in Edit details"}>
+      <Panel title="Payment milestones" subtitle={agreed ? `${formatINR(total)} of the agreed ${formatINR(agreed)} (before GST) is split into milestones. Invoices and payments here are the same records as Finance.` : "Set the agreed amount in Edit details"}>
         {ms.length === 0 && <p className="mb-4 text-sm text-charcoal">No milestones yet. A project started from an accepted quote brings them; or add them here (usually 50% to start, 50% on delivery).</p>}
         <ul className="space-y-2">
           {ms.map((m, i) => {
             const inv = invoices.find((x) => x.id === m.invoiceId);
             const t = inv ? invoiceTotals(inv) : null;
-            const paid = m.status === "paid" || (t && t.total > 0 && t.balance === 0);
+            const paid = (t && t.total > 0 && t.balance === 0) || (!inv && m.status === "paid");
+            const pays = inv ? invoicePayments(inv).filter((p) => !p.synthetic) : [];
             return (
               <li key={m.id} className="rounded-[var(--radius-md)] border border-graphite/12 bg-paper p-3">
                 <div className="grid items-center gap-2 sm:grid-cols-[28px_1fr_90px_130px_auto]">
                   <span className={cn("grid size-7 place-items-center rounded-full font-mono text-[10px] font-semibold", paid ? "bg-ok text-white" : "bg-graphite/[0.07] text-graphite")}>{paid ? <Check className="size-3.5" /> : i + 1}</span>
-                  <Input aria-label="Milestone" value={m.label} disabled={!canWrite} onChange={(e) => setMs(ms.map((x) => (x.id === m.id ? { ...x, label: e.target.value } : x)))} />
+                  <Input aria-label="Milestone" value={m.label} disabled={!canWrite || !!inv} onChange={(e) => setMs(ms.map((x) => (x.id === m.id ? { ...x, label: e.target.value } : x)))} />
                   <div className="relative">
                     <Input
                       aria-label="Percent"
                       type="number"
                       value={m.percent}
-                      disabled={!canWrite}
+                      disabled={!canWrite || !!inv}
                       onChange={(e) => {
                         const pct = num(e.target.value);
                         setMs(ms.map((x) => (x.id === m.id ? { ...x, percent: pct, amount: Math.round((agreed * pct) / 100) } : x)));
@@ -87,8 +101,8 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
                     />
                     <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-blueprint">%</span>
                   </div>
-                  <Input aria-label="Amount" type="number" value={m.amount} disabled={!canWrite} onChange={(e) => setMs(ms.map((x) => (x.id === m.id ? { ...x, amount: num(e.target.value) } : x)))} className="tabular" />
-                  {canWrite && (
+                  <Input aria-label="Amount" type="number" value={m.amount} disabled={!canWrite || !!inv} onChange={(e) => setMs(ms.map((x) => (x.id === m.id ? { ...x, amount: num(e.target.value) } : x)))} className="tabular" />
+                  {canWrite && !inv && (
                     <button type="button" onClick={() => setMs(ms.filter((x) => x.id !== m.id))} className="rounded p-2 text-blueprint hover:bg-bad/10 hover:text-bad" aria-label="Remove milestone">
                       <Trash2 className="size-4" />
                     </button>
@@ -97,9 +111,13 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
                 <div className="mt-2 flex flex-wrap items-center gap-2 pl-9 text-xs">
                   <Badge tone={statusTone(paid ? "paid" : m.status)}>{paid ? "paid" : m.status}</Badge>
                   {inv ? (
-                    <Link href="/hq/finance?tab=invoices" className="inline-flex items-center gap-1 font-semibold text-graphite underline-offset-4 hover:underline">
-                      {str(inv.number) || "Draft invoice"} · {formatINR(t?.total ?? 0)}{t && t.gstPercent > 0 ? " incl. GST" : ""}{t && t.balance > 0 ? ` · ${formatINR(t.balance)} due` : ""}
-                    </Link>
+                    <>
+                      <Link href={`/hq/print/invoice/${inv.id}`} target="_blank" className="inline-flex items-center gap-1 font-semibold text-graphite underline-offset-4 hover:underline">
+                        <FileText className="size-3.5" /> {str(inv.number) || "Draft invoice"} · {formatINR(t?.total ?? 0)}
+                        {t && t.gstPercent > 0 ? " incl. GST" : ""}
+                      </Link>
+                      {t && t.balance > 0 ? <span className="text-charcoal">{formatINR(t.balance)} due</span> : null}
+                    </>
                   ) : (
                     canWrite &&
                     m.amount > 0 && (
@@ -108,12 +126,29 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
                       </Button>
                     )
                   )}
-                  {canWrite && !inv && m.status !== "paid" && (
-                    <button type="button" onClick={() => setMs(ms.map((x) => (x.id === m.id ? { ...x, status: "paid", paidOn: isoDate() } : x)))} className="text-xs font-semibold text-charcoal underline-offset-4 hover:underline">
-                      Mark paid without an invoice
-                    </button>
+                  {canWrite && !paid && m.amount > 0 && (
+                    <Button size="sm" variant={inv ? "secondary" : "ghost"} onClick={() => setPaying(m)} disabled={!!busy}>
+                      <IndianRupee className="size-3.5" /> Record payment
+                    </Button>
                   )}
                 </div>
+                {pays.length ? (
+                  <ul className="mt-2 space-y-1 pl-9 text-xs text-charcoal">
+                    {pays.map((p) => (
+                      <li key={p.id} className="flex flex-wrap items-center gap-x-2">
+                        <span className="tabular font-semibold text-graphite">{formatINR(p.amount)}</span>
+                        <span>
+                          {formatDate(p.date)} · {PAY_MODE_LABELS[p.mode ?? ""] ?? p.mode}
+                          {p.reference ? ` · ${p.reference}` : ""}
+                          {p.tds ? ` · TDS ${formatINR(p.tds)}` : ""}
+                        </span>
+                        <Link href={`/hq/print/receipt/${inv!.id}?payment=${p.id}`} target="_blank" className="inline-flex items-center gap-1 font-semibold text-graphite underline-offset-4 hover:underline">
+                          <ReceiptText className="size-3" /> Receipt
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </li>
             );
           })}
@@ -135,12 +170,19 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
               return (
                 <li key={inv.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                   <span className="min-w-0">
-                    <span className="block truncate font-semibold">{str(inv.number) || "Draft"}</span>
+                    <Link href={`/hq/print/invoice/${inv.id}`} target="_blank" className="block truncate font-semibold underline-offset-4 hover:underline">
+                      {str(inv.number) || "Draft"}
+                    </Link>
                     <span className="block truncate text-xs text-blueprint">{str(inv.milestone) || formatDate(str(inv.date))}</span>
                   </span>
                   <span className="text-right">
                     <span className="tabular block font-semibold">{formatINR(t.total)}</span>
                     <span className="tabular block text-xs text-charcoal">{t.balance > 0 ? `${formatINR(t.balance)} due` : "Settled"}</span>
+                    {t.paid > 0 ? (
+                      <Link href={`/hq/print/receipt/${inv.id}`} target="_blank" className="text-[11px] font-semibold text-graphite underline-offset-4 hover:underline">
+                        Receipts
+                      </Link>
+                    ) : null}
                   </span>
                 </li>
               );
@@ -151,7 +193,121 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
           Open Finance
         </Button>
       </Panel>
+      {paying ? (
+        <RecordPaymentModal
+          milestone={paying}
+          invoice={invoices.find((x) => x.id === paying.invoiceId)}
+          project={project}
+          client={client}
+          settings={settings}
+          onClose={() => setPaying(null)}
+          onSave={(p) => recordPayment(paying, p)}
+        />
+      ) : null}
     </div>
+  );
+}
+
+/** Record a payment received for a milestone: the date, amount, how it was paid and its reference — then its receipt. */
+function RecordPaymentModal({
+  milestone,
+  invoice,
+  project,
+  client,
+  settings,
+  onClose,
+  onSave,
+}: {
+  milestone: ProjectMilestone;
+  invoice?: Rec;
+  project: Rec;
+  client?: Rec;
+  settings: ReturnType<typeof useSettings>["settings"];
+  onClose: () => void;
+  onSave: (p: { date: string; amount: number; mode: string; reference: string; tds: number }) => Promise<{ invoiceId: string; paymentId: string }>;
+}) {
+  // what is still due: the invoice's balance, or (no invoice yet) the milestone with the GST the invoice will carry
+  const due = invoice ? invoiceMath(invoice, settings).balance : invoiceMath(invoiceFromProject(project, client, settings, isoDate(), milestone).record as Rec, settings).total;
+  const [f, setF] = useState({ date: isoDate(), amount: String(Math.round(due * 100) / 100), mode: "upi", reference: "", tds: "" });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState<{ invoiceId: string; paymentId: string } | null>(null);
+
+  async function save() {
+    const amount = num(f.amount);
+    const tds = num(f.tds);
+    if (!(amount > 0) && !(tds > 0)) return setError("Enter the amount received.");
+    if (amount + tds > due + 0.5) return setError(`That is more than the ${formatINR(due)} due on this milestone.`);
+    // never a payment without proof: the bank / UPI reference, the cheque number, or who received the cash
+    if (!f.reference.trim()) return setError(f.mode === "cash" ? "Enter who received the cash (and where it is kept)." : f.mode === "cheque" ? "Enter the cheque number and bank." : "Enter the transaction reference (UTR / UPI ref).");
+    setBusy(true);
+    setError("");
+    try {
+      setDone(await onSave({ date: f.date, amount, mode: f.mode, reference: f.reference.trim(), tds }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not record the payment");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={done ? "Payment recorded" : `Record payment — ${milestone.label}`}
+      footer={
+        done ? (
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" href={`/hq/print/receipt/${done.invoiceId}?payment=${done.paymentId}`} external>
+              <ReceiptText className="size-4" /> Print receipt
+            </Button>
+            <Button onClick={onClose}>Done</Button>
+          </div>
+        ) : (
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={onClose} disabled={busy}>
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={busy}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <IndianRupee className="size-4" />} Record payment
+            </Button>
+          </div>
+        )
+      }
+    >
+      {done ? (
+        <p className="text-sm text-charcoal">Saved on the invoice — Finance, the project and the receipt all show it now. Print the receipt for the client.</p>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <p className="text-xs text-charcoal sm:col-span-2">
+            {invoice ? `Invoice ${str(invoice.number)} · ${formatINR(due)} due.` : `No invoice yet — one is raised for this milestone first (${formatINR(due)} incl. any GST).`}
+          </p>
+          <Field label="Date received" htmlFor="pay-date">
+            <Input id="pay-date" type="date" value={f.date} onChange={(e) => setF((x) => ({ ...x, date: e.target.value }))} />
+          </Field>
+          <Field label="Amount received (₹)" htmlFor="pay-amount">
+            <Input id="pay-amount" type="number" min={0} inputMode="decimal" value={f.amount} onChange={(e) => setF((x) => ({ ...x, amount: e.target.value }))} className="tabular" />
+          </Field>
+          <Field label="Paid by" htmlFor="pay-mode">
+            <Select id="pay-mode" value={f.mode} onChange={(e) => setF((x) => ({ ...x, mode: e.target.value }))}>
+              {Object.entries(PAY_MODE_LABELS).map(([k, l]) => (
+                <option key={k} value={k}>
+                  {l}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="TDS deducted by the client (₹, optional)" htmlFor="pay-tds">
+            <Input id="pay-tds" type="number" min={0} inputMode="decimal" value={f.tds} placeholder="0" onChange={(e) => setF((x) => ({ ...x, tds: e.target.value }))} className="tabular" />
+          </Field>
+          <Field label={f.mode === "cash" ? "Received by" : f.mode === "cheque" ? "Cheque no. & bank" : "Reference (UTR / UPI ref)"} htmlFor="pay-ref" className="sm:col-span-2">
+            <Input id="pay-ref" value={f.reference} onChange={(e) => setF((x) => ({ ...x, reference: e.target.value }))} placeholder={f.mode === "cash" ? "e.g. Chinmay, office cash box" : f.mode === "cheque" ? "e.g. 004512, SBI" : "e.g. 4310 2210 8812"} />
+          </Field>
+          {error ? <Notice tone="bad" className="sm:col-span-2">{error}</Notice> : null}
+        </div>
+      )}
+    </Modal>
   );
 }
 

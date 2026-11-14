@@ -13,7 +13,7 @@ import { nextNumber, useCollection, useHq } from "@/components/hq/data";
 import { InvoiceTotalsBox, PaymentsPanel } from "./InvoicePanels";
 import { ProjectInvoiceModal } from "./ProjectInvoiceModal";
 import { writeParams } from "./hooks";
-import { DUE_DAYS, GST_PERCENT, addDays, deriveStatus, dueInfo, effectiveDueDate, invoiceMath, invoiceStatus, prepareInvoice, receivables, str, type Ledger, type Rec } from "./finance";
+import { DUE_DAYS, GST_PERCENT, addDays, deriveStatus, dueInfo, effectiveDueDate, invoiceMath, invoicePayments, invoiceStatus, prepareInvoice, receivables, str, type Ledger, type Rec } from "./finance";
 
 export interface InvoiceIntent {
   /** open this invoice in the drawer on mount */
@@ -60,9 +60,24 @@ export function InvoicesTab({ ledger, settings, today, intent }: { ledger: Ledge
 
   const savePayment = useCallback(
     async (next: Record<string, unknown>) => {
-      await saveInvoice((await beforeSave(next)) as Rec);
+      const saved = await saveInvoice((await beforeSave(next)) as Rec);
+      // keep the project's milestone in step: paid once its invoice is settled, invoiced while money is still due
+      const project = projects.records.find((p) => p.id === saved.projectId);
+      if (project && Array.isArray(project.milestones)) {
+        const settled = invoiceMath(saved, settings).balance <= 0.5;
+        const lastPay = [...invoicePayments(saved)].pop();
+        let changed = false;
+        const milestones = (project.milestones as Record<string, unknown>[]).map((m) => {
+          if (m.invoiceId !== saved.id) return m;
+          const status = settled ? "paid" : "invoiced";
+          if (m.status === status) return m;
+          changed = true;
+          return { ...m, status, ...(settled ? { paidOn: lastPay?.date ?? today } : { paidOn: undefined }) };
+        });
+        if (changed) await projects.save({ ...project, milestones } as Rec);
+      }
     },
-    [beforeSave, saveInvoice],
+    [beforeSave, saveInvoice, projects, settings, today],
   );
 
   const changeOpen = useCallback((id: string | null) => {

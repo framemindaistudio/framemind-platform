@@ -355,6 +355,8 @@ export async function prepareInvoice(
   }
   const m = invoiceMath(r as Rec, ctx.settings);
   r.total = m.total;
+  // money received against a draft means it was issued: from then on its status follows the payments
+  if (str(r.status) === "draft" && m.paid > 0) r.status = "sent";
   r.status = deriveStatus(r as Rec, m, ctx.today);
   if (!str(r.number).trim()) r.number = await ctx.reserveNumber();
   return r;
@@ -418,8 +420,9 @@ export function invoiceFromProject(
     customerAddress: address,
     customerGstin: str(client?.gstin),
     placeOfSupply: settings.state,
-    chargeGst: !!settings.gstRegistered,
-    gstPercent: GST_PERCENT,
+    // the GST the quote was accepted at (kept on the project when it was booked); otherwise HQ → Settings
+    chargeGst: p.gstPercent !== undefined && p.gstPercent !== "" ? num(p.gstPercent) > 0 : !!settings.gstRegistered,
+    gstPercent: p.gstPercent !== undefined && p.gstPercent !== "" && num(p.gstPercent) > 0 ? num(p.gstPercent) : GST_PERCENT,
     items,
     status: "draft",
     notes: "",
