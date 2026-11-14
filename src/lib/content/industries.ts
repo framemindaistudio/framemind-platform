@@ -34,8 +34,10 @@ export interface Industry {
   who: string;
   /** the demo business, shown so visitors know the names in it are made up */
   demoBrand: string;
-  /** a demo hosted elsewhere (e.g. the founder's Figma Sites prototype), opened in a new tab */
+  /** the live demo, opened in a new tab: a FrameMind <Name>OS app at /apps/<id>/ (or a demo hosted elsewhere) */
   demoUrl?: string;
+  /** "See how we build yours": the app's build story, /apps/<id>/story/ */
+  storyUrl?: string;
   features: { title: string; detail: string }[];
   /** the roles that log in to their own screens */
   roles: string[];
@@ -92,7 +94,8 @@ export const INDUSTRIES: Industry[] = [
     tagline: "One free app where your shops order from you — and from every distributor they buy from.",
     who: "FMCG, electrical and building-material distributors and wholesalers",
     demoBrand: "Sahyadri Distributors",
-    demoUrl: "https://framemind-tradeos.figma.site",
+    demoUrl: "/apps/trade/",
+    storyUrl: "/apps/trade/story/",
     badge: "New · TradeOS",
     setup: 15000,
     pitch: [

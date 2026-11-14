@@ -123,18 +123,23 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
             <div className="mt-8 flex flex-wrap gap-3">
               {demo ? (
                 <a href={demo} target="_blank" rel="noopener" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
-                  <MonitorPlay size={15} /> Try the live demo
+                  <MonitorPlay size={15} /> Open live demo
                 </a>
               ) : (
                 <Link to="/connect" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
                   <MonitorPlay size={15} /> New live demo coming soon — book a demo
                 </Link>
               )}
+              {ind.storyUrl ? (
+                <a href={ind.storyUrl} target="_blank" rel="noopener" className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#ccc] px-6 py-3 text-sm font-medium rounded-sm hover:text-white">
+                  See how we build yours <ArrowRight size={14} />
+                </a>
+              ) : null}
               <a href="#price" className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#ccc] px-6 py-3 text-sm font-medium rounded-sm hover:text-white">
                 Get your price <ArrowRight size={14} />
               </a>
             </div>
-            <p className="mt-3 text-[11px] text-[#555]">{demo ? `The ${ind.product} prototype opens in a new tab, with sample data.` : `We're building a new live demo of ${ind.product}. Book a demo and we'll walk you through it.`}</p>
+            <p className="mt-3 text-[11px] text-[#555]">{demo ? `The ${ind.product} live demo opens in a new tab, with sample data — try every role.` : `We're building a new live demo of ${ind.product}. Book a demo and we'll walk you through it.`}</p>
           </div>
         </section>
 
