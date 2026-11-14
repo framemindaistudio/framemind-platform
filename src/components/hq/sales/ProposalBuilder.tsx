@@ -1133,22 +1133,34 @@ function DeliverablesEditor({
         </p>
       ) : null}
       {value.map((x, i) => (
-        <div key={x.id} className="grid grid-cols-[1fr_auto] gap-2 rounded-[var(--radius-sm)] border border-graphite/12 bg-paper-50 p-2.5 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto]">
-          <Input aria-label={`Point ${i + 1}`} value={x.title} disabled={!editable} placeholder="e.g. Interactive 3D layout" onChange={(e) => put(i, { title: e.target.value })} className="font-semibold" />
-          <Input aria-label={`Point ${i + 1} detail`} value={x.detail ?? ""} disabled={!editable} placeholder="Detail (optional) — e.g. zoom, drag and several viewing angles" onChange={(e) => put(i, { detail: e.target.value })} className="col-span-2 row-start-2 sm:col-span-1 sm:row-start-auto" />
-          {editable ? (
-            <span className="col-start-2 row-start-1 flex items-center gap-0.5 sm:col-start-auto">
-              <button type="button" onClick={() => moveBy(i, -1)} className="rounded p-1.5 text-blueprint hover:bg-graphite/5" aria-label="Move up">
-                <ArrowUp className="size-4" />
-              </button>
-              <button type="button" onClick={() => moveBy(i, 1)} className="rounded p-1.5 text-blueprint hover:bg-graphite/5" aria-label="Move down">
-                <ArrowDown className="size-4" />
-              </button>
-              <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="rounded p-1.5 text-blueprint hover:bg-bad/10 hover:text-bad" aria-label="Remove point">
-                <Trash2 className="size-4" />
-              </button>
-            </span>
-          ) : null}
+        <div key={x.id} className="space-y-2 rounded-[var(--radius-sm)] border border-graphite/12 bg-paper-50 p-2.5">
+          {/* the point's title with its buttons, then the full detail underneath so the whole sentence shows */}
+          <div className="flex items-center gap-2">
+            <span className="w-5 shrink-0 text-center font-mono text-[11px] text-blueprint">{i + 1}</span>
+            <Input aria-label={`Point ${i + 1}`} value={x.title} disabled={!editable} placeholder="e.g. Interactive 3D layout" onChange={(e) => put(i, { title: e.target.value })} className="min-w-0 flex-1 font-semibold" />
+            {editable ? (
+              <span className="flex shrink-0 items-center gap-0.5">
+                <button type="button" onClick={() => moveBy(i, -1)} disabled={i === 0} className="rounded p-1.5 text-blueprint hover:bg-graphite/5 disabled:opacity-30" aria-label="Move up">
+                  <ArrowUp className="size-4" />
+                </button>
+                <button type="button" onClick={() => moveBy(i, 1)} disabled={i === value.length - 1} className="rounded p-1.5 text-blueprint hover:bg-graphite/5 disabled:opacity-30" aria-label="Move down">
+                  <ArrowDown className="size-4" />
+                </button>
+                <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="rounded p-1.5 text-blueprint hover:bg-bad/10 hover:text-bad" aria-label="Remove point">
+                  <Trash2 className="size-4" />
+                </button>
+              </span>
+            ) : null}
+          </div>
+          <Textarea
+            aria-label={`Point ${i + 1} detail`}
+            rows={2}
+            value={x.detail ?? ""}
+            disabled={!editable}
+            placeholder="Detail (optional) — e.g. Explore the property with zoom, drag and several viewing angles."
+            onChange={(e) => put(i, { detail: e.target.value })}
+            className="ml-7 w-[calc(100%-1.75rem)] resize-y text-sm"
+          />
         </div>
       ))}
       {!value.length ? <p className="rounded-[var(--radius-sm)] border border-dashed border-graphite/20 px-4 py-5 text-center text-sm text-charcoal">No points yet. Add your own, or start from what the services above include.</p> : null}
