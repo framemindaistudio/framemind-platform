@@ -58,6 +58,8 @@ export interface Industry {
   badge?: string;
   /** the three points that sell this app, shown as cards under the hero and on the flyer */
   pitch?: { title: string; detail: string }[];
+  /** a dark band under the pitch cards: what this demo stands for and the bigger version we build (TradeOS: a city's own network) */
+  bigger?: { eyebrow: string; title: string; detail: string; points: string[]; cta: string };
   /** two products in one industry: who each one is for, shown as a choice under the hero */
   chooser?: { self: { who: string; price: string }; other: { who: string; price: string } };
 }
@@ -103,6 +105,18 @@ export const INDUSTRIES: Industry[] = [
       { title: "Your brand inside the app", detail: "Your name and colours on your products and orders, next to the other distributors your shops buy from." },
       { title: "Just ordering — the rest only if you want it", detail: "No prices, invoices or stock counts to keep up. Add them later, one at a time, when you need them." },
     ],
+    bigger: {
+      eyebrow: "For a whole city or district",
+      title: "Your city's own ordering network",
+      detail:
+        "TradeOS is the demo of what we build for a city. When the distributors of one city, town or district — 10, 20 or more of them — come together, we build that city its own app with its own name and brand, not TradeOS. Every distributor and every shop in the city orders through it.",
+      points: [
+        "Any number of distributors and shops in your city",
+        "Your city's own app name, logo and colours",
+        "Shops use it free; charged per distributor",
+      ],
+      cta: "Talk to us about your city",
+    },
     features: [
       { title: "One app, every distributor", detail: "A shop sees the products of all the distributors who added it in one list, and orders everything in one go." },
       { title: "Orders split automatically", detail: "The shop's cart is sent as one order to each distributor — you only ever see your part." },

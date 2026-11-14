@@ -186,6 +186,31 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
           </section>
         ) : null}
 
+        {/* the bigger version we build (TradeOS: a city's own network) */}
+        {ind.bigger ? (
+          <section className="bg-[#0D0D0D] border-b border-[#1a1a1a]">
+            <div className="max-w-6xl mx-auto px-6 py-12 md:py-14 grid grid-cols-1 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-8 md:items-center">
+              <div>
+                <p className="font-mono text-[10px] text-[#C8F135] uppercase tracking-[0.2em]">{ind.bigger.eyebrow}</p>
+                <h2 className="mt-3 text-3xl md:text-4xl font-black text-[#F5F4F0] tracking-tight">{ind.bigger.title}</h2>
+                <p className="mt-3 text-sm md:text-base text-[#999] leading-relaxed max-w-xl">{ind.bigger.detail}</p>
+              </div>
+              <div>
+                <ul className="grid gap-2.5">
+                  {ind.bigger.points.map((p) => (
+                    <li key={p} className="flex items-start gap-2.5 text-sm text-[#ddd]">
+                      <Check size={16} className="mt-0.5 shrink-0 text-[#C8F135]" /> {p}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/connect" className="mt-6 inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-5 py-2.5 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
+                  {ind.bigger.cta} <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         {/* features */}
         <section className="border-b border-border">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
