@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Copy, ExternalLink, FolderPlus, Loader2, Plus, Printer, RefreshCw, Save, Send, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Copy, ExternalLink, FolderPlus, Loader2, Plus, Printer, RefreshCw, Save, Send, Sparkles, Trash2 } from "lucide-react";
 import { COACHING, VRITTA, type ServiceId } from "@/lib/content/catalog";
 import { getCollection, type BaseRecord, type LineItem } from "@/lib/hq/collections";
 import { can } from "@/lib/hq/roles";
@@ -18,12 +18,12 @@ import { prepareInvoice } from "@/components/hq/finance/finance";
 import { LineItemsEditor } from "@/components/hq/fields";
 import { HqIcon } from "@/components/hq/Icon";
 import { EmptyState, Loading, PageHeader, Panel } from "@/components/hq/ui";
-import { cn, formatDate, formatINR } from "@/lib/utils";
+import { cn, formatDate, formatINR, uid } from "@/lib/utils";
 import { BackLink, Notice } from "./bits";
 import { addDays, str, todayIso } from "./crm";
 import { addOnPrice, addOnsFor, AREA_UNITS, realEstateWith, type AreaUnit, type PlanId } from "@/lib/content/real-estate";
 import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, tierPrice, type IndustryId, type TierId } from "@/lib/content/industries";
-import { blankQuote, bookingOf, coachingLine, customLine, extraItemsOf, linesOf, milestonePlan, milestonesOf, moneyOf, projectFromQuote, industryLine, realEstateLine, repriceService, serviceLine, servicesOf, vrittaLine, type Booking } from "./quote";
+import { blankQuote, bookingOf, coachingLine, customLine, deliverablesFromFreeExtras, extraItemsOf, suggestedDeliverables, type Deliverable, linesOf, milestonePlan, milestonesOf, moneyOf, projectFromQuote, industryLine, realEstateLine, repriceService, serviceLine, servicesOf, vrittaLine, type Booking } from "./quote";
 
 const proposalsDef = getCollection("proposals")!;
 const STATUS_OPTIONS = proposalsDef.fields.find((f) => f.key === "status")?.options ?? [];
@@ -430,8 +430,23 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
             </div>
           </Panel>
 
-          {/* 03 discounts */}
-          <Panel title={<StepTitle n="03">Discounts &amp; extra items</StepTitle>}>
+          {/* 03 what the client gets */}
+          <Panel
+            title={<StepTitle n="03">What you get</StepTitle>}
+            subtitle="The deliverables this client gets, in your words — printed on the quote under the price. Different clients, different points."
+          >
+            <DeliverablesEditor
+              value={Array.isArray(form.deliverables) ? (form.deliverables as Deliverable[]) : []}
+              onChange={(next) => set({ deliverables: next })}
+              suggest={() => suggestedDeliverables(lines, rates)}
+              freeExtras={deliverablesFromFreeExtras(form)}
+              onMoveFreeExtras={(points, rest) => set({ deliverables: [...(Array.isArray(form.deliverables) ? (form.deliverables as Deliverable[]) : []), ...points], extraItems: rest })}
+              editable={canWrite}
+            />
+          </Panel>
+
+          {/* 04 discounts */}
+          <Panel title={<StepTitle n="04">Discounts &amp; extra items</StepTitle>}>
             <div className="grid gap-4 sm:grid-cols-6">
               <div className="sm:col-span-6">
                 <Checkbox
@@ -466,8 +481,8 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
             </div>
           </Panel>
 
-          {/* 04 payment & terms */}
-          <Panel title={<StepTitle n="04">Payment, timeline &amp; terms</StepTitle>}>
+          {/* 05 payment & terms */}
+          <Panel title={<StepTitle n="05">Payment, timeline &amp; terms</StepTitle>}>
             <div className="grid gap-4 sm:grid-cols-6">
               <div className="sm:col-span-6">
                 <Label>Payment milestones</Label>
@@ -1075,6 +1090,78 @@ function IndustryEditor({ line, rates, editable, onChange }: { line: Extract<Quo
       <p className="text-[11px] text-blueprint">
         Setup {formatINR(rates.industries.setup)} once; each extra branch adds {rates.industries.branchPercent}% of the plan. The quote counts the setup and add-ons once and the plan for the months or years above; payment milestones split only the one-time part. Prices from Money → Rate Card → Industries.
       </p>
+    </div>
+  );
+}
+
+/** "What you get": the client's deliverables as short points with an optional line of detail each. */
+function DeliverablesEditor({
+  value,
+  onChange,
+  suggest,
+  freeExtras,
+  onMoveFreeExtras,
+  editable,
+}: {
+  value: Deliverable[];
+  onChange: (next: Deliverable[]) => void;
+  suggest: () => Deliverable[];
+  freeExtras: { points: Deliverable[]; rest: LineItem[] };
+  onMoveFreeExtras: (points: Deliverable[], rest: LineItem[]) => void;
+  editable: boolean;
+}) {
+  const put = (i: number, patch: Partial<Deliverable>) => onChange(value.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const moveBy = (i: number, by: number) => {
+    const j = i + by;
+    if (j < 0 || j >= value.length) return;
+    const next = [...value];
+    [next[i], next[j]] = [next[j], next[i]];
+    onChange(next);
+  };
+  const addSuggested = () => {
+    const have = new Set(value.map((x) => x.title.trim().toLowerCase()));
+    onChange([...value, ...suggest().filter((x) => !have.has(x.title.toLowerCase()))]);
+  };
+  return (
+    <div className="space-y-3">
+      {freeExtras.points.length && editable ? (
+        <p className="flex flex-wrap items-center gap-2 rounded-[var(--radius-sm)] border border-warn/30 bg-warn/10 px-3 py-2 text-xs text-warn">
+          {freeExtras.points.length} extra item{freeExtras.points.length === 1 ? " is" : "s are"} at ₹0 — they read like deliverables.
+          <button type="button" onClick={() => onMoveFreeExtras(freeExtras.points, freeExtras.rest)} className="font-semibold underline underline-offset-2">
+            Move them here
+          </button>
+        </p>
+      ) : null}
+      {value.map((x, i) => (
+        <div key={x.id} className="grid grid-cols-[1fr_auto] gap-2 rounded-[var(--radius-sm)] border border-graphite/12 bg-paper-50 p-2.5 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto]">
+          <Input aria-label={`Point ${i + 1}`} value={x.title} disabled={!editable} placeholder="e.g. Interactive 3D layout" onChange={(e) => put(i, { title: e.target.value })} className="font-semibold" />
+          <Input aria-label={`Point ${i + 1} detail`} value={x.detail ?? ""} disabled={!editable} placeholder="Detail (optional) — e.g. zoom, drag and several viewing angles" onChange={(e) => put(i, { detail: e.target.value })} className="col-span-2 row-start-2 sm:col-span-1 sm:row-start-auto" />
+          {editable ? (
+            <span className="col-start-2 row-start-1 flex items-center gap-0.5 sm:col-start-auto">
+              <button type="button" onClick={() => moveBy(i, -1)} className="rounded p-1.5 text-blueprint hover:bg-graphite/5" aria-label="Move up">
+                <ArrowUp className="size-4" />
+              </button>
+              <button type="button" onClick={() => moveBy(i, 1)} className="rounded p-1.5 text-blueprint hover:bg-graphite/5" aria-label="Move down">
+                <ArrowDown className="size-4" />
+              </button>
+              <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="rounded p-1.5 text-blueprint hover:bg-bad/10 hover:text-bad" aria-label="Remove point">
+                <Trash2 className="size-4" />
+              </button>
+            </span>
+          ) : null}
+        </div>
+      ))}
+      {!value.length ? <p className="rounded-[var(--radius-sm)] border border-dashed border-graphite/20 px-4 py-5 text-center text-sm text-charcoal">No points yet. Add your own, or start from what the services above include.</p> : null}
+      {editable ? (
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => onChange([...value, { id: uid("dl"), title: "" }])} className="inline-flex items-center gap-1.5 rounded-full border border-graphite/20 bg-paper-50 px-3 py-1.5 text-xs font-semibold text-graphite hover:border-graphite">
+            <Plus className="size-3.5" /> Add a point
+          </button>
+          <button type="button" onClick={addSuggested} className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-graphite/30 px-3 py-1.5 text-xs font-semibold text-charcoal hover:border-graphite">
+            <Sparkles className="size-3.5" /> Fill from the services above
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

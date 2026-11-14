@@ -4,8 +4,8 @@
  */
 import { COACHING, VRITTA, type ServiceId, type VrittaEdition, type VrittaSegment } from "@/lib/content/catalog";
 import type { BaseRecord, LineItem } from "@/lib/hq/collections";
-import { AREA_UNITS, priceRealEstate, toSqft, type AreaUnit, type PlanId } from "@/lib/content/real-estate";
-import { priceIndustry, type IndustryId, type TierId } from "@/lib/content/industries";
+import { AREA_UNITS, PLANS as RE_PLANS, priceRealEstate, toSqft, type AreaUnit, type PlanId } from "@/lib/content/real-estate";
+import { TIERS, industryById, priceIndustry, type IndustryId, type TierId } from "@/lib/content/industries";
 import { defaultSelections, priceService, priceVritta, quoteMoney, socialMonthly, splitMilestones, type QuoteLine, type QuoteMoney, type Selections } from "@/lib/pricebook/math";
 import type { Milestone, RateCard } from "@/lib/pricebook/types";
 import { uid } from "@/lib/utils";
@@ -31,6 +31,54 @@ export function milestonesOf(r: Record<string, unknown>, fallback: Milestone[]):
 
 export function extraItemsOf(r: Record<string, unknown>): LineItem[] {
   return Array.isArray(r.extraItems) ? (r.extraItems as LineItem[]).filter((x) => x && (x.description || num(x.rate))) : [];
+}
+
+/* ─────────────────────────── what the client gets ─────────────────────────── */
+
+/** One point of a quote's "What you get": a short title and, if wanted, a line of detail. */
+export interface Deliverable {
+  id: string;
+  title: string;
+  detail?: string;
+}
+
+/** The quote's own "What you get" points, written per client (empty ones are left out). */
+export function deliverablesOf(r: Record<string, unknown>): Deliverable[] {
+  return Array.isArray(r.deliverables) ? (r.deliverables as Deliverable[]).filter((x) => x && typeof x.title === "string" && x.title.trim()) : [];
+}
+
+/** Starting points from the quote's lines: what each service, plan or app includes — to edit per client. */
+export function suggestedDeliverables(lines: QuoteLine[], rates: RateCard): Deliverable[] {
+  const out: Deliverable[] = [];
+  const add = (title: string, detail?: string) => {
+    const t = title.trim();
+    if (t && !t.endsWith(":") && !out.some((x) => x.title.toLowerCase() === t.toLowerCase())) out.push({ id: uid("dl"), title: t, ...(detail ? { detail } : {}) });
+  };
+  for (const l of lines) {
+    if (l.kind === "service") rates.services.find((s) => s.id === l.serviceId)?.included.forEach((x) => add(x));
+    else if (l.kind === "realestate") RE_PLANS.find((p) => p.id === l.plan)?.includes.forEach((x) => add(x));
+    else if (l.kind === "industry") {
+      industryById(l.industry)?.features.forEach((f) => add(f.title, f.detail));
+      TIERS.find((t) => t.id === l.tier)?.includes.forEach((x) => add(x));
+    } else if (l.kind === "vritta") add(VRITTA.line);
+    else if (l.kind === "coaching") add(COACHING.line);
+  }
+  return out;
+}
+
+/**
+ * Extra line items at ₹0 were used as "What you get" points before this section existed ("Title — detail").
+ * They become points; the priced extra items stay where they are.
+ */
+export function deliverablesFromFreeExtras(r: Record<string, unknown>): { points: Deliverable[]; rest: LineItem[] } {
+  const items = Array.isArray(r.extraItems) ? (r.extraItems as LineItem[]) : [];
+  const free = items.filter((x) => x && str(x.description).trim() && !num(x.rate));
+  const points = free.map((x) => {
+    const [title, ...more] = str(x.description).split(/\s+[—–-]\s+/);
+    const detail = more.join(" — ").trim();
+    return { id: uid("dl"), title: title.trim(), ...(detail ? { detail } : {}) };
+  });
+  return { points, rest: items.filter((x) => !free.includes(x)) };
 }
 
 /** Every money figure of a quote, from its stored lines (prices as they were when each line was made). */
@@ -215,7 +263,14 @@ export function projectFromQuote(q: BaseRecord, money: QuoteMoney, fallbackMiles
     revisionsUsed: 0,
     clientContact: str(client?.contactName),
     clientContactPhone: str(client?.phone),
-    brief: [str(q.notes), ...lines.map((l) => `• ${l.title}${l.kind === "service" ? `: ${l.items.map((i) => i.label).join(", ")}` : ""}`)].filter(Boolean).join("\n"),
+    brief: [
+      str(q.notes),
+      ...lines.map((l) => `• ${l.title}${l.kind === "service" ? `: ${l.items.map((i) => i.label).join(", ")}` : ""}`),
+      ...(deliverablesOf(q).length ? ["", "What the client gets:", ...deliverablesOf(q).map((x) => `– ${x.title}${x.detail ? ` — ${x.detail}` : ""}`)] : []),
+    ]
+      .filter((x, i) => x || i > 0)
+      .join("\n")
+      .trim(),
     milestones: milestonePlan(q, money, fallbackMilestones).map((m) => ({ ...m, id: uid("ms"), status: "due", invoiceId: "" })),
   };
 }

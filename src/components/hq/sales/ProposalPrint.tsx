@@ -13,7 +13,7 @@ import { A4Page, PrintShell } from "@/components/print/PrintShell";
 import { useCollection, useHq, useRates, useSettings } from "@/components/hq/data";
 import type { QuoteLine, QuoteMoney } from "@/lib/pricebook/math";
 import { str } from "./crm";
-import { extraItemsOf, linesOf, milestonePlan, moneyOf } from "./quote";
+import { deliverablesOf, extraItemsOf, linesOf, milestonePlan, moneyOf } from "./quote";
 import { SignatureSpace } from "@/components/print/Signature";
 
 const LABEL = "text-[6.5pt] font-semibold uppercase tracking-[0.22em] text-blueprint";
@@ -375,6 +375,23 @@ function InvestmentPage({ c, page }: { c: Ctx; page: string }) {
         </div>
       </div>
 
+      {deliverablesOf(quote).length ? (
+        <div className="mt-[6mm] border-t border-graphite/15 pt-[4mm] text-[8.5pt]">
+          <p className={LABEL}>What you get</p>
+          <ul className="mt-[1.5mm] grid grid-cols-2 gap-x-[6mm] gap-y-[1.2mm]">
+            {deliverablesOf(quote).map((x) => (
+              <li key={x.id} className="flex gap-1.5 leading-snug">
+                <span className="font-bold text-graphite">✓</span>
+                <span>
+                  <span className="font-semibold text-graphite">{x.title}</span>
+                  {x.detail ? <span className="text-charcoal"> — {x.detail}</span> : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       {str(quote.notes) && (
         <div className="mt-[6mm] border-l-[3px] border-graphite pl-4">
           <p className={LABEL}>Notes</p>
@@ -389,11 +406,11 @@ function InvestmentPage({ c, page }: { c: Ctx; page: string }) {
 function TermsPage({ c, page }: { c: Ctx; page: string }) {
   const include = c.quote.includeTerms !== false;
   return (
-    <A4Page>
+    <A4Page className="flex flex-col">
       <RunningHead c={c} section="How we work" page={page} />
       <p className={LABEL}>03 · How we work</p>
       <h2 className="mt-2 text-[22pt] font-semibold leading-tight tracking-[-0.03em] text-graphite">From first message to final delivery</h2>
-      <ol className="mt-[6mm] grid grid-cols-2 gap-x-[8mm] gap-y-[5mm]">
+      <ol className="mt-[5mm] grid grid-cols-2 gap-x-[8mm] gap-y-[4mm]">
         {TERMS.process.map((s, i) => (
           <li key={s.title} className="flex gap-3">
             <span className="grid size-[8mm] shrink-0 place-items-center rounded-full bg-lime font-mono text-[8pt] font-semibold text-graphite">{i + 1}</span>
@@ -406,7 +423,7 @@ function TermsPage({ c, page }: { c: Ctx; page: string }) {
       </ol>
 
       {include && (
-        <div className="mt-[9mm] space-y-[4mm] text-[8.5pt] leading-relaxed text-charcoal">
+        <div className="mt-[7mm] space-y-[2.5mm] text-[8.5pt] leading-relaxed text-charcoal">
           {[
             ["Revisions", TERMS.revisionPolicy],
             ["What we need from you", TERMS.clientResponsibilities],
@@ -419,7 +436,7 @@ function TermsPage({ c, page }: { c: Ctx; page: string }) {
             ["Discounts", TERMS.discounts],
             ["International clients", TERMS.international],
           ].map(([k, v]) => (
-            <div key={k} className="grid grid-cols-[42mm_1fr] gap-4 border-t border-graphite/10 pt-[3mm]">
+            <div key={k} className="grid grid-cols-[42mm_1fr] gap-4 border-t border-graphite/10 pt-[2.5mm]">
               <p className="font-semibold text-graphite">{k}</p>
               <p>{v}</p>
             </div>
@@ -427,7 +444,8 @@ function TermsPage({ c, page }: { c: Ctx; page: string }) {
         </div>
       )}
 
-      <div className="absolute inset-x-[16mm] bottom-[22mm] grid grid-cols-2 gap-[12mm]">
+      {/* in the flow, after the terms: pushed to the foot of the page when there is room, never over the text */}
+      <div className="mt-auto grid grid-cols-2 gap-[12mm] pb-[6mm] pt-[8mm]" style={{ breakInside: "avoid" }}>
         <div>
           <p className={LABEL}>For FrameMind AI Studio</p>
           <SignatureSpace name={c.signatory.name} align="left" className="h-[14mm]" />
@@ -624,6 +642,23 @@ function SimpleQuote({ c }: { c: Ctx }) {
           <p className="mt-1 text-right text-[7pt] text-charcoal">{amountInWords(Math.round(m.total))}</p>
         </dl>
       </div>
+
+      {deliverablesOf(quote).length ? (
+        <div className="mt-[4mm] border-t border-graphite/15 pt-[3mm] text-[8pt]">
+          <p className={LABEL}>What you get</p>
+          <ul className="mt-[1.5mm] grid grid-cols-2 gap-x-[6mm] gap-y-[1.2mm]">
+            {deliverablesOf(quote).map((x) => (
+              <li key={x.id} className="flex gap-1.5 leading-snug">
+                <span className="font-bold text-graphite">✓</span>
+                <span>
+                  <span className="font-semibold text-graphite">{x.title}</span>
+                  {x.detail ? <span className="text-charcoal"> — {x.detail}</span> : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="mt-[4mm] grid grid-cols-2 gap-6 border-t border-graphite/15 pt-[3mm]">
         <div className="space-y-[2mm]">
