@@ -203,9 +203,9 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                     </li>
                   ))}
                 </ul>
-                <Link to="/connect" className="mt-6 inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-5 py-2.5 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
+                <a href="#price" className="mt-6 inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-5 py-2.5 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
                   {ind.bigger.cta} <ArrowRight size={14} />
-                </Link>
+                </a>
               </div>
             </div>
           </section>
