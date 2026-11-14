@@ -316,6 +316,8 @@ export const INDUSTRIES: Industry[] = [
     name: "PG & Hostels",
     product: "PG / Hostel App",
     icon: "BedDouble",
+    demoUrl: "/apps/dorm/",
+    storyUrl: "/apps/dorm/story/",
     tagline: "Rent, bills, complaints and vacant beds on one screen.",
     who: "PGs, hostels, co-living and student housing",
     demoBrand: "Nest Stay PG",
