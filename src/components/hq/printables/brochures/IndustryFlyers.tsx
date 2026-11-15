@@ -42,7 +42,8 @@ export function IndustryFlyers({ q }: { q: Q }) {
   const pick = (q.industry ?? "all").trim();
   const list = pick === "all" ? INDUSTRIES : INDUSTRIES.filter((i) => i.id === pick);
   const host = site.website.replace(/\/$/, "");
-  const qrs = useQrs(list.map((i) => `${host}/industries/${i.slug}`));
+  const links = list.map((i) => flyerLinks(host, i));
+  const qrs = useQrs(links.flatMap((l) => [l.main.url, ...(l.story ? [l.story.url] : [])]));
   if (!rates) return <Loading label="Loading the rate card…" />;
 
   const preparedFor = (q.for ?? "").trim();
@@ -55,11 +56,40 @@ export function IndustryFlyers({ q }: { q: Q }) {
 
   return (
     <PrintShell title="Industry app flyers" back="/hq/printables" toolbar={<span className="text-xs text-blueprint">{list.length} flyer{list.length === 1 ? "" : "s"} · prices from the Rate Card</span>}>
-      {list.map((ind) => (
-        <Flyer key={ind.id} ind={ind} rates={rates.industries} realEstate={ind.id === "realestate" ? rates.realEstate : undefined} gst={!!settings.gstRegistered} preparedFor={preparedFor} contact={contact} qr={qrs[`${host}/industries/${ind.slug}`] ?? ""} url={`${contact.web}/industries/${ind.slug}`} />
-      ))}
+      {list.map((ind, i) => {
+        const l = links[i];
+        return (
+          <Flyer
+            key={ind.id}
+            ind={ind}
+            rates={rates.industries}
+            realEstate={ind.id === "realestate" ? rates.realEstate : undefined}
+            gst={!!settings.gstRegistered}
+            preparedFor={preparedFor}
+            contact={contact}
+            codes={[{ ...l.main, svg: qrs[l.main.url] ?? "" }, ...(l.story ? [{ ...l.story, svg: qrs[l.story.url] ?? "" }] : [])]}
+            icon={l.icon}
+            url={`${contact.web}/industries/${ind.slug}`}
+          />
+        );
+      })}
     </PrintShell>
   );
+}
+
+/**
+ * Where a flyer's QR codes lead. An industry with a FrameMind OS app (demoUrl under /apps/) gets two: the live demo,
+ * where every role can be tried with sample data, and the story of how it was built. Others point to the industry page.
+ */
+function flyerLinks(host: string, ind: Industry) {
+  const app = ind.demoUrl?.startsWith("/apps/") ? ind.demoUrl.replace(/\/?$/, "/") : null;
+  if (!app) return { main: { url: `${host}/industries/${ind.slug}`, label: "Scan for details" }, story: null, icon: null };
+  return {
+    main: { url: `${host}${app}`, label: "Scan for the live demo" },
+    story: ind.storyUrl ? { url: `${host}${ind.storyUrl.replace(/\/?$/, "/")}`, label: "How we build yours" } : null,
+    // the app's own brand mark, published with the app (e.g. /apps/table/brand/tableos-icon-color.svg)
+    icon: `${app}brand/${ind.product.toLowerCase()}-icon-color.svg`,
+  };
 }
 
 function Flyer({
@@ -69,7 +99,8 @@ function Flyer({
   gst,
   preparedFor,
   contact,
-  qr,
+  codes,
+  icon,
   url,
 }: {
   ind: Industry;
@@ -78,34 +109,50 @@ function Flyer({
   gst: boolean;
   preparedFor: string;
   contact: { name: string; phone: string; email: string; web: string };
-  qr: string;
+  codes: { url: string; label: string; svg: string }[];
+  icon: string | null;
   url: string;
 }) {
   const free = rates?.annualFreeMonths ?? 2;
   const branchPct = rates?.branchPercent ?? 50;
   const setup = setupFor(rates, ind.id);
   const developer = realEstate ? realEstateWith(realEstate).plans : null;
+  // the city flyer (TradeOS) carries an extra band, so its sections sit a little closer to stay on one A4 page
+  const gap = ind.bigger ? "mt-[3mm]" : "mt-[4mm]";
   return (
     <A4Page className="flex flex-col text-[8.5pt]">
       {/* header */}
       <header className="flex items-start justify-between gap-6 border-b-2 border-ink pb-[4mm]">
         <div>
           <Wordmark mm={44} />
-          <p className="mt-[5mm] text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">Industry app · {ind.who}</p>
-          <h1 className="mt-[1.5mm] text-[24pt] font-bold leading-none tracking-[-0.03em]">{ind.product}</h1>
+          <p className="mt-[5mm] text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">{icon ? ind.who : `Industry app · ${ind.who}`}</p>
+          <div className="mt-[1.5mm] flex items-center gap-[2.5mm]">
+            {icon && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={icon} alt="" className="size-[11mm] shrink-0" />
+            )}
+            <h1 className="text-[24pt] font-bold leading-none tracking-[-0.03em]">
+              {icon && <span className="block text-[9pt] font-semibold tracking-normal text-charcoal">FrameMind</span>}
+              {ind.product}
+            </h1>
+          </div>
           <p className="mt-[2mm] max-w-[120mm] text-[10pt] leading-snug text-charcoal">{ind.tagline} With your name, logo and colours, live in 3–4 weeks.</p>
           {preparedFor && <p className="mt-[1.5mm] text-[8.5pt] font-semibold">Prepared for {preparedFor}</p>}
         </div>
-        {qr && (
-          <div className="shrink-0 text-center">
-            <div className="size-[28mm] [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qr }} />
-            <p className="mt-[1.5mm] text-[6.5pt] font-semibold uppercase tracking-[0.16em]">Scan for the live demo</p>
-          </div>
-        )}
+        <div className="flex shrink-0 gap-[4mm]">
+          {codes
+            .filter((c) => c.svg)
+            .map((c, i) => (
+              <div key={c.url} className="w-[28mm] text-center">
+                <div className={`${i === 0 ? "size-[28mm]" : "mx-auto size-[22mm]"} [&>svg]:h-full [&>svg]:w-full`} dangerouslySetInnerHTML={{ __html: c.svg }} />
+                <p className="mt-[1.5mm] text-[6.5pt] font-semibold uppercase leading-tight tracking-[0.16em]">{c.label}</p>
+              </div>
+            ))}
+        </div>
       </header>
 
-      {/* what sells this app */}
-      {ind.pitch ? (
+      {/* what sells this app (the city band below says the same for TradeOS, so it takes the cards' place) */}
+      {ind.pitch && !ind.bigger ? (
         <section className="mt-[4mm] grid grid-cols-3 gap-[3mm]">
           {ind.pitch.map((x) => (
             <div key={x.title} className="rounded-[2mm] border-2 border-ink p-[2.5mm]">
@@ -116,16 +163,34 @@ function Flyer({
         </section>
       ) : null}
 
+      {/* the bigger version we build (TradeOS: a city's own network) */}
+      {ind.bigger ? (
+        <section className="mt-[3mm] rounded-[2mm] bg-ink px-[3mm] py-[2.2mm] text-white">
+          <p className="text-[6.5pt] font-semibold uppercase tracking-[0.22em] text-white/60">{ind.bigger.eyebrow}</p>
+          <div className="mt-[1mm] grid grid-cols-[1.15fr_1fr] gap-[5mm]">
+            <div>
+              <p className="text-[11pt] font-bold leading-tight">{ind.bigger.title}</p>
+              <p className="mt-[1mm] text-[7.5pt] leading-snug text-white/75">{ind.bigger.detail}</p>
+            </div>
+            <ul className="space-y-[1mm] self-center text-[7.5pt] leading-snug">
+              {ind.bigger.points.map((x) => (
+                <li key={x}>✓ {x}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
+
       {/* features */}
-      <section className="mt-[4mm]">
+      <section className={gap}>
         <p className="text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">What the app does</p>
-        <div className="mt-[2mm] grid grid-cols-2 gap-x-[6mm] gap-y-[2.5mm]">
+        <div className={`mt-[2mm] grid gap-x-[6mm] gap-y-[2.5mm] ${ind.bigger ? "grid-cols-3" : "grid-cols-2"}`}>
           {ind.features.map((f) => (
             <div key={f.title} className="flex gap-2">
               <span className="mt-[0.3mm] font-bold">✓</span>
               <span>
                 <span className="block font-semibold">{f.title}</span>
-                <span className="block leading-snug text-charcoal">{f.detail}</span>
+                <span className={`block leading-snug text-charcoal ${ind.bigger ? "text-[7.5pt]" : ""}`}>{f.detail}</span>
               </span>
             </div>
           ))}
@@ -136,7 +201,7 @@ function Flyer({
       </section>
 
       {/* plans */}
-      <section className="mt-[4mm]">
+      <section className={gap}>
         <p className="text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">Plans · {ind.unit}</p>
         <div className="mt-[2mm] grid grid-cols-3 gap-[3mm]">
           {TIERS.map((t, i) => {
@@ -168,12 +233,12 @@ function Flyer({
       </section>
 
       {/* setup + add-ons */}
-      <section className="mt-[4mm] grid grid-cols-2 gap-[6mm]">
+      <section className={`${gap} grid grid-cols-2 gap-[6mm]`}>
         <div>
           <p className="text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">One-time setup</p>
           <p className="mt-[1.5mm] text-[14pt] font-bold leading-none">{formatINR(setup)}</p>
           <p className="mt-[1.5mm] leading-snug text-charcoal">Your name, logo and colours, your own web address, your data imported, a training session and go-live.</p>
-          <p className="mt-[1.5mm] leading-snug text-charcoal">Each extra branch adds {branchPct}% of the plan.</p>
+          {!ind.bigger && <p className="mt-[1.5mm] leading-snug text-charcoal">Each extra branch adds {branchPct}% of the plan.</p>}
         </div>
         <div>
           <p className="text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">Add-ons (one-time)</p>
