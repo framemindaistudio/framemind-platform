@@ -1,3 +1,3 @@
-:HL["/apps/trade/_next/static/chunks/025zahsdvs3vb.css","style"]
+:HL["/apps/trade/_next/static/chunks/3ivfk_nj-f_2x.css","style"]
 :HC["/",""]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"distributor","param":null,"prefetchHints":4192,"slots":{"children":{"name":"team","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"rSfNCguOhUBKzcMVI1sKE"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"distributor","param":null,"prefetchHints":4192,"slots":{"children":{"name":"team","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"supPnbGVWvEW87ur0Lst3"}
