@@ -1,0 +1,3 @@
+:HL["/apps/smile/_next/static/chunks/1sn8l47l-25ys.css","style"]
+:HC["/",""]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"dentist","param":null,"prefetchHints":4192,"slots":{"children":{"name":"patient","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"5-N9OZIstD9ETnn6Mtk-j"}
