@@ -85,7 +85,6 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
                     className="group relative overflow-hidden rounded-2xl border border-[var(--b-primary)]/10 bg-white p-6 flex flex-col text-[var(--b-primary)] shadow-[0_12px_30px_-24px_rgba(0,11,45,0.45)] transition hover:-translate-y-0.5 hover:border-[var(--b-accent)] hover:shadow-[0_22px_40px_-24px_rgba(0,11,45,0.5)]"
                   >
                     <span className="absolute inset-x-0 top-0 h-1 bg-[var(--b-accent)]" />
-                    <span className="absolute -right-10 -top-10 size-40 rounded-full bg-[var(--b-surface)] opacity-70 transition group-hover:scale-110" />
                     <div className="relative flex items-center justify-between gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={b.logo} alt={`FrameMind ${b.name}`} className="h-9 w-auto" />
