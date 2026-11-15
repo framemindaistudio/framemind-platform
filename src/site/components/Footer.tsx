@@ -59,6 +59,22 @@ export default function Footer() {
             >
               LinkedIn
             </a>
+            <a
+              href="https://wa.me/918073087576"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[#999] hover:text-[#F5F4F0] transition-colors"
+            >
+              WhatsApp
+            </a>
+            <a
+              href="https://www.instagram.com/framemind_ai_studio/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[#999] hover:text-[#F5F4F0] transition-colors"
+            >
+              Instagram
+            </a>
           </div>
         </div>
       </div>

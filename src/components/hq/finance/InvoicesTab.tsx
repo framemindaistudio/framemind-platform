@@ -13,7 +13,7 @@ import { nextNumber, useCollection, useHq } from "@/components/hq/data";
 import { InvoiceTotalsBox, PaymentsPanel } from "./InvoicePanels";
 import { ProjectInvoiceModal } from "./ProjectInvoiceModal";
 import { writeParams } from "./hooks";
-import { DUE_DAYS, GST_PERCENT, addDays, deriveStatus, dueInfo, effectiveDueDate, invoiceMath, invoicePayments, invoiceStatus, prepareInvoice, receivables, str, type Ledger, type Rec } from "./finance";
+import { DUE_DAYS, GST_PERCENT, addDays, deriveStatus, dueInfo, effectiveDueDate, FULL_PROJECT, invoiceMath, invoiceStatus, milestoneMoney, milestonesOfProject, type ProjectMilestoneLike, prepareInvoice, receivables, str, type Ledger, type Rec } from "./finance";
 
 export interface InvoiceIntent {
   /** open this invoice in the drawer on mount */
@@ -60,19 +60,36 @@ export function InvoicesTab({ ledger, settings, today, intent }: { ledger: Ledge
 
   const savePayment = useCallback(
     async (next: Record<string, unknown>) => {
+      const project0 = projects.records.find((p) => p.id === next.projectId);
+      if (str(next.milestone) === FULL_PROJECT && project0 && Array.isArray(next.payments)) {
+        const ms = milestonesOfProject(project0);
+        const paidBy = new Map<string, number>();
+        const pays = (next.payments as Record<string, unknown>[]).map((p) => ({ ...p }));
+        for (const p of pays) if (p.milestoneId) paidBy.set(str(p.milestoneId), (paidBy.get(str(p.milestoneId)) ?? 0) + Number(p.amount || 0) + Number(p.tds || 0));
+        const gst = invoiceMath(next as Rec, settings).gstPercent;
+        for (const p of pays) {
+          if (p.milestoneId) continue;
+          const m = ms.find((x) => (paidBy.get(x.id) ?? 0) + 0.5 < Number(x.amount || 0) * (1 + gst / 100));
+          if (!m) continue;
+          p.milestoneId = m.id;
+          if (!str(p.note)) p.note = m.label;
+          paidBy.set(m.id, (paidBy.get(m.id) ?? 0) + Number(p.amount || 0) + Number(p.tds || 0));
+        }
+        next = { ...next, payments: pays };
+      }
       const saved = await saveInvoice((await beforeSave(next)) as Rec);
       // keep the project's milestone in step: paid once its invoice is settled, invoiced while money is still due
       const project = projects.records.find((p) => p.id === saved.projectId);
       if (project && Array.isArray(project.milestones)) {
-        const settled = invoiceMath(saved, settings).balance <= 0.5;
-        const lastPay = [...invoicePayments(saved)].pop();
         let changed = false;
         const milestones = (project.milestones as Record<string, unknown>[]).map((m) => {
           if (m.invoiceId !== saved.id) return m;
-          const status = settled ? "paid" : "invoiced";
+          const mm = milestoneMoney(m as unknown as ProjectMilestoneLike, saved, settings);
+          const status = mm.settled ? "paid" : "invoiced";
           if (m.status === status) return m;
           changed = true;
-          return { ...m, status, ...(settled ? { paidOn: lastPay?.date ?? today } : { paidOn: undefined }) };
+          const last = [...mm.payments].pop();
+          return { ...m, status, ...(mm.settled ? { paidOn: last?.date ?? today } : { paidOn: undefined }) };
         });
         if (changed) await projects.save({ ...project, milestones } as Rec);
       }

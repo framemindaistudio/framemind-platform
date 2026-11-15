@@ -118,7 +118,10 @@ function Ready({ inv, settings, paymentId }: { inv: Rec; settings: CompanySettin
                     <tr key={p.id} className="break-inside-avoid border-b border-graphite/20">
                       <td className="tabular px-2 py-2">{fmtDate(p.date)}</td>
                       <td className="px-2 py-2">{PAY_MODE_LABELS[p.mode || ""] ?? (p.mode || "—")}</td>
-                      <td className="px-2 py-2 text-charcoal">{p.reference || "—"}</td>
+                      <td className="px-2 py-2 text-charcoal">
+                        {p.reference || "—"}
+                        {p.note ? <span className="block text-[10px] text-graphite">{p.note}</span> : null}
+                      </td>
                       <td className="tabular px-2 py-2 text-right">{p.tds ? inr(p.tds) : "—"}</td>
                       <td className="tabular px-2 py-2 text-right font-medium">{inr(p.amount)}</td>
                     </tr>

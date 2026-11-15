@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmButton } from "@/components/ui/Overlay";
 import { Checkbox, Input, Label, Select, Textarea } from "@/components/ui/form";
 import { nextNumber, useCollection, useHq, useRates, useSettings, useShowMoney } from "@/components/hq/data";
-import { prepareInvoice } from "@/components/hq/finance/finance";
 import { LineItemsEditor } from "@/components/hq/fields";
 import { HqIcon } from "@/components/hq/Icon";
 import { EmptyState, Loading, PageHeader, Panel } from "@/components/hq/ui";
@@ -75,7 +74,6 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
   const activities = useCollection("activities");
   const projects = useCollection("projects");
   const deliverablesCol = useCollection("deliverables");
-  const invoices = useCollection(showMoney ? "invoices" : "__none");
   const { settings, loading: settingsLoading } = useSettings();
   const leads = useCollection("leads");
   const canWrite = can(user, proposalsDef.write) && store.writable;
@@ -218,7 +216,7 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
 
   /**
    * Accepted quote → the project with everything the quote says: its payment milestones, the "What you get" points as
-   * deliverables, the quote's GST, a draft invoice for the first milestone — and the client becomes Active.
+   * deliverables, the quote's GST — and the client becomes Active. The invoice is generated from the project's Payments tab.
    * `saved` is the quote just saved as accepted (one-click accept); otherwise the quote on screen.
    */
   async function startProject(saved?: BaseRecord) {
@@ -233,44 +231,15 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
       // the quote's "What you get" points become the project's deliverables (Production board)
       const dl = deliverablesFromQuote(q, project.id, str(project.dueDate), str(project.lead));
       for (const d of dl) await deliverablesCol.save(d);
-      let invoiceId: string | undefined;
-      const first = qPlan[0];
-      if (showMoney && first && first.amount > 0) {
-        const today = todayIso();
-        // the same preparation as Finance → Invoices (number, totals, status), so both routes make the same invoice
-        const draft = await prepareInvoice(
-          {
-            date: today,
-            dueDate: addDays(today, 7),
-            clientId: str(q.clientId),
-            projectId: project.id,
-            milestone: `${first.label} (${first.percent}%)`,
-            customerName: str(client?.name),
-            customerGstin: str(client?.gstin),
-            customerAddress: [str(client?.address), str(client?.city)].filter(Boolean).join(", "),
-            placeOfSupply: settings.state,
-            chargeGst: qMoney.gstPercent > 0,
-            projectName: str(project.title),
-            gstPercent: qMoney.gstPercent,
-            items: [{ description: `${str(q.title) || "Studio project"} — ${first.label} (${first.percent}% of quote ${str(q.number)})`, qty: 1, rate: first.amount, sac: settings.sacCode || undefined }],
-            status: "draft",
-            payments: [],
-          },
-          { today, settings, reserveNumber: () => nextNumber("invoice") },
-        );
-        const inv = await invoices.save(draft);
-        invoiceId = inv.id;
-        const ms = (project.milestones as Record<string, unknown>[]).map((m, i) => (i === 0 ? { ...m, status: "invoiced", invoiceId: inv.id } : m));
-        await projects.save({ ...project, milestones: ms });
-      }
+      // no invoice here: the project's Payments tab generates ONE invoice for the full amount, then a receipt per milestone payment
       if (client) await clientsCol.save({ ...client, stage: "active" });
-      const booking: Booking = { bookedOn: todayIso(), projectId: project.id, invoiceId };
+      const booking: Booking = { bookedOn: todayIso(), projectId: project.id };
       const after = await proposals.save({ ...q, status: "accepted", booking });
       setForm(after);
       setSnapshot(JSON.stringify(after));
       setPersistedStatus("accepted");
       setNotice(
-        `Project created with ${qPlan.length} payment milestone${qPlan.length === 1 ? "" : "s"}${dl.length ? `, ${dl.length} deliverable${dl.length === 1 ? "" : "s"} from “What you get”` : ""}${invoiceId ? " and a draft invoice for the first milestone" : ""}. The client is now Active.`,
+        `Project created with ${qPlan.length} payment milestone${qPlan.length === 1 ? "" : "s"}${dl.length ? `, ${dl.length} deliverable${dl.length === 1 ? "" : "s"} from “What you get”` : ""}. The client is now Active. Generate the invoice in the project's Payments tab.`,
       );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start the project");
@@ -572,7 +541,7 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
                 </Button>
                 {booked.invoiceId && showMoney && (
                   <Button size="sm" variant="ghost" href="/hq/finance?tab=invoices">
-                    Draft invoice
+                    Invoice
                   </Button>
                 )}
               </div>
@@ -597,7 +566,7 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
                     <Button variant="lime" className="h-11 w-full" onClick={acceptAndStart} disabled={busy}>
                       {saving === "book" ? <Loader2 className="size-4 animate-spin" /> : <FolderPlus className="size-4" aria-hidden />} Client accepted — start the project
                     </Button>
-                    <p className="mt-2 text-[11px] leading-snug text-blueprint">Saves the quote as accepted and creates the project: its payment milestones, “What you get” as deliverables, a draft invoice for the first milestone, and the client Active.</p>
+                    <p className="mt-2 text-[11px] leading-snug text-blueprint">Saves the quote as accepted and creates the project: its payment milestones, “What you get” as deliverables, and the client Active. The invoice comes next, from the project.</p>
                   </div>
                 )}
                 {status === "accepted" && !isNew && !booked && (
@@ -605,7 +574,7 @@ function BuilderForm({ rates, initial, presetClient, presetLead, created }: { ra
                     <Button variant="lime" className="h-11 w-full" onClick={() => startProject()} disabled={busy || dirty} title={dirty ? "Save the changes first" : undefined}>
                       {saving === "book" ? <Loader2 className="size-4 animate-spin" /> : <FolderPlus className="size-4" aria-hidden />} Start the project
                     </Button>
-                    <p className="mt-2 text-[11px] leading-snug text-blueprint">{dirty ? "Save the changes first. " : ""}Creates the project with its payment milestones, “What you get” as deliverables, a draft invoice for the first milestone, and marks the client Active.</p>
+                    <p className="mt-2 text-[11px] leading-snug text-blueprint">{dirty ? "Save the changes first. " : ""}Creates the project with its payment milestones, “What you get” as deliverables, and marks the client Active. The invoice comes next, from the project.</p>
                   </div>
                 )}
                 {!isNew && (

@@ -33,6 +33,8 @@ export interface Payment {
   /** TDS deducted by the payer (credit claimable via Form 26AS) */
   tds?: number;
   note?: string;
+  /** the project milestone this payment is for (one project invoice, one receipt per milestone payment) */
+  milestoneId?: string;
   /** true when synthesised from a bare amountPaid (no payment entries) */
   synthetic?: boolean;
   /** matched against the bank statement — only reconciled payments count toward team incentives */
@@ -235,6 +237,7 @@ export function invoicePayments(inv: Rec): Payment[] {
       reference: str(p.reference),
       tds: round2(num(p.tds)),
       note: str(p.note),
+      ...(p.milestoneId ? { milestoneId: str(p.milestoneId) } : {}),
       ...reconOf(p),
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -349,7 +352,7 @@ export async function prepareInvoice(
   // payment entries win over a hand-typed "amount received" — but an empty list must not wipe a typed amount
   if (Array.isArray(r.payments) && r.payments.length > 0) {
     const pays = invoicePayments({ ...r, amountPaid: 0 } as unknown as Rec).filter((p) => !p.synthetic);
-    r.payments = pays.map((p) => ({ id: p.id, date: p.date, amount: p.amount, mode: p.mode || "", reference: p.reference || "", tds: p.tds || 0, ...(p.note ? { note: p.note } : {}), ...reconOf(p) }));
+    r.payments = pays.map((p) => ({ id: p.id, date: p.date, amount: p.amount, mode: p.mode || "", reference: p.reference || "", tds: p.tds || 0, ...(p.note ? { note: p.note } : {}), ...(p.milestoneId ? { milestoneId: p.milestoneId } : {}), ...reconOf(p) }));
     r.amountPaid = round2(pays.reduce((s, p) => s + p.amount + (p.tds || 0), 0));
     r.tdsDeducted = round2(pays.reduce((s, p) => s + (p.tds || 0), 0));
   }
@@ -429,6 +432,33 @@ export function invoiceFromProject(
     payments: [],
   };
   return { record, warnings };
+}
+
+/* ─────────────────────────── one project invoice, a receipt per milestone ─────────────────────────── */
+
+/** The milestone text on a project's single invoice for the whole agreed amount. */
+export const FULL_PROJECT = "Full project — as agreed";
+
+/** A project's own invoice for the whole agreed amount (projects made before this kept one invoice per milestone). */
+export function projectInvoiceOf(invoices: Rec[], projectId: string): Rec | undefined {
+  return invoices.find((i) => i.projectId === projectId && str(i.status) !== "cancelled" && str(i.milestone) === FULL_PROJECT);
+}
+
+/**
+ * What a milestone has to collect and has collected. On the project invoice: the milestone's share incl. GST and the
+ * payments recorded for it. On an older per-milestone invoice: that invoice's total and what it received.
+ */
+export function milestoneMoney(m: ProjectMilestoneLike, inv: Rec | undefined, settings: Pick<CompanySettings, "state" | "stateCode">) {
+  if (!inv) return { due: 0, paid: 0, balance: 0, settled: false, payments: [] as Payment[] };
+  const math = invoiceMath(inv, settings);
+  const all = invoicePayments(inv).filter((p) => !p.synthetic);
+  if (str(inv.milestone) === FULL_PROJECT) {
+    const due = round2(num(m.amount) * (1 + math.gstPercent / 100));
+    const payments = all.filter((p) => p.milestoneId === m.id);
+    const paid = round2(payments.reduce((s, p) => s + p.amount + (p.tds || 0), 0));
+    return { due, paid, balance: Math.max(0, round2(due - paid)), settled: due > 0 && due - paid <= 0.5, payments };
+  }
+  return { due: math.total, paid: math.paid, balance: math.balance, settled: math.total > 0 && math.balance <= 0.5, payments: all };
 }
 
 /* ─────────────────────────── aggregations ─────────────────────────── */

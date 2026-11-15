@@ -11,7 +11,7 @@ import { Field, Input, Select } from "@/components/ui/form";
 import { Modal } from "@/components/ui/Overlay";
 import { CollectionManager } from "@/components/hq/CollectionManager";
 import { nextNumber, useCollection, useHq, useSettings } from "@/components/hq/data";
-import { invoiceFromProject, invoiceMath, invoicePayments, PAY_MODE_LABELS, prepareInvoice } from "@/components/hq/finance/finance";
+import { FULL_PROJECT, invoiceFromProject, invoiceMath, invoicePayments, milestoneMoney, PAY_MODE_LABELS, prepareInvoice, projectInvoiceOf } from "@/components/hq/finance/finance";
 import { Panel } from "@/components/hq/ui";
 import { Notice } from "@/components/hq/sales/bits";
 import { phoneDigits, whatsappHref } from "@/components/hq/sales/contact";
@@ -33,66 +33,108 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
 
   const setMs = (next: ProjectMilestone[]) => patch({ milestones: next });
 
-  /** The same invoice Finance → "Invoice a project" makes: number reserved, the quote's GST, SAC code, totals. */
-  async function raiseInvoice(m: ProjectMilestone) {
-    const today = isoDate();
-    const { record } = invoiceFromProject(project, client, settings, today, m);
-    const ready = await prepareInvoice({ ...record, ...(m.dueDate ? { dueDate: m.dueDate } : {}) }, { today, settings, reserveNumber: () => nextNumber("invoice") });
-    return invoicesCol.save(ready);
-  }
+  // ONE invoice for the whole agreed amount (GST charged once); each milestone payment then gets its own receipt
+  const projectInv = projectInvoiceOf(invoices, str(project.id));
+  // projects booked before this kept one invoice per milestone: those keep working as they were
+  const legacy = !projectInv && ms.some((m) => m.invoiceId && invoices.some((x) => x.id === m.invoiceId));
+  const invOf = (m: ProjectMilestone) => (m.invoiceId ? invoices.find((x) => x.id === m.invoiceId) : undefined) ?? (legacy ? undefined : projectInv);
 
-  async function raise(m: ProjectMilestone) {
-    setBusy(m.id);
+  /** The project invoice: the full agreed amount, number reserved, the quote's GST and SAC code, nothing paid yet. */
+  async function generateInvoice() {
+    if (!(agreed > 0)) return setError("Set the agreed amount in Edit details first.");
+    setBusy("invoice");
     setError("");
     try {
-      const inv = await raiseInvoice(m);
-      await setMs(ms.map((x) => (x.id === m.id ? { ...x, status: "invoiced", invoiceId: inv.id } : x)));
+      const today = isoDate();
+      const { record } = invoiceFromProject(project, client, settings, today, null, agreed);
+      const schedule = ms.filter((m) => m.amount > 0).map((m) => `${m.label}${m.percent ? ` (${m.percent}%)` : ""}: ${formatINR(m.amount)} + GST`);
+      const ready = await prepareInvoice(
+        { ...record, milestone: FULL_PROJECT, notes: schedule.length ? `Payment schedule — ${schedule.join(" · ")}. A receipt is issued for each payment.` : "" },
+        { today, settings, reserveNumber: () => nextNumber("invoice") },
+      );
+      const saved = await invoicesCol.save(ready);
+      await setMs(ms.map((x) => (x.status === "paid" ? x : { ...x, invoiceId: saved.id, status: "invoiced" })));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not raise the invoice");
+      setError(e instanceof Error ? e.message : "Could not generate the invoice");
     } finally {
       setBusy("");
     }
   }
 
   /**
-   * A payment received for a milestone: added to its invoice (raised first when there is none), exactly as Finance
-   * records it — so Finance, the receipt and the project all show the same money. The milestone is paid once its
-   * invoice is settled.
+   * A payment received for a milestone: added to the project invoice with the milestone it is for, exactly as Finance
+   * records it — so Finance, the receipt and the project all show the same money. The milestone is paid once its own
+   * share (incl. GST) is covered.
    */
   async function recordPayment(m: ProjectMilestone, p: { date: string; amount: number; mode: string; reference: string; tds: number }) {
-    let inv = invoices.find((x) => x.id === m.invoiceId) ?? null;
-    if (!inv) inv = await raiseInvoice(m);
+    const inv = invOf(m);
+    if (!inv) throw new Error("Generate the invoice first.");
     const today = isoDate();
-    const pay = { id: uid("pay"), date: p.date, amount: p.amount, mode: p.mode, reference: p.reference, tds: p.tds };
+    const onProjectInv = str(inv.milestone) === FULL_PROJECT;
+    const pay = { id: uid("pay"), date: p.date, amount: p.amount, mode: p.mode, reference: p.reference, tds: p.tds, ...(onProjectInv ? { milestoneId: m.id, note: m.label } : {}) };
     const existing = invoicePayments(inv).filter((x) => !x.synthetic);
     const ready = await prepareInvoice({ ...inv, payments: [...existing, pay] }, { today, settings, reserveNumber: () => nextNumber("invoice") });
     const saved = await invoicesCol.save(ready);
-    const settled = invoiceMath(saved, settings).balance <= 0.5;
+    const settled = milestoneMoney({ ...m, invoiceId: saved.id }, saved, settings).settled;
     await setMs(ms.map((x) => (x.id === m.id ? { ...x, invoiceId: saved.id, status: settled ? "paid" : "invoiced", ...(settled ? { paidOn: p.date } : {}) } : x)));
     return { invoiceId: saved.id, paymentId: pay.id };
   }
 
+  const projT = projectInv ? invoiceTotals(projectInv) : null;
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <Panel title="Payment milestones" subtitle={agreed ? `${formatINR(total)} of the agreed ${formatINR(agreed)} (before GST) is split into milestones. Invoices and payments here are the same records as Finance.` : "Set the agreed amount in Edit details"}>
+      <Panel title="Payment milestones" subtitle={agreed ? `${formatINR(total)} of the agreed ${formatINR(agreed)} (before GST) is split into milestones. One invoice for the whole project; a receipt for each payment. Same records as Finance.` : "Set the agreed amount in Edit details"}>
+        {!legacy && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-md)] border border-graphite/12 bg-graphite/[0.03] p-3 text-sm">
+            {projectInv ? (
+              <>
+                <span className="min-w-0">
+                  <span className="block font-semibold">Project invoice {str(projectInv.number) || "(draft)"}</span>
+                  <span className="tabular block text-xs text-charcoal">
+                    {formatINR(projT?.total ?? 0)}
+                    {projT && projT.gstPercent > 0 ? " incl. GST" : ""} · {formatINR(projT?.paid ?? 0)} received · {projT && projT.balance > 0 ? `${formatINR(projT.balance)} due` : "settled"}
+                  </span>
+                </span>
+                <Link href={`/hq/print/invoice/${projectInv.id}`} target="_blank" className="inline-flex items-center gap-1 text-xs font-semibold text-graphite underline-offset-4 hover:underline">
+                  <FileText className="size-3.5" /> Print invoice
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className="min-w-0">
+                  <span className="block font-semibold">No invoice yet</span>
+                  <span className="block text-xs text-charcoal">Generate one invoice for the full agreed amount ({agreed ? `${formatINR(agreed)} + GST` : "set it first"}). Then record each milestone payment and print its receipt.</span>
+                </span>
+                {canWrite && (
+                  <Button size="sm" onClick={generateInvoice} disabled={!!busy || !(agreed > 0)}>
+                    {busy === "invoice" ? <Loader2 className="size-3.5 animate-spin" /> : <FileText className="size-3.5" />} Generate invoice
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+        )}
         {ms.length === 0 && <p className="mb-4 text-sm text-charcoal">No milestones yet. A project started from an accepted quote brings them; or add them here (usually 50% to start, 50% on delivery).</p>}
         <ul className="space-y-2">
           {ms.map((m, i) => {
-            const inv = invoices.find((x) => x.id === m.invoiceId);
-            const t = inv ? invoiceTotals(inv) : null;
-            const paid = (t && t.total > 0 && t.balance === 0) || (!inv && m.status === "paid");
-            const pays = inv ? invoicePayments(inv).filter((p) => !p.synthetic) : [];
+            const inv = invOf(m);
+            const mm = milestoneMoney(m, inv, settings);
+            const paid = mm.settled || (!inv && m.status === "paid");
+            const pays = mm.payments;
+            const own = !!inv && str(inv.milestone) !== FULL_PROJECT; // an older per-milestone invoice
+            const locked = !!inv || m.status === "paid";
             return (
               <li key={m.id} className="rounded-[var(--radius-md)] border border-graphite/12 bg-paper p-3">
                 <div className="grid items-center gap-2 sm:grid-cols-[28px_1fr_90px_130px_auto]">
                   <span className={cn("grid size-7 place-items-center rounded-full font-mono text-[10px] font-semibold", paid ? "bg-ok text-white" : "bg-graphite/[0.07] text-graphite")}>{paid ? <Check className="size-3.5" /> : i + 1}</span>
-                  <Input aria-label="Milestone" value={m.label} disabled={!canWrite || !!inv} onChange={(e) => setMs(ms.map((x) => (x.id === m.id ? { ...x, label: e.target.value } : x)))} />
+                  <Input aria-label="Milestone" value={m.label} disabled={!canWrite || locked} onChange={(e) => setMs(ms.map((x) => (x.id === m.id ? { ...x, label: e.target.value } : x)))} />
                   <div className="relative">
                     <Input
                       aria-label="Percent"
                       type="number"
                       value={m.percent}
-                      disabled={!canWrite || !!inv}
+                      disabled={!canWrite || locked}
                       onChange={(e) => {
                         const pct = num(e.target.value);
                         setMs(ms.map((x) => (x.id === m.id ? { ...x, percent: pct, amount: Math.round((agreed * pct) / 100) } : x)));
@@ -101,8 +143,8 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
                     />
                     <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-blueprint">%</span>
                   </div>
-                  <Input aria-label="Amount" type="number" value={m.amount} disabled={!canWrite || !!inv} onChange={(e) => setMs(ms.map((x) => (x.id === m.id ? { ...x, amount: num(e.target.value) } : x)))} className="tabular" />
-                  {canWrite && !inv && (
+                  <Input aria-label="Amount" type="number" value={m.amount} disabled={!canWrite || locked} onChange={(e) => setMs(ms.map((x) => (x.id === m.id ? { ...x, amount: num(e.target.value) } : x)))} className="tabular" />
+                  {canWrite && !locked && (
                     <button type="button" onClick={() => setMs(ms.filter((x) => x.id !== m.id))} className="rounded p-2 text-blueprint hover:bg-bad/10 hover:text-bad" aria-label="Remove milestone">
                       <Trash2 className="size-4" />
                     </button>
@@ -112,22 +154,23 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
                   <Badge tone={statusTone(paid ? "paid" : m.status)}>{paid ? "paid" : m.status}</Badge>
                   {inv ? (
                     <>
-                      <Link href={`/hq/print/invoice/${inv.id}`} target="_blank" className="inline-flex items-center gap-1 font-semibold text-graphite underline-offset-4 hover:underline">
-                        <FileText className="size-3.5" /> {str(inv.number) || "Draft invoice"} · {formatINR(t?.total ?? 0)}
-                        {t && t.gstPercent > 0 ? " incl. GST" : ""}
-                      </Link>
-                      {t && t.balance > 0 ? <span className="text-charcoal">{formatINR(t.balance)} due</span> : null}
+                      {own ? (
+                        <Link href={`/hq/print/invoice/${inv.id}`} target="_blank" className="inline-flex items-center gap-1 font-semibold text-graphite underline-offset-4 hover:underline">
+                          <FileText className="size-3.5" /> {str(inv.number) || "Draft invoice"}
+                        </Link>
+                      ) : null}
+                      <span className="tabular text-charcoal">
+                        {formatINR(mm.due)}
+                        {invoiceMath(inv, settings).gstPercent > 0 ? " incl. GST" : ""}
+                        {mm.paid > 0 ? ` · ${formatINR(mm.paid)} received` : ""}
+                        {mm.balance > 0 ? ` · ${formatINR(mm.balance)} due` : ""}
+                      </span>
                     </>
-                  ) : (
-                    canWrite &&
-                    m.amount > 0 && (
-                      <Button size="sm" variant="secondary" onClick={() => raise(m)} disabled={busy === m.id}>
-                        {busy === m.id ? <Loader2 className="size-3.5 animate-spin" /> : <ReceiptText className="size-3.5" />} Raise invoice
-                      </Button>
-                    )
-                  )}
-                  {canWrite && !paid && m.amount > 0 && (
-                    <Button size="sm" variant={inv ? "secondary" : "ghost"} onClick={() => setPaying(m)} disabled={!!busy}>
+                  ) : m.amount > 0 && !paid ? (
+                    <span className="text-blueprint">Generate the invoice to record payments</span>
+                  ) : null}
+                  {canWrite && !!inv && !paid && m.amount > 0 && (
+                    <Button size="sm" variant="secondary" onClick={() => setPaying(m)} disabled={!!busy}>
                       <IndianRupee className="size-3.5" /> Record payment
                     </Button>
                   )}
@@ -196,9 +239,7 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
       {paying ? (
         <RecordPaymentModal
           milestone={paying}
-          invoice={invoices.find((x) => x.id === paying.invoiceId)}
-          project={project}
-          client={client}
+          invoice={invOf(paying)}
           settings={settings}
           onClose={() => setPaying(null)}
           onSave={(p) => recordPayment(paying, p)}
@@ -212,22 +253,18 @@ export function MilestonesTab({ project, client, invoices, canWrite, patch }: { 
 function RecordPaymentModal({
   milestone,
   invoice,
-  project,
-  client,
   settings,
   onClose,
   onSave,
 }: {
   milestone: ProjectMilestone;
   invoice?: Rec;
-  project: Rec;
-  client?: Rec;
   settings: ReturnType<typeof useSettings>["settings"];
   onClose: () => void;
   onSave: (p: { date: string; amount: number; mode: string; reference: string; tds: number }) => Promise<{ invoiceId: string; paymentId: string }>;
 }) {
-  // what is still due: the invoice's balance, or (no invoice yet) the milestone with the GST the invoice will carry
-  const due = invoice ? invoiceMath(invoice, settings).balance : invoiceMath(invoiceFromProject(project, client, settings, isoDate(), milestone).record as Rec, settings).total;
+  // what is still due on this milestone: its share of the project invoice incl. GST, less what it has received
+  const due = milestoneMoney(milestone, invoice, settings).balance;
   const [f, setF] = useState({ date: isoDate(), amount: String(Math.round(due * 100) / 100), mode: "upi", reference: "", tds: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -281,7 +318,7 @@ function RecordPaymentModal({
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           <p className="text-xs text-charcoal sm:col-span-2">
-            {invoice ? `Invoice ${str(invoice.number)} · ${formatINR(due)} due.` : `No invoice yet — one is raised for this milestone first (${formatINR(due)} incl. any GST).`}
+            {invoice ? `On invoice ${str(invoice.number)} · ${formatINR(due)} due for this milestone. A receipt is made for this payment.` : "Generate the project invoice first."}
           </p>
           <Field label="Date received" htmlFor="pay-date">
             <Input id="pay-date" type="date" value={f.date} onChange={(e) => setF((x) => ({ ...x, date: e.target.value }))} />
