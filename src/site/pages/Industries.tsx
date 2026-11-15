@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, BedDouble, Building2, Car, Check, Dumbbell, FlaskConical, Gem, GraduationCap, HardHat, Hospital, Hotel, Pill, School, Scissors, Smile, Stethoscope, Truck, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { brandOf, brandVars } from "@/lib/content/industry-brands";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
 import { INDUSTRIES, MORE_INDUSTRIES, TIERS, tierPrice, type IndustryRates } from "@/lib/content/industries";
@@ -73,28 +74,34 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
             <SectionLabel>01 · Pick your industry</SectionLabel>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {INDUSTRIES.map((ind, i) => {
-                const Icon = INDUSTRY_ICONS[ind.icon] ?? Building2;
-                const featured = i === 0;
+              {INDUSTRIES.map((ind) => {
+                // each card wears its own app's brand: logo, accent bar and surface from its kit
+                const b = brandOf(ind.id);
                 return (
                   <Link
                     key={ind.id}
                     to={`/industries/${ind.slug}`}
-                    className={`group rounded-sm border p-6 flex flex-col transition-colors ${featured ? "border-[#C8F135] bg-[#0D0D0D] text-[#F5F4F0] sm:col-span-2 lg:col-span-1" : "border-border bg-background hover:border-foreground/40"}`}
+                    style={brandVars(b)}
+                    className="group relative overflow-hidden rounded-2xl border border-[var(--b-primary)]/10 bg-white p-6 flex flex-col text-[var(--b-primary)] shadow-[0_12px_30px_-24px_rgba(0,11,45,0.45)] transition hover:-translate-y-0.5 hover:border-[var(--b-accent)] hover:shadow-[0_22px_40px_-24px_rgba(0,11,45,0.5)]"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className={`grid size-11 place-items-center rounded-sm ${featured ? "bg-[#C8F135] text-[#0D0D0D]" : "bg-secondary"}`}>
-                        <Icon size={20} />
-                      </span>
-                      {ind.badge && <span className={`font-mono text-[9px] font-bold uppercase tracking-widest ${featured ? "text-[#C8F135]" : "text-muted-foreground"}`}>{ind.badge}</span>}
+                    <span className="absolute inset-x-0 top-0 h-1 bg-[var(--b-accent)]" />
+                    <span className="absolute -right-10 -top-10 size-40 rounded-full bg-[var(--b-surface)] opacity-70 transition group-hover:scale-110" />
+                    <div className="relative flex items-center justify-between gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={b.logo} alt={`FrameMind ${b.name}`} className="h-9 w-auto" />
+                      {ind.demoUrl ? (
+                        <span className="shrink-0 rounded-full bg-[var(--b-surface)] px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-[var(--b-accent-ink)]">Live demo</span>
+                      ) : (
+                        <span className="shrink-0 font-mono text-[9px] font-bold uppercase tracking-widest text-[var(--b-primary)]/45">Demo soon</span>
+                      )}
                     </div>
-                    <h2 className="mt-5 text-2xl font-black tracking-tight">{ind.name}</h2>
-                    <p className={`mt-1 text-sm ${featured ? "text-[#888]" : "text-muted-foreground"}`}>{ind.tagline}</p>
-                    <p className="mt-5 text-sm">
+                    <h2 className="relative mt-5 text-2xl font-black tracking-tight">{ind.name}</h2>
+                    <p className="relative mt-1 text-sm text-[var(--b-primary)]/70">{ind.tagline}</p>
+                    <p className="relative mt-5 text-sm">
                       From <span className="text-xl font-black">{inr(tierPrice(rates, ind.id, "starter"))}</span>
-                      <span className={featured ? "text-[#888]" : "text-muted-foreground"}>/month {ind.unit}</span>
+                      <span className="text-[var(--b-primary)]/60">/month {ind.unit}</span>
                     </p>
-                    <span className={`mt-5 inline-flex items-center gap-1.5 text-sm font-semibold ${featured ? "text-[#C8F135]" : ""}`}>
+                    <span className="relative mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--b-accent-ink)]">
                       See the app & your price <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
                     </span>
                   </Link>

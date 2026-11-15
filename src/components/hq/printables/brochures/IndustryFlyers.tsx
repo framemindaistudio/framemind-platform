@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import { PrintShell, A4Page } from "@/components/print/PrintShell";
 import { useRates, useSettings } from "@/components/hq/data";
 import { Loading } from "@/components/hq/ui";
+import { brandOf } from "@/lib/content/industry-brands";
 import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, setupFor, tierPrice, type Industry } from "@/lib/content/industries";
 import { realEstateWith } from "@/lib/content/real-estate";
 import { TERMS } from "@/lib/content/catalog";
@@ -83,12 +84,12 @@ export function IndustryFlyers({ q }: { q: Q }) {
  */
 function flyerLinks(host: string, ind: Industry) {
   const app = ind.demoUrl?.startsWith("/apps/") ? ind.demoUrl.replace(/\/?$/, "/") : null;
-  if (!app) return { main: { url: `${host}/industries/${ind.slug}`, label: "Scan for details" }, story: null, icon: null };
+  if (!app) return { main: { url: `${host}/industries/${ind.slug}`, label: "Scan for details" }, story: null, icon: brandOf(ind.id).icon };
   return {
     main: { url: `${host}${app}`, label: "Scan for the live demo" },
     story: ind.storyUrl ? { url: `${host}${ind.storyUrl.replace(/\/?$/, "/")}`, label: "How we build yours" } : null,
     // the app's own brand mark, published with the app (e.g. /apps/table/brand/tableos-icon-color.svg)
-    icon: `${app}brand/${ind.product.toLowerCase()}-icon-color.svg`,
+    icon: brandOf(ind.id).icon,
   };
 }
 
