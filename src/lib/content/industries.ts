@@ -314,7 +314,7 @@ export const INDUSTRIES: Industry[] = [
     id: "coaching",
     slug: "coaching",
     name: "Coaching Centres",
-    product: "Coaching App",
+    product: "ClassOS",
     icon: "GraduationCap",
     demoUrl: "/apps/class/",
     storyUrl: "/apps/class/story/",
