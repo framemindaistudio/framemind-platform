@@ -1,3 +1,3 @@
 :HL["/apps/dorm/_next/static/chunks/3ij-gz_o1_q4b.css","style"]
 :HC["/",""]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"resident","param":null,"prefetchHints":4192,"slots":{"children":{"name":"stay","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"BwNcVBqor9wzR8e6utGzl"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"resident","param":null,"prefetchHints":4192,"slots":{"children":{"name":"stay","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"Nt-LfH96_9cRTW9u1cnpi"}

@@ -25,6 +25,8 @@ export async function generateMetadata({ params }: Props) {
     description: `${ind.product} for ${ind.who.toLowerCase()}: ${ind.features.map((x) => x.title.toLowerCase()).join(", ")}. With your name and logo, live in 3–4 weeks.`,
     keywords: `${ind.name.toLowerCase()} software India, ${ind.name.toLowerCase()} app, ${ind.product.toLowerCase()}, FrameMind ${ind.name.toLowerCase()}`,
     ogImageAlt: `FrameMind AI Studio — ${ind.product}`,
+    // an industry with a live FrameMind OS app shows that app's branded preview picture when the page is shared
+    ogImage: ind.demoUrl?.startsWith("/apps/") ? `${ind.demoUrl.replace(/\/?$/, "/")}share.png` : undefined,
   });
 }
 
