@@ -152,7 +152,7 @@ export const INDUSTRIES: Industry[] = [
       { title: "Brokerage ledger", detail: "Deals, brokerage due and received, for every agent." },
       { title: "Team performance", detail: "Leads, visits and deals per agent, for the owner." },
     ],
-    roles: ["Client", "Agent", "Owner"],
+    roles: ["Buyer / tenant", "Property owner", "Agent", "Channel partner", "Owner / admin"],
     unit: "per office",
     monthly: [1499, 2999, 5999],
     limits: ["Up to 3 users", "Up to 10 users", "Up to 25 users"],
