@@ -16,10 +16,11 @@
  *   salon        ₹499 (SalonBoost) · ₹833 per outlet (Salon360) · ≈ ₹2,500 (MioSalon)         capterra.in, techjockey.com
  *   pg           ₹299–₹999 (TrackMyPG) · ₹999–₹2,499 (Wonder PG)                              sourceforge.net
  *   realestate   ₹399–₹2,200 per user (Realatic, Telecrm, Zoho, Sell.do)                      sell.do, telecrm.in
+ *   coaching     not checked yet: prices below are placeholders copied from gym (closest membership-style app), for the founder to set
  *   distribution ₹1,799–₹3,999 flat (Mulberry Sales) · ₹2,000–₹5,000 per distributor (DMS buyer's guide) · ₹1,500–₹4,000 per user (BeatRoute)   goodfirms.co, aiaccountant.com
  */
 
-export type IndustryId = "distribution" | "realestate" | "clinic" | "dental" | "lab" | "restaurant" | "gym" | "salon" | "pg";
+export type IndustryId = "distribution" | "realestate" | "clinic" | "dental" | "lab" | "restaurant" | "gym" | "salon" | "pg" | "coaching";
 export type TierId = "starter" | "growth" | "pro";
 
 export interface Industry {
@@ -310,6 +311,32 @@ export const INDUSTRIES: Industry[] = [
     onQuote: ["Product inventory", "Multiple outlets with one owner dashboard"],
   },
   {
+    id: "coaching",
+    slug: "coaching",
+    name: "Coaching Centres",
+    product: "Coaching App",
+    icon: "GraduationCap",
+    demoUrl: "/apps/class/",
+    storyUrl: "/apps/class/story/",
+    tagline: "Batches, fees and results, in one place.",
+    who: "Tuition and coaching centres: NEET, JEE, KCET, PUC and school tuition",
+    demoBrand: "Akshara Learning Centre",
+    features: [
+      { title: "Enquiries and demo classes", detail: "Counselling notes, follow-ups and a free demo class booked from your website." },
+      { title: "Admissions and batches", detail: "An online admission form with documents, and batch allotment within seat limits." },
+      { title: "Fees in instalments", detail: "Fee plans with instalments and concessions, UPI payment, receipts and reminders." },
+      { title: "Attendance with a parent alert", detail: "Roll call or a class QR; the parent of an absent student hears at once." },
+      { title: "Online tests that mark themselves", detail: "Timed MCQ tests from your question bank, with rank, percentile and topic analysis." },
+      { title: "Parent app and owner view", detail: "Marks, report cards and fees for parents; collection, results and teacher pay for you." },
+    ],
+    roles: ["Student", "Parent", "Teacher", "Counsellor / front desk", "Owner"],
+    unit: "per centre",
+    monthly: [799, 1499, 2999],
+    limits: ["Up to 150 students", "Up to 500 students", "Unlimited students"],
+    market: "Coaching-centre software in India is usually priced per centre or per student each month.",
+    onQuote: ["Recorded video lectures with DRM (video hosting)", "Live classes through your Zoom / Meet account"],
+  },
+  {
     id: "pg",
     slug: "pg-hostel",
     name: "PG & Hostels",
@@ -340,7 +367,7 @@ export const INDUSTRIES: Industry[] = [
 /** Industries without a ready app yet: built to order on the same foundation, priced after a call. */
 export const MORE_INDUSTRIES: { name: string; icon: string; examples: string }[] = [
   { name: "Builders & Construction", icon: "HardHat", examples: "Site progress, labour attendance, materials and contractor bills" },
-  { name: "Schools & Coaching", icon: "School", examples: "Admissions, fees, attendance, tests and a parent app" },
+  { name: "Schools", icon: "School", examples: "Admissions, fees, attendance, report cards and a parent app" },
   { name: "Hospitals", icon: "Hospital", examples: "OPD, IPD beds, billing, pharmacy and lab in one system" },
   { name: "Jewellers", icon: "Gem", examples: "Daily gold rate, savings schemes, orders and repairs" },
   { name: "Hotels & Homestays", icon: "Hotel", examples: "Direct bookings, rooms, check-in and guest requests" },

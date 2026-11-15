@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BedDouble, Building2, Car, Check, Dumbbell, FlaskConical, Gem, HardHat, Hospital, Hotel, Pill, School, Scissors, Smile, Stethoscope, Truck, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { ArrowRight, BedDouble, Building2, Car, Check, Dumbbell, FlaskConical, Gem, GraduationCap, HardHat, Hospital, Hotel, Pill, School, Scissors, Smile, Stethoscope, Truck, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
 import { INDUSTRIES, MORE_INDUSTRIES, TIERS, tierPrice, type IndustryRates } from "@/lib/content/industries";
@@ -10,7 +10,7 @@ import { INDUSTRIES, MORE_INDUSTRIES, TIERS, tierPrice, type IndustryRates } fro
  * first). Words from src/lib/content/industries.ts; prices from HQ → Rate Card → Industry apps (passed in as `rates`).
  */
 
-export const INDUSTRY_ICONS: Record<string, LucideIcon> = { Building2, Stethoscope, Smile, FlaskConical, UtensilsCrossed, Dumbbell, Scissors, BedDouble, HardHat, School, Hospital, Gem, Hotel, Truck, Car, Pill };
+export const INDUSTRY_ICONS: Record<string, LucideIcon> = { Building2, Stethoscope, Smile, FlaskConical, UtensilsCrossed, Dumbbell, Scissors, BedDouble, GraduationCap, HardHat, School, Hospital, Gem, Hotel, Truck, Car, Pill };
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
