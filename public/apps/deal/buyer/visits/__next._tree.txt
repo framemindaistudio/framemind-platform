@@ -1,0 +1,3 @@
+:HL["/apps/deal/_next/static/chunks/24cyifo1hfuyk.css","style"]
+:HC["/",""]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"buyer","param":null,"prefetchHints":4192,"slots":{"children":{"name":"visits","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"XzAwKgsMB4kJ1S8a4p6oD"}

@@ -138,9 +138,11 @@ export const INDUSTRIES: Industry[] = [
     name: "Real Estate",
     product: "DealOS",
     icon: "Building2",
+    demoUrl: "/apps/deal/",
+    storyUrl: "/apps/deal/story/",
     tagline: "Every enquiry, site visit and brokerage in one app.",
     who: "Property brokers, real estate offices and channel partners",
-    demoBrand: "Skyline Realty",
+    demoBrand: "Hasiru Homes Realty",
     badge: "Highest value",
     features: [
       { title: "Property search", detail: "Buy or rent, BHK, budget, area and parking filters, with photos, a video tour and amenities." },
