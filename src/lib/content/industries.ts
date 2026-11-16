@@ -21,7 +21,7 @@
  */
 
 export type IndustryId = "distribution" | "realestate" | "clinic" | "dental" | "lab" | "restaurant" | "gym" | "salon" | "pg" | "coaching";
-export type TierId = "starter" | "growth" | "pro";
+export type TierId = "starter" | "growth" | "pro" | "business" | "enterprise";
 
 export interface Industry {
   id: IndustryId;
@@ -44,10 +44,14 @@ export interface Industry {
   roles: string[];
   /** what one plan covers: "per clinic", "per outlet" … */
   unit: string;
-  /** prices before anything is changed in HQ: Starter, Growth, Pro per month */
-  monthly: [number, number, number];
-  /** what tier differences mean in this industry (shown under the plan names) */
-  limits: [string, string, string];
+  /** prices before anything is changed in HQ: Starter, Growth, Pro, Business, Enterprise per month */
+  monthly: [number, number, number, number, number];
+  /** each plan's main limits in this industry, in a few words (shown under the plan names) */
+  limits: [string, string, string, string, string];
+  /** what each of the five plans includes in this industry, row by row ("*" = fair use for one business) */
+  planRows: { label: string; values: string[] }[];
+  /** what use above a plan's limits costs in this industry (storage and logins are in OVERAGE_COMMON) */
+  overage: string;
   market: string;
   /** add-ons this industry quotes separately (no fixed price) */
   onQuote: string[];
@@ -65,27 +69,71 @@ export interface Industry {
   chooser?: { self: { who: string; price: string }; other: { who: string; price: string } };
 }
 
-export const TIERS: { id: TierId; name: string; summary: string; includes: string[]; badge?: string }[] = [
+export const TIERS: { id: TierId; name: string; summary: string; includes: string[]; badge?: string; storage: string; branchesIncluded: number }[] = [
   {
     id: "starter",
     name: "Starter",
-    summary: "The full app with your name, for one branch.",
-    includes: ["Every screen of the app, with your name, logo and colours", "Your own web address (subdomain)", "Up to 3 staff logins", "Data import and one training session", "Email and WhatsApp chat support"],
+    summary: "The full app with your name, for a small team.",
+    storage: "2 GB",
+    branchesIncluded: 1,
+    includes: ["Every screen of the app with your name, logo and colours", "Your own web address (sub-domain)", "2 GB storage, daily backups", "Data import and one training session", "WhatsApp and email support"],
   },
   {
     id: "growth",
     name: "Growth",
-    summary: "More staff, your own domain and owner reports.",
+    summary: "More people, your own domain and owner reports.",
     badge: "Most chosen",
-    includes: ["Everything in Starter", "Up to 10 staff logins", "Your own domain name connected", "Monthly owner report and data export", "Priority support, same working day"],
+    storage: "5 GB",
+    branchesIncluded: 1,
+    includes: ["Everything in Starter", "Your own domain name connected", "5 GB storage", "Monthly owner report and data export", "Priority support, same working day"],
   },
   {
     id: "pro",
     name: "Pro",
-    summary: "Unlimited staff and changes made for you every month.",
-    includes: ["Everything in Growth", "Unlimited staff logins", "Up to 4 hours of custom changes a month", "Phone support and a named account manager", "Quarterly review of how the app is used"],
+    summary: "Every module switched on and changes made for you.",
+    storage: "15 GB",
+    branchesIncluded: 1,
+    includes: ["Everything in Growth", "15 GB storage", "Every optional module of your industry switched on", "Up to 2 hours of changes a month", "Phone support"],
+  },
+  {
+    id: "business",
+    name: "Business",
+    summary: "Two branches included and a named account manager.",
+    storage: "50 GB",
+    branchesIncluded: 2,
+    includes: ["Everything in Pro", "50 GB storage", "2 branches included", "Up to 4 hours of changes a month", "A named account manager"],
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    summary: "Up to five branches, the highest limits and quarterly reviews.",
+    storage: "150 GB",
+    branchesIncluded: 5,
+    includes: ["Everything in Business", "150 GB storage", "Up to 5 branches included", "Up to 8 hours of changes a month", "Quarterly review and first say on new features"],
   },
 ];
+
+/** Overage rates that are the same in every industry (each industry adds its own in `overage`). */
+export const OVERAGE_COMMON =
+  "Extra storage ₹99 per 10 GB a month · extra staff login ₹149 a month. Nothing stops when a limit is crossed: you get alerts at 80% and 100%, and use above the limit is billed on the next invoice, or you move up a plan, whichever costs less.";
+
+/**
+ * The two ways to buy (approved by the founder, 16 Nov 2026). Shared = the client's branded app on FrameMind's
+ * platform (setup + plan, hosting included up to the plan's limits). Dedicated = a separate copy on its own servers:
+ * a build fee, monthly maintenance, and hosting/storage billed separately (managed by FrameMind or in the client's
+ * own cloud account).
+ */
+export const DEDICATED = {
+  buildFrom: 149999,
+  maintenance: [4999, 14999] as [number, number],
+  hosting: [
+    { name: "Managed · Small", detail: "1 app server, database, 50 GB storage, daily backups, SSL, monitoring", monthly: 2999 },
+    { name: "Managed · Medium", detail: "Bigger server, 200 GB storage, hourly backups, a staging copy", monthly: 5999 },
+    { name: "Managed · Large", detail: "Multiple servers, 1 TB storage, point-in-time recovery, a higher uptime target", monthly: 11999 },
+  ],
+  ownCloudSetup: 9999,
+  extraStorage: "₹199 per 50 GB a month",
+};
 
 export const INDUSTRIES: Industry[] = [
   {
@@ -127,8 +175,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Shop (free app)", "Distributor", "Salesperson", "Delivery staff", "City network team"],
     unit: "per distributor",
-    monthly: [999, 1499, 1999],
-    limits: ["Up to 100 shops", "Up to 500 shops", "Unlimited shops"],
+    monthly: [799, 1299, 1999, 2999, 4999],
+    limits: ["100 shops · 2 staff", "300 shops · 5 staff", "750 shops · 10 staff", "2,000 shops · 25 staff", "Unlimited shops · 50 staff"],
+    planRows: [{ label: "Shops ordering", values: ["100", "300", "750", "2,000", "Unlimited*"] }, { label: "Salesperson and staff logins", values: ["2", "5", "10", "25", "50"] }, { label: "Optional modules (prices, GST bills, stock, credit)", values: ["—", "2", "All", "All", "All"] }],
+    overage: "Extra 100 shops ₹199/month · extra login ₹149/month",
     market: "Distributor ordering software in India typically costs ₹1,799 – ₹3,999 a month, or ₹2,000 – ₹5,000 per distributor, and each distributor gives the shop a separate app. A city network puts every distributor in one free app for shops.",
     onQuote: ["Prices & price lists", "Invoices with GST", "Stock quantities", "Credit & collections", "TallyPrime sync", "Salesperson routes & GPS check-ins", "WhatsApp alerts", "AI insights"],
   },
@@ -154,8 +204,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Buyer / tenant", "Property owner", "Agent", "Channel partner", "Owner / admin"],
     unit: "per office",
-    monthly: [1499, 2999, 5999],
-    limits: ["Up to 3 users", "Up to 10 users", "Up to 25 users"],
+    monthly: [999, 1999, 3499, 5999, 9999],
+    limits: ["3 agents · 50 listings", "8 agents · 200 listings", "20 agents · 500 listings", "50 agents · 2,000 listings", "100 agents · 5,000 listings"],
+    planRows: [{ label: "Agent logins", values: ["3", "8", "20", "50", "100"] }, { label: "Active listings", values: ["50", "200", "500", "2,000", "5,000"] }, { label: "Channel partner portal", values: ["—", "—", "Yes", "Yes", "Yes"] }],
+    overage: "Extra agent ₹249/month · extra 100 listings ₹199/month",
     market: "Real estate CRMs in India cost ₹399 – ₹2,200 per user a month; 10 users on a mid-tier CRM is about ₹7,000 – ₹22,000 a month.",
     onQuote: ["Property-portal lead sync", "Multiple offices with one owner dashboard"],
     related: { label: "Real Estate Digital Platform", to: "/real-estate", detail: "Building a layout, villa project or township? See the area-based platform with an interactive plot map." },
@@ -185,8 +237,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Patient", "Reception", "Doctor", "Pharmacy", "Owner", "Waiting-room TV"],
     unit: "per clinic",
-    monthly: [999, 1999, 3999],
-    limits: ["1 doctor", "Up to 3 doctors", "Up to 8 doctors"],
+    monthly: [699, 1299, 1999, 2999, 4999],
+    limits: ["1 doctor · 500 visits a month", "3 doctors · 1,500 visits", "6 doctors · 4,000 visits", "12 doctors · 10,000 visits", "25 doctors · 25,000 visits"],
+    planRows: [{ label: "Doctors", values: ["1", "3", "6", "12", "25"] }, { label: "Patient visits a month", values: ["500", "1,500", "4,000", "10,000", "25,000"] }, { label: "Pharmacy and lab modules", values: ["—", "—", "Yes", "Yes", "Yes"] }],
+    overage: "Extra doctor ₹399/month · extra 500 visits ₹199/month",
     market: "Clinic token and queue software in India costs ₹799 – ₹5,999 a month.",
     onQuote: ["Prescription and report upload with storage", "Multiple branches with one owner dashboard"],
   },
@@ -211,8 +265,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Patient", "Reception", "Dentist", "Owner"],
     unit: "per clinic",
-    monthly: [999, 1999, 2999],
-    limits: ["1 chair", "Up to 3 chairs", "Up to 6 chairs"],
+    monthly: [799, 1299, 1999, 2999, 4499],
+    limits: ["1 chair · 1 dentist", "2 chairs · 3 dentists", "4 chairs · 6 dentists", "8 chairs · 12 dentists", "16 chairs · 25 dentists"],
+    planRows: [{ label: "Chairs", values: ["1", "2", "4", "8", "16"] }, { label: "Dentist logins", values: ["1", "3", "6", "12", "25"] }, { label: "X-ray and photo storage", values: ["2 GB", "5 GB", "15 GB", "50 GB", "150 GB"] }],
+    overage: "Extra chair ₹399/month · extra dentist ₹249/month",
     market: "Dental clinic software in India costs about ₹1,149 – ₹2,475 a month, or ₹6,000 – ₹60,000 a year.",
     onQuote: ["Crown and denture lab order tracking", "X-ray and file storage"],
   },
@@ -237,8 +293,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Patient", "Collection partner", "Lab technician", "Pathologist", "Referring doctor", "Owner"],
     unit: "per lab",
-    monthly: [999, 2499, 4999],
-    limits: ["Up to 50 patients a day", "Up to 200 patients a day", "Up to 600 patients a day"],
+    monthly: [999, 1999, 3499, 5999, 9999],
+    limits: ["1,000 tests a month · 3 staff", "3,000 tests · 1 centre", "8,000 tests · 3 centres", "20,000 tests · 8 centres", "50,000 tests · 20 centres"],
+    planRows: [{ label: "Tests a month", values: ["1,000", "3,000", "8,000", "20,000", "50,000"] }, { label: "Collection centres", values: ["—", "1", "3", "8", "20"] }, { label: "Staff logins", values: ["3", "8", "15", "30", "60"] }],
+    overage: "Extra 100 tests ₹99/month · extra collection centre ₹499/month",
     market: "Lab software in India runs from about ₹417 to ₹5,000 a month; large-lab systems ₹8,000 – ₹25,000 a month.",
     onQuote: ["Live GPS tracking of collection partners", "Doctor and referral partner portal with commissions", "Analyser machine interfacing"],
   },
@@ -263,8 +321,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Customer", "Waiter", "Kitchen", "Owner"],
     unit: "per outlet",
-    monthly: [999, 1999, 3499],
-    limits: ["Up to 15 tables", "Up to 40 tables", "Unlimited tables"],
+    monthly: [599, 999, 1599, 2499, 3999],
+    limits: ["3 staff · 300 online orders", "8 staff · 1,000 orders", "15 staff · 3,000 orders", "30 staff · 10,000 orders", "60 staff · unlimited orders"],
+    planRows: [{ label: "Staff logins", values: ["3", "8", "15", "30", "60"] }, { label: "Own online orders a month", values: ["300", "1,000", "3,000", "10,000", "Unlimited*"] }, { label: "Kitchen screens", values: ["1", "2", "4", "8", "Unlimited"] }],
+    overage: "Extra 1,000 online orders ₹299/month · extra kitchen screen ₹199/month",
     market: "Restaurant POS in India costs about ₹7,500 – ₹18,000 a year per outlet; food apps charge a commission on every order.",
     onQuote: ["Bill split and printer integration", "Delivery areas and charges", "Inventory and recipe costing"],
   },
@@ -289,8 +349,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Member", "Reception", "Trainer", "Owner"],
     unit: "per gym",
-    monthly: [799, 1499, 2999],
-    limits: ["Up to 150 members", "Up to 500 members", "Unlimited members"],
+    monthly: [699, 1199, 1999, 2999, 4999],
+    limits: ["150 members · 2 staff", "400 members · 5 staff", "1,000 members · 10 staff", "2,500 members · 20 staff", "Unlimited members · 40 staff"],
+    planRows: [{ label: "Active members", values: ["150", "400", "1,000", "2,500", "Unlimited*"] }, { label: "Staff and trainer logins", values: ["2", "5", "10", "20", "40"] }, { label: "Classes and personal training", values: ["—", "Yes", "Yes", "Yes", "Yes"] }],
+    overage: "Extra 100 members ₹199/month · extra login ₹149/month",
     market: "Gym software in India costs about ₹499 – ₹2,499 a month; premium tools up to ≈ ₹13,400.",
     onQuote: ["Biometric or RFID entry", "Personal-training package billing", "Progress photos and body measurements"],
   },
@@ -315,8 +377,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Client", "Reception", "Stylist / therapist", "Owner"],
     unit: "per outlet",
-    monthly: [799, 1499, 2999],
-    limits: ["Up to 3 stylists", "Up to 10 stylists", "Unlimited stylists"],
+    monthly: [599, 999, 1699, 2699, 4499],
+    limits: ["3 staff · 500 bookings a month", "8 staff · 1,500 bookings", "15 staff · 4,000 bookings", "30 staff · 10,000 bookings", "60 staff · 25,000 bookings"],
+    planRows: [{ label: "Staff logins", values: ["3", "8", "15", "30", "60"] }, { label: "Appointments a month", values: ["500", "1,500", "4,000", "10,000", "25,000"] }, { label: "Memberships and gift cards", values: ["—", "Yes", "Yes", "Yes", "Yes"] }],
+    overage: "Extra staff login ₹149/month · extra 500 appointments ₹149/month",
     market: "Salon software in India costs about ₹499 – ₹2,500 a month per outlet.",
     onQuote: ["Product inventory", "Multiple outlets with one owner dashboard"],
   },
@@ -341,8 +405,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Student", "Parent", "Teacher", "Counsellor / front desk", "Owner"],
     unit: "per centre",
-    monthly: [799, 1499, 2999],
-    limits: ["Up to 150 students", "Up to 500 students", "Unlimited students"],
+    monthly: [799, 1299, 1999, 3499, 5999],
+    limits: ["100 students · 3 staff", "300 students · 8 staff", "750 students · 15 staff", "2,000 students · 40 staff", "5,000 students · 80 staff"],
+    planRows: [{ label: "Active students", values: ["100", "300", "750", "2,000", "5,000"] }, { label: "Teacher and staff logins", values: ["3", "8", "15", "40", "80"] }, { label: "Online tests", values: ["—", "Yes", "Yes", "Yes", "Yes"] }],
+    overage: "Extra 50 students ₹199/month · extra login ₹149/month",
     market: "Coaching-centre software in India is usually priced per centre or per student each month.",
     onQuote: ["Recorded video lectures with DRM (video hosting)", "Live classes through your Zoom / Meet account"],
   },
@@ -367,8 +433,10 @@ export const INDUSTRIES: Industry[] = [
     ],
     roles: ["Tenant", "Manager", "Owner"],
     unit: "per property",
-    monthly: [499, 999, 1999],
-    limits: ["Up to 30 beds", "Up to 100 beds", "Up to 300 beds"],
+    monthly: [399, 699, 1199, 1999, 2999],
+    limits: ["30 beds · 2 staff", "75 beds · 4 staff", "150 beds · 8 staff", "300 beds · 15 staff", "600 beds · 30 staff"],
+    planRows: [{ label: "Beds", values: ["30", "75", "150", "300", "600"] }, { label: "Staff logins", values: ["2", "4", "8", "15", "30"] }, { label: "Parent app (hostels)", values: ["—", "—", "Yes", "Yes", "Yes"] }],
+    overage: "Extra bed ₹15/month · extra login ₹149/month",
     market: "PG management software in India costs about ₹299 – ₹2,499 a month.",
     onQuote: ["UPI AutoPay for rent", "Smart electricity meters", "Digital rent agreements"],
   },
@@ -395,7 +463,7 @@ export interface IndustryRates {
   /** each extra branch / outlet, as a percent of the plan */
   branchPercent: number;
   /** `setup` is the app's own setup fee when it has one; otherwise the common `setup` above applies */
-  plans: { id: IndustryId; monthly: [number, number, number]; setup?: number }[];
+  plans: { id: IndustryId; monthly: [number, number, number, number, number]; setup?: number }[];
   addOns: { id: string; price: number }[];
 }
 
@@ -404,30 +472,36 @@ export const INDUSTRY_ADD_ONS: { id: string; label: string; detail: string }[] =
   { id: "whatsapp", label: "WhatsApp Business messages", detail: "Real confirmations, reminders and receipts. Setup; Meta's per-message charges are paid at actuals." },
   { id: "payments", label: "Online payments", detail: "A payment gateway in your name, so customers pay inside the app." },
   { id: "language", label: "Hindi / Kannada / regional language", detail: "The app in one more language, beyond English and Hinglish." },
-  { id: "android", label: "Android app on Play Store", detail: "Your app listed on Google Play under your name." },
+  { id: "android", label: "Android app on Play Store", detail: "Your app listed on Google Play under your name. The Play Store fee is paid in your account." },
+  { id: "ios", label: "iPhone app on the App Store", detail: "Your app on the App Store under your name. Apple's $99 a year is paid in your account." },
+  { id: "sms", label: "SMS (OTP and reminders)", detail: "Text messages from your sender name. SMS charges are paid at actuals." },
+  { id: "migration", label: "Data migration from your old software", detail: "Your customers, history and balances moved across. From this price; large data is quoted." },
 ];
 
 export const DEFAULT_INDUSTRY_RATES: IndustryRates = {
   setup: 14999,
   annualFreeMonths: 2,
   branchPercent: 50,
-  plans: INDUSTRIES.map((i) => ({ id: i.id, monthly: [...i.monthly] as [number, number, number], ...(i.setup ? { setup: i.setup } : {}) })),
+  plans: INDUSTRIES.map((i) => ({ id: i.id, monthly: [...i.monthly] as [number, number, number, number, number], ...(i.setup ? { setup: i.setup } : {}) })),
   addOns: [
     { id: "whatsapp", price: 4999 },
     { id: "payments", price: 4999 },
     { id: "language", price: 9999 },
     { id: "android", price: 14999 },
+    { id: "ios", price: 24999 },
+    { id: "sms", price: 1999 },
+    { id: "migration", price: 4999 },
   ],
 };
 
-const TIER_INDEX: Record<TierId, number> = { starter: 0, growth: 1, pro: 2 };
+const TIER_INDEX: Record<TierId, number> = { starter: 0, growth: 1, pro: 2, business: 3, enterprise: 4 };
 
 export const industryBySlug = (slug: string) => INDUSTRIES.find((i) => i.slug === slug);
 export const industryById = (id: string) => INDUSTRIES.find((i) => i.id === id);
 
 /** The monthly price of a tier, from HQ's numbers or the published ones. */
 export function tierPrice(rates: IndustryRates | null | undefined, id: IndustryId, tier: TierId) {
-  const r = rates?.plans.find((p) => p.id === id)?.monthly ?? industryById(id)?.monthly ?? [0, 0, 0];
+  const r = rates?.plans.find((p) => p.id === id)?.monthly ?? industryById(id)?.monthly ?? [0, 0, 0, 0, 0];
   return r[TIER_INDEX[tier]] ?? 0;
 }
 
@@ -470,7 +544,8 @@ export function priceIndustry(rates: IndustryRates | null | undefined, id: Indus
   const b = Math.max(1, Math.min(50, Math.round(branches) || 1));
   const plan = tierPrice(r, industry.id, tier.id);
   const setup = setupFor(r, industry.id);
-  const monthly = Math.round(plan + plan * (b - 1) * (r.branchPercent / 100));
+  // Business includes 2 branches and Enterprise 5; each branch beyond those adds branchPercent of the plan
+  const monthly = Math.round(plan + plan * Math.max(0, b - tier.branchesIncluded) * (r.branchPercent / 100));
   const year = monthly * Math.max(0, 12 - r.annualFreeMonths);
   const recurring = billing === "annual" ? year : monthly;
   const perMonth = billing === "annual" ? Math.round(year / 12) : monthly;

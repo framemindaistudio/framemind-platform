@@ -8,6 +8,7 @@ import { submitLead } from "@/site/leads";
 import { INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, priceIndustry, tierPrice, type Industry, type IndustryRates, type TierId } from "@/lib/content/industries";
 import { INDUSTRY_ICONS } from "./Industries";
 import { brandOf, brandVars } from "@/lib/content/industry-brands";
+import { BuyOptions, PlanCompare } from "@/site/components/IndustryPlans";
 
 /*
  * One industry app: what it does, its roles, plans and add-ons, a price calculator and a quote that lands in HQ as a
@@ -292,7 +293,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                       ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2">
                     {TIERS.map((t, i) => {
                       const on = t.id === tier;
                       const m = tierPrice(rates, ind.id, t.id);
@@ -303,7 +304,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                             {t.name}
                             {t.badge && <span className={`font-mono text-[8px] uppercase tracking-widest ${on ? "text-[var(--b-secondary)]" : "text-[var(--b-accent-ink)]"}`}>{t.badge}</span>}
                           </p>
-                          <p className="mt-1 text-2xl font-black">
+                          <p className="mt-1 text-xl font-black">
                             {inr(shown)}
                             <span className={`text-xs font-medium ${on ? "text-white/60" : "text-[var(--b-primary)]/55"}`}>/month</span>
                           </p>
@@ -420,10 +421,24 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
           </div>
         </section>
 
+        {/* every plan side by side, then the two ways to buy */}
+        <section className="border-b border-[var(--b-primary)]/10">
+          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+            <SectionLabel>03 · Compare the plans</SectionLabel>
+            <PlanCompare ind={ind} rates={rates} freeMonths={freeMonths} />
+          </div>
+        </section>
+        <section className="border-b border-[var(--b-primary)]/10 bg-white/60">
+          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+            <SectionLabel>04 · Two ways to buy</SectionLabel>
+            <BuyOptions setup={q.setup} />
+          </div>
+        </section>
+
         {/* terms */}
         <section className="border-b border-[var(--b-primary)]/10">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
-            <SectionLabel>03 · Good to know</SectionLabel>
+            <SectionLabel>05 · Good to know</SectionLabel>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               {[
                 ["Live in 3–4 weeks", "We set up your app with your name, logo and colours, import your data and train your team. It goes live on your own web address."],

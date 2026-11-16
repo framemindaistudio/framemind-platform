@@ -47,24 +47,32 @@ test("the bundle discount applies to one-time work only, never on top of a contr
 
 test("an industry app: setup once, the yearly plan exactly, and other retainers keep their own months", async () => {
   const { priceIndustry } = await import("../content/industries.ts");
-  // Real Estate Broker App, Pro (₹5,999), 2 branches (+50%), yearly (2 months free), WhatsApp add-on
+  // DealOS (real estate), Pro (₹3,499), 2 branches (+50%), yearly (2 months free), WhatsApp add-on
   const q = priceIndustry(null, "realestate", "pro", "annual", 2, ["whatsapp"]);
-  assert.equal(q.monthly, 8999, "5,999 + 50% for the second branch, rounded");
-  assert.equal(q.recurring, 89990, "a year = 10 months");
-  assert.equal(q.firstPayment, 14999 + 4999 + 89990);
+  assert.equal(q.monthly, 5249, "3,499 + 50% for the second branch, rounded");
+  assert.equal(q.recurring, 52490, "a year = 10 months");
+  assert.equal(q.firstPayment, 14999 + 4999 + 52490);
   const app: QuoteLine = { kind: "industry", key: "a", title: "App", industry: "realestate", tier: "pro", plan: "annual", branches: 2, addOns: ["whatsapp"], items: q.oneTimeItems, setup: 19998, amount: q.recurring, periods: 1 };
   const social: QuoteLine = { kind: "custom", key: "s", title: "Social", items: [], amount: 30000, billing: "month" };
   const m = quoteMoney([app, social], { applyBundle: false, bundleSteps: [], extraPercent: 0, gstPercent: 0 });
-  assert.equal(m.planTotal, 89990, "the yearly plan counts exactly, with no rounding through months");
+  assert.equal(m.planTotal, 52490, "the yearly plan counts exactly, with no rounding through months");
   assert.equal(m.months, 1, "the app plan does not stretch the social retainer to 12 months");
-  assert.equal(m.taxable, 19998 + 89990 + 30000);
+  assert.equal(m.taxable, 19998 + 52490 + 30000);
 });
 
-test("TradeOS has its own setup fee; the other apps keep the common one", async () => {
+test("every app has the same ₹14,999 setup and five plans", async () => {
   const { priceIndustry, INDUSTRIES } = await import("../content/industries.ts");
   assert.equal(INDUSTRIES[0].id, "distribution", "wholesale & distributors comes first");
   const t = priceIndustry(null, "distribution", "growth", "monthly", 1, []);
-  assert.equal(t.setup, 15000);
-  assert.equal(t.firstPayment, 15000 + 1499);
-  assert.equal(priceIndustry(null, "clinic", "growth", "monthly", 1, []).setup, 14999);
+  assert.equal(t.setup, 14999);
+  assert.equal(t.firstPayment, 14999 + 1299);
+  for (const i of INDUSTRIES) assert.equal(i.monthly.length, 5, `${i.id} has five plans`);
+});
+
+test("Business includes 2 branches and Enterprise 5; branches beyond those add 50%", async () => {
+  const { priceIndustry } = await import("../content/industries.ts");
+  assert.equal(priceIndustry(null, "gym", "business", "monthly", 2, []).monthly, 2999, "2 branches are in Business");
+  assert.equal(priceIndustry(null, "gym", "business", "monthly", 3, []).monthly, Math.round(2999 * 1.5));
+  assert.equal(priceIndustry(null, "gym", "enterprise", "monthly", 5, []).monthly, 4999, "5 branches are in Enterprise");
+  assert.equal(priceIndustry(null, "gym", "growth", "monthly", 2, []).monthly, Math.round(1199 * 1.5));
 });

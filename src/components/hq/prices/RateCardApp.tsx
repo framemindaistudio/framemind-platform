@@ -523,7 +523,7 @@ function Rate({ value, onChange, disabled, label }: { value: number; onChange: (
 /** HQ → Rate Card → Industry apps: setup, monthly plans per industry, branches and add-ons (website /industries and quotes). */
 function IndustryPrices({ value, editable, onChange }: { value: IndustryRates; editable: boolean; onChange: (v: IndustryRates) => void }) {
   const head = "pb-2 text-right font-medium";
-  const setPlan = (id: string, k: number, v: number) => onChange({ ...value, plans: value.plans.map((p) => (p.id === id ? { ...p, monthly: p.monthly.map((x, j) => (j === k ? v : x)) as [number, number, number] } : p)) });
+  const setPlan = (id: string, k: number, v: number) => onChange({ ...value, plans: value.plans.map((p) => (p.id === id ? { ...p, monthly: p.monthly.map((x, j) => (j === k ? v : x)) as [number, number, number, number, number] } : p)) });
   return (
     <div className="space-y-6">
       <Panel title="Every industry app" subtitle="One-time setup (name, logo, colours, data import, training, go-live) and how plans grow. The website and new quotes use these at once.">
@@ -545,7 +545,7 @@ function IndustryPrices({ value, editable, onChange }: { value: IndustryRates; e
       </Panel>
       <Panel title="Monthly plans" subtitle="Per branch / outlet / property, before GST. Setup: the app's one-time fee (the common fee above unless set here).">
         <div className="hq-scroll overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[980px] text-sm">
             <thead>
               <tr className="annot text-left text-[10px] text-blueprint">
                 <th className="pb-2 font-medium">App</th>

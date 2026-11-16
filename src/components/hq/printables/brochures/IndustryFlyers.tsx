@@ -6,7 +6,7 @@ import { PrintShell, A4Page } from "@/components/print/PrintShell";
 import { useRates, useSettings } from "@/components/hq/data";
 import { Loading } from "@/components/hq/ui";
 import { brandOf } from "@/lib/content/industry-brands";
-import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, setupFor, tierPrice, type Industry } from "@/lib/content/industries";
+import { DEDICATED, INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, addOnPriceOf, setupFor, tierPrice, type Industry } from "@/lib/content/industries";
 import { realEstateWith } from "@/lib/content/real-estate";
 import { TERMS } from "@/lib/content/catalog";
 import { site } from "@/lib/site";
@@ -204,33 +204,27 @@ function Flyer({
       {/* plans */}
       <section className={gap}>
         <p className="text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">Plans · {ind.unit}</p>
-        <div className="mt-[2mm] grid grid-cols-3 gap-[3mm]">
+        <div className="mt-[2mm] grid grid-cols-5 gap-[2mm]">
           {TIERS.map((t, i) => {
             const m = tierPrice(rates, ind.id, t.id);
             const yearly = m * (12 - free);
             return (
-              <div key={t.id} className={`rounded-[2mm] border p-[3mm] ${t.badge ? "border-2 border-ink" : "border-graphite/25"}`}>
-                <p className="flex items-center justify-between font-bold">
-                  {t.name}
-                  {t.badge && <span className="text-[6pt] uppercase tracking-[0.16em] text-blueprint">{t.badge}</span>}
+              <div key={t.id} className={`rounded-[2mm] border p-[2.2mm] ${t.badge ? "border-2 border-ink" : "border-graphite/25"}`}>
+                <p className="font-bold leading-tight">{t.name}</p>
+                {t.badge ? <p className="text-[5.5pt] uppercase tracking-[0.14em] text-blueprint">{t.badge}</p> : <p className="text-[5.5pt]">&nbsp;</p>}
+                <p className="mt-[1mm] text-[13pt] font-bold leading-none tracking-[-0.02em]">{formatINR(m)}</p>
+                <p className="text-[6.5pt] text-charcoal">a month · {formatINR(yearly)} a year</p>
+                <p className="mt-[1.2mm] text-[6.8pt] font-semibold leading-snug">{ind.limits[i]}</p>
+                <p className="mt-[0.8mm] text-[6.5pt] leading-snug text-charcoal">
+                  {t.storage} storage{t.branchesIncluded > 1 ? ` · ${t.branchesIncluded} branches` : ""}
                 </p>
-                <p className="mt-[1mm] text-[16pt] font-bold leading-none tracking-[-0.02em]">
-                  {formatINR(m)}
-                  <span className="text-[7.5pt] font-medium text-charcoal">/month</span>
-                </p>
-                <p className="mt-[1mm] text-[7.5pt] text-charcoal">
-                  or {formatINR(yearly)}/year ({free} months free)
-                </p>
-                <p className="mt-[1.5mm] text-[7.5pt] font-semibold">{ind.limits[i]}</p>
-                <ul className="mt-[1.5mm] space-y-[0.8mm] text-[7pt] leading-snug text-charcoal">
-                  {t.includes.map((x) => (
-                    <li key={x}>· {x}</li>
-                  ))}
-                </ul>
               </div>
             );
           })}
         </div>
+        <p className="mt-[1.5mm] text-[7pt] leading-snug text-charcoal">
+          Yearly = {12 - free} months&apos; price ({free} months free). <span className="font-semibold text-ink">Over a limit:</span> {ind.overage} · extra storage ₹99 per 10 GB · extra login ₹149. Nothing stops; alerts at 80% and 100%.
+        </p>
       </section>
 
       {/* setup + add-ons */}
@@ -239,7 +233,10 @@ function Flyer({
           <p className="text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">One-time setup</p>
           <p className="mt-[1.5mm] text-[14pt] font-bold leading-none">{formatINR(setup)}</p>
           <p className="mt-[1.5mm] leading-snug text-charcoal">Your name, logo and colours, your own web address, your data imported, a training session and go-live.</p>
-          {!ind.bigger && <p className="mt-[1.5mm] leading-snug text-charcoal">Each extra branch adds {branchPct}% of the plan.</p>}
+          {!ind.bigger && <p className="mt-[1.5mm] leading-snug text-charcoal">Each extra branch adds {branchPct}% of the plan (Business includes 2, Enterprise 5).</p>}
+          <p className="mt-[1.5mm] leading-snug text-charcoal">
+            <span className="font-semibold text-ink">Dedicated app</span> on its own servers: build from {formatINR(DEDICATED.buildFrom)}, maintenance from {formatINR(DEDICATED.maintenance[0])} a month, hosting billed separately (managed from {formatINR(DEDICATED.hosting[0].monthly)} a month, or your own cloud).
+          </p>
         </div>
         <div>
           <p className="text-[7pt] font-semibold uppercase tracking-[0.22em] text-blueprint">Add-ons (one-time)</p>

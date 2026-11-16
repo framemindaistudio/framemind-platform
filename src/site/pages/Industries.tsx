@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, BedDouble, Building2, Car, Check, Dumbbell, FlaskConical, Gem, GraduationCap, HardHat, Hospital, Hotel, Pill, School, Scissors, Smile, Stethoscope, Truck, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { BuyOptions } from "@/site/components/IndustryPlans";
 import { brandOf, brandVars } from "@/lib/content/industry-brands";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
@@ -143,10 +144,11 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
         {/* plans */}
         <section className="border-b border-border">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
-            <SectionLabel>03 · One way to pay, every industry</SectionLabel>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <SectionLabel>03 · Five plans in every industry</SectionLabel>
+            <p className="mb-6 max-w-2xl text-sm text-muted-foreground">Prices and limits are set per industry, from what software for that industry costs in India today. Each industry's page has its own prices, limits and overage rates.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {TIERS.map((t) => (
-                <div key={t.id} className={`rounded-sm border p-6 ${t.badge ? "border-[#0D0D0D] border-2" : "border-border"}`}>
+                <div key={t.id} className={`rounded-sm border p-5 ${t.badge ? "border-[#0D0D0D] border-2" : "border-border"}`}>
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-black">{t.name}</h3>
                     {t.badge && <span className="rounded-sm bg-[#C8F135] px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest text-[#0D0D0D]">{t.badge}</span>}
@@ -165,6 +167,9 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
             <p className="mt-4 text-xs text-muted-foreground">
               A one-time setup of {inr(setup)} covers your branding, data import, training and go-live. Pay yearly and get {rates?.annualFreeMonths ?? 2} months free. Prices exclude GST where applicable.
             </p>
+            <div className="mt-10">
+              <BuyOptions setup={setup} />
+            </div>
           </div>
         </section>
 
