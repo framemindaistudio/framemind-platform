@@ -299,16 +299,12 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                       const m = tierPrice(rates, ind.id, t.id);
                       const shown = billing === "annual" ? Math.round((m * (12 - freeMonths)) / 12) : m;
                       return (
-                        <button key={t.id} type="button" onClick={() => setTier(t.id)} className={`rounded-2xl border px-4 py-4 text-left transition-colors ${on ? "border-[var(--b-primary)] bg-[var(--b-primary)] text-white" : "border-[var(--b-primary)]/12 bg-white hover:border-[var(--b-accent)]"}`}>
-                          <p className="flex items-center justify-between text-sm font-bold">
-                            {t.name}
-                            {t.badge && <span className={`font-mono text-[8px] uppercase tracking-widest ${on ? "text-[var(--b-secondary)]" : "text-[var(--b-accent-ink)]"}`}>{t.badge}</span>}
-                          </p>
-                          <p className="mt-1 text-xl font-black">
-                            {inr(shown)}
-                            <span className={`text-xs font-medium ${on ? "text-white/60" : "text-[var(--b-primary)]/55"}`}>/month</span>
-                          </p>
-                          <p className={`mt-1 text-xs ${on ? "text-[var(--b-secondary)]" : "text-[var(--b-primary)]/60"}`}>{ind.limits[i]}</p>
+                        <button key={t.id} type="button" onClick={() => setTier(t.id)} className={`flex min-w-0 flex-col rounded-2xl border px-3.5 py-3.5 text-left transition-colors ${on ? "border-[var(--b-primary)] bg-[var(--b-primary)] text-white" : "border-[var(--b-primary)]/12 bg-white hover:border-[var(--b-accent)]"}`}>
+                          <span className="text-sm font-bold leading-tight">{t.name}</span>
+                          <span className={`mt-1 h-3.5 font-mono text-[8px] font-bold uppercase leading-[14px] tracking-widest ${on ? "text-[var(--b-secondary)]" : "text-[var(--b-accent-ink)]"}`}>{t.badge ?? ""}</span>
+                          <span className="mt-2 text-xl font-black leading-none tabular-nums">{inr(shown)}</span>
+                          <span className={`mt-1 text-[11px] font-medium ${on ? "text-white/60" : "text-[var(--b-primary)]/55"}`}>a month{billing === "annual" ? ", billed yearly" : ""}</span>
+                          <span className={`mt-2 border-t pt-2 text-[11px] leading-snug ${on ? "border-white/15 text-[var(--b-secondary)]" : "border-[var(--b-primary)]/10 text-[var(--b-primary)]/65"}`}>{ind.limits[i]}</span>
                         </button>
                       );
                     })}

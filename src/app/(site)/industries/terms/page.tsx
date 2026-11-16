@@ -17,7 +17,7 @@ const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 const TERMS: [string, string][] = [
   ["Prices", "Prices are in Indian rupees, before GST. GST is added where applicable. Prices are fixed for the period you have paid for. We give 30 days' written notice of any change, which applies from your next renewal."],
-  ["Billing", "Plans are billed in advance, monthly or yearly. Yearly plans include 2 months free. Overage and third-party charges are billed with the next invoice."],
+  ["Billing", "Plans are billed in advance, monthly or yearly. Yearly plans include the free months shown in each industry's price calculator. Overage and third-party charges are billed with the next invoice."],
   ["Setup and build fees", `The one-time setup of a shared app is paid before work starts. A dedicated app (from ${inr(DEDICATED.buildFrom)}) is paid 50% to start, 40% at the test version and 10% at go-live. Setup and build fees are not refundable once work has started.`],
   ["Limits and fair use", `Each plan includes the limits shown on its industry's page. Use above a limit is charged at the published overage rate. ${OVERAGE_COMMON} "Unlimited" means normal use for one business of that size, not reselling or automated bulk use.`],
   ["Third-party charges", "WhatsApp (Meta), SMS, payment gateway, app store and domain charges are paid at actuals, in your own account wherever possible."],
