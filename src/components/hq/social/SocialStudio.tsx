@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Carousels } from "./Carousels";
 import { useSearchParams } from "next/navigation";
 import { Tabs } from "@/components/ui/Tabs";
 import { useCollection } from "@/components/hq/data";
@@ -11,8 +12,8 @@ import { Create } from "./create/Create";
 import { Founders } from "./Founders";
 import { Plan } from "./Plan";
 
-type Tab = "create" | "plan" | "captions" | "founders" | "brand";
-const TABS: Tab[] = ["create", "plan", "captions", "founders", "brand"];
+type Tab = "create" | "carousels" | "plan" | "captions" | "founders" | "brand";
+const TABS: Tab[] = ["create", "carousels", "plan", "captions", "founders", "brand"];
 const asTab = (v: string | null): Tab => (TABS.includes(v as Tab) ? (v as Tab) : "create");
 
 /** Changes the address without loading anything: the tab survives a reload, and a link to the same design works twice. */
@@ -78,6 +79,7 @@ export function SocialStudio() {
         onChange={go}
         tabs={[
           { value: "create", label: "Create" },
+          { value: "carousels", label: "App carousels" },
           { value: "plan", label: "Plan", count: open },
           { value: "captions", label: "Captions" },
           { value: "founders", label: "Founders" },
@@ -100,6 +102,7 @@ export function SocialStudio() {
           />
         </div>
       )}
+      {tab === "carousels" && <Carousels />}
       {tab === "plan" && <Plan />}
       {seen.includes("captions") && (
         <div hidden={tab !== "captions"}>
