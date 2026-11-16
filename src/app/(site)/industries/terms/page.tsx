@@ -29,7 +29,7 @@ const TERMS: [string, string][] = [
   ["Your content", "You are responsible for what you and your staff put in the app (prices, offers, medical notes, listings) and for following the laws that apply to your business."],
   ["Dedicated apps", `Hosting and storage are billed separately. Servers we manage are billed by us (from ${inr(DEDICATED.hosting[0].monthly)} a month); servers in your own cloud account are billed to you by the provider, with a one-time setup of ${inr(DEDICATED.ownCloudSetup)}. Maintenance (${inr(DEDICATED.maintenance[0])}–${inr(DEDICATED.maintenance[1])} a month) covers updates, security, monitoring and support. Code built only for you can be licensed to you on request.`],
   ["Liability", "Our total liability in any year is limited to the fees you paid us in that year. We are not liable for indirect losses or for outages of third-party services."],
-  ["Changes and disputes", "Changes to these terms are announced 30 days ahead. Any dispute is subject to the courts with jurisdiction where FrameMind AI Studio is registered in Karnataka, India."],
+  ["Changes and disputes", "Changes to these terms are announced 30 days ahead. Any dispute is subject to the exclusive jurisdiction of the courts at Gadag, Karnataka, India."],
 ];
 
 export default function Page() {
