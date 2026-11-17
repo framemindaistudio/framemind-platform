@@ -68,7 +68,7 @@ export default function Shop({ shop, initialCategory }: { shop: PublicShop; init
               Guides, presets and templates from the studio&apos;s own workflow, packed for creators and builders. Prices start at ₹49, and downloads are instant.
             </p>
             <div className="mt-7 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-widest">
-              {["UPI · GPay · PhonePe", "Instant download", "Made in Gadag"].map((t) => (
+              {["UPI · GPay · PhonePe", "Instant download", "Made in India"].map((t) => (
                 <span key={t} className="rounded-full border border-border px-3 py-1.5 text-muted-foreground">
                   {t}
                 </span>

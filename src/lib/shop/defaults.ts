@@ -47,7 +47,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "Vibe coding means building software by describing what you want and letting AI write the code. This guide shows how to do it properly: planning the idea, picking the right tool, prompting in small steps and checking what the AI built.\n\nIt ends with three small projects you can finish in an evening each.",
-      includes: ["What vibe coding is, and where it breaks", "Choosing a tool for your project", "The plan → build → check loop", "3 starter projects with prompts", "A checklist before you share your app"],
+      includes: ["What vibe coding is, and where it breaks", "Choosing a tool for your project", "The plan → build → check loop", "3 evening projects with step-by-step prompts", "A safety checklist before you share your app", "Guide as PDF + web version with a prompt builder"],
       formats: ["PDF"],
       level: "Beginners",
       accent: "#9B7BFF",
@@ -66,7 +66,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "One hundred tested prompts for Instagram and YouTube creators, grouped by job: finding ideas, writing hooks, scripting Reels, writing captions, repurposing content and replying to comments.\n\nWorks with ChatGPT, Claude, Gemini or any AI chat.",
-      includes: ["100 prompts in 6 groups", "Fill-in-the-blank versions for your niche", "Examples of good and bad output", "A Notion copy and a PDF copy"],
+      includes: ["100 prompts in 6 groups", "Fill-in-the-blank: type your niche once and every prompt updates (web version)", "Weak vs strong output examples", "A weekly content system", "Notion import file (CSV), Markdown and PDF"],
       formats: ["PDF", "Notion"],
       level: "All levels",
       accent: "#3DF5C8",
@@ -103,7 +103,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "A shot list for Reels and short films shot on a phone: what each shot is, how to move, and where it fits in an edit. Each one has a diagram and a one-line tip.\n\nIncludes ready-made sequences for a product reel, a café reel and a travel reel.",
-      includes: ["40 shots with diagrams", "Phone settings for smooth video", "3 ready reel sequences", "A blank shot-list sheet for your own shoots"],
+      includes: ["40 shots with diagrams", "Phone settings for India (25 fps, 50 Hz)", "3 ready Reel sequences with timings", "Interactive Reel builder (web version)", "A printable blank shot-list sheet"],
       formats: ["PDF"],
       level: "All levels",
       accent: "#D7263D",
@@ -157,9 +157,9 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       mrp: 399,
       status: "soon",
       description:
-        "Twenty carousel layouts for tips, before-and-after, lists and stories, sized 1080×1350. Edit them in Photoshop (layered PSD) or in Canva through the template link.\n\nChange the colours and fonts once and every slide follows.",
-      includes: ["20 carousel layouts", "Layered PSD files", "Canva template link", "Font and colour guide"],
-      formats: ["PSD", "Canva"],
+        "Twenty carousel slides in four ready styles (tips, before-and-after, top-5 list and story), sized 1080×1350. Every slide is a layered PSD you can edit in Photoshop or free in Photopea.\n\nText stays editable, colours change with a double-click, and photo spots are smart objects: paste your photo and it drops into place.",
+      includes: ["20 layered PSD slides in 4 styles", "Editable text, recolourable shapes, smart-object photo spots", "PNG previews of every slide", "Step-by-step guide (PDF + web with a swipe preview)"],
+      formats: ["PSD", "PDF"],
       level: "All levels",
       accent: "#FF5FA2",
       files: [],
@@ -175,8 +175,8 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       mrp: 499,
       status: "soon",
       description:
-        "Mockups with smart objects: put your design in, save, and it appears on the device or print in perspective.\n\nUse them for portfolios, client presentations and product posts.",
-      includes: ["Phone, poster, business card and social post mockups", "Smart-object layers", "Background colour you can change"],
+        "Six clean, modern mockup scenes with smart objects: put your design in, save, and it appears on the phone, poster, card or laptop at the right size and angle.\n\nUse them for portfolios, client presentations and product posts. No Photoshop? The guide's web version has a Mockup Studio that puts your design into every scene right in your browser.",
+      includes: ["6 PSD scenes at 3000×2250: phones, framed poster, business cards, Instagram post, laptop", "Full-resolution smart objects", "Background colours you can change", "Browser Mockup Studio (no Photoshop needed)", "Step-by-step guide (PDF + web)"],
       formats: ["PSD"],
       level: "All levels",
       accent: "#4D7CFE",
@@ -214,7 +214,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "Thirty heading-and-body font pairs, all free on Google Fonts, shown on a real poster, a website and an Instagram post so you can see them in use.\n\nIncludes Devanagari and Kannada-friendly pairs for Indian brands.",
-      includes: ["30 font pairs with previews", "Where to use each pair", "Sizes and spacing that work", "Indian-language pairs"],
+      includes: ["30 free Google Font pairs, each shown on a poster, website and Instagram post", "Sizes and spacing that work", "5 Hindi and Kannada pairs", "Copy-paste CSS for every pair", "Live font playground (web version)"],
       formats: ["PDF"],
       level: "All levels",
       accent: "#4A1D3F",
@@ -232,7 +232,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "The paperwork every Indian freelancer and creator needs, as editable Word, Excel and Google templates: a quotation, an invoice that totals itself, a rate card and a simple project agreement.\n\nThe agreement is a starting point, not legal advice; have it read by a lawyer for large projects.",
-      includes: ["Quotation template", "Invoice template with totals", "Rate card template", "Project agreement template", "Payment reminder messages"],
+      includes: ["Quotation template (Word)", "Invoice with automatic totals and GST split (Excel)", "Rate card + rate calculator (Excel)", "Project agreement template (Word)", "10 payment reminder messages", "Guide as PDF + web version with a live rate calculator"],
       formats: ["DOCX", "XLSX", "Google"],
       level: "Freelancers",
       accent: "#1F8A5B",
