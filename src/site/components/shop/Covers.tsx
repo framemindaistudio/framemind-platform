@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { CoverStyle, PublicProduct } from "@/lib/shop/types";
 import { appsFor, type App } from "@/lib/shop/compat";
+import { DEFAULT_CATALOG } from "@/lib/shop/defaults";
+import { toPublic } from "@/lib/shop/logic";
 
 /**
  * The drawn product covers: one look per kind of product, after what sells on Instagram and creator stores in 2026
@@ -396,29 +398,49 @@ function Paper({ p, accent }: { p: PublicProduct; accent: string }) {
   );
 }
 
-/* ─────────────── Bundles: neo-brutalist stickers ─────────────── */
+/* ─────────────── Bundles: the real products inside, fanned out ─────────────── */
+/** The bundle's items as public products (drawn from the built-in catalogue, so covers render anywhere). */
+function bundleItems(p: PublicProduct): PublicProduct[] {
+  return (p.bundleOf ?? [])
+    .map((id) => DEFAULT_CATALOG.products.find((x) => x.id === id))
+    .filter((x): x is NonNullable<typeof x> => !!x && !x.bundleOf?.length)
+    .map((x) => toPublic(x, DEFAULT_CATALOG));
+}
+
 function Brutal({ p, accent }: { p: PublicProduct; accent: string }) {
-  const count = p.bundleOf?.length ?? 0;
+  const items = bundleItems(p);
   const save = p.mrp && p.mrp > p.price ? p.mrp - p.price : 0;
+  const n = items.length;
   return (
-    <Frame bg={accent} ink="#0D0D0D" grain={0.25}>
-      <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(rgba(13,13,13,.18) 1px, transparent 1.2px)", backgroundSize: `${cq(4)} ${cq(4)}` }} />
-      <div className="absolute flex flex-col justify-between border-[1cqw] border-[#0D0D0D] bg-[#F5F4F0]" style={{ left: cq(8), right: cq(12), top: cq(13), bottom: cq(24), padding: cq(5), boxShadow: `${cq(3)} ${cq(3)} 0 #0D0D0D` }}>
-        <span className={mono} style={{ fontSize: cq(2.8) }}>
-          Bundle {count ? `· ${count} products` : ""}
-        </span>
-        <Title text={p.title} size={10.5} className="!font-black" />
+    <Frame bg={`radial-gradient(120% 90% at 50% 100%, ${mix(accent, "#141414", 0.35)} 0%, #141414 70%)`} grain={0.22}>
+      <div style={{ position: "absolute", left: cq(7), top: cq(7), right: cq(30) }}>
+        <p className={`${mono} text-white/60`} style={{ fontSize: cq(2.6) }}>
+          Bundle · {n} products
+        </p>
+        <Title text={p.title} size={9.5} className="mt-[2cqw]" />
       </div>
+      {items.map((it, i) => {
+        const mid = (n - 1) / 2;
+        const off = i - mid;
+        return (
+          <div
+            key={it.id}
+            className="absolute overflow-hidden rounded-[2cqw] shadow-[0_3cqw_6cqw_rgba(0,0,0,.55)]"
+            style={{ width: cq(n > 3 ? 36 : 40), left: `calc(50% - ${cq(n > 3 ? 18 : 20)} + ${cq(off * (n > 3 ? 13 : 20))})`, top: cq(40 + Math.abs(off) * 4), transform: `rotate(${off * 8}deg)`, zIndex: 10 - Math.round(Math.abs(off) * 2) }}
+          >
+            <DrawnCover product={it} />
+          </div>
+        );
+      })}
       {save > 0 && (
-        <div className="absolute flex items-center justify-center rounded-full border-[0.8cqw] border-[#0D0D0D] bg-[#FF5FA2] text-center font-black leading-none" style={{ right: cq(4), top: cq(5), width: cq(25), height: cq(25), transform: "rotate(12deg)", fontSize: cq(4) }}>
+        <div className="absolute z-20 flex items-center justify-center rounded-full border-[0.8cqw] border-[#0D0D0D] text-center font-black leading-none text-[#0D0D0D]" style={{ background: accent, right: cq(5), top: cq(6), width: cq(22), height: cq(22), transform: "rotate(12deg)", fontSize: cq(3.6) }}>
           SAVE
           <br />₹{save}
         </div>
       )}
-      <div className="absolute inset-x-0 overflow-hidden whitespace-nowrap border-y-[0.8cqw] border-[#0D0D0D] bg-[#0D0D0D] font-black" style={{ bottom: cq(8), color: accent, fontSize: cq(4.4), padding: `${cq(1.5)} 0`, transform: "rotate(-3deg) scale(1.1)" }}>
-        {"MORE FOR LESS ✦ ".repeat(6)}
+      <div className="absolute z-20" style={{ left: 0, right: 0, bottom: 0 }}>
+        <AppRow p={p} max={5} style={{ left: cq(7), bottom: cq(5) }} />
       </div>
-      <AppRow p={p} style={{ left: cq(8), bottom: cq(18) }} />
     </Frame>
   );
 }
