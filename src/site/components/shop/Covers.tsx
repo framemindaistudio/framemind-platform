@@ -210,29 +210,50 @@ function Stack({ p, accent }: { p: PublicProduct; accent: string }) {
   );
 }
 
-/* ─────────────── Palettes: fanned swatch chips ─────────────── */
-function Swatch({ p, accent }: { p: PublicProduct; accent: string }) {
-  const chips = [accent, TREND[3], TREND[4], TREND[1], TREND[5]];
+/* ─────────────── Palettes: the real colour library ─────────────── */
+/** The 50 palettes in the product (dark → light), so the cover shows exactly what buyers get. */
+const LIBRARY = "3B2418,8C3B22,C4532D,E8A87C,F3E3CF|1F2A1E,3E5235,7A8B5A,C9C5A0,EFEBDD|4A3B2E,9C7B5B,CDB08A,E7D7BF,F7F1E8|2B1B14,5C3A2A,A0704F,D6B48E,F4E7D4|5A2E0E,B86B1E,E0A33A,F2D08B,FBF3E0|2E3420,5D6B3A,9AA668,D7D9B1,F5F4EA|6E2C1A,B4552F,8DA38A,C9D3C3,F2EFE8|3D3530,7D6A5C,B39E8A,DCCFC0,F4EEE7|1E1A17,A45A3B,D98E6A,EBC9B0,FAF4EF|0D0D0D,C8F135,FF5FA2,4D7CFE,F5F4F0|1B0B3A,5B2EFF,9B7BFF,FF8A3D,FFF4E8|1A1A2E,FF6B00,FFC93C,00C2A8,F7F7F2|111111,E10600,FF7A59,FFD6C9,FFFFFF|071A12,0B6E4F,3DF5C8,C8F135,F2FFF7|3A0CA3,F72585,FFB703,06D6A0,FFF8F0|001A4D,1F4BFF,FF4D2E,FFC2B3,F4F6FF|0D0D0D,FF5FA2,FFE14D,7CF0FF,FFFFFF|14121F,3D2C8D,FF7B39,FFD3A5,FDF6EE|3C3A40,9A97A0,CFCBD3,E8E5EA,F0EEE9|5C3D3A,E8998D,F6C1B4,FBE3DA,FFF7F3|3E3651,8E7DBE,C3B8E3,E6E0F5,F8F6FC|2F4B43,6FB7A1,B8E0D2,E8F4EE,FBF7F0|4A4130,E5C76B,F5E3A1,FBF1D0,FFFCF2|4B2E39,C9849A,EBC1CD,F7E3E8,FFF8FA|2E3F57,7FA7D9,B9D3F0,E3EEFA,F9FBFF|3D4A2F,9DBF7A,CFE3B5,EEF5E4,FFFDF6|1E0F1C,4A1D3F,8E3B67,D4A373,F4E9DC|04140F,0F5257,1D7A5F,C9A86A,F3EBDD|0B0C10,1F2833,4A4E69,C5A880,F2E9DC|1A0A0A,4E0F12,8C1C13,BF9270,EDE0D4|071E22,1D3E53,0F5257,77ABB7,E7EFF1|121212,2B2623,5C524A,A89A8C,E9E3DC|0A1931,183B6B,B68D40,D6C3A3,F8F4EC|2C061F,5D0E41,A0204C,E8D5C4,F7F3EF|09090D,1E1E2E,7B5CFF,3DF5C8,E6E6F0|0E0E12,2A2A35,D97757,F2C9B6,F5F4F0|120458,7A04EB,FF00A0,FE75FE,FFD319|0A0F1F,12305E,1F6FEB,79C0FF,E6F1FF|050A07,0D2818,04471C,16DB65,DFFFE9|0B1026,3B2F8F,00C2FF,8AFFC1,F0F7FF|111315,2D3136,6B7280,C8F135,F4F5F6|1A1A40,7A7AFF,A3F7FF,FFC4F3,FFFFFF|2B0F0E,8A1E12,E8691E,FFB627,FFF1D6|3D1F00,D95D0F,F4A300,FFD15C,FFF6DF|3B0A2A,8B1E3F,C9A227,1F6F5C,F6EAD7|6A4C93,FF9EBB,FFD6A5,9BF6FF,FDFFB6|1B1F3B,E63946,F4A261,2A9D8F,F1FAEE|0B2545,13315C,1B998B,C5D86D,F7F4EA|2F3E1F,5C7A29,A3B86C,E4D6A7,FAF5E9|1C1208,6B3E0A,B8862B,E6C877,FBF4E2".split("|").map((p) => p.split(",").map((c) => "#" + c));
+
+function Swatch({ p }: { p: PublicProduct }) {
+  const feature = LIBRARY[0];
   return (
-    <Frame bg={TREND[6]} ink="#141414" grain={0.2}>
+    <Frame bg="#141414" ink="#F5F4F0" grain={0.18}>
       <div style={{ position: "absolute", left: cq(7), top: cq(7), right: cq(7) }}>
-        <p className={`${mono} text-black/50`} style={{ fontSize: cq(2.6) }}>
-          Palette edition · 2026
+        <p className={`${mono} text-white/50`} style={{ fontSize: cq(2.6) }}>
+          {LIBRARY.length} palettes · 6 moods
         </p>
-        <Title text={p.title} size={10} className="mt-[2cqw] font-serif !font-normal italic" />
+        <Title text={p.title} size={9.5} className="mt-[2cqw]" />
       </div>
-      {chips.map((c, i) => (
-        <div
-          key={i}
-          className="absolute overflow-hidden rounded-[1.5cqw] bg-white shadow-[0_1.5cqw_4cqw_rgba(0,0,0,.18)]"
-          style={{ width: cq(34), height: cq(52), left: cq(14), bottom: cq(-6), transformOrigin: "50% 100%", transform: `rotate(${-24 + i * 14}deg) translateX(${cq(i * 6)})` }}
-        >
-          <div style={{ background: c, height: "72%" }} />
-          <p className="font-mono text-black/70" style={{ fontSize: cq(2.6), padding: `${cq(2)} ${cq(2.4)}` }}>
-            {c.toUpperCase()}
-          </p>
+      <div
+        className="absolute grid rounded-[2.4cqw] bg-[#F6F1E9] shadow-[0_3cqw_6cqw_rgba(0,0,0,.45)]"
+        style={{ left: cq(6), top: cq(40), width: cq(62), padding: cq(3), gap: cq(1.3), gridTemplateColumns: "repeat(5, 1fr)", transform: "rotate(-3deg)" }}
+      >
+        {LIBRARY.map((cs, k) => (
+          <div key={k} className="flex overflow-hidden rounded-[0.8cqw]" style={{ height: cq(5.2) }}>
+            {cs.map((c) => (
+              <span key={c} style={{ background: c, flex: 1 }} />
+            ))}
+          </div>
+        ))}
+      </div>
+      <div
+        className="absolute overflow-hidden rounded-[2.4cqw] bg-white shadow-[0_3cqw_6cqw_rgba(0,0,0,.5)]"
+        style={{ right: cq(6), top: cq(52), width: cq(34), transform: "rotate(6deg)", padding: cq(1.6) }}
+      >
+        <div className="overflow-hidden rounded-[1.4cqw]">
+          {feature.map((c, i) => (
+            <div key={c} className="font-mono" style={{ background: c, height: cq(8.4), fontSize: cq(2.4), padding: `${cq(2.4)} ${cq(2.4)} 0`, color: i < 3 ? "#fff" : "#3B2418" }}>
+              {c}
+            </div>
+          ))}
         </div>
-      ))}
+        <p className="font-semibold text-[#141414]" style={{ fontSize: cq(3.2), padding: `${cq(1.6)} ${cq(0.8)} ${cq(0.4)}` }}>
+          01 Indian Clay
+        </p>
+      </div>
+      <span className="absolute grid place-items-center rounded-full bg-[#C8F135] font-semibold text-[#141414]" style={{ right: cq(7), top: cq(36), width: cq(13), height: cq(13), fontSize: cq(5) }}>
+        {LIBRARY.length}
+      </span>
     </Frame>
   );
 }
@@ -348,7 +369,7 @@ export function DrawnCover({ product }: { product: PublicProduct }) {
     case "stack":
       return <Stack p={product} accent={accent} />;
     case "swatch":
-      return <Swatch p={product} accent={accent} />;
+      return <Swatch p={product} />;
     case "specimen":
       return <Specimen p={product} accent={accent} />;
     case "paper":
