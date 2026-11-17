@@ -1,7 +1,8 @@
 import { ArrowLeft, Check, FileDown } from "lucide-react";
 import { Link } from "@/site/router";
 import type { PublicProduct, ShopCategory } from "@/lib/shop/types";
-import { ProductCard, ProductCover } from "@/site/components/shop/ShopBits";
+import { ProductCard, ProductCover, WorksWith } from "@/site/components/shop/ShopBits";
+import { appsFor, COMPAT_NOTE } from "@/lib/shop/compat";
 import { BuyBox } from "@/site/components/shop/BuyBox";
 import { site } from "@/lib/site";
 
@@ -51,6 +52,13 @@ export default function ShopProduct({ product, category, related, inBundle, paym
               </div>
             )}
 
+            {appsFor(product).length > 0 && (
+              <div className="mt-10">
+                <h2 className="mb-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">Works with</h2>
+                <WorksWith product={product} />
+              </div>
+            )}
+
             <dl className="mt-10 grid grid-cols-2 gap-px border border-border bg-border text-sm">
               <div className="bg-background p-4">
                 <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Format</dt>
@@ -65,6 +73,7 @@ export default function ShopProduct({ product, category, related, inBundle, paym
             </dl>
 
             {product.note && <p className="mt-6 text-xs leading-relaxed text-muted-foreground">{product.note}</p>}
+            {appsFor(product).length > 0 && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{COMPAT_NOTE}</p>}
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
               Digital product: no physical item is shipped. See the <Link to="/shop/terms" className="underline underline-offset-2">store terms & refunds</Link>.
             </p>

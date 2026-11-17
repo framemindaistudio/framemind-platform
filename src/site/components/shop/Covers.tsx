@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { CoverStyle, PublicProduct } from "@/lib/shop/types";
+import { appsFor, type App } from "@/lib/shop/compat";
 
 /**
  * The drawn product covers: one look per kind of product, after what sells on Instagram and creator stores in 2026
@@ -55,6 +56,34 @@ function Chip({ children, bg, color, style }: { children: ReactNode; bg: string;
   );
 }
 
+/** One app: its logo when the brand allows it, otherwise its name. */
+export function AppMark({ app, size, light }: { app: App; size: string; light?: boolean }) {
+  if (app.path) {
+    const dark = app.hex && parseInt(app.hex.slice(1), 16) < 0x333333;
+    return (
+      <svg viewBox="0 0 24 24" style={{ width: size, height: size, flexShrink: 0 }} role="img" aria-label={app.name}>
+        <title>{app.name}</title>
+        <path d={app.path} fill={dark && light ? "#F5F4F0" : app.hex} />
+      </svg>
+    );
+  }
+  return <span className="whitespace-nowrap font-semibold">{app.name}</span>;
+}
+
+/** "Works with" strip for covers: white pill, logos first, then names. */
+function AppRow({ p, style, max = 4 }: { p: PublicProduct; style?: CSSProperties; max?: number }) {
+  const apps = appsFor(p);
+  if (!apps.length) return null;
+  const sorted = [...apps.filter((a) => a.path), ...apps.filter((a) => !a.path)].slice(0, max);
+  return (
+    <div className="absolute flex items-center rounded-full bg-white/95 text-[#141414] shadow-[0_1cqw_3cqw_rgba(0,0,0,.25)]" style={{ gap: cq(2), padding: `${cq(1.6)} ${cq(3)}`, fontSize: cq(2.6), ...style }}>
+      {sorted.map((a) => (
+        <AppMark key={a.name} app={a} size={cq(4)} />
+      ))}
+    </div>
+  );
+}
+
 /* ─────────────── AI: dark terminal with neon glow ─────────────── */
 function Terminal({ p, accent }: { p: PublicProduct; accent: string }) {
   const cmd = p.id.includes("claude") ? "claude" : p.id.includes("prompt") ? "prompt --list" : "vibe build";
@@ -90,6 +119,7 @@ function Terminal({ p, accent }: { p: PublicProduct; accent: string }) {
           {p.level ?? "Guide"}
         </span>
       </div>
+      <AppRow p={p} style={{ right: cq(5), top: cq(5) }} />
     </Frame>
   );
 }
@@ -126,6 +156,7 @@ function Viewfinder({ p, accent }: { p: PublicProduct; accent: string }) {
         <span>1/250</span>
         <span style={{ color: TREND[4] }}>●●●○</span>
       </div>
+      <AppRow p={p} style={{ right: cq(5), top: cq(13) }} />
     </Frame>
   );
 }
@@ -176,36 +207,60 @@ function Split({ p, accent }: { p: PublicProduct; accent: string }) {
           {p.formats.join(" · ")} · one tap
         </p>
       </div>
+      <AppRow p={p} style={{ right: cq(5), bottom: cq(6) }} />
     </Frame>
   );
 }
 
-/* ─────────────── Templates: stacked carousel cards ─────────────── */
+/* ─────────────── Templates: the real slides and scenes ─────────────── */
 function Stack({ p, accent }: { p: PublicProduct; accent: string }) {
-  const card = "absolute rounded-[3cqw] shadow-[0_2cqw_6cqw_rgba(0,0,0,.25)]";
+  if (p.id.includes("mockup")) return <Mockups p={p} accent={accent} />;
+  const slides = ["A1", "C1", "D1"];
   return (
-    <Frame bg={`linear-gradient(160deg, ${mix(accent, "#FFFFFF", 0.72)} 0%, ${mix(accent, "#FFFFFF", 0.45)} 100%)`} ink="#0D0D0D" grain={0.18}>
-      <div className={card} style={{ background: "#0D0D0D", width: cq(62), height: cq(78), left: cq(10), top: cq(14), transform: "rotate(-9deg)" }} />
-      <div className={card} style={{ background: TREND[4], width: cq(62), height: cq(78), left: cq(26), top: cq(12), transform: "rotate(7deg)" }} />
-      <div className={`${card} flex flex-col justify-between`} style={{ background: accent, width: cq(64), height: cq(80), left: cq(18), top: cq(16), padding: cq(5.5), color: "#0D0D0D" }}>
-        <div className="flex justify-between">
-          <span className={mono} style={{ fontSize: cq(2.6) }}>
-            01/20
-          </span>
-          <span className={mono} style={{ fontSize: cq(2.6) }}>
-            ↗ swipe
-          </span>
-        </div>
-        <Title text={p.title} size={9.5} />
-        <div className="flex" style={{ gap: cq(1.4) }}>
-          {[0, 1, 2, 3, 4].map((i) => (
-            <span key={i} className="rounded-full" style={{ width: i === 0 ? cq(6) : cq(1.8), height: cq(1.8), background: i === 0 ? "#0D0D0D" : "rgba(13,13,13,.35)" }} />
-          ))}
-        </div>
+    <Frame bg={`linear-gradient(160deg, ${mix(accent, "#141414", 0.15)} 0%, ${mix(accent, "#141414", 0.55)} 100%)`} grain={0.18}>
+      <div style={{ position: "absolute", left: cq(7), top: cq(7), right: cq(7) }}>
+        <p className={`${mono} text-white/70`} style={{ fontSize: cq(2.6) }}>
+          20 layered PSDs · 4 styles
+        </p>
+        <Title text={p.title} size={9} className="mt-[2cqw]" />
       </div>
-      <Chip bg="#0D0D0D" color="#fff" style={{ position: "absolute", right: cq(6), bottom: cq(5), transform: "rotate(-6deg)" }}>
-        {p.formats.slice(0, 2).join(" + ")}
-      </Chip>
+      {slides.map((k, i) => (
+        <img
+          key={k}
+          src={`/shop/covers/carousel-${k}.jpg`}
+          alt=""
+          className="absolute rounded-[2cqw] shadow-[0_3cqw_6cqw_rgba(0,0,0,.45)]"
+          style={{ width: cq(40), left: cq(6 + i * 25), top: cq(44 + (i === 1 ? -5 : 2)), transform: `rotate(${(i - 1) * 7}deg)`, zIndex: i === 1 ? 2 : 1 }}
+        />
+      ))}
+      <AppRow p={p} style={{ left: cq(7), bottom: cq(6) }} />
+    </Frame>
+  );
+}
+
+function Mockups({ p, accent }: { p: PublicProduct; accent: string }) {
+  return (
+    <Frame bg={`linear-gradient(160deg, #1B1B1F 0%, ${mix(accent, "#141414", 0.4)} 100%)`} grain={0.18}>
+      <div style={{ position: "absolute", left: cq(7), top: cq(7), right: cq(7) }}>
+        <p className={`${mono} text-white/70`} style={{ fontSize: cq(2.6) }}>
+          6 smart-object scenes · 3000×2250
+        </p>
+        <Title text={p.title} size={9} className="mt-[2cqw]" />
+      </div>
+      {[
+        { k: "phones", w: 70, l: 4, t: 34, r: -4 },
+        { k: "poster", w: 44, l: 52, t: 64, r: 6 },
+        { k: "cards", w: 44, l: 6, t: 76, r: -3 },
+      ].map((m) => (
+        <img
+          key={m.k}
+          src={`/shop/covers/mockup-${m.k}.jpg`}
+          alt=""
+          className="absolute rounded-[1.6cqw] border-[0.8cqw] border-white shadow-[0_3cqw_6cqw_rgba(0,0,0,.5)]"
+          style={{ width: cq(m.w), left: cq(m.l), top: cq(m.t), transform: `rotate(${m.r}deg)` }}
+        />
+      ))}
+      <AppRow p={p} style={{ right: cq(6), bottom: cq(5) }} />
     </Frame>
   );
 }
@@ -254,6 +309,7 @@ function Swatch({ p }: { p: PublicProduct }) {
       <span className="absolute grid place-items-center rounded-full bg-[#C8F135] font-semibold text-[#141414]" style={{ right: cq(7), top: cq(36), width: cq(13), height: cq(13), fontSize: cq(5) }}>
         {LIBRARY.length}
       </span>
+      <AppRow p={p} style={{ left: cq(7), bottom: cq(5) }} />
     </Frame>
   );
 }
@@ -278,46 +334,64 @@ function Specimen({ p, accent }: { p: PublicProduct; accent: string }) {
           The quick brown fox · ಕನ್ನಡ · हिन्दी
         </p>
       </div>
+      <AppRow p={p} style={{ right: cq(6), top: cq(6) }} />
     </Frame>
   );
 }
 
-/* ─────────────── Business: paper document with a PAID stamp ─────────────── */
-function Paper({ p, accent }: { p: PublicProduct; accent: string }) {
+/* ─────────────── Business: the actual document set ─────────────── */
+function Doc({ title, tag, children, style }: { title: string; tag: string; children: ReactNode; style: CSSProperties }) {
   return (
-    <Frame bg={`linear-gradient(150deg, #22202A 0%, ${TREND[5]} 100%)`} grain={0.3}>
-      <div className="absolute bg-[#FBF8F1] text-[#1A1A1A] shadow-[0_3cqw_8cqw_rgba(0,0,0,.45)]" style={{ left: cq(12), right: cq(12), top: cq(9), bottom: cq(14), transform: "rotate(-3deg)", padding: cq(6), borderRadius: cq(1) }}>
-        <div className="flex items-start justify-between">
-          <p className="font-serif font-semibold" style={{ fontSize: cq(5) }}>
-            Invoice
-          </p>
-          <p className="font-mono text-black/50" style={{ fontSize: cq(2.4) }}>
-            #FM-0042
-          </p>
-        </div>
-        <div style={{ marginTop: cq(5) }} className="space-y-[2.2cqw]">
-          {[72, 54, 64, 40].map((w, i) => (
-            <div key={i} className="flex items-center justify-between">
-              <span className="rounded-full bg-black/12" style={{ width: `${w}%`, height: cq(1.6) }} />
-              <span className="rounded-full bg-black/20" style={{ width: cq(9), height: cq(1.6) }} />
-            </div>
-          ))}
-        </div>
-        <div className="flex items-baseline justify-between border-t border-black/15" style={{ marginTop: cq(5), paddingTop: cq(3) }}>
-          <span className={`${mono} text-black/50`} style={{ fontSize: cq(2.4) }}>
-            Total
-          </span>
-          <span className="font-semibold tabular-nums" style={{ fontSize: cq(5) }}>
-            ₹24,000
-          </span>
-        </div>
-        <div className={`${mono} absolute flex items-center justify-center rounded-full border-[0.8cqw] font-bold`} style={{ right: cq(6), bottom: cq(14), width: cq(22), height: cq(22), color: accent, borderColor: accent, transform: "rotate(-16deg)", fontSize: cq(4.2) }}>
-          Paid
-        </div>
+    <div className="absolute rounded-[1.4cqw] bg-[#FBF8F1] text-[#1A1A1A] shadow-[0_3cqw_7cqw_rgba(0,0,0,.45)]" style={{ width: cq(46), padding: cq(4), ...style }}>
+      <div className="flex items-start justify-between">
+        <p className="font-semibold" style={{ fontSize: cq(3.6), letterSpacing: "-0.02em" }}>
+          {title}
+        </p>
+        <span className={`${mono} rounded-full bg-[#1A1A1A] text-white`} style={{ fontSize: cq(1.8), padding: `${cq(0.6)} ${cq(1.4)}` }}>
+          {tag}
+        </span>
       </div>
-      <div className="absolute text-white" style={{ left: cq(8), right: cq(8), bottom: cq(5) }}>
-        <Title text={p.title} size={7.5} />
+      {children}
+    </div>
+  );
+}
+
+function Paper({ p, accent }: { p: PublicProduct; accent: string }) {
+  const line = (w: number, k: number) => <span key={k} className="block rounded-full bg-black/12" style={{ width: `${w}%`, height: cq(1.2), marginTop: cq(1.8) }} />;
+  return (
+    <Frame bg={`linear-gradient(150deg, #10241B 0%, ${mix(accent, "#10241B", 0.35)} 100%)`} grain={0.25}>
+      <div style={{ position: "absolute", left: cq(7), top: cq(7), right: cq(7) }}>
+        <p className={`${mono} text-white/60`} style={{ fontSize: cq(2.6) }}>
+          Quote · agreement · invoice · rate card
+        </p>
+        <Title text={p.title} size={9} className="mt-[2cqw] text-white" />
       </div>
+      <Doc title="Quotation" tag="Word" style={{ left: cq(5), top: cq(31), transform: "rotate(-7deg)" }}>
+        {[80, 62, 70].map(line)}
+        <div className="flex justify-between font-semibold" style={{ fontSize: cq(2.6), marginTop: cq(3) }}>
+          <span>Total</span>
+          <span>₹46,000</span>
+        </div>
+      </Doc>
+      <Doc title="Agreement" tag="Word" style={{ left: cq(48), top: cq(32), transform: "rotate(6deg)" }}>
+        {["1. The work", "3. Revisions: 2 rounds", "5. Late payment"].map((t) => (
+          <p key={t} style={{ fontSize: cq(2.2), marginTop: cq(1.6) }}>
+            {t}
+          </p>
+        ))}
+      </Doc>
+      <Doc title="Invoice" tag="Excel" style={{ left: cq(26), top: cq(64), transform: "rotate(-1deg)", width: cq(52) }}>
+        {[72, 54].map(line)}
+        <div className="flex justify-between" style={{ fontSize: cq(2.2), marginTop: cq(2.4) }}>
+          <span className="text-black/55">CGST + SGST 9% + 9%</span>
+          <span>₹8,280</span>
+        </div>
+        <div className="flex items-baseline justify-between border-t border-black/15 font-semibold" style={{ marginTop: cq(2), paddingTop: cq(1.6), fontSize: cq(3.4) }}>
+          <span>Balance due</span>
+          <span style={{ color: accent }}>₹54,280</span>
+        </div>
+      </Doc>
+      <AppRow p={p} style={{ left: cq(7), bottom: cq(5) }} />
     </Frame>
   );
 }
@@ -344,6 +418,7 @@ function Brutal({ p, accent }: { p: PublicProduct; accent: string }) {
       <div className="absolute inset-x-0 overflow-hidden whitespace-nowrap border-y-[0.8cqw] border-[#0D0D0D] bg-[#0D0D0D] font-black" style={{ bottom: cq(8), color: accent, fontSize: cq(4.4), padding: `${cq(1.5)} 0`, transform: "rotate(-3deg) scale(1.1)" }}>
         {"MORE FOR LESS ✦ ".repeat(6)}
       </div>
+      <AppRow p={p} style={{ left: cq(8), bottom: cq(18) }} />
     </Frame>
   );
 }
