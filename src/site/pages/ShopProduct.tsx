@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, FileDown } from "lucide-react";
+import { ArrowLeft, Check, FileDown, Minus } from "lucide-react";
 import { Link } from "@/site/router";
 import type { PublicProduct, ShopCategory } from "@/lib/shop/types";
 import { ProductCard, ProductCover, WorksWith } from "@/site/components/shop/ShopBits";
@@ -81,6 +81,8 @@ export default function ShopProduct({ product, category, related, inBundle, paym
         </div>
       </section>
 
+      {product.compare && product.compare.rows.length > 0 && <Compare product={product} />}
+
       {inBundle.length > 0 && (
         <section className="border-t border-border">
           <div className="mx-auto max-w-6xl px-6 py-12">
@@ -107,5 +109,61 @@ export default function ShopProduct({ product, category, related, inBundle, paym
         </section>
       )}
     </div>
+  );
+}
+
+/** "How it compares": this product in the first, highlighted column. Yes/No cells become icons. */
+function Compare({ product }: { product: PublicProduct }) {
+  const c = product.compare!;
+  const accent = /^#[0-9a-f]{6}$/i.test(product.accent || "") ? product.accent! : "#C8F135";
+  const cell = (v: string, ours: boolean) => {
+    const t = v.trim();
+    if (/^yes$/i.test(t)) return <Check className={`h-4 w-4 ${ours ? "" : "text-foreground/70"}`} aria-label="Yes" />;
+    if (/^no$/i.test(t)) return <Minus className="h-4 w-4 text-muted-foreground/60" aria-label="No" />;
+    return <span className={ours ? "font-medium" : "text-muted-foreground"}>{t}</span>;
+  };
+  return (
+    <section className="border-t border-border">
+      <div className="mx-auto max-w-6xl px-6 py-14">
+        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">How it compares</h2>
+        <div className="mt-8 overflow-x-auto">
+          <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+            <thead>
+              <tr>
+                <th className="w-[22%] pb-4 pr-4 align-bottom font-normal text-muted-foreground" />
+                {c.columns.map((h, i) => (
+                  <th
+                    key={h}
+                    className={`px-4 pb-4 pt-4 align-bottom font-semibold leading-snug ${i === 0 ? "rounded-t-xl" : "text-muted-foreground"}`}
+                    style={i === 0 ? { background: `${accent}1F` } : undefined}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {c.rows.map((r, ri) => (
+                <tr key={r.label} className="border-t border-border">
+                  <th scope="row" className="py-3.5 pr-4 align-top font-medium">
+                    {r.label}
+                  </th>
+                  {r.values.map((v, i) => (
+                    <td
+                      key={i}
+                      className={`px-4 py-3.5 align-top leading-snug ${i === 0 && ri === c.rows.length - 1 ? "rounded-b-xl" : ""}`}
+                      style={i === 0 ? { background: `${accent}1F` } : undefined}
+                    >
+                      {cell(v, i === 0)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {c.note && <p className="mt-5 max-w-3xl text-xs leading-relaxed text-muted-foreground">{c.note}</p>}
+      </div>
+    </section>
   );
 }

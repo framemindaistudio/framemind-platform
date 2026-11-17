@@ -60,6 +60,8 @@ export interface ShopProduct {
   files: ShopFile[];
   /** a bundle delivers the files of these products */
   bundleOf?: string[];
+  /** "How it compares" table on the product page: our product first, then typical alternatives. Facts only, dated in `note`. */
+  compare?: ShopCompare;
   featured?: boolean;
   /** a small print line on the product page (e.g. "Unofficial guide, not affiliated with Anthropic") */
   note?: string;
@@ -108,6 +110,14 @@ export interface ShopOrder {
   status: "paid" | "refunded";
   /** live = real money; test = Razorpay test keys; mock = local development without Razorpay */
   mode: "live" | "test" | "mock";
+}
+
+export interface ShopCompare {
+  /** column headings; the first is always this product */
+  columns: string[];
+  rows: { label: string; values: string[] }[];
+  /** where the competitor facts come from and when they were checked */
+  note?: string;
 }
 
 /** What the public pages may see of a product (no file paths). */

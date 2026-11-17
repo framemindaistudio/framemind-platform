@@ -42,6 +42,7 @@ export const APPS: Record<string, App> = {
   vscode: { name: "VS Code" },
   lovable: { name: "Lovable" },
   googlefonts: { name: "Google Fonts" },
+  indesign: { name: "InDesign" },
   blackmagic: { name: "Blackmagic Camera" },
 };
 
@@ -56,7 +57,7 @@ export const COMPAT: Record<string, string[]> = {
   "cinematic-luts": ["premiere", "davinciresolve", "finalcut", "capcut"],
   "carousel-templates": ["photoshop", "photopea"],
   "psd-mockups": ["photoshop", "photopea"],
-  "colour-palettes": ["photoshop", "illustrator", "procreate", "figma", "canva", "gimp", "krita"],
+  "colour-palettes": ["photoshop", "illustrator", "indesign", "procreate", "figma", "canva", "gimp", "krita"],
   "font-pairings": ["googlefonts", "canva", "figma", "googledocs"],
   "freelancer-kit": ["word", "excel", "googledocs", "googlesheets"],
 };

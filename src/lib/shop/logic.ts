@@ -97,6 +97,11 @@ export function catalogProblems(c: ShopCatalog): string[] {
     if (p.status === "live" && !isBuyable(p, c)) out.push(`"${label}" is set to Live but has no files to download yet.`);
     for (const f of p.files) if (!f.path.startsWith(`vault/shop/${p.id}/`)) out.push(`"${label}": file ${f.name} is outside its folder.`);
     for (const b of p.bundleOf ?? []) if (!c.products.some((x) => x.id === b)) out.push(`Bundle "${label}" includes "${b}", which does not exist.`);
+    if (p.compare) {
+      const n = p.compare.columns?.length ?? 0;
+      if (n < 2) out.push(`"${label}": the comparison needs this product and at least one alternative.`);
+      for (const r of p.compare.rows ?? []) if (!r.label?.trim() || r.values?.length !== n) out.push(`"${label}": comparison row "${r.label || "?"}" needs one value per column.`);
+    }
   }
   const codes = new Set<string>();
   for (const k of c.coupons) {

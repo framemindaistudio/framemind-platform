@@ -187,20 +187,112 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       id: "colour-palettes",
       slug: "trending-colour-palettes",
       title: "50 Trending Colour Palettes",
-      tagline: "Ready palettes for brands, posts and websites.",
+      tagline: "Hand-built palettes with tested contrast, print CMYK and every file you need.",
       category: "colour",
       price: 49,
       mrp: 149,
       status: "soon",
       description:
-        "Fifty five-colour palettes with HEX and RGB codes, grouped by mood: earthy, bold, pastel, luxury, tech and festive.\n\nImport them straight into Photoshop and Illustrator (.ase) or Procreate (.swatches), or copy the codes into Canva and Figma.",
-      includes: ["50 palettes with HEX and RGB", "Adobe swatches (.ase) and Procreate swatches", "GIMP/Krita, CSS, Tailwind and CSV files", "A 1080×1350 card for every palette", "Guide as PDF + web version with a live brand mock-up"],
-      formats: ["ASE", "SWATCHES", "PNG", "PDF"],
+        "Fifty five-colour palettes, each with a fixed job for every colour (text, primary, secondary, surface and background) and measured contrast, so they work the moment you use them. Grouped by mood: earthy, bold, pastel, luxury, tech (with dark-mode sets) and festive Indian.\n\nEvery palette has its own page in a 62-page book with HEX, RGB, HSL and print CMYK (FOGRA39), six contrast scores, a nine-step interface scale and examples on a business card, an Instagram post and a website. Import straight into Photoshop, Illustrator, InDesign, Procreate, GIMP, Figma or your code.",
+      includes: ["50 palettes with fixed colour roles and measured contrast", "62-page book (PDF): values, contrast scores, UI scale and 3 brand examples per palette", "Interactive version: copy any value, try a palette on your own brand name", "Adobe .ase (all, per mood, per palette) and Photoshop .aco", "50 Procreate .swatches and GIMP/Krita .gpl files", "CSS, Tailwind v4, Figma design tokens, JSON and CSV", "50 palette cards at 1080×1350"],
+      formats: ["PDF", "ASE", "ACO", "SWATCHES", "CSS"],
       level: "All levels",
       accent: "#C4532D",
       files: [],
       featured: true,
       tags: ["colour palette", "branding", "design"],
+      compare: {
+        "columns": [
+          "FrameMind, ₹49",
+          "Premium packs we checked, $10–30",
+          "Etsy Procreate packs, $2–13",
+          "Free palette generators"
+        ],
+        "rows": [
+          {
+            "label": "Palettes",
+            "values": [
+              "50 hand-built, 5 colours each",
+              "50 per volume, 4–6 colours",
+              "Hundreds to thousands of swatches",
+              "Unlimited, generated"
+            ]
+          },
+          {
+            "label": "A fixed job for every colour",
+            "values": [
+              "Yes",
+              "In some",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Contrast measured and printed",
+            "values": [
+              "Yes, 6 pairs per palette",
+              "Mentioned, no scores",
+              "No",
+              "Checker for pairs you pick"
+            ]
+          },
+          {
+            "label": "Print CMYK values",
+            "values": [
+              "Yes, FOGRA39",
+              "In some",
+              "No",
+              "Basic conversion"
+            ]
+          },
+          {
+            "label": "Photoshop, Illustrator, InDesign",
+            "values": [
+              "Yes",
+              "Yes",
+              "In some",
+              "Export available"
+            ]
+          },
+          {
+            "label": "Procreate",
+            "values": [
+              "Yes",
+              "No",
+              "Yes",
+              "Varies"
+            ]
+          },
+          {
+            "label": "Figma and code",
+            "values": [
+              "Tokens, CSS, Tailwind",
+              "Figma file and CSS",
+              "No",
+              "CSS export"
+            ]
+          },
+          {
+            "label": "Shown on real designs",
+            "values": [
+              "Card, post and website for all 50",
+              "UI examples in some",
+              "Few",
+              "Template previews"
+            ]
+          },
+          {
+            "label": "Indian and festive palettes",
+            "values": [
+              "Yes",
+              "Rarely",
+              "Rarely",
+              "No"
+            ]
+          }
+        ],
+        "note": "Based on palette packs listed on Gumroad and Etsy and on free online palette tools, checked by FrameMind in November 2026. Other products change, so check any listing before you buy."
+      },
     },
     {
       id: "font-pairings",
