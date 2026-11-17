@@ -11,9 +11,10 @@ import { Captions } from "./Captions";
 import { Create } from "./create/Create";
 import { Founders } from "./Founders";
 import { Plan } from "./Plan";
+import { StoreKit } from "./StoreKit";
 
-type Tab = "create" | "carousels" | "plan" | "captions" | "founders" | "brand";
-const TABS: Tab[] = ["create", "carousels", "plan", "captions", "founders", "brand"];
+type Tab = "create" | "carousels" | "store" | "plan" | "captions" | "founders" | "brand";
+const TABS: Tab[] = ["create", "carousels", "store", "plan", "captions", "founders", "brand"];
 const asTab = (v: string | null): Tab => (TABS.includes(v as Tab) ? (v as Tab) : "create");
 
 /** Changes the address without loading anything: the tab survives a reload, and a link to the same design works twice. */
@@ -80,6 +81,7 @@ export function SocialStudio() {
         tabs={[
           { value: "create", label: "Create" },
           { value: "carousels", label: "App carousels" },
+          { value: "store", label: "Store kit" },
           { value: "plan", label: "Plan", count: open },
           { value: "captions", label: "Captions" },
           { value: "founders", label: "Founders" },
@@ -103,6 +105,7 @@ export function SocialStudio() {
         </div>
       )}
       {tab === "carousels" && <Carousels />}
+      {tab === "store" && <StoreKit />}
       {tab === "plan" && <Plan />}
       {seen.includes("captions") && (
         <div hidden={tab !== "captions"}>
