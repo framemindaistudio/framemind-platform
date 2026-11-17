@@ -350,3 +350,9 @@ html:has(.fm-site) {
   .fm-site button { font-size: var(--text-base); font-weight: 500; line-height: 1.5; }
   .fm-site input { font-size: var(--text-base); font-weight: 400; line-height: 1.5; }
 }
+
+/* FrameMind Store ticker (src/site/pages/Shop.tsx): two copies of the text slide left by one copy's width */
+@keyframes fm-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

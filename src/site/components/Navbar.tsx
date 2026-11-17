@@ -12,6 +12,7 @@ const navLinks = [
   { to: "/jove", label: "JOVE" },
   { to: "/360vue", label: "360VUE" },
   { to: "/personal-coaching", label: "1:1 Coaching" },
+  { to: "/shop", label: "Shop" },
   { to: "/team", label: "Team" },
   { to: "/connect", label: "Let's Talk" },
 ];

@@ -48,6 +48,7 @@ export const hqNav: HqNavGroup[] = [
     items: [
       { label: "AI Coaching", href: "/hq/coaching", icon: "GraduationCap", roles: DELIVERY_SIDE, description: "1:1 learners, 90-day plans, sessions" },
       { label: "Vritta", href: "/hq/vritta", icon: "Newspaper", roles: SALES_SIDE, description: "Institution licences, go-live, renewals" },
+      { label: "Digital Store", href: "/hq/shop", icon: "ShoppingBag", roles: OPS, description: "Guides, presets and templates sold at /shop; orders and coupons" },
       { label: "Certificates", href: "/hq/certificates", icon: "Award", roles: DELIVERY_SIDE, description: "Coaching and internship certificates with QR verify" },
     ],
   },

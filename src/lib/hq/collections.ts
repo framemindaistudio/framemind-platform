@@ -189,6 +189,7 @@ export const INCOME_STREAMS = opts(
   "Social media retainers",
   "1:1 AI coaching",
   "Vritta licences",
+  "Digital products",
   "Support & maintenance",
   "Other",
 );

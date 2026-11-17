@@ -1,0 +1,102 @@
+import { ArrowLeft, Check, FileDown } from "lucide-react";
+import { Link } from "@/site/router";
+import type { PublicProduct, ShopCategory } from "@/lib/shop/types";
+import { ProductCard, ProductCover } from "@/site/components/shop/ShopBits";
+import { BuyBox } from "@/site/components/shop/BuyBox";
+import { site } from "@/lib/site";
+
+export default function ShopProduct({ product, category, related, inBundle, paymentsOn }: { product: PublicProduct; category?: ShopCategory; related: PublicProduct[]; inBundle: PublicProduct[]; paymentsOn: boolean }) {
+  const paragraphs = product.description.split(/\n\s*\n/).filter(Boolean);
+  return (
+    <div>
+      <section className="mx-auto max-w-6xl px-6 pb-14 pt-8 md:pt-12">
+        <Link to={category ? `/shop?c=${category.id}` : "/shop"} className="mb-8 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-3 w-3" /> {category?.name ?? "Store"}
+        </Link>
+        <div className="grid gap-10 md:grid-cols-[1fr_1.05fr] md:gap-14">
+          <div className="md:sticky md:top-24 md:self-start">
+            <div className="mx-auto max-w-[340px] md:max-w-none">
+              <ProductCover product={product} />
+            </div>
+          </div>
+          <div>
+            <span className="mb-3 block font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              {category?.name}
+              {product.level ? ` · ${product.level}` : ""}
+            </span>
+            <h1 className="text-3xl font-semibold leading-tight tracking-tight md:text-5xl">{product.title}</h1>
+            <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{product.tagline}</p>
+
+            <div className="mt-8">
+              <BuyBox product={product} paymentsOn={paymentsOn} whatsapp={site.contact.whatsapp} />
+            </div>
+
+            <div className="mt-10 space-y-4 text-base leading-relaxed">
+              {paragraphs.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+
+            {product.includes.length > 0 && (
+              <div className="mt-10">
+                <h2 className="mb-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">What you get</h2>
+                <ul className="space-y-2.5">
+                  {product.includes.map((x) => (
+                    <li key={x} className="flex gap-3">
+                      <Check className="mt-1 h-4 w-4 shrink-0 text-[#4d6b00]" />
+                      <span>{x}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <dl className="mt-10 grid grid-cols-2 gap-px border border-border bg-border text-sm">
+              <div className="bg-background p-4">
+                <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Format</dt>
+                <dd className="mt-1 font-medium">{product.formats.join(", ")}</dd>
+              </div>
+              <div className="bg-background p-4">
+                <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Delivery</dt>
+                <dd className="mt-1 inline-flex items-center gap-1.5 font-medium">
+                  <FileDown className="h-4 w-4" /> Instant download
+                </dd>
+              </div>
+            </dl>
+
+            {product.note && <p className="mt-6 text-xs leading-relaxed text-muted-foreground">{product.note}</p>}
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              Digital product: no physical item is shipped. See the <Link to="/shop/terms" className="underline underline-offset-2">store terms & refunds</Link>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {inBundle.length > 0 && (
+        <section className="border-t border-border">
+          <div className="mx-auto max-w-6xl px-6 py-12">
+            <h2 className="mb-6 text-2xl font-semibold tracking-tight">Inside this bundle</h2>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 lg:grid-cols-4">
+              {inBundle.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {related.length > 0 && (
+        <section className="border-t border-border">
+          <div className="mx-auto max-w-6xl px-6 py-12">
+            <h2 className="mb-6 text-2xl font-semibold tracking-tight">You may also like</h2>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 lg:grid-cols-4">
+              {related.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}

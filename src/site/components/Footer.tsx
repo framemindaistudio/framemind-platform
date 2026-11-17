@@ -11,6 +11,7 @@ const navLinks = [
   { to: "/jove", label: "JOVE" },
   { to: "/360vue", label: "360VUE" },
   { to: "/personal-coaching", label: "1:1 Coaching" },
+  { to: "/shop", label: "Store" },
   { to: "/testimonials", label: "Testimonials" },
   { to: "/careers", label: "Careers" },
   { to: "/connect", label: "Connect" },
@@ -79,10 +80,16 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-4 border-t border-[#1a1a1a] flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-6 py-4 border-t border-[#1a1a1a] flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="font-mono text-xs text-[#444]">
           © {new Date().getFullYear()} FrameMind AI Studio
         </p>
+        <nav aria-label="Policies" className="flex flex-wrap justify-end gap-x-5 gap-y-1 font-mono text-xs text-[#666]">
+          <Link to="/privacy" className="hover:text-[#F5F4F0]">Privacy</Link>
+          <Link to="/shop/terms" className="hover:text-[#F5F4F0]">Store terms &amp; refunds</Link>
+          <Link to="/industries/terms" className="hover:text-[#F5F4F0]">App terms</Link>
+          <Link to="/connect" className="hover:text-[#F5F4F0]">Contact</Link>
+        </nav>
       </div>
     </footer>
   );

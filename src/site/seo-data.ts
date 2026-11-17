@@ -58,10 +58,10 @@ export const PAGE_SEO: Record<string, PageSeo> = {
     "ogImageAlt": "JOVE — School Robotics & AI Workshops by FrameMind AI Studio"
   },
   "/shop": {
-    "title": "Shop — Digital Products & Templates",
-    "description": "FrameMind Studio's digital shop: website templates, Notion systems, automation blueprints, and workflow tools. Studio-quality resources for founders and builders.",
-    "keywords": "digital products India, website templates India, Notion templates, workflow automation tools, digital resources for founders, design templates India, FrameMind shop",
-    "ogImageAlt": "FrameMind AI Studio — Digital Products & Templates Shop"
+    "title": "FrameMind Store: Guides, Presets & Templates",
+    "description": "Digital downloads from FrameMind AI Studio: Claude Code and vibe coding guides, camera cheat sheets, Lightroom presets, LUTs, carousel templates, colour palettes and freelancer kits. Pay with UPI, download at once.",
+    "keywords": "digital products India, Lightroom presets India, LUTs, Instagram carousel templates, colour palettes, Claude Code guide, vibe coding guide, camera basics guide, PSD mockups, FrameMind store",
+    "ogImageAlt": "FrameMind Store: guides, presets and templates"
   },
   "/personal-coaching": {
     "title": "1-on-1 AI Personal Coaching — Learn AI in 90 Days",
