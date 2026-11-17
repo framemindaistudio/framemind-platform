@@ -18,14 +18,15 @@ export async function GET(req: Request) {
   const { catalog } = await readCatalog();
   const file = catalog.products.find((x) => x.id === p)?.files[Number(f)];
   if (!file || !file.path.startsWith(`vault/shop/${p}/`)) return new NextResponse("This file is no longer available. WhatsApp us and we'll send it.", { status: 404 });
-  const buf = await store.readBinary(file.path);
-  if (!buf) return new NextResponse("This file is missing. WhatsApp us and we'll send it.", { status: 404 });
+  // streamed straight from the data repository, so packs of any size download without being held in memory
+  const stream = await store.readStream(file.path);
+  if (!stream) return new NextResponse("This file is missing. WhatsApp us and we'll send it.", { status: 404 });
   const safeName = file.name.replace(/[^\w.\- ()]/g, "_");
-  return new NextResponse(new Uint8Array(buf), {
+  return new NextResponse(stream.body, {
     headers: {
       "Content-Type": "application/octet-stream",
       "Content-Disposition": `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(file.name)}`,
-      "Content-Length": String(buf.length),
+      ...(stream.size ? { "Content-Length": String(stream.size) } : {}),
       "Cache-Control": "private, no-store",
       "X-Robots-Tag": "noindex",
     },

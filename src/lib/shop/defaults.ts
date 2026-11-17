@@ -27,7 +27,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "A plain-English guide to Claude Code, the AI coding assistant that works in your terminal. Written for designers, students and founders who have never set up a developer tool before.\n\nYou go from installing it on Windows or Mac to building and publishing a small website, with the exact prompts we use at the studio and the mistakes to avoid.",
-      includes: ["Step-by-step setup for Windows and Mac", "How to write prompts that get working code", "Build and publish a one-page website", "30 copy-paste prompts", "Common errors and how to fix them"],
+      includes: ["Step-by-step setup for Windows, Mac and Linux", "How to write prompts that get working code", "Build and publish a one-page website", "30 copy-paste prompts", "Common errors and how to fix them", "Guide as PDF + web version with an animated demo"],
       formats: ["PDF"],
       level: "Beginners",
       accent: "#D97757",
@@ -84,7 +84,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "The exposure triangle explained with pictures instead of jargon, plus the settings to start from in the situations you actually shoot: portraits, products, events, low light and video.\n\nPrint it or keep it on your phone in the camera bag.",
-      includes: ["Exposure triangle in one page", "Starting settings for 10 common situations", "Focus modes and when to use them", "Video settings: frame rate and shutter", "Printable and phone-size versions"],
+      includes: ["The exposure triangle, illustrated", "Live exposure simulator (web version)", "Starting settings for 10 common situations", "Focus, modes and light", "Video settings for India (25 fps, 50 Hz)", "Printable PDF + phone-friendly web version"],
       formats: ["PDF"],
       level: "Beginners",
       accent: "#E2572B",
@@ -120,9 +120,9 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       mrp: 499,
       status: "soon",
       description:
-        "Twelve presets graded for Indian skin tones and light: warm golden-hour looks, clean moody looks and bright food looks.\n\nWorks in Lightroom Mobile (free) and Lightroom Classic. Every photo is different, so treat a preset as a starting point and adjust exposure and white balance to taste.",
-      includes: ["12 presets", "Desktop files (.xmp)", "Mobile files (.dng)", "Install guide for phone and computer"],
-      formats: ["XMP", "DNG"],
+        "Twelve presets graded for Indian skin tones and light: warm golden-hour looks, clean moody looks and bright food looks.\n\nWorks in Lightroom mobile (including the free app), Lightroom desktop, Lightroom Classic and Photoshop Camera Raw. Every photo is different, so treat a preset as a starting point and adjust exposure and white balance to taste.",
+      includes: ["12 presets for Lightroom mobile, desktop, Classic and Camera Raw (.xmp)", "Install guide for phone and computer", "Tone-curve and colour-grade breakdown of every preset", "Guide as PDF + interactive web version"],
+      formats: ["XMP", "PDF"],
       level: "All levels",
       accent: "#F2A65A",
       files: [],
@@ -140,7 +140,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "Ten colour grades as .cube LUTs: teal-orange, soft film, moody green, warm vintage and more. Drop one on a clip, then lower its strength until it sits right.\n\nWorks in any editor that loads .cube files.",
-      includes: ["10 LUTs (.cube)", "How to apply them in 4 editors", "Before-and-after reference frames"],
+      includes: ["10 LUTs (.cube, 33-point)", "How to apply them in Premiere, Resolve, Final Cut and CapCut", "Before-and-after frames for every look", "Log footage workflow", "Guide as PDF + interactive web version with a before/after slider"],
       formats: ["CUBE"],
       level: "All levels",
       accent: "#12A4A6",
@@ -194,7 +194,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "Fifty five-colour palettes with HEX and RGB codes, grouped by mood: earthy, bold, pastel, luxury, tech and festive.\n\nImport them straight into Photoshop and Illustrator (.ase) or Procreate (.swatches), or copy the codes into Canva and Figma.",
-      includes: ["50 palettes with HEX and RGB", "Adobe swatches (.ase)", "Procreate swatches", "A PNG card for every palette"],
+      includes: ["50 palettes with HEX and RGB", "Adobe swatches (.ase) and Procreate swatches", "GIMP/Krita, CSS, Tailwind and CSV files", "A 1080×1350 card for every palette", "Guide as PDF + web version with a live brand mock-up"],
       formats: ["ASE", "SWATCHES", "PNG", "PDF"],
       level: "All levels",
       accent: "#C4532D",
@@ -250,7 +250,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description: "Five of our best-sellers for new creators, together for less than buying them one by one.",
       includes: ["Camera Basics Cheat Sheet", "Lightroom Preset Pack", "Instagram Carousel Templates", "50 Trending Colour Palettes", "100 AI Prompts for Creators"],
-      formats: ["PDF", "XMP", "DNG", "PSD", "ASE"],
+      formats: ["PDF", "XMP", "PSD", "ASE"],
       level: "All levels",
       accent: "#C8F135",
       files: [],

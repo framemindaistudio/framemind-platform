@@ -455,6 +455,21 @@ function ProductEditor({
                   <span>
                     {f.name} <span className="text-blueprint">· {formatBytes(f.size)}</span>
                   </span>
+                  <button
+                    type="button"
+                    className="ml-auto mr-3 text-xs font-semibold text-blueprint underline-offset-2 hover:text-graphite hover:underline disabled:opacity-40"
+                    disabled={!!busy || !!filesBlocked}
+                    onClick={async () => {
+                      try {
+                        const { url } = await api<{ url: string }>("/api/hq/shop/preview", { method: "POST", body: JSON.stringify({ productId: product.id, fileIndex: product.files.indexOf(f) }) });
+                        window.location.href = url;
+                      } catch (e) {
+                        setFileError(e instanceof Error ? e.message : "Could not make a download link");
+                      }
+                    }}
+                  >
+                    Download to check
+                  </button>
                   {editor && (
                     <button
                       type="button"

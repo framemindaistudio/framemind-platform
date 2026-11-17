@@ -375,6 +375,24 @@ export const store = {
     return storeMode() === "github" ? ghRead(sp, opts) : fsRead(sp);
   },
 
+  /**
+   * A file as a stream plus its size, for large downloads: nothing is held in memory, so the function's response
+   * isn't limited by a buffered body size. Null when the file doesn't exist.
+   */
+  async readStream(p: string): Promise<{ body: ReadableStream<Uint8Array>; size?: number } | null> {
+    const sp = safePath(p);
+    if (storeMode() === "github") {
+      const res = await gh(`/contents/${encodePath(sp)}?ref=${encodeURIComponent(branch())}`, { headers: { Accept: "application/vnd.github.raw" } });
+      if (res.status === 404) return null;
+      if (!res.ok || !res.body) throw new Error(`GitHub read failed (${res.status})`);
+      const len = Number(res.headers.get("content-length"));
+      return { body: res.body, size: Number.isFinite(len) && len > 0 ? len : undefined };
+    }
+    const buf = await fsReadBinary(sp);
+    if (!buf) return null;
+    return { body: new Blob([new Uint8Array(buf)]).stream(), size: buf.length };
+  },
+
   async readBinary(p: string): Promise<Buffer | null> {
     const sp = safePath(p);
     return storeMode() === "github" ? ghReadBinary(sp) : fsReadBinary(sp);
