@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
+import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { ArrowRight, ArrowUpRight, Bot, Code2, Globe, LayoutGrid, Palette, ShieldCheck, ShoppingBag, Zap, Brain, Check } from "lucide-react";
 import { Link } from "@/site/router";
@@ -13,16 +12,13 @@ import type { PublicProduct } from "@/lib/shop/types";
 
 /*
  * The home page. One idea per screen:
- *   1. a real-time 3D hero that says, at a glance, what FrameMind builds
+ *   1. a direct, text-only hero that says at a glance what FrameMind builds (most visitors are on phones)
  *   2. the services as cards that stack as you scroll
  *   3. the ten industry apps on a 3D ring that turns with the scroll
  *   4. the digital store
  *   5. how a project runs, then one call to action
  * 360VUE, Vritta and JOVE live in the footer.
  */
-
-// three.js only on the client, after the words are already on screen
-const HeroScene = dynamic(() => import("@/site/components/home/HeroScene"), { ssr: false });
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
@@ -104,94 +100,51 @@ function Eyebrow({ children, dark }: { children: React.ReactNode; dark?: boolean
 
 /* ─────────────────────────── 1. hero ─────────────────────────── */
 
-/** true on large screens, where the hero pins and the words sit beside the 3D scene */
-function useWide() {
-  const [wide, setWide] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const on = () => setWide(mq.matches);
-    on();
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
-  return wide;
-}
-
 function Hero() {
-  const track = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
-  const wide = useWide();
-  const { scrollYProgress } = useScroll({ target: track, offset: ["start start", "end end"] });
-  // the words drift up and soften as the 3D scene takes over
-  const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -60]);
-  const fade = useTransform(scrollYProgress, [0.55, 1], [1, 0.15]);
-  const cue = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-
   return (
-    <section ref={track} className="relative bg-[#070A14] lg:h-[175vh]" aria-label="FrameMind AI Studio">
-      {/* large screens: pinned while the 3D scene plays; phones and tablets: the scene on top, the words below */}
-      <div className="relative overflow-hidden lg:sticky lg:top-0 lg:h-[100svh]">
-        {/* depth: navy glow, gold warmth, a fine grid */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_55%_at_74%_45%,rgba(120,128,150,0.16),transparent_70%),radial-gradient(35%_30%_at_80%_60%,rgba(200,241,53,0.06),transparent_70%)]" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
+    <section className="relative overflow-hidden bg-[#070A14]" aria-label="FrameMind AI Studio">
+      {/* a quiet dark field: a soft light from the top and a faint lime haze */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_0%,rgba(120,128,150,0.18),transparent_70%),radial-gradient(40%_35%_at_85%_80%,rgba(200,241,53,0.07),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]" />
 
-        <div className="relative h-[46svh] min-h-[300px] max-h-[520px] lg:absolute lg:inset-0 lg:h-auto lg:max-h-none">
-          <HeroScene track={track} />
+      <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-14 sm:px-8 sm:pt-20 md:pb-24 md:pt-28">
+        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#C9CDDB]">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#C8F135]" />
+          Design · Software · AI — one studio
+        </span>
+        <h1 className="max-w-4xl text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.035em] text-[#F5F4F0] sm:text-6xl lg:text-[5rem]">
+          Websites, apps &amp; AI —<span className="block text-[#C8F135]">built for your business.</span>
+        </h1>
+        <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#AEB4C8] sm:text-lg">
+          FrameMind AI Studio designs and builds websites, custom software, ready-made industry apps and AI automations — and looks after them
+          after launch. One team, from idea to live.
+        </p>
+
+        <div className="mt-8 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          {WHAT.map(({ icon: Icon, label, to }) => (
+            <Link
+              key={label}
+              to={to}
+              className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-2.5 text-[13px] font-medium text-[#E6E8F2] transition hover:border-[#C8F135]/60 hover:bg-[#C8F135]/10 sm:text-sm"
+            >
+              <Icon size={15} className="shrink-0 text-[#C8F135]" />
+              {label}
+            </Link>
+          ))}
         </div>
-        <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[55%] bg-gradient-to-r from-[#070A14] via-[#070A14]/70 to-transparent lg:block" />
 
-        <motion.div
-          style={wide ? { y, opacity: fade } : undefined}
-          className="relative z-10 mx-auto max-w-6xl px-5 pb-14 sm:px-8 lg:absolute lg:inset-x-0 lg:top-0 lg:flex lg:h-full lg:flex-col lg:justify-center lg:pb-0"
-        >
-          <div className="max-w-xl lg:max-w-[600px]">
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#C9CDDB] backdrop-blur">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#C8F135]" />
-              Design · Software · AI — one studio
-            </span>
-            <h1 className="text-[2.35rem] font-semibold leading-[1.02] tracking-[-0.035em] text-[#F5F4F0] sm:text-5xl lg:text-[3.55rem]">
-              Websites, apps &amp; AI —
-              <span className="block text-[#C8F135]">built for your business.</span>
-            </h1>
-            <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-[#AEB4C8] sm:text-base">
-              FrameMind AI Studio designs and builds websites, custom software, ready-made industry apps and AI automations — and looks after them
-              after launch. One team, from idea to live.
-            </p>
+        <div className="mt-8 flex flex-col gap-2.5 sm:flex-row">
+          <Link to="/connect" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#C8F135] px-7 py-4 text-sm font-semibold text-[#0D0D0D] shadow-[0_0_40px_-8px_rgba(200,241,53,0.6)] transition hover:bg-[#d6ff4a]">
+            Start a project <ArrowRight size={15} />
+          </Link>
+          <Link to="/industries" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-7 py-4 text-sm font-semibold text-[#F5F4F0] transition hover:border-white/50">
+            See industry apps
+          </Link>
+        </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-              {WHAT.map(({ icon: Icon, label, to }) => (
-                <Link
-                  key={label}
-                  to={to}
-                  className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-2 text-[13px] font-medium text-[#E6E8F2] backdrop-blur transition hover:border-[#C8F135]/60 hover:bg-[#C8F135]/10"
-                >
-                  <Icon size={14} className="shrink-0 text-[#E7B866] transition group-hover:text-[#C8F135]" />
-                  {label}
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-7 flex flex-col gap-2.5 sm:flex-row">
-              <Link to="/connect" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#C8F135] px-6 py-3.5 text-sm font-semibold text-[#0D0D0D] shadow-[0_0_40px_-8px_rgba(200,241,53,0.6)] transition hover:bg-[#d6ff4a]">
-                Start a project <ArrowRight size={15} />
-              </Link>
-              <Link to="/industries" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3.5 text-sm font-semibold text-[#F5F4F0] transition hover:border-white/50">
-                See industry apps
-              </Link>
-            </div>
-
-            <p className="mt-6 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[#7E86A0]">
-              <ShieldCheck size={13} className="text-[#E7B866]" /> MSME registered · Govt. of India · In-house team
-            </p>
-          </div>
-        </motion.div>
-
-        <motion.div style={{ opacity: cue }} className="pointer-events-none absolute bottom-5 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex">
-          <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#7E86A0]">Scroll</span>
-          <span className="relative h-9 w-[22px] rounded-full border border-white/25">
-            <span className="absolute left-1/2 top-1.5 h-2 w-[3px] -translate-x-1/2 animate-bounce rounded-full bg-[#C8F135]" />
-          </span>
-        </motion.div>
+        <p className="mt-8 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[#7E86A0]">
+          <ShieldCheck size={13} className="text-[#C8F135]" /> MSME registered · Govt. of India · In-house team
+        </p>
       </div>
     </section>
   );
