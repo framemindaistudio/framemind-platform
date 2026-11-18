@@ -59,29 +59,24 @@ function Chip({ children, bg, color, style }: { children: ReactNode; bg: string;
 }
 
 /** One app: its logo when the brand allows it, otherwise its name. */
-export function AppMark({ app, size, light }: { app: App; size: string; light?: boolean }) {
-  if (app.path) {
-    const dark = app.hex && parseInt(app.hex.slice(1), 16) < 0x333333;
-    return (
-      <svg viewBox="0 0 24 24" style={{ width: size, height: size, flexShrink: 0 }} role="img" aria-label={app.name}>
-        <title>{app.name}</title>
-        <path d={app.path} fill={dark && light ? "#F5F4F0" : app.hex} />
-      </svg>
-    );
-  }
-  return <span className="whitespace-nowrap font-semibold">{app.name}</span>;
+export function AppMark({ app }: { app: App; size?: string; light?: boolean }) {
+  return <span className="whitespace-nowrap font-semibold tracking-[-0.01em]">{app.name}</span>;
 }
 
-/** "Works with" strip for covers: white pill, logos first, then names. */
+/** "Works with" strip for covers: one white pill with app names (names only; brands don't license their icons for this). */
 function AppRow({ p, style, max = 4 }: { p: PublicProduct; style?: CSSProperties; max?: number }) {
   const apps = appsFor(p);
   if (!apps.length) return null;
-  const sorted = [...apps.filter((a) => a.path), ...apps.filter((a) => !a.path)].slice(0, max);
+  const shown = apps.slice(0, max);
   return (
-    <div className="absolute flex items-center rounded-full bg-white/95 text-[#141414] shadow-[0_1cqw_3cqw_rgba(0,0,0,.25)]" style={{ gap: cq(2), padding: `${cq(1.6)} ${cq(3)}`, fontSize: cq(2.6), ...style }}>
-      {sorted.map((a) => (
-        <AppMark key={a.name} app={a} size={cq(4)} />
+    <div className="absolute flex items-center rounded-full bg-white/95 text-[#141414] shadow-[0_1cqw_3cqw_rgba(0,0,0,.25)]" style={{ gap: cq(1.6), padding: `${cq(1.4)} ${cq(3)}`, fontSize: cq(2.6), ...style }}>
+      {shown.map((a, i) => (
+        <span key={a.name} className="flex items-center" style={{ gap: cq(1.6) }}>
+          {i > 0 && <span aria-hidden className="inline-block rounded-full bg-[#141414]/30" style={{ width: cq(0.7), height: cq(0.7) }} />}
+          <AppMark app={a} />
+        </span>
       ))}
+      {apps.length > max && <span className="font-semibold opacity-60">+{apps.length - max}</span>}
     </div>
   );
 }
@@ -222,7 +217,7 @@ function Stack({ p, accent }: { p: PublicProduct; accent: string }) {
     <Frame bg={`linear-gradient(160deg, ${mix(accent, "#141414", 0.15)} 0%, ${mix(accent, "#141414", 0.55)} 100%)`} grain={0.18}>
       <div style={{ position: "absolute", left: cq(7), top: cq(7), right: cq(7) }}>
         <p className={`${mono} text-white/70`} style={{ fontSize: cq(2.6) }}>
-          20 layered PSDs · 4 styles
+          46 slides · 8 formats · 3 ways to edit
         </p>
         <Title text={p.title} size={9} className="mt-[2cqw]" />
       </div>

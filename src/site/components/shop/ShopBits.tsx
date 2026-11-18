@@ -3,7 +3,7 @@ import { ArrowUpRight, Briefcase, Camera, LayoutTemplate, Package, Palette, Slid
 import { Link } from "@/site/router";
 import type { PublicProduct } from "@/lib/shop/types";
 import { inr } from "@/lib/shop/logic";
-import { AppMark, DrawnCover } from "./Covers";
+import { DrawnCover } from "./Covers";
 import { appsFor } from "@/lib/shop/compat";
 
 const ICONS: Record<string, LucideIcon> = { Sparkles, Camera, SlidersHorizontal, LayoutTemplate, Palette, Briefcase, Package };
@@ -72,25 +72,26 @@ export function ProductCard({ product }: { product: PublicProduct }) {
   );
 }
 
-/** "Works with" apps: logos where the brand allows it, names otherwise. Compact for cards, labelled for product pages. */
+/** "Works with" apps as name badges (brands don't license their icons for this). Short names on cards, full names on product pages. */
 export function WorksWith({ product, compact }: { product: Pick<PublicProduct, "id" | "bundleOf">; compact?: boolean }) {
   const apps = appsFor(product);
   if (!apps.length) return null;
   if (compact) {
-    const shown = apps.slice(0, 5);
+    const shown = apps.slice(0, 4);
     return (
-      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground" aria-label={`Works with ${apps.map((a) => a.name).join(", ")}`}>
-        {shown.map((a) => (a.path ? <AppMark key={a.name} app={a} size="14px" /> : <span key={a.name} className="rounded-full border border-border px-1.5 py-px">{a.name}</span>))}
-        {apps.length > shown.length && <span>+{apps.length - shown.length}</span>}
+      <div className="mt-2 flex flex-wrap items-center gap-1 text-[11px] font-medium text-muted-foreground" aria-label={`Works with ${apps.map((a) => a.full).join(", ")}`}>
+        {shown.map((a) => (
+          <span key={a.name} className="rounded-md bg-muted px-1.5 py-0.5 leading-none">{a.name}</span>
+        ))}
+        {apps.length > shown.length && <span className="px-1">+{apps.length - shown.length}</span>}
       </div>
     );
   }
   return (
     <ul className="flex flex-wrap gap-2">
       {apps.map((a) => (
-        <li key={a.name} className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium">
-          {a.path && <AppMark app={a} size="16px" />}
-          {a.name}
+        <li key={a.name} className="inline-flex items-center rounded-lg border border-border bg-background px-3 py-1.5 text-sm font-medium">
+          {a.full}
         </li>
       ))}
     </ul>
