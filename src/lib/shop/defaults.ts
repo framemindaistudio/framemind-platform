@@ -77,19 +77,93 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       id: "camera-basics",
       slug: "camera-basics-cheat-sheet",
       title: "Camera Basics Cheat Sheet",
-      tagline: "ISO, shutter and aperture finally make sense.",
+      tagline: "See what every camera setting does, then shoot with it.",
       category: "camera",
       price: 99,
       mrp: 199,
       status: "soon",
       description:
-        "The exposure triangle explained with pictures instead of jargon, plus the settings to start from in the situations you actually shoot: portraits, products, events, low light and video.\n\nPrint it or keep it on your phone in the camera bag.",
-      includes: ["The exposure triangle, illustrated", "Live exposure simulator (web version)", "Starting settings for 10 common situations", "Focus, modes and light", "Video settings for India (25 fps, 50 Hz)", "Printable PDF + phone-friendly web version"],
-      formats: ["PDF"],
+        "Aperture, shutter speed, ISO, lenses and white balance, each shown side by side on the same scene so you see the difference instead of reading about it. Then the settings to start from in ten situations you actually shoot in India: golden-hour portraits, products, indoor weddings, streets, landscapes, city nights, food, kids and sport, diyas and stage performances.\n\nIncludes a Settings Simulator that works offline on your phone (move f-number, shutter and ISO and watch blur, brightness, shake and grain change), a table of what Sony, Canon, Nikon, Fujifilm and phone Pro modes call each setting, video settings for 50 Hz light, a practice weekend, and a pocket cheat card to print or keep as a wallpaper. Example photos are AI-generated illustrations; the exposure, white balance and ISO comparisons are computed from them.",
+      includes: ["15-page illustrated guide: exposure, aperture, shutter, ISO, lenses, white balance", "Same-scene comparisons for every setting (21 example photos)", "10 situation recipes: mode, aperture, shutter, ISO, white balance and focus", "Settings Simulator: offline, works on a phone", "Setting names for Sony, Canon, Nikon, Fujifilm and phone Pro mode", "Video settings for India (25/50 fps, 50 Hz, ND filters)", "Pocket cheat card (A6 and 4-up A4) and a phone wallpaper"],
+      formats: ["PDF", "HTML", "PNG", "JPG"],
       level: "Beginners",
       accent: "#E2572B",
       files: [],
       featured: true,
+      compare: {
+        "columns": [
+          "FrameMind, ₹99",
+          "Free cheat sheets",
+          "Etsy and Gumroad guides",
+          "Beginner video courses"
+        ],
+        "rows": [
+          {
+            "label": "Each setting shown on the same scene",
+            "values": [
+              "Yes, all of them",
+              "Diagrams, some photos",
+              "Some",
+              "In video demos"
+            ]
+          },
+          {
+            "label": "Situation recipes with full settings",
+            "values": [
+              "10, with focus and white balance",
+              "A few",
+              "Some",
+              "Some lessons"
+            ]
+          },
+          {
+            "label": "Interactive simulator",
+            "values": [
+              "Offline, on your phone",
+              "Some sites, online only",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Names for your camera brand",
+            "values": [
+              "Sony, Canon, Nikon, Fujifilm, phone",
+              "Usually one brand or none",
+              "Varies",
+              "Usually one brand"
+            ]
+          },
+          {
+            "label": "Video settings for Indian 50 Hz light",
+            "values": [
+              "Yes",
+              "Rarely",
+              "Rarely",
+              "Rarely"
+            ]
+          },
+          {
+            "label": "Printable pocket card",
+            "values": [
+              "A6, A4 sheet and wallpaper",
+              "Yes",
+              "Often",
+              "No"
+            ]
+          },
+          {
+            "label": "Price",
+            "values": [
+              "₹99, keep forever",
+              "Free",
+              "About $2 to $40",
+              "Often ₹400 and up"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026 on free cheat-sheet sites (Photoworkout, Expert Photography), Etsy, Gumroad and Udemy. Their prices and contents change."
+      },
       tags: ["photography", "camera", "beginners"],
     },
     {
