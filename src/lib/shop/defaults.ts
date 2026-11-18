@@ -96,18 +96,92 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       id: "phone-cinematography",
       slug: "phone-cinematography-shot-list",
       title: "Phone Cinematography Shot List",
-      tagline: "40 shots that make phone videos look like films.",
+      tagline: "40 shots that make phone video look filmed.",
       category: "camera",
       price: 99,
       mrp: 199,
       status: "soon",
       description:
-        "A shot list for Reels and short films shot on a phone: what each shot is, how to move, and where it fits in an edit. Each one has a diagram and a one-line tip.\n\nIncludes ready-made sequences for a product reel, a café reel and a travel reel.",
-      includes: ["40 shots with diagrams", "Phone settings for India (25 fps, 50 Hz)", "3 ready Reel sequences with timings", "Interactive Reel builder (web version)", "A printable blank shot-list sheet"],
-      formats: ["PDF"],
+        "A shot-by-shot field guide for Reels and short films on any phone. Every one of the 40 shots has an example frame, a camera diagram, how to move, where it goes in the edit, and the lens, frame rate and hold time to use.\n\nSet up for India: 25 and 50 fps to avoid flicker under 50 Hz lights, editing apps that are legal here (Edits, VN, InShot), and three Reel recipes for a café, a product drop and a weekend in Hampi. Includes an offline Shot Explorer that builds and prints your shot list, and a sample Reel. Example frames and the sample Reel are AI-generated illustrations of each shot.",
+      includes: ["40 shots, each with an example frame, camera diagram, edit use and settings", "Phone settings for India: 25/50 fps, 50 Hz flicker, exposure and lens choice", "3 Reel recipes with shot order and timings", "Offline Shot Explorer: build your Reel, print the shot list", "Sample Reel showing four shots in motion", "40 reference frames and a printable shot-list sheet"],
+      formats: ["PDF", "HTML", "MP4", "JPG"],
       level: "All levels",
       accent: "#D7263D",
       files: [],
+      compare: {
+        "columns": [
+          "FrameMind, ₹99",
+          "Free checklists and blogs",
+          "Online classes",
+          "Offline workshops in India"
+        ],
+        "rows": [
+          {
+            "label": "Shots covered",
+            "values": [
+              "40, each with an example frame",
+              "Around 10 to 15",
+              "Varies by class",
+              "Varies"
+            ]
+          },
+          {
+            "label": "Settings for Indian light (25/50 fps, 50 Hz)",
+            "values": [
+              "Yes",
+              "Rarely",
+              "Rarely",
+              "Sometimes"
+            ]
+          },
+          {
+            "label": "Where each shot goes in the edit",
+            "values": [
+              "Yes, for all 40",
+              "No",
+              "In some lessons",
+              "In class"
+            ]
+          },
+          {
+            "label": "Ready Reel recipes",
+            "values": [
+              "3, with timings",
+              "No",
+              "Some",
+              "Class projects"
+            ]
+          },
+          {
+            "label": "Shot-list builder",
+            "values": [
+              "Offline, printable",
+              "Notion templates",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Editing apps legal in India",
+            "values": [
+              "Yes",
+              "Varies",
+              "Varies",
+              "Varies"
+            ]
+          },
+          {
+            "label": "Price",
+            "values": [
+              "₹99, keep forever",
+              "Free",
+              "Subscription",
+              "About ₹5,000 for 4 days"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026 on Gumroad, Notion checklists, Skillshare and workshop pages (Visualite Academy, SAC Pocket Studio). Their prices and contents change."
+      },
       tags: ["reels", "video", "phone"],
     },
     {

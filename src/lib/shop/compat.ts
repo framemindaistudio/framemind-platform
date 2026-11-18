@@ -46,6 +46,9 @@ export const APPS: Record<string, App> = {
   googlefonts: { name: "Google Fonts", full: "Google Fonts" },
   indesign: { name: "InDesign", full: "Adobe InDesign" },
   blackmagic: { name: "Blackmagic Camera", full: "Blackmagic Camera" },
+  edits: { name: "Edits", full: "Edits by Instagram" },
+  vn: { name: "VN", full: "VN Video Editor" },
+  inshot: { name: "InShot", full: "InShot" },
 };
 
 /** Which apps each product works with, most important first. */
@@ -54,7 +57,7 @@ export const COMPAT: Record<string, string[]> = {
   "vibe-coding-101": ["chatgpt", "claude", "googlegemini", "cursor", "replit", "lovable"],
   "ai-prompts-creators": ["chatgpt", "claude", "googlegemini", "notion"],
   "camera-basics": ["anycamera", "iphone", "android"],
-  "phone-cinematography": ["iphone", "android", "blackmagic"],
+  "phone-cinematography": ["iphone", "android", "edits", "vn", "inshot", "blackmagic"],
   "lightroom-presets": ["lightroom", "lrclassic", "cameraraw"],
   "cinematic-luts": ["premiere", "davinciresolve", "finalcut", "photoshop"],
   "carousel-templates": ["photoshop", "photopea", "canva", "powerpoint", "googleslides"],
