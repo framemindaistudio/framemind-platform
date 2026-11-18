@@ -299,18 +299,92 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       coverStyle: "specimen",
       slug: "font-pairing-guide",
       title: "Font Pairing Guide",
-      tagline: "30 free Google Font pairs that always look right.",
+      tagline: "40 free font pairs for Indian brands, measured, set in real layouts, with every font included.",
       category: "colour",
       price: 99,
       mrp: 199,
       status: "soon",
       description:
-        "Thirty heading-and-body font pairs, all free on Google Fonts, shown on a real poster, a website and an Instagram post so you can see them in use.\n\nIncludes Devanagari and Kannada-friendly pairs for Indian brands.",
-      includes: ["30 free Google Font pairs, each shown on a poster, website and Instagram post", "Sizes and spacing that work", "5 Hindi and Kannada pairs", "Copy-paste CSS for every pair", "Live font playground (web version)"],
-      formats: ["PDF"],
+        "Forty font pairs chosen by a designer and checked with measurements from the font files: 24 pairs in six moods, from editorial to loud, and 16 bilingual pairs for Hindi, Marathi, Kannada, Tamil, Telugu, Bengali, Gujarati, Malayalam and Punjabi.\n\nEvery pair is set on a website, a social post and a business card, with its x-heights, a ready type scale and CSS. We also checked every font for the rupee sign (many popular fonts don't have it). All 80 font families are free for commercial use and included in the pack, so there is nothing else to download.",
+      includes: ["40 pairs: 24 in six moods and 16 bilingual pairs across nine Indian scripts", "93-page specimen book: measured x-heights, ₹ support and a type scale for every pair", "All 80 font families included, free for commercial use (SIL Open Font License)", "CSS per pair with no-layout-shift fallbacks, plus Tailwind v4 and Figma tokens", "Offline explorer: type your brand name and see it in every pair", "40 specimen cards at 1080×1350"],
+      formats: ["PDF", "TTF", "CSS", "HTML"],
       level: "All levels",
       accent: "#4A1D3F",
       files: [],
+      compare: {
+        "columns": [
+          "FrameMind, ₹99",
+          "Typewolf lookbooks, $39 each",
+          "Big pairing books, about $25",
+          "Free pairing sites"
+        ],
+        "rows": [
+          {
+            "label": "Pairs",
+            "values": [
+              "40, each in real layouts",
+              "12 per lookbook",
+              "Hundreds of specimens",
+              "Thousands"
+            ]
+          },
+          {
+            "label": "Indian scripts",
+            "values": [
+              "16 bilingual pairs, 9 scripts",
+              "No",
+              "No",
+              "Few"
+            ]
+          },
+          {
+            "label": "₹ support checked",
+            "values": [
+              "Yes, every font",
+              "No",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Font files included",
+            "values": [
+              "Yes, 80 families",
+              "No",
+              "No",
+              "Download each"
+            ]
+          },
+          {
+            "label": "Measured x-heights",
+            "values": [
+              "Yes",
+              "No",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Type scale and CSS per pair",
+            "values": [
+              "Yes, with fallbacks",
+              "No",
+              "No",
+              "Some CSS"
+            ]
+          },
+          {
+            "label": "Try your own words",
+            "values": [
+              "Offline explorer",
+              "No",
+              "No",
+              "Online"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026 on the sellers' Gumroad pages and on fontpair.co. Their prices and contents change."
+      },
       tags: ["fonts", "typography", "branding"],
     },
     {
