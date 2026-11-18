@@ -132,7 +132,7 @@ function Hero() {
       {/* large screens: pinned while the 3D scene plays; phones and tablets: the scene on top, the words below */}
       <div className="relative overflow-hidden lg:sticky lg:top-0 lg:h-[100svh]">
         {/* depth: navy glow, gold warmth, a fine grid */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_75%_40%,rgba(123,92,255,0.22),transparent_70%),radial-gradient(50%_45%_at_70%_85%,rgba(200,146,46,0.18),transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_55%_at_74%_45%,rgba(120,128,150,0.16),transparent_70%),radial-gradient(35%_30%_at_80%_60%,rgba(200,241,53,0.06),transparent_70%)]" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
 
         <div className="relative h-[46svh] min-h-[300px] max-h-[520px] lg:absolute lg:inset-0 lg:h-auto lg:max-h-none">

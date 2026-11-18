@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 /**
- * The home page hero in real-time 3D: a slowly morphing liquid-chrome orb with an iridescent gold-to-violet sheen,
- * lit by a small studio of coloured soft boxes, with a few chrome beads orbiting it. It follows the pointer a little
+ * The home page hero in real-time 3D: a slowly morphing black-chrome orb, lit by white strip lights with a thin
+ * FrameMind-lime accent, with a few chrome beads orbiting it. It follows the pointer a little
  * and flows faster and swells as the visitor scrolls through the hero.
  *
  * Plain three.js, loaded only on the home page. It stops when the hero is off screen or the tab is hidden, uses
@@ -46,36 +46,33 @@ float disp(vec3 p){
 /** A small photo studio, rendered once into an environment map: dark room, coloured soft boxes. */
 function studioEnvironment(renderer: THREE.WebGLRenderer) {
   const env = new THREE.Scene();
-  // a dark studio lit by long, thin strip lights: chrome reflects them as crisp bright bands
-  // the room is a horizon: deep violet-navy sky above, warm gold ground below, like chrome photographed outdoors
+  // a near-black studio with a faint grey horizon, lit by thin white strip lights and one FrameMind-lime accent:
+  // black chrome reflects it as crisp light streaks on a deep mirror
   const roomGeo = new THREE.SphereGeometry(20, 48, 32);
-  const sky = new THREE.Color("#2B2470");
-  const haze = new THREE.Color("#4B3A7A");
-  const ground = new THREE.Color("#7A5018");
-  const deep = new THREE.Color("#2E1E0C");
+  const top = new THREE.Color("#0C0D12");
+  const horizon = new THREE.Color("#3A3D47");
+  const floor = new THREE.Color("#050506");
   const cols: number[] = [];
   const pos = roomGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     const y = pos.getY(i) / 20;
-    const c = y >= 0 ? haze.clone().lerp(sky, Math.min(1, y * 1.6)) : ground.clone().lerp(deep, Math.min(1, -y * 1.4));
-    if (Math.abs(y) < 0.04) c.lerp(new THREE.Color("#E7B866"), 0.6); // a bright horizon line
+    const c = y >= 0 ? horizon.clone().lerp(top, Math.min(1, y * 2.2)) : horizon.clone().lerp(floor, Math.min(1, -y * 2.2));
     cols.push(c.r, c.g, c.b);
   }
   roomGeo.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
   env.add(new THREE.Mesh(roomGeo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide })));
-  const strip = (color: string, intensity: number, w: number, h: number, pos: [number, number, number], rz = 0) => {
+  const strip = (color: string, intensity: number, w: number, h: number, pos: [number, number, number]) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(intensity), side: THREE.DoubleSide }));
     m.position.set(...pos);
     m.lookAt(0, 0, 0);
-    m.rotateZ(rz);
     env.add(m);
   };
-  strip("#FFFFFF", 4.0, 16, 1.2, [0, 9, 4]); // overhead bar
-  strip("#FFF1D6", 3.2, 1.0, 14, [-8, 0, 6]); // tall warm strip, left front
-  strip("#FFE2A8", 2.4, 0.6, 12, [-11, 1, -2]); // second warm strip, left back
-  strip("#9C84FF", 3.0, 1.1, 14, [9, 0, 4]); // violet strip, right
-  strip("#FFFFFF", 1.6, 10, 0.5, [0, -6, 8], 0.2); // thin floor bounce
-  strip("#C8F135", 0.8, 0.5, 8, [5, -2, -10]); // a hint of FrameMind lime behind
+  strip("#FFFFFF", 3.6, 16, 1.0, [0, 9, 4]); // overhead bar
+  strip("#FFFFFF", 2.8, 0.9, 14, [-8, 0, 6]); // tall strip, left front
+  strip("#DDE3FF", 1.8, 0.5, 12, [-11, 1, -2]); // cool strip, left back
+  strip("#FFFFFF", 2.2, 0.8, 14, [9, 0, 4]); // tall strip, right
+  strip("#C8F135", 1.6, 0.35, 12, [6, 0, -8]); // the FrameMind lime accent, behind right: a thin lime rim
+  strip("#FFFFFF", 1.0, 10, 0.4, [0, -6, 8]); // thin floor bounce
   const pm = new THREE.PMREMGenerator(renderer);
   const tex = pm.fromScene(env, 0.012).texture;
   pm.dispose();
@@ -128,15 +125,12 @@ export default function HeroScene({ track }: { track: React.RefObject<HTMLElemen
     const uniforms = { uTime: { value: 0 }, uAmp: { value: 0.07 }, uFreq: { value: 0.9 } };
     const orbGeo = new THREE.IcosahedronGeometry(1.2, small ? 48 : 96);
     const orbMat = new THREE.MeshPhysicalMaterial({
-      color: "#F1E2C4",
+      color: "#3A3D44",
       metalness: 1,
-      roughness: 0.1,
+      roughness: 0.09,
       clearcoat: 1,
       clearcoatRoughness: 0.08,
-      iridescence: 0.35,
-      iridescenceIOR: 1.5,
-      iridescenceThicknessRange: [260, 640],
-      envMapIntensity: 1.15,
+      envMapIntensity: 1.35,
     });
     orbMat.onBeforeCompile = (shader) => {
       Object.assign(shader.uniforms, uniforms);
@@ -165,7 +159,7 @@ export default function HeroScene({ track }: { track: React.RefObject<HTMLElemen
     world.add(orb);
 
     // chrome beads in orbit
-    const beadMat = new THREE.MeshPhysicalMaterial({ color: "#F1E2C4", metalness: 1, roughness: 0.06, envMapIntensity: 1.2 });
+    const beadMat = new THREE.MeshPhysicalMaterial({ color: "#4A4D55", metalness: 1, roughness: 0.05, clearcoat: 1, envMapIntensity: 1.4 });
     const beadGeo = new THREE.SphereGeometry(1, 48, 32);
     const beads = [
       { r: 0.13, radius: 1.95, speed: 0.32, tilt: 0.5, phase: 0 },
@@ -181,7 +175,7 @@ export default function HeroScene({ track }: { track: React.RefObject<HTMLElemen
 
     // a thin orbit line, very faint
     const orbitGeo = new THREE.TorusGeometry(1.95, 0.0035, 6, 200);
-    const orbitMat = new THREE.MeshBasicMaterial({ color: "#E7B866", transparent: true, opacity: 0.22 });
+    const orbitMat = new THREE.MeshBasicMaterial({ color: "#FFFFFF", transparent: true, opacity: 0.14 });
     const orbit = new THREE.Mesh(orbitGeo, orbitMat);
     orbit.rotation.set(Math.PI / 2 - 0.5, 0, 0);
     world.add(orbit);
@@ -291,9 +285,9 @@ export default function HeroScene({ track }: { track: React.RefObject<HTMLElemen
 
   return (
     <div className="absolute inset-0">
-      {/* until the 3D scene draws (or without WebGL): a soft gold-violet glow where the orb will be */}
+      {/* until the 3D scene draws (or without WebGL): a dark sphere where the orb will be */}
       <div aria-hidden className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${ready && !failed ? "opacity-0" : "opacity-100"}`}>
-        <div className="absolute left-1/2 top-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_35%_30%,#F2DDB4,#C8922E_35%,#3B2A7A_70%,transparent_72%)] opacity-80 blur-[2px] lg:left-[72%] lg:h-[400px] lg:w-[400px]" />
+        <div className="absolute left-1/2 top-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_35%_30%,#5A5E68,#1A1C22_45%,#07080B_70%,transparent_72%)] opacity-90 blur-[2px] lg:left-[72%] lg:h-[400px] lg:w-[400px]" />
       </div>
       <div ref={host} className={`absolute inset-0 transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`} />
     </div>
