@@ -20,20 +20,94 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       id: "claude-code-beginners",
       slug: "claude-code-for-beginners",
       title: "Claude Code for Beginners",
-      tagline: "Install it, talk to it, ship your first project. No coding background needed.",
+      tagline: "Install it, stay in control, and build five real projects. No coding background needed.",
       category: "ai",
       price: 149,
       mrp: 299,
       status: "soon",
       description:
-        "A plain-English guide to Claude Code, the AI coding assistant that works in your terminal. Written for designers, students and founders who have never set up a developer tool before.\n\nYou go from installing it on Windows or Mac to building and publishing a small website, with the exact prompts we use at the studio and the mistakes to avoid.",
-      includes: ["Step-by-step setup for Windows, Mac and Linux", "How to write prompts that get working code", "Build and publish a one-page website", "30 copy-paste prompts", "Common errors and how to fix them", "Guide as PDF + web version with an animated demo"],
-      formats: ["PDF"],
+        "A plain-English guide to Claude Code for designers, students, shop owners and founders. Start with the desktop app (no commands to type) or the terminal on Windows or Mac, learn the three keys that keep you in control, and how to ask so you get what you meant.\n\nThen build five real projects, each with a starter folder, step-by-step prompts, checks after every step and a finished version to compare with: a portfolio you publish free, a café menu that takes orders on WhatsApp, a trip splitter with UPI links, a photo organiser that never deletes anything, and a sales report from a messy spreadsheet. Includes an offline Coach for your phone, a one-page cheat sheet and a beginner-safe CLAUDE.md. Checked against Anthropic's documentation in November 2026.",
+      includes: ["15-page illustrated guide: setup, control, asking, CLAUDE.md, limits, fixes", "5 projects with starter files, prompts, checks and a finished version", "Desktop app and terminal setup for Windows and Mac", "Coach: project checklists, prompt builder, error finder (offline)", "One-page cheat sheet and a phone wallpaper", "Beginner-safe CLAUDE.md template"],
+      formats: ["PDF", "HTML", "Project files"],
       level: "Beginners",
       accent: "#D97757",
       files: [],
       featured: true,
       note: "An independent guide by FrameMind AI Studio. Not affiliated with or endorsed by Anthropic. Claude is a trademark of Anthropic.",
+      compare: {
+        "columns": [
+          "FrameMind, ₹149",
+          "Free official courses",
+          "Video courses",
+          "Ebooks"
+        ],
+        "rows": [
+          {
+            "label": "Written for people who don't code",
+            "values": [
+              "Yes",
+              "Mostly for developers",
+              "Some",
+              "Some"
+            ]
+          },
+          {
+            "label": "Windows and desktop app setup",
+            "values": [
+              "Step by step",
+              "Covered",
+              "Varies",
+              "Often terminal only"
+            ]
+          },
+          {
+            "label": "Projects with starter files",
+            "values": [
+              "5, with finished versions",
+              "Exercises",
+              "Follow-along",
+              "Rarely"
+            ]
+          },
+          {
+            "label": "Checks after every step",
+            "values": [
+              "Yes",
+              "Quizzes",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Indian examples (WhatsApp, UPI, ₹)",
+            "values": [
+              "Yes",
+              "No",
+              "Rarely",
+              "Rarely"
+            ]
+          },
+          {
+            "label": "Works offline on your phone",
+            "values": [
+              "Coach and cheat card",
+              "No",
+              "App download",
+              "PDF"
+            ]
+          },
+          {
+            "label": "Price",
+            "values": [
+              "₹149, keep forever",
+              "Free",
+              "Varies with sales",
+              "About $8 to $15"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026: Anthropic's free courses, Udemy listings, and ebooks on Gumroad and online bookstores. Their prices and contents change. We recommend the free official courses as a next step."
+      },
       tags: ["claude", "ai coding", "beginners"],
     },
     {
