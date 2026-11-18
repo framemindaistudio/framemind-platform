@@ -301,8 +301,8 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       title: "Font Pairing Guide",
       tagline: "40 free font pairs for Indian brands, measured, set in real layouts, with every font included.",
       category: "colour",
-      price: 99,
-      mrp: 199,
+      price: 199,
+      mrp: 399,
       status: "soon",
       description:
         "Forty font pairs chosen by a designer and checked with measurements from the font files: 24 pairs in six moods, from editorial to loud, and 16 bilingual pairs for Hindi, Marathi, Kannada, Tamil, Telugu, Bengali, Gujarati, Malayalam and Punjabi.\n\nEvery pair is set on a website, a social post and a business card, with its x-heights, a ready type scale and CSS. We also checked every font for the rupee sign (many popular fonts don't have it). All 80 font families are free for commercial use and included in the pack, so there is nothing else to download.",
@@ -313,7 +313,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       files: [],
       compare: {
         "columns": [
-          "FrameMind, ₹99",
+          "FrameMind, ₹199",
           "Typewolf lookbooks, $39 each",
           "Big pairing books, about $25",
           "Free pairing sites"
