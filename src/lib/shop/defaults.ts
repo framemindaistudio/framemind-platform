@@ -319,7 +319,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       title: "Freelancer Business Kit",
       tagline: "Eleven templates from first enquiry to final payment, built for Indian freelancers.",
       category: "business",
-      price: 199,
+      price: 299,
       mrp: 499,
       status: "soon",
       description:
@@ -331,7 +331,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       files: [],
       compare: {
         "columns": [
-          "FrameMind, ₹199",
+          "FrameMind, ₹299",
           "Design-led kits we checked, ₹1,700–9,000",
           "Word and Canva kits, $5–20",
           "Free invoice apps"
