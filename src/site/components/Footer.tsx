@@ -1,15 +1,20 @@
 "use client";
 
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/site/router";
+
+/** FrameMind's other companies — words from each one's own page */
+const VENTURES = [
+  { to: "/360vue", name: "360VUE", what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings" },
+  { to: "/vritta", name: "Vritta", what: "Activity records & newsletters for schools and colleges" },
+  { to: "/jove", name: "JOVE", what: "Robotics & AI workshops for schools, Grades 1–10" },
+];
 
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/industries", label: "Industry Apps" },
   { to: "/pricing", label: "Services" },
   { to: "/real-estate", label: "Real Estate Platform" },
-  { to: "/vritta", label: "Vritta" },
-  { to: "/jove", label: "JOVE" },
-  { to: "/360vue", label: "360VUE" },
   { to: "/personal-coaching", label: "1:1 Coaching" },
   { to: "/shop", label: "Store" },
   { to: "/testimonials", label: "Testimonials" },
@@ -77,6 +82,28 @@ export default function Footer() {
               Instagram
             </a>
           </div>
+        </div>
+      </div>
+
+      {/* our other companies: clear buttons, not small print */}
+      <div className="max-w-6xl mx-auto px-6 pb-12">
+        <p className="font-mono text-xs text-[#555] uppercase tracking-widest mb-4">Our ventures</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {VENTURES.map((v) => (
+            <Link
+              key={v.to}
+              to={v.to}
+              className="group flex items-center justify-between gap-4 rounded-2xl border border-[#2a2a2a] bg-[#141414] px-5 py-4 transition-colors hover:border-[#C8F135] hover:bg-[#1a1a1a]"
+            >
+              <span className="min-w-0">
+                <span className="block text-base font-semibold text-[#F5F4F0]">{v.name}</span>
+                <span className="mt-0.5 block text-[13px] leading-snug text-[#999]">{v.what}</span>
+              </span>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#333] text-[#F5F4F0] transition-colors group-hover:border-[#C8F135] group-hover:bg-[#C8F135] group-hover:text-[#0D0D0D]">
+                <ArrowUpRight size={16} />
+              </span>
+            </Link>
+          ))}
         </div>
       </div>
 

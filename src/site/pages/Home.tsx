@@ -1,28 +1,37 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { ArrowRight, ArrowUpRight, Bot, Code2, Globe, LayoutGrid, Palette, ShieldCheck, ShoppingBag, Zap, Brain, Check } from "lucide-react";
 import { Link } from "@/site/router";
-import { INDUSTRIES } from "@/lib/content/industries";
-import { INDUSTRY_ICONS } from "@/site/pages/Industries";
-import {
-  ArrowRight, Globe, Palette, Code2, Zap, Brain,
-  Sparkles, ShieldCheck,
-} from "lucide-react";
 import SEO from "@/site/components/SEO";
+import { INDUSTRIES, tierPrice, type IndustryRates } from "@/lib/content/industries";
+import { brandOf } from "@/lib/content/industry-brands";
+import { ProductCard } from "@/site/components/shop/ShopBits";
+import type { PublicProduct } from "@/lib/shop/types";
 
-import { ImageWithFallback } from "@/site/components/ImageWithFallback";
-const jagkalyanMissionScreenshot = "/site/jagkalyan-mission.jpg";
-const msmeLogo = "/site/msme-logo.png";
-/** the shared FrameMind / 360VUE icon on ink (scripts/brand-assets.py made the icon; this still is cut from it) */
-const heroImage = "/site/hero-icon.webp";
+/*
+ * The home page. One idea per screen:
+ *   1. a real-time 3D hero that says, at a glance, what FrameMind builds
+ *   2. the services as cards that stack as you scroll
+ *   3. the ten industry apps on a 3D ring that turns with the scroll
+ *   4. the digital store
+ *   5. how a project runs, then one call to action
+ * 360VUE, Vritta and JOVE live in the footer.
+ */
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// three.js only on the client, after the words are already on screen
+const HeroScene = dynamic(() => import("@/site/components/home/HeroScene"), { ssr: false });
 
-const marqueeItems = [
-  "Websites", "Brand Systems", "Custom Software", "Automations",
-  "AI Coaching", "Digital Products", "UI / UX Design",
-  "Notion Systems", "Pitch Decks", "School Programs", "Startup Tools",
+const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+
+const WHAT = [
+  { icon: Globe, label: "Websites & brand", to: "/pricing" },
+  { icon: LayoutGrid, label: "Industry apps", to: "/industries" },
+  { icon: Code2, label: "Custom software", to: "/pricing" },
+  { icon: Bot, label: "AI & automation", to: "/pricing" },
 ];
-
 
 const services = [
   {
@@ -31,14 +40,9 @@ const services = [
     title: "Websites",
     outcome: "Your business looks credible before you say a word.",
     tagline: "Design · Development · Launch",
-    bullets: [
-      "Built from scratch — no templates, no drag-and-drop",
-      "Optimised for speed, SEO, and conversions",
-      "Fully handed over with training and support",
-    ],
+    bullets: ["Built from scratch — no templates, no drag-and-drop", "Optimised for speed, SEO and conversions", "Fully handed over with training and support"],
     price: "From ₹25,000",
     link: "/pricing",
-    color: "#C8F135",
   },
   {
     n: "02",
@@ -46,14 +50,9 @@ const services = [
     title: "Brand Systems",
     outcome: "Your brand works without you having to explain it.",
     tagline: "Identity · Guidelines · Assets",
-    bullets: [
-      "Logo, color, typography — the full system",
-      "Brand guidelines your team actually uses",
-      "Consistent across every touchpoint",
-    ],
+    bullets: ["Logo, colour, typography — the full system", "Brand guidelines your team actually uses", "Consistent across every touchpoint"],
     price: "From ₹15,000",
     link: "/pricing",
-    color: "#C8F135",
   },
   {
     n: "03",
@@ -61,15 +60,9 @@ const services = [
     title: "Custom Software",
     outcome: "A tool built exactly for how your business works.",
     tagline: "Dashboards · Platforms · Tools",
-    bullets: [
-      "Scoped to your exact requirements — no over-engineering",
-      "Clean code, real documentation, handed over fully",
-      "From internal tools to customer-facing platforms",
-    ],
-    price: "Custom",
+    bullets: ["Scoped to your exact requirements — no over-engineering", "Clean code, real documentation, handed over fully", "From internal tools to customer-facing platforms"],
+    price: "Custom quote",
     link: "/pricing",
-    color: "#C8F135",
-    badge: "",
   },
   {
     n: "04",
@@ -77,14 +70,9 @@ const services = [
     title: "Automations",
     outcome: "10+ hours a week back — without hiring anyone.",
     tagline: "Workflow · AI · Integration",
-    bullets: [
-      "We map your manual process and automate the repetitive parts",
-      "WhatsApp flows, CRM sync, invoicing, follow-ups",
-      "Built on n8n, Make, Zapier — whatever fits best",
-    ],
+    bullets: ["We map your manual process and automate the repetitive parts", "WhatsApp flows, CRM sync, invoicing, follow-ups", "Built on n8n, Make, Zapier — whatever fits best"],
     price: "From ₹12,000",
     link: "/pricing",
-    color: "#C8F135",
   },
   {
     n: "05",
@@ -92,341 +80,371 @@ const services = [
     title: "1:1 AI Coaching",
     outcome: "AI fluency built around your life — in 90 days.",
     tagline: "Ages 10–60 · Online & Offline",
-    bullets: [
-      "Personalised curriculum — built for your profession",
-      "Not a course. A 1:1 coach, every session",
-      "Research-proven: 90 days to real fluency from zero",
-    ],
+    bullets: ["Personalised curriculum — built for your profession", "Not a course. A 1:1 coach, every session", "90 days to real fluency from zero"],
     price: "Custom",
     link: "/personal-coaching",
-    color: "#C8F135",
-    badge: "New",
   },
 ];
 
 const steps = [
-  { n: "1", title: "Tell us what you're building", desc: "A 20-minute call. No decks, no proposals. Just a direct conversation about what you need and whether we're the right fit." },
-  { n: "2", title: "We scope it honestly", desc: "You get a clear scope, timeline, and price. No vague retainers. No hidden costs. If it can't be done well in your budget, we'll say so." },
-  { n: "3", title: "We build — you stay in the loop", desc: "Daily or weekly updates depending on project length. You see real progress, not just a Notion board." },
-  { n: "4", title: "Shipped. Then supported.", desc: "Delivery isn't the end. We stick around for handover, training, and follow-up — so the work actually gets used." },
+  { n: "01", title: "Tell us what you're building", desc: "A 20-minute call. A direct conversation about what you need and whether we're the right fit." },
+  { n: "02", title: "We scope it honestly", desc: "A clear scope, timeline and price. No vague retainers, no hidden costs." },
+  { n: "03", title: "We build — you stay in the loop", desc: "Regular updates and a client portal, so you see real progress." },
+  { n: "04", title: "Shipped. Then supported.", desc: "Handover, training and support after launch, so the work actually gets used." },
 ];
 
-
-// ─── Services Section ─────────────────────────────────────────────────────────
-
-function ServicesSection() {
+function Eyebrow({ children, dark }: { children: React.ReactNode; dark?: boolean }) {
   return (
-    <section className="bg-background border-b border-border">
-      <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
-          <div>
-            <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-3 block">What We Do</span>
-            <h2 className="text-3xl md:text-4xl font-semibold text-foreground tracking-tight leading-[1.05]">
-              Everything your business<br />needs. Under one roof.
-            </h2>
+    <p className={`mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] ${dark ? "text-[#8E95AD]" : "text-muted-foreground"}`}>
+      <span className="h-px w-8 bg-[#C8F135]" />
+      {children}
+    </p>
+  );
+}
+
+/* ─────────────────────────── 1. hero ─────────────────────────── */
+
+/** true on large screens, where the hero pins and the words sit beside the 3D scene */
+function useWide() {
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const on = () => setWide(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return wide;
+}
+
+function Hero() {
+  const track = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const wide = useWide();
+  const { scrollYProgress } = useScroll({ target: track, offset: ["start start", "end end"] });
+  // the words drift up and soften as the 3D scene takes over
+  const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -60]);
+  const fade = useTransform(scrollYProgress, [0.55, 1], [1, 0.15]);
+  const cue = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+
+  return (
+    <section ref={track} className="relative bg-[#070A14] lg:h-[175vh]" aria-label="FrameMind AI Studio">
+      {/* large screens: pinned while the 3D scene plays; phones and tablets: the scene on top, the words below */}
+      <div className="relative overflow-hidden lg:sticky lg:top-0 lg:h-[100svh]">
+        {/* depth: navy glow, gold warmth, a fine grid */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_75%_40%,rgba(123,92,255,0.22),transparent_70%),radial-gradient(50%_45%_at_70%_85%,rgba(200,146,46,0.18),transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
+
+        <div className="relative h-[46svh] min-h-[300px] max-h-[520px] lg:absolute lg:inset-0 lg:h-auto lg:max-h-none">
+          <HeroScene track={track} />
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[55%] bg-gradient-to-r from-[#070A14] via-[#070A14]/70 to-transparent lg:block" />
+
+        <motion.div
+          style={wide ? { y, opacity: fade } : undefined}
+          className="relative z-10 mx-auto max-w-6xl px-5 pb-14 sm:px-8 lg:absolute lg:inset-x-0 lg:top-0 lg:flex lg:h-full lg:flex-col lg:justify-center lg:pb-0"
+        >
+          <div className="max-w-xl lg:max-w-[600px]">
+            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#C9CDDB] backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#C8F135]" />
+              Design · Software · AI — one studio
+            </span>
+            <h1 className="text-[2.35rem] font-semibold leading-[1.02] tracking-[-0.035em] text-[#F5F4F0] sm:text-5xl lg:text-[3.55rem]">
+              Websites, apps &amp; AI —
+              <span className="block text-[#C8F135]">built for your business.</span>
+            </h1>
+            <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-[#AEB4C8] sm:text-base">
+              FrameMind AI Studio designs and builds websites, custom software, ready-made industry apps and AI automations — and looks after them
+              after launch. One team, from idea to live.
+            </p>
+
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+              {WHAT.map(({ icon: Icon, label, to }) => (
+                <Link
+                  key={label}
+                  to={to}
+                  className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-2 text-[13px] font-medium text-[#E6E8F2] backdrop-blur transition hover:border-[#C8F135]/60 hover:bg-[#C8F135]/10"
+                >
+                  <Icon size={14} className="shrink-0 text-[#E7B866] transition group-hover:text-[#C8F135]" />
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-7 flex flex-col gap-2.5 sm:flex-row">
+              <Link to="/connect" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#C8F135] px-6 py-3.5 text-sm font-semibold text-[#0D0D0D] shadow-[0_0_40px_-8px_rgba(200,241,53,0.6)] transition hover:bg-[#d6ff4a]">
+                Start a project <ArrowRight size={15} />
+              </Link>
+              <Link to="/industries" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3.5 text-sm font-semibold text-[#F5F4F0] transition hover:border-white/50">
+                See industry apps
+              </Link>
+            </div>
+
+            <p className="mt-6 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[#7E86A0]">
+              <ShieldCheck size={13} className="text-[#E7B866]" /> MSME registered · Govt. of India · In-house team
+            </p>
           </div>
-          <Link
-            to="/pricing"
-            className="shrink-0 inline-flex items-center gap-2 font-mono text-[10px] text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors"
-          >
-            View all pricing <ArrowRight size={11} />
+        </motion.div>
+
+        <motion.div style={{ opacity: cue }} className="pointer-events-none absolute bottom-5 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex">
+          <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-[#7E86A0]">Scroll</span>
+          <span className="relative h-9 w-[22px] rounded-full border border-white/25">
+            <span className="absolute left-1/2 top-1.5 h-2 w-[3px] -translate-x-1/2 animate-bounce rounded-full bg-[#C8F135]" />
+          </span>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────── 2. services: stacking cards ─────────────────────────── */
+
+function StackCard({ svc, i, total, progress }: { svc: (typeof services)[number]; i: number; total: number; progress: MotionValue<number> }) {
+  const reduce = useReducedMotion();
+  const scale = useTransform(progress, [i / total, 1], [1, reduce ? 1 : 1 - (total - i) * 0.035]);
+  const Icon = svc.icon;
+  const dark = i % 2 === 0;
+  return (
+    <div className="sticky" style={{ top: `calc(88px + ${i * 18}px)` }}>
+      <motion.div style={{ scale, transformOrigin: "top center" }}>
+        <Link
+          to={svc.link}
+          className={`group grid gap-6 rounded-[28px] border p-6 shadow-[0_30px_60px_-30px_rgba(7,10,20,0.45)] sm:p-9 md:grid-cols-[1.1fr_1fr] md:gap-10 ${
+            dark ? "border-[#1A2040] bg-[#0B0F1E] text-[#F5F4F0]" : "border-border bg-white text-foreground"
+          }`}
+        >
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between">
+              <span className={`font-mono text-[11px] tracking-[0.2em] ${dark ? "text-[#E7B866]" : "text-muted-foreground"}`}>{svc.n} / 05</span>
+              <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${dark ? "bg-white/[0.06] text-[#C8F135]" : "bg-[#0D0D0D] text-[#C8F135]"}`}>
+                <Icon size={20} />
+              </span>
+            </div>
+            <h3 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">{svc.title}</h3>
+            <p className={`mt-1 font-mono text-[10px] uppercase tracking-[0.2em] ${dark ? "text-[#7E86A0]" : "text-muted-foreground"}`}>{svc.tagline}</p>
+            <p className={`mt-5 text-lg leading-snug ${dark ? "text-[#C9CDDB]" : "text-foreground/80"}`}>{svc.outcome}</p>
+          </div>
+          <div className="flex flex-col">
+            <ul className="space-y-2.5">
+              {svc.bullets.map((b) => (
+                <li key={b} className={`flex gap-2.5 text-sm leading-relaxed ${dark ? "text-[#AEB4C8]" : "text-muted-foreground"}`}>
+                  <Check size={15} className="mt-0.5 shrink-0 text-[#7aa800]" />
+                  {b}
+                </li>
+              ))}
+            </ul>
+            <div className={`mt-auto flex items-center justify-between border-t pt-5 ${dark ? "border-white/10" : "border-border"}`}>
+              <span className="text-base font-semibold">{svc.price}</span>
+              <span className={`inline-flex items-center gap-1.5 text-sm font-semibold transition-transform group-hover:translate-x-1 ${dark ? "text-[#C8F135]" : ""}`}>
+                Explore <ArrowRight size={15} />
+              </span>
+            </div>
+          </div>
+        </Link>
+      </motion.div>
+    </div>
+  );
+}
+
+function Services() {
+  const box = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: box, offset: ["start start", "end end"] });
+  return (
+    <section className="bg-[#F5F4F0]">
+      <div className="mx-auto max-w-5xl px-5 pb-10 pt-20 sm:px-8 md:pt-28">
+        <Eyebrow>What we do</Eyebrow>
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-6xl">Everything your business needs. Under one roof.</h2>
+          <Link to="/pricing" className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold">
+            All services &amp; prices <ArrowUpRight size={15} />
           </Link>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {services.map((svc) => {
-            const Icon = svc.icon;
-            return (
-              <Link
-                key={svc.n}
-                to={svc.link}
-                className="group relative flex flex-col gap-5 p-6 rounded-sm border border-border bg-white hover:border-[#C8F135]/60 hover:shadow-[0_4px_24px_rgba(200,241,53,0.08)] transition-all duration-300"
-              >
-                {/* Number + badge */}
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-muted-foreground/50 uppercase tracking-[0.2em]">{svc.n}</span>
-                  {svc.badge && (
-                    <span className="font-mono text-[9px] bg-[#C8F135] text-[#0D0D0D] px-2 py-0.5 rounded-sm uppercase tracking-widest font-bold">
-                      {svc.badge}
-                    </span>
-                  )}
-                </div>
-
-                {/* Icon */}
-                <div className="w-10 h-10 rounded-sm border border-border group-hover:border-[#C8F135] group-hover:bg-[#C8F135]/10 flex items-center justify-center transition-all duration-300">
-                  <Icon size={18} className="text-muted-foreground group-hover:text-[#0D0D0D] transition-colors duration-300" />
-                </div>
-
-                {/* Title + tagline */}
-                <div>
-                  <h3 className="font-semibold text-foreground text-base mb-1">
-                    {svc.title}
-                  </h3>
-                  <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{svc.tagline}</p>
-                </div>
-
-                {/* Arrow */}
-                <div className="mt-auto flex items-center gap-1.5 text-muted-foreground/40 group-hover:text-[#0D0D0D] transition-colors duration-300">
-                  <span className="font-mono text-[10px] uppercase tracking-widest">Explore</span>
-                  <ArrowRight size={11} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-                </div>
-              </Link>
-            );
-          })}
+        <div ref={box} className="mt-12 flex flex-col gap-6 pb-[10vh]">
+          {services.map((svc, i) => (
+            <StackCard key={svc.n} svc={svc} i={i} total={services.length} progress={scrollYProgress} />
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-// ─── Marquee ─────────────────────────────────────────────────────────────────
+/* ─────────────────────────── 3. industry apps on a 3D ring ─────────────────────────── */
 
-function Marquee({ items, bg = "#C8F135", textColor = "#0D0D0D", dotColor = "#0D0D0D", reverse = false }: {
-  items: string[];
-  bg?: string;
-  textColor?: string;
-  dotColor?: string;
-  reverse?: boolean;
-}) {
-  const doubled = [...items, ...items];
-  const animName = reverse ? "marqueeReverse" : "marquee";
+function AppCard({ ind, rates }: { ind: (typeof INDUSTRIES)[number]; rates?: IndustryRates | null }) {
+  const b = brandOf(ind.id);
   return (
-    <div className="overflow-hidden border-t border-b" style={{ backgroundColor: bg, borderColor: bg === "#C8F135" ? "#b8e020" : "#1a1a1a" }}>
-      <div
-        className="flex gap-0 whitespace-nowrap py-3.5"
-        style={{ animation: `${animName} 32s linear infinite` }}
-      >
-        {doubled.map((item, i) => (
-          <span key={i} className="inline-flex items-center gap-4 px-6 text-xs font-semibold uppercase tracking-widest font-mono" style={{ color: textColor }}>
-            {item}
-            <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: `${dotColor}4D` }} />
-          </span>
-        ))}
-      </div>
-      <style>{`
-        @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-        @keyframes marqueeReverse { from { transform: translateX(-50%) } to { transform: translateX(0) } }
-      `}</style>
-    </div>
+    <Link
+      to={`/industries/${ind.slug}`}
+      className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white p-5 text-[#0E1222] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)] transition hover:-translate-y-1"
+    >
+      <span className="h-1 w-12 rounded-full" style={{ background: b.colors.accent }} />
+      <img src={b.logo} alt={`FrameMind ${b.name}`} className="mt-4 h-8 w-auto self-start" loading="lazy" />
+      <p className="mt-4 text-lg font-semibold leading-tight tracking-tight">{ind.name}</p>
+      <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#0E1222]/65">{ind.tagline}</p>
+      <p className="mt-auto pt-4 text-sm">
+        From <b className="text-base">{inr(tierPrice(rates, ind.id, "starter"))}</b>
+        <span className="text-[#0E1222]/55">/month</span>
+      </p>
+    </Link>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+function IndustryRing({ rates }: { rates?: IndustryRates | null }) {
+  const box = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: box, offset: ["start end", "end start"] });
+  const turn = useTransform(scrollYProgress, [0, 1], reduce ? [-18, -18] : [40, -220]);
+  const n = INDUSTRIES.length;
+  const CARD = 236;
+  const R = Math.round((CARD + 26) / (2 * Math.tan(Math.PI / n)));
 
-export default function Home() {
   return (
-    <div>
+    <section ref={box} className="relative overflow-hidden bg-[#070A14] text-[#F5F4F0]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_60%,rgba(123,92,255,0.18),transparent_70%)]" />
+      <div className="relative mx-auto max-w-6xl px-5 pt-20 sm:px-8 md:pt-28">
+        <Eyebrow dark>Industry apps</Eyebrow>
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-6xl">
+              Your industry&apos;s app, <span className="text-[#C8F135]">already built.</span>
+            </h2>
+            <p className="mt-4 max-w-xl text-[15px] text-[#AEB4C8]">
+              {n} ready-made apps with your name and logo — live in 3–4 weeks, with a one-time setup and a simple monthly plan. Try any live demo.
+            </p>
+          </div>
+          <Link to="/industries" className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#C8F135]">
+            All industry apps <ArrowUpRight size={15} />
+          </Link>
+        </div>
+      </div>
+
+      {/* large screens: a ring of apps that turns as you scroll */}
+      <div className="relative hidden h-[560px] items-center justify-center lg:flex" style={{ perspective: "1600px" }}>
+        <motion.div className="relative" style={{ width: CARD, height: 300, transformStyle: "preserve-3d", rotateX: -6, rotateY: turn }}>
+          {INDUSTRIES.map((ind, i) => (
+            <div
+              key={ind.id}
+              className="absolute inset-0"
+              style={{ transform: `rotateY(${(i * 360) / n}deg) translateZ(${R}px)`, backfaceVisibility: "hidden" }}
+            >
+              <AppCard ind={ind} rates={rates} />
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* phones and tablets: swipe through */}
+      <div className="relative mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-16 sm:px-8 lg:hidden [scrollbar-width:none]">
+        {INDUSTRIES.map((ind) => (
+          <div key={ind.id} className="h-[280px] w-[230px] shrink-0 snap-start">
+            <AppCard ind={ind} rates={rates} />
+          </div>
+        ))}
+      </div>
+      <div className="hidden h-10 lg:block" />
+    </section>
+  );
+}
+
+/* ─────────────────────────── 4. the store ─────────────────────────── */
+
+function Store({ products }: { products: PublicProduct[] }) {
+  if (!products.length) return null;
+  return (
+    <section className="bg-[#F5F4F0]">
+      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 md:py-28">
+        <Eyebrow>FrameMind store</Eyebrow>
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-6xl">Tools we use, ready to download.</h2>
+            <p className="mt-4 max-w-xl text-[15px] text-muted-foreground">Templates, guides and toolkits made by the studio — instant download after payment.</p>
+          </div>
+          <Link to="/shop" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0D0D0D] px-5 py-3 text-sm font-semibold text-[#F5F4F0] transition hover:bg-[#222]">
+            <ShoppingBag size={15} className="text-[#C8F135]" /> Visit the store
+          </Link>
+        </div>
+        <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────── 5. how it works ─────────────────────────── */
+
+function Process() {
+  const box = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: box, offset: ["start 80%", "end 60%"] });
+  const line = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  return (
+    <section ref={box} className="bg-[#070A14] text-[#F5F4F0]">
+      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 md:py-28">
+        <Eyebrow dark>How it works</Eyebrow>
+        <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-6xl">From first message to final delivery.</h2>
+        <div className="relative mt-14">
+          <div className="absolute left-0 right-0 top-[18px] hidden h-px bg-white/10 md:block" />
+          <motion.div style={{ scaleX: line, transformOrigin: "left center" }} className="absolute left-0 right-0 top-[18px] hidden h-px bg-gradient-to-r from-[#C8F135] via-[#E7B866] to-[#7B5CFF] md:block" />
+          <ol className="grid gap-10 md:grid-cols-4 md:gap-6">
+            {steps.map((s) => (
+              <li key={s.n} className="relative">
+                <span className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-[#070A14] font-mono text-[11px] text-[#C8F135]">{s.n}</span>
+                <h3 className="mt-5 text-lg font-semibold">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#8E95AD]">{s.desc}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FinalCta() {
+  return (
+    <section className="bg-[#C8F135] text-[#0D0D0D]">
+      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-5 py-16 sm:px-8 md:flex-row md:items-center md:py-20">
+        <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-5xl">Your business, live online — designed, built and looked after.</h2>
+        <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row">
+          <Link to="/connect" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#0D0D0D] px-6 py-3.5 text-sm font-semibold text-[#F5F4F0]">
+            Start a project <ArrowRight size={15} />
+          </Link>
+          <a href="https://wa.me/918073087576" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full border border-[#0D0D0D] px-6 py-3.5 text-sm font-semibold">
+            WhatsApp us
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────── page ─────────────────────────── */
+
+export default function Home({ products = [], rates }: { products?: PublicProduct[]; rates?: IndustryRates | null }) {
+  return (
+    <div className="overflow-x-clip">
       <SEO
         title="Web Design, Development & AI Solutions"
-        description="FrameMind Studio is an MSME-registered design and development studio in India. We build websites, brand systems, custom software, and AI-powered tools — delivered on time, at transparent INR pricing."
+        description="FrameMind AI Studio is an MSME-registered design and development studio in India. We build websites, brand systems, custom software, ready-made industry apps and AI automations — delivered on time, at transparent INR pricing."
         path="/"
-        keywords="web design India, website development India, brand identity India, AI studio India, MSME design studio Karnataka, custom software India, design agency Gadag, FrameMind AI Studio"
+        keywords="web design India, website development India, brand identity India, AI studio India, MSME design studio Karnataka, custom software India, industry apps India, FrameMind AI Studio"
         ogImageAlt="FrameMind AI Studio — Web Design, Development & AI Solutions"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebSite",
-          "name": "FrameMind AI Studio",
-          "url": "https://www.framemindaistudio.com",
+          name: "FrameMind AI Studio",
+          url: "https://www.framemindaistudio.com",
         }}
       />
-
-      {/* ── Hero ── */}
-      <section className="relative w-full bg-[#0D0D0D] overflow-hidden min-h-[100svh] flex flex-col">
-        {/* Video background */}
-        <img
-          src={heroImage}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none"
-          style={{ opacity: 0.45, animation: "heroFadeIn 1.2s ease-out forwards, heroDrift 24s ease-in-out infinite alternate" }}
-        />
-        {/* Stronger overlay on mobile for text legibility */}
-        <div className="absolute inset-0 pointer-events-none bg-black/50 sm:bg-black/20" />
-        <style>{`
-          @keyframes heroFadeIn { from { opacity: 0 } to { opacity: 0.45 } }
-          @keyframes heroDrift { from { transform: scale(1) } to { transform: scale(1.06) } }
-          @media (prefers-reduced-motion: reduce) { img[aria-hidden] { animation: none !important; opacity: 0.45 } }
-          @keyframes heroContentUp { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: translateY(0) } }
-        `}</style>
-
-        <div className="relative z-10 flex-1 flex flex-col" style={{ animation: "heroContentUp 1s 0.3s ease-out both" }}>
-
-          {/* Hero text */}
-          <div className="flex-1 flex flex-col justify-center px-5 sm:px-8 pt-10 sm:pt-0">
-            <div className="w-full max-w-[280px] sm:max-w-sm mx-auto sm:mx-0 text-center sm:text-left">
-              <div className="inline-flex items-center gap-2 border border-[#2a2a2a] rounded-full px-3 py-1.5 mb-5 w-fit mx-auto sm:mx-0">
-                <Sparkles size={10} className="text-[#C8F135]" />
-                <span className="font-mono text-[10px] text-[#888] uppercase tracking-widest">Industry Apps · Design · Software</span>
-              </div>
-              <h1 className="text-[2rem] leading-[1.1] sm:text-4xl md:text-5xl lg:text-[64px] font-semibold text-[#F5F4F0] tracking-tight lg:leading-[1.0]">
-                We build what<br />
-                founders need<br />
-                <span className="text-[#C8F135]">actually shipped.</span>
-              </h1>
-            </div>
-          </div>
-
-          {/* Bottom strip */}
-          <div className="px-5 sm:px-8">
-            <div className="border-t border-[#ffffff10] pt-4 pb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-
-              {/* Stats */}
-              <div className="flex items-center justify-center sm:justify-start gap-6">
-                {[
-                  { n: "100%", label: "In-house delivery" },
-                  { n: "3+", label: "Years of studio work" },
-                ].map(({ n, label }) => (
-                  <div key={label} className="text-center sm:text-left">
-                    <p className="text-base font-semibold text-[#F5F4F0] tracking-tight">{n}</p>
-                    <p className="font-mono text-[9px] text-[#555] uppercase tracking-widest mt-0.5">{label}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-2 w-full sm:w-auto">
-                <Link to="/industries" className="flex-1 sm:flex-none bg-[#C8F135] text-[#0D0D0D] px-5 py-3 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2">
-                  Find your industry&apos;s app <ArrowRight size={13} />
-                </Link>
-                <Link to="/connect" className="flex-1 sm:flex-none border border-[#2a2a2a] text-[#888] px-5 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#aaa] transition-colors text-center flex items-center justify-center">
-                  Start a Project
-                </Link>
-              </div>
-
-              {/* MSME — hidden on mobile */}
-              <div className="hidden sm:flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-sm px-4 py-2.5 shrink-0">
-                <img src={msmeLogo} alt="MSME" className="w-7 h-7 object-contain shrink-0" />
-                <div>
-                  <p className="text-xs font-semibold text-[#0D0D0D] leading-none">MSME Registered Studio</p>
-                  <p className="font-mono text-[9px] text-[#888] mt-0.5">Govt. of India · Ministry of MSME</p>
-                </div>
-                <ShieldCheck size={15} className="text-[#0D0D0D] ml-1" />
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Marquee ── */}
-      <Marquee items={marqueeItems} />
-
-      {/* ── Industry apps ── */}
-      <IndustriesStrip />
-
-      {/* ── What We Do ── */}
-      <ServicesSection />
-
-      <Marquee items={marqueeItems} />
-
-      {/* ── Featured Work ── */}
-      <section className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8 md:mb-12">
-            <div>
-              <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-3 block">Featured Work</span>
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight leading-snug">Real projects. Real results.</h2>
-            </div>
-            <Link to="/testimonials" className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest shrink-0 mb-1">
-              View all work <ArrowRight size={12} />
-            </Link>
-          </div>
-
-          <Link to="/testimonials" className="group block border border-border rounded-sm overflow-hidden hover:border-foreground/20 transition-colors">
-            <div className="grid grid-cols-1 lg:grid-cols-5">
-              <div className="lg:col-span-3 bg-secondary overflow-hidden min-h-[300px]">
-                <ImageWithFallback
-                  src={jagkalyanMissionScreenshot}
-                  alt="JagKalyan Holistic Mission — website built by FrameMind"
-                  className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-700"
-                />
-              </div>
-              <div className="lg:col-span-2 p-6 sm:p-8 md:p-10 flex flex-col justify-between bg-background">
-                <div>
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="font-mono text-[10px] border border-border px-3 py-1 rounded-sm text-muted-foreground uppercase tracking-widest">NGO · Mission</span>
-                    <span className="font-mono text-[10px] border border-border px-3 py-1 rounded-sm text-muted-foreground uppercase tracking-widest">Brand + Website</span>
-                  </div>
-                  <p className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest mb-2">॥ सर्वे भवन्तु सुखिनः ॥</p>
-                  <h3 className="text-3xl font-semibold tracking-tight mb-4">JagKalyan Holistic Mission</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                    A registered NGO with a mission spanning self, society, nation, and humanity — built a digital presence worthy of its 500-acre Wisdom City vision and nine-shala Academy.
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    {["Cinematic, purpose-driven design", "Academy, Ecosystem & Startup Hub", "12A & 80G registered trust", "One Humanity · One Planet"].map((f) => (
-                      <div key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#C8F135] shrink-0" />
-                        {f}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <span className="font-mono text-xs text-foreground flex items-center gap-1.5 group-hover:gap-3 transition-all mt-8 border-t border-border pt-6">
-                  View case study <ArrowRight size={12} />
-                </span>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* ── How We Work ── */}
-      <section className="bg-[#0D0D0D]">
-        <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
-          <div className="mb-10 md:mb-14">
-            <span className="font-mono text-xs text-[#555] uppercase tracking-widest mb-3 block">How It Works</span>
-            <h2 className="text-3xl md:text-4xl font-semibold text-[#F5F4F0] tracking-tight leading-snug max-w-lg">
-              From first message to final delivery.
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border border-[#1a1a1a]">
-            {steps.map((step, i) => (
-              <div key={step.n} className={`p-6 sm:p-8 bg-[#0a0a0a] flex flex-col gap-4 border-b border-[#1a1a1a] last:border-b-0 lg:border-b-0 ${i < steps.length - 1 ? "lg:border-r border-[#1a1a1a]" : ""}`}>
-                <span className="text-5xl font-semibold text-[#C8F135] leading-none">{step.n}</span>
-                <div>
-                  <h3 className="font-semibold text-base text-[#F5F4F0] mb-2">{step.title}</h3>
-                  <p className="text-sm text-[#666] leading-relaxed">{step.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <Marquee items={marqueeItems} />
-
+      <Hero />
+      <Services />
+      <IndustryRing rates={rates} />
+      <Store products={products} />
+      <Process />
+      <FinalCta />
     </div>
-  );
-}
-
-/** Ready-made industry apps, highest-value industry first: the studio's product line. */
-function IndustriesStrip() {
-  return (
-    <section className="border-b border-border">
-      <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-3">Industry apps</p>
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight leading-snug">Your industry&apos;s app, already built.</h2>
-            <p className="mt-2 text-sm text-muted-foreground max-w-xl">Ready-made apps with your name and logo, live in 3–4 weeks — a one-time setup and a simple monthly plan.</p>
-          </div>
-          <Link to="/industries" className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest shrink-0 mb-1">
-            All industries <ArrowRight size={12} />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {INDUSTRIES.map((ind, i) => {
-            const Icon = INDUSTRY_ICONS[ind.icon] ?? Sparkles;
-            return (
-              <Link key={ind.id} to={`/industries/${ind.slug}`} className={`group rounded-sm border p-4 transition-colors ${i === 0 ? "border-[#0D0D0D] bg-[#0D0D0D] text-[#F5F4F0]" : "border-border hover:border-foreground/40"}`}>
-                <Icon size={18} className={i === 0 ? "text-[#C8F135]" : "text-muted-foreground"} />
-                <p className="mt-3 text-sm font-semibold">{ind.name}</p>
-                <p className={`mt-0.5 text-[11px] leading-snug ${i === 0 ? "text-[#888]" : "text-muted-foreground"}`}>{ind.tagline}</p>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </section>
   );
 }
