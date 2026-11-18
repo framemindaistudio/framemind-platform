@@ -317,18 +317,110 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       id: "freelancer-kit",
       slug: "freelancer-business-kit",
       title: "Freelancer Business Kit",
-      tagline: "Quotation, invoice, rate card and contract templates.",
+      tagline: "Eleven templates from first enquiry to final payment, built for Indian freelancers.",
       category: "business",
       price: 199,
       mrp: 499,
       status: "soon",
       description:
-        "The paperwork every Indian freelancer and creator needs, as editable Word, Excel and Google templates: a quotation, an invoice that totals itself, a rate card and a simple project agreement.\n\nThe agreement is a starting point, not legal advice; have it read by a lawyer for large projects.",
-      includes: ["Quotation template (Word)", "Invoice with automatic totals and GST split (Excel)", "Rate card + rate calculator (Excel)", "Project agreement template (Word)", "10 payment reminder messages", "Guide as PDF + web version with a live rate calculator"],
-      formats: ["DOCX", "XLSX", "Google"],
+        "Everything between “can you do this?” and money in your account: a client brief, proposal, quotation, project agreement, change request, handover note and copyright assignment deed in Word, plus an invoice, a business tracker and a rate calculator in Excel.\n\nIt is built for India. The invoice switches between GST, non-GST and export (LUT) invoices and picks CGST + SGST or IGST from the two States. The agreement follows the Copyright Act and the MSMED Act, with a note explaining every clause. The tracker follows TDS and the April to March year. Every document comes filled in as an example, and the offline tools draw a UPI QR with the amount on each invoice.\n\nPractical guidance, not legal or tax advice; for large contracts and tax filing, ask a lawyer or CA.",
+      includes: ["11 templates: brief, proposal, quotation, agreement, change request, handover, copyright deed, invoice, tracker, rate calculator, 23 client messages", "Invoice for GST, non-GST and export (LUT) work, with amount in words in lakh and crore", "Agreement written for Indian law, with a margin note on every clause", "Business tracker: invoices, TDS, expenses and an April to March dashboard", "Offline tools: invoice maker with UPI QR, rate and late-payment calculators", "17-page handbook: pricing, proposals, copyright, GST, TDS and getting paid", "Every document filled in as an example, plus the free Geist fonts"],
+      formats: ["DOCX", "XLSX", "PDF", "Google"],
       level: "Freelancers",
       accent: "#1F8A5B",
       files: [],
+      compare: {
+        "columns": [
+          "FrameMind, ₹199",
+          "Design-led kits we checked, ₹1,700–9,000",
+          "Word and Canva kits, $5–20",
+          "Free invoice apps"
+        ],
+        "rows": [
+          {
+            "label": "Documents",
+            "values": [
+              "11, from brief to copyright deed",
+              "4 to 5: proposal, contract, invoice",
+              "3 to 5",
+              "Invoices and quotes"
+            ]
+          },
+          {
+            "label": "Edit in",
+            "values": [
+              "Word, Excel, Google, LibreOffice",
+              "Illustrator, InDesign or Figma",
+              "Word or Canva",
+              "Their app only"
+            ]
+          },
+          {
+            "label": "GST invoice that picks CGST + SGST or IGST",
+            "values": [
+              "Yes",
+              "No",
+              "No",
+              "Yes"
+            ]
+          },
+          {
+            "label": "Export invoice under LUT",
+            "values": [
+              "Yes",
+              "No",
+              "No",
+              "In some"
+            ]
+          },
+          {
+            "label": "Agreement written for Indian law",
+            "values": [
+              "Yes, every clause explained",
+              "Generic",
+              "Generic",
+              "No"
+            ]
+          },
+          {
+            "label": "Copyright assignment deed",
+            "values": [
+              "Yes",
+              "No",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Tracker with TDS and April to March year",
+            "values": [
+              "Yes",
+              "No",
+              "Rarely",
+              "On paid plans"
+            ]
+          },
+          {
+            "label": "Filled-in example of every document",
+            "values": [
+              "Yes",
+              "Some",
+              "Some",
+              "No"
+            ]
+          },
+          {
+            "label": "Limits",
+            "values": [
+              "None, works offline",
+              "None",
+              "None",
+              "Free tier limits"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026 against freelancer kits on Gumroad, Etsy and Payhip and against free Indian invoicing apps. Their prices and contents change."
+      },
       tags: ["freelance", "invoice", "contract"],
     },
     {
