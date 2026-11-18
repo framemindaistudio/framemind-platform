@@ -59,18 +59,92 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       id: "ai-prompts-creators",
       slug: "100-ai-prompts-for-creators",
       title: "100 AI Prompts for Creators",
-      tagline: "Captions, hooks, scripts and ideas. Copy, paste, post.",
+      tagline: "Prompts that know your niche, your city and your voice.",
       category: "ai",
       price: 99,
       mrp: 199,
       status: "soon",
       description:
-        "One hundred tested prompts for Instagram and YouTube creators, grouped by job: finding ideas, writing hooks, scripting Reels, writing captions, repurposing content and replying to comments.\n\nWorks with ChatGPT, Claude, Gemini or any AI chat.",
-      includes: ["100 prompts in 6 groups", "Fill-in-the-blank: type your niche once and every prompt updates (web version)", "Weak vs strong output examples", "A weekly content system", "Notion import file (CSV), Markdown and PDF"],
-      formats: ["PDF", "Notion"],
+        "Most prompt packs hand you a list, and the answers come back generic because the AI knows nothing about you. This one starts with a 10-question brief: your niche, audience, city, second language, offer and voice. Fill it once and every prompt is about you.\n\n100 prompts for ideas, hooks, Reel and Shorts scripts, captions, repurposing, comments, DMs and sales. Each one shows what a good answer looks like and the follow-up question to ask next. Made for India: mixed-language hooks, festival planning, WhatsApp broadcasts, rupee pricing. Includes Prompt Studio, an offline app for your phone where all 100 prompts fill in from your brief, a weekly system, and a checker that highlights words that make captions sound AI-written. Example outputs were written by AI from a fictional example brief.",
+      includes: ["100 prompts in 6 groups, each with an example output and a follow-up", "Creator brief: fill once, every prompt is about you", "Prompt Studio: offline, works on a phone, copy with one tap", "Clean-up prompt and AI-sound checker", "Weekly system: one chat, seven prompts, a week of content", "How to save your brief in ChatGPT, Claude and Gemini", "31-page PDF, Notion CSV, Markdown and plain-text brief"],
+      formats: ["PDF", "HTML", "Notion", "Markdown"],
       level: "All levels",
       accent: "#3DF5C8",
       files: [],
+      compare: {
+        "columns": [
+          "FrameMind, ₹99",
+          "Free prompt lists",
+          "Gumroad and Etsy packs",
+          "“1000+ prompts” bundles"
+        ],
+        "rows": [
+          {
+            "label": "Prompts know your niche and audience",
+            "values": [
+              "Yes, from a 10-question brief",
+              "No, you edit each one",
+              "Usually fill-in blanks",
+              "No"
+            ]
+          },
+          {
+            "label": "Example of a good answer",
+            "values": [
+              "For all 100",
+              "Rarely",
+              "Some",
+              "Rarely"
+            ]
+          },
+          {
+            "label": "Follow-up prompt for the second draft",
+            "values": [
+              "For all 100",
+              "No",
+              "Rarely",
+              "No"
+            ]
+          },
+          {
+            "label": "Removes the AI-written sound",
+            "values": [
+              "Clean-up prompt and checker",
+              "No",
+              "Rarely",
+              "No"
+            ]
+          },
+          {
+            "label": "Made for Indian creators",
+            "values": [
+              "Mixed-language, festivals, WhatsApp, ₹",
+              "Rarely",
+              "Rarely",
+              "Some"
+            ]
+          },
+          {
+            "label": "Works on your phone",
+            "values": [
+              "Offline app, one-tap copy",
+              "Web pages",
+              "PDF or Notion",
+              "PDF"
+            ]
+          },
+          {
+            "label": "Price",
+            "values": [
+              "₹99, keep forever",
+              "Free",
+              "About $2 to $20",
+              "Often ₹99 to ₹199"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026 on free lists (Later, Buffer, Sprout Social), Gumroad, Etsy and Indian creator storefronts. Their prices and contents change."
+      },
       tags: ["prompts", "instagram", "content"],
     },
     {
