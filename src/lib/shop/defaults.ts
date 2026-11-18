@@ -151,18 +151,92 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       id: "carousel-templates",
       slug: "instagram-carousel-templates",
       title: "Instagram Carousel Templates",
-      tagline: "20 editable carousel layouts that make people swipe.",
+      tagline: "46 carousel slides in 8 formats. Edit in Photoshop, Canva, PowerPoint or our offline studio.",
       category: "templates",
       price: 149,
       mrp: 399,
       status: "soon",
       description:
-        "Twenty carousel slides in four ready styles (tips, before-and-after, top-5 list and story), sized 1080×1350. Every slide is a layered PSD you can edit in Photoshop or free in Photopea.\n\nText stays editable, colours change with a double-click, and photo spots are smart objects: paste your photo and it drops into place.",
-      includes: ["20 layered PSD slides in 4 styles", "Editable text, recolourable shapes, smart-object photo spots", "PNG previews of every slide", "Step-by-step guide (PDF + web with a swipe preview)"],
-      formats: ["PSD", "PDF"],
+        "Eight carousel formats that cover what creators and small brands actually post: a step-by-step guide, myth vs fact, before and after, a top list, a text thread, a seamless panorama, a product offer with ₹ prices and a festive sale in Hindi and English.\n\nEvery slide comes in 4:5 and the new 3:4 grid size, three ways: layered PSDs for Photoshop or free Photopea, PowerPoint files that also import into Canva, and Carousel Studio, an offline editor where you set your colours, fonts and handle once and download every slide as PNG.",
+      includes: ["46 slides in 8 formats, each in 4:5 (1080×1350) and 3:4 (1080×1440)", "94 layered PSDs: live text, recolourable shapes, photo smart objects", "16 PowerPoint files that open in Canva, Google Slides and Keynote", "Carousel Studio: offline editor, set your brand once, export PNGs", "Hindi + English festive set and ₹ price slides", "7 free font families and a guide with hooks and a posting checklist"],
+      formats: ["PSD", "PPTX", "PNG", "HTML"],
       level: "All levels",
       accent: "#FF5FA2",
       files: [],
+      compare: {
+        "columns": [
+          "FrameMind, ₹149",
+          "Canva packs on Etsy and Gumroad, $3–40",
+          "Multi-app packs (Envato and others)",
+          "Free Canva templates"
+        ],
+        "rows": [
+          {
+            "label": "Edit in",
+            "values": [
+              "Photoshop, Photopea, Canva, PowerPoint, offline studio",
+              "Canva only",
+              "Canva, Figma, Photoshop",
+              "Canva only"
+            ]
+          },
+          {
+            "label": "Sizes",
+            "values": [
+              "4:5 and the new 3:4 grid size",
+              "Mostly 4:5 or square",
+              "Mostly 4:5",
+              "Mostly 4:5 or square"
+            ]
+          },
+          {
+            "label": "Formats in one pack",
+            "values": [
+              "8, from guides to offers",
+              "Usually 1 style",
+              "1 style",
+              "Pick one at a time"
+            ]
+          },
+          {
+            "label": "Change brand colours once for every slide",
+            "values": [
+              "Yes, in Carousel Studio",
+              "Brand Kit, with Canva Pro",
+              "No",
+              "Brand Kit, with Canva Pro"
+            ]
+          },
+          {
+            "label": "Hindi and Indian festive set",
+            "values": [
+              "Yes",
+              "Rarely",
+              "No",
+              "Some"
+            ]
+          },
+          {
+            "label": "Fonts included",
+            "values": [
+              "Yes, 7 free families",
+              "Canva fonts",
+              "Links",
+              "Canva fonts"
+            ]
+          },
+          {
+            "label": "Needs an account",
+            "values": [
+              "No",
+              "Canva",
+              "Varies",
+              "Canva"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026 on Etsy, Gumroad, Creative Market and Envato Elements listings. Their prices and contents change."
+      },
       tags: ["instagram", "carousel", "canva", "psd"],
     },
     {
