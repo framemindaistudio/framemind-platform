@@ -98,7 +98,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       title: "Phone Cinematography Shot List",
       tagline: "40 shots that make phone video look filmed.",
       category: "camera",
-      price: 99,
+      price: 149,
       mrp: 199,
       status: "soon",
       description:
@@ -110,7 +110,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       files: [],
       compare: {
         "columns": [
-          "FrameMind, ₹99",
+          "FrameMind, ₹149",
           "Free checklists and blogs",
           "Online classes",
           "Offline workshops in India"
@@ -173,7 +173,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
           {
             "label": "Price",
             "values": [
-              "₹99, keep forever",
+              "₹149, keep forever",
               "Free",
               "Subscription",
               "About ₹5,000 for 4 days"
