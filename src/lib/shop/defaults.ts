@@ -76,10 +76,10 @@ export const DEFAULT_CATALOG: ShopCatalog = {
     {
       id: "camera-basics",
       slug: "camera-basics-cheat-sheet",
-      title: "Camera Basics Cheat Sheet",
+      title: "Camera Basics: Visual Settings Guide",
       tagline: "See what every camera setting does, then shoot with it.",
       category: "camera",
-      price: 99,
+      price: 129,
       mrp: 199,
       status: "soon",
       description:
@@ -92,7 +92,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       featured: true,
       compare: {
         "columns": [
-          "FrameMind, ₹99",
+          "FrameMind, ₹129",
           "Free cheat sheets",
           "Etsy and Gumroad guides",
           "Beginner video courses"
@@ -155,7 +155,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
           {
             "label": "Price",
             "values": [
-              "₹99, keep forever",
+              "₹129, keep forever",
               "Free",
               "About $2 to $40",
               "Often ₹400 and up"
@@ -726,10 +726,10 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       tagline: "Camera basics, presets, carousels, palettes and prompts.",
       category: "bundles",
       price: 499,
-      mrp: 745,
+      mrp: 775,
       status: "soon",
       description: "Five of our best-sellers for new creators, together for less than buying them one by one.",
-      includes: ["Camera Basics Cheat Sheet", "Lightroom Preset Pack", "Instagram Carousel Templates", "50 Trending Colour Palettes", "100 AI Prompts for Creators"],
+      includes: ["Camera Basics: Visual Settings Guide", "Lightroom Preset Pack", "Instagram Carousel Templates", "50 Trending Colour Palettes", "100 AI Prompts for Creators"],
       formats: ["PDF", "XMP", "PSD", "ASE"],
       level: "All levels",
       accent: "#C8F135",
