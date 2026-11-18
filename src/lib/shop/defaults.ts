@@ -153,8 +153,8 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       title: "Instagram Carousel Templates",
       tagline: "46 carousel slides in 8 formats. Edit in Photoshop, Canva, PowerPoint or our offline studio.",
       category: "templates",
-      price: 149,
-      mrp: 399,
+      price: 299,
+      mrp: 599,
       status: "soon",
       description:
         "Eight carousel formats that cover what creators and small brands actually post: a step-by-step guide, myth vs fact, before and after, a top list, a text thread, a seamless panorama, a product offer with ₹ prices and a festive sale in Hindi and English.\n\nEvery slide comes in 4:5 and the new 3:4 grid size, three ways: layered PSDs for Photoshop or free Photopea, PowerPoint files that also import into Canva, and Carousel Studio, an offline editor where you set your colours, fonts and handle once and download every slide as PNG.",
@@ -165,7 +165,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       files: [],
       compare: {
         "columns": [
-          "FrameMind, ₹149",
+          "FrameMind, ₹299",
           "Canva packs on Etsy and Gumroad, $3–40",
           "Multi-app packs (Envato and others)",
           "Free Canva templates"
@@ -578,7 +578,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       tagline: "Camera basics, presets, carousels, palettes and prompts.",
       category: "bundles",
       price: 499,
-      mrp: 595,
+      mrp: 745,
       status: "soon",
       description: "Five of our best-sellers for new creators, together for less than buying them one by one.",
       includes: ["Camera Basics Cheat Sheet", "Lightroom Preset Pack", "Instagram Carousel Templates", "50 Trending Colour Palettes", "100 AI Prompts for Creators"],
