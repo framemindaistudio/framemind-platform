@@ -27,7 +27,7 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       status: "soon",
       description:
         "A plain-English guide to Claude Code for designers, students, shop owners and founders. Start with the desktop app (no commands to type) or the terminal on Windows or Mac, learn the three keys that keep you in control, and how to ask so you get what you meant.\n\nThen build five real projects, each with a starter folder, step-by-step prompts, checks after every step and a finished version to compare with: a portfolio you publish free, a café menu that takes orders on WhatsApp, a trip splitter with UPI links, a photo organiser that never deletes anything, and a sales report from a messy spreadsheet. Includes an offline Coach for your phone, a one-page cheat sheet and a beginner-safe CLAUDE.md. Checked against Anthropic's documentation in November 2026.",
-      includes: ["15-page illustrated guide: setup, control, asking, CLAUDE.md, limits, fixes", "5 projects with starter files, prompts, checks and a finished version", "Desktop app and terminal setup for Windows and Mac", "Coach: project checklists, prompt builder, error finder (offline)", "One-page cheat sheet and a phone wallpaper", "Beginner-safe CLAUDE.md template"],
+      includes: ["31-page illustrated guide: setup, control, asking, CLAUDE.md, limits, fixes", "5 projects with starter files, prompts, checks and a finished version", "Desktop app and terminal setup for Windows and Mac", "Coach: project checklists, prompt builder, error finder (offline)", "One-page cheat sheet and a phone wallpaper", "Beginner-safe CLAUDE.md template"],
       formats: ["PDF", "HTML", "Project files"],
       level: "Beginners",
       accent: "#D97757",
