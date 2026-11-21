@@ -268,8 +268,8 @@ async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: Quote
       const hasNote = !!group.note;
       return `
         <tr>
-          <td colspan="3" style="padding:11px 16px 9px;background:#0D0D0D;border-top:1px solid #1a1a1a;border-bottom:1px solid #1a1a1a;">
-            <span style="font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.16em;color:#F5F4F0;">${group.title}</span>
+          <td colspan="3" style="padding:11px 16px 9px;background:#171716;border-top:1px solid #1f1f1d;border-bottom:1px solid #1f1f1d;">
+            <span style="font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.16em;color:#eceae4;">${group.title}</span>
             ${group.subtitle ? `<span style="font-size:10px;color:#888;margin-left:10px;font-weight:400;">${group.subtitle}</span>` : ""}
           </td>
         </tr>
@@ -302,7 +302,7 @@ async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: Quote
           <span style="font-size:13px;font-weight:700;color:#16a34a;">− ${fmt(quote.discountAmount)}</span>
         </div>` : ""}
       </div>
-      <div style="background:#0D0D0D;padding:20px 20px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:#171716;padding:20px 20px;display:flex;justify-content:space-between;align-items:center;">
         <div>
           <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#bbbbbb;margin-bottom:5px;">Total Estimate</div>
           <div style="font-size:11.5px;font-weight:600;color:#999999;">${service.unit === "month" ? "Per month · billed monthly" : "One-time project fee"}</div>
@@ -327,7 +327,7 @@ async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: Quote
         <div style="display:grid;grid-template-columns:repeat(${Math.min(service.serviceNotes.length, 3)},1fr);gap:12px;">
           ${service.serviceNotes.map(note => `
             <div style="border:1.5px solid #e8e8e8;border-radius:6px;overflow:hidden;">
-              <div style="background:#0D0D0D;padding:10px 14px;">
+              <div style="background:#171716;padding:10px 14px;">
                 <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#C8F135;">${note.title}</span>
               </div>
               <div style="padding:12px 14px;background:#fff;">
@@ -366,14 +366,14 @@ async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: Quote
     .hd{display:flex;justify-content:space-between;align-items:flex-start;padding:32px 44px 28px;border-bottom:1px solid #e0e0e0;}
     .hd-left{display:flex;align-items:center;gap:16px;}
     .hd-logo{width:68px;height:68px;object-fit:contain;border-radius:8px;border:1px solid #ddd;}
-    .hd-studio-name{font-size:19px;font-weight:800;color:#0D0D0D;letter-spacing:-.3px;line-height:1.1;}
+    .hd-studio-name{font-size:19px;font-weight:800;color:#171716;letter-spacing:-.3px;line-height:1.1;}
     .hd-studio-tag{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:#777;margin-top:4px;}
     .hd-studio-msme{display:flex;align-items:center;gap:6px;margin-top:8px;padding:4px 9px;background:#f4f4f4;border:1px solid #ddd;border-radius:4px;width:fit-content;}
     .hd-msme-logo{width:20px;height:20px;object-fit:contain;}
     .hd-msme-txt{font-size:8.5px;color:#555;font-weight:600;text-transform:uppercase;letter-spacing:.08em;}
     .hd-right{text-align:right;}
     .hd-doc-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:#888;margin-bottom:5px;}
-    .hd-doc-type{font-size:24px;font-weight:900;color:#0D0D0D;letter-spacing:-1px;}
+    .hd-doc-type{font-size:24px;font-weight:900;color:#171716;letter-spacing:-1px;}
     .hd-ref{font-size:12px;font-weight:700;color:#444;margin-top:6px;font-family:monospace;background:#f4f4f4;display:inline-block;padding:3px 8px;border-radius:3px;}
     .hd-dates{margin-top:10px;}
     .hd-date-row{font-size:11px;color:#666;margin-top:3px;}
@@ -387,9 +387,9 @@ async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: Quote
     .meta-cell{flex:1;padding:22px 44px;}
     .meta-cell+.meta-cell{border-left:1px solid #e0e0e0;}
     .meta-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.18em;color:#555;margin-bottom:8px;}
-    .meta-name{font-size:21px;font-weight:900;color:#0D0D0D;letter-spacing:-.4px;}
+    .meta-name{font-size:21px;font-weight:900;color:#171716;letter-spacing:-.4px;}
     .meta-sub{font-size:11.5px;color:#555;margin-top:5px;line-height:1.6;}
-    .meta-badge{display:inline-flex;align-items:center;gap:6px;background:#0D0D0D;color:#C8F135;font-size:9.5px;font-weight:800;padding:6px 14px;letter-spacing:.12em;text-transform:uppercase;border-radius:3px;margin-top:8px;}
+    .meta-badge{display:inline-flex;align-items:center;gap:6px;background:#171716;color:#C8F135;font-size:9.5px;font-weight:800;padding:6px 14px;letter-spacing:.12em;text-transform:uppercase;border-radius:3px;margin-top:8px;}
 
     /* ── BODY ── */
     .body{padding:28px 44px 36px;}
@@ -398,13 +398,13 @@ async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: Quote
     .section-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.18em;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
     .section-label::after{content:'';flex:1;height:1px;background:#ddd;display:inline-block;}
     table{width:100%;border-collapse:collapse;border:1.5px solid #ddd;border-radius:6px;overflow:hidden;margin-bottom:0;}
-    table thead tr th{background:#1a1a1a;color:#aaaaaa;padding:9px 14px;font-size:8.5px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;text-align:left;border-bottom:1px solid #2a2a2a;}
+    table thead tr th{background:#1f1f1d;color:#aaaaaa;padding:9px 14px;font-size:8.5px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;text-align:left;border-bottom:1px solid #2a2a2a;}
     table thead tr th:nth-child(1){width:32%;padding-left:26px;}
     table thead tr th:nth-child(2){width:46%;}
     table thead tr th:last-child{text-align:right;width:22%;padding-right:16px;}
 
-    /* ── FOOTER (dark #0D0D0D bg — ALL text must be light) ── */
-    .footer{background:#0D0D0D;padding:26px 44px;display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:0;}
+    /* ── FOOTER (dark #171716 bg — ALL text must be light) ── */
+    .footer{background:#171716;padding:26px 44px;display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:0;}
     .footer-sig-name{font-size:15px;font-weight:800;color:#ffffff;margin-bottom:2px;}
     .footer-sig-role{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:#C8F135;margin-bottom:12px;}
     .footer-contacts{display:flex;flex-wrap:wrap;gap:4px 16px;}
@@ -430,7 +430,7 @@ async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: Quote
     <div class="hd-left">
       ${logoDataUrl
         ? `<img src="${logoDataUrl}" class="hd-logo" alt="FrameMind" />`
-        : `<div style="width:68px;height:68px;background:#0D0D0D;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;">
+        : `<div style="width:68px;height:68px;background:#171716;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;">
             <span style="font-size:10px;font-weight:800;color:#C8F135;line-height:1;">FM</span>
            </div>`}
       <div>
@@ -582,7 +582,7 @@ function OptionCard({ option, selected, type, onToggle }: {
       onClick={onToggle}
       className={`relative w-full text-left px-4 py-3.5 rounded-sm border transition-all duration-150 group ${
         selected
-          ? "border-[#0D0D0D] bg-[#0D0D0D]"
+          ? "border-[#171716] bg-[#171716]"
           : "border-border bg-background hover:border-foreground/30 hover:bg-secondary/40"
       }`}
     >
@@ -590,12 +590,12 @@ function OptionCard({ option, selected, type, onToggle }: {
         <span className={`shrink-0 mt-0.5 w-4 h-4 flex items-center justify-center border transition-all ${
           type === "radio" ? "rounded-full" : "rounded-sm"
         } ${selected ? "bg-[#C8F135] border-[#C8F135]" : "border-border"}`}>
-          {selected && <Check size={9} className="text-[#0D0D0D]" strokeWidth={3} />}
+          {selected && <Check size={9} className="text-[#171716]" strokeWidth={3} />}
         </span>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <p className={`text-sm font-medium leading-snug ${selected ? "text-[#F5F4F0]" : "text-foreground"}`}>
+              <p className={`text-sm font-medium leading-snug ${selected ? "text-[#eceae4]" : "text-foreground"}`}>
                 {option.label}
                 {option.unit && (
                   <span className={`text-xs font-normal ml-1 ${selected ? "text-[#888]" : "text-muted-foreground"}`}>{option.unit}</span>
@@ -693,7 +693,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
       <div className="min-h-screen">
 
         {/* ── Hero ── */}
-        <section className="bg-[#0D0D0D] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden">
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
           <div className="max-w-6xl mx-auto px-6 pt-14 md:pt-20 pb-14 md:pb-20">
             <div className="max-w-3xl">
@@ -701,7 +701,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                 <span className="w-2 h-2 rounded-full bg-[#C8F135] animate-pulse" />
                 <span className="font-mono text-[11px] text-[#555] uppercase tracking-[0.2em]">FrameMind Studio · Interactive Pricing</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-[66px] font-semibold text-[#F5F4F0] tracking-tight leading-[1.0] mb-6">
+              <h1 className="text-4xl sm:text-5xl md:text-[66px] font-semibold text-[#eceae4] tracking-tight leading-[1.0] mb-6">
                 Your project.<br />
                 <em className="not-italic text-[#C8F135]">Your exact price.</em>
               </h1>
@@ -763,7 +763,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                       className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-medium transition-all whitespace-nowrap ${
                         isBundle
                           ? active ? "bg-[#C85A00] text-white" : "border border-[#C85A00]/40 text-[#C85A00]"
-                          : active ? "bg-[#0D0D0D] text-[#F5F4F0]" : "border border-border text-muted-foreground"
+                          : active ? "bg-[#171716] text-[#eceae4]" : "border border-border text-muted-foreground"
                       }`}>
                       <Icon size={12} />{s.tabName ?? s.name}
                     </button>
@@ -784,7 +784,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                             ? "bg-[#C85A00] text-white"
                             : "bg-orange-50 text-[#C85A00] hover:bg-orange-100 border border-orange-200"
                           : active
-                            ? "bg-[#0D0D0D] text-[#F5F4F0]"
+                            ? "bg-[#171716] text-[#eceae4]"
                             : "border border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
                       }`}>
                       <Icon size={14} className={active && !isBundle ? "text-[#C8F135]" : ""} />
@@ -855,13 +855,13 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
             {/* Quote summary — sticky right panel */}
             <div className="lg:w-[300px] shrink-0">
               <div className="lg:sticky lg:top-6">
-                <div className="bg-[#0D0D0D] rounded-sm overflow-hidden shadow-2xl">
+                <div className="bg-[#171716] rounded-sm overflow-hidden shadow-2xl">
                   {/* Panel header */}
                   <div className="bg-[#C8F135] px-5 py-3 flex items-center gap-2">
-                    <FileText size={12} className="text-[#0D0D0D]" />
-                    <span className="font-mono text-[10px] text-[#0D0D0D] font-bold uppercase tracking-widest">Live Quote</span>
+                    <FileText size={12} className="text-[#171716]" />
+                    <span className="font-mono text-[10px] text-[#171716] font-bold uppercase tracking-widest">Live Quote</span>
                     {hasSelections && (
-                      <span className="ml-auto font-mono text-[9px] text-[#0D0D0D]/60 uppercase tracking-widest">{service.name}</span>
+                      <span className="ml-auto font-mono text-[9px] text-[#171716]/60 uppercase tracking-widest">{service.name}</span>
                     )}
                   </div>
 
@@ -869,7 +869,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     {/* Empty state */}
                     {!hasSelections && (
                       <div className="py-10 text-center">
-                        <div className="w-10 h-10 border border-[#1a1a1a] rounded-sm flex items-center justify-center mx-auto mb-3">
+                        <div className="w-10 h-10 border border-[#1f1f1d] rounded-sm flex items-center justify-center mx-auto mb-3">
                           {(() => { const Icon = iconOf(service.icon); return <Icon size={16} className="text-[#333]" />; })()}
                         </div>
                         <p className="text-xs text-[#444] leading-relaxed">
@@ -894,7 +894,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
 
                     {/* Totals */}
                     {hasSelections && (
-                      <div className="border-t border-[#1a1a1a] pt-4 flex flex-col gap-2 mb-5">
+                      <div className="border-t border-[#1f1f1d] pt-4 flex flex-col gap-2 mb-5">
                         {quote.discountPct > 0 && (
                           <>
                             <div className="flex justify-between text-xs">
@@ -908,7 +908,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                           </>
                         )}
                         <div className="flex justify-between items-end pt-1">
-                          <span className="text-sm text-[#F5F4F0] font-semibold">Total estimate</span>
+                          <span className="text-sm text-[#eceae4] font-semibold">Total estimate</span>
                           <div className="text-right">
                             <span className="text-2xl font-bold text-[#C8F135] tabular-nums">
                               ₹{quote.total.toLocaleString("en-IN")}
@@ -929,7 +929,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                         setAsking(true);
                       }}
                       disabled={!hasSelections}
-                      className="w-full bg-[#C8F135] text-[#0D0D0D] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="w-full bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <Download size={13} />
                       Download Quote as PDF
@@ -946,10 +946,10 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     ) : null}
 
                     {/* Talk to us */}
-                    <div className="mt-5 pt-4 border-t border-[#1a1a1a] flex flex-col gap-2">
+                    <div className="mt-5 pt-4 border-t border-[#1f1f1d] flex flex-col gap-2">
                       <p className="text-xs text-[#aaa]">Want to talk through your quote?</p>
                       <Link to="/connect"
-                        className="w-full border border-[#1e1e1e] text-[#888] hover:text-[#F5F4F0] hover:border-[#333] py-2.5 text-xs font-medium rounded-sm transition-colors flex items-center justify-center gap-1.5">
+                        className="w-full border border-[#1e1e1e] text-[#888] hover:text-[#eceae4] hover:border-[#333] py-2.5 text-xs font-medium rounded-sm transition-colors flex items-center justify-center gap-1.5">
                         Book a free 20-min call <ArrowRight size={11} />
                       </Link>
                     </div>
@@ -984,9 +984,9 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                         {faq.q}
                       </span>
                       <span className={`shrink-0 w-5 h-5 border border-border rounded-full flex items-center justify-center transition-all duration-200 ${
-                        openFaq === i ? "bg-[#0D0D0D] border-[#0D0D0D] rotate-45" : ""
+                        openFaq === i ? "bg-[#171716] border-[#171716] rotate-45" : ""
                       }`}>
-                        <span className={`text-sm leading-none font-light ${openFaq === i ? "text-[#F5F4F0]" : "text-muted-foreground"}`}>+</span>
+                        <span className={`text-sm leading-none font-light ${openFaq === i ? "text-[#eceae4]" : "text-muted-foreground"}`}>+</span>
                       </span>
                     </button>
                     {openFaq === i && (
@@ -1043,11 +1043,11 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
               setSentNo(quoteNo);
               setAsking(false);
             }}
-            className="relative w-full max-w-md rounded-sm border border-[#1e1e1e] bg-[#0D0D0D] p-6 sm:p-8"
+            className="relative w-full max-w-md rounded-sm border border-[#1e1e1e] bg-[#171716] p-6 sm:p-8"
             noValidate
           >
             <p className="font-mono text-[9px] text-[#C8F135] uppercase tracking-widest mb-2">Your quote</p>
-            <h2 id="quote-form-title" className="text-xl font-semibold text-[#F5F4F0] mb-1">Where should we send it?</h2>
+            <h2 id="quote-form-title" className="text-xl font-semibold text-[#eceae4] mb-1">Where should we send it?</h2>
             <p className="text-xs text-[#888] mb-5 leading-relaxed">Your PDF opens right after. We keep a copy so we can talk it through with you.</p>
             <div className="flex flex-col gap-3">
               {(
@@ -1067,17 +1067,17 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     placeholder={ph}
                     autoComplete={auto}
                     required={required}
-                    className="w-full bg-[#0a0a0a] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#F5F4F0] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50 transition-colors"
+                    className="w-full bg-[#141413] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#eceae4] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50 transition-colors"
                   />
                 </label>
               ))}
             </div>
             {askError && <p className="mt-3 text-xs text-[#ff7a7a]">{askError}</p>}
             <div className="mt-5 flex gap-2">
-              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-[#1e1e1e] text-[#888] hover:text-[#F5F4F0] py-3 text-sm rounded-sm transition-colors">
+              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-[#1e1e1e] text-[#888] hover:text-[#eceae4] py-3 text-sm rounded-sm transition-colors">
                 Cancel
               </button>
-              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#0D0D0D] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
+              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
                 <Download size={13} /> {busy ? "Saving your quote…" : "Get my quote"}
               </button>
             </div>

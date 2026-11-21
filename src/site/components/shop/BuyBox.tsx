@@ -88,7 +88,7 @@ export function BuyBox({ product, paymentsOn, whatsapp }: { product: PublicProdu
         description: start.title,
         prefill: { name: form.name, email: form.email, contact: form.phone },
         notes: { product: product.id },
-        theme: { color: "#0D0D0D" },
+        theme: { color: "#171716" },
         handler: async (r: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
           setBusy(true);
           try {
@@ -117,7 +117,7 @@ export function BuyBox({ product, paymentsOn, whatsapp }: { product: PublicProdu
       <div className="border border-border bg-card p-5">
         <PriceTag product={product} large />
         <p className="mt-3 text-sm text-muted-foreground">Online checkout opens shortly. Until then, buy it on WhatsApp and we&apos;ll send a UPI link.</p>
-        <a href={askLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-sm bg-[#C8F135] px-5 py-3 text-sm font-semibold text-[#0D0D0D] hover:bg-[#b8e020]">
+        <a href={askLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-sm bg-[#C8F135] px-5 py-3 text-sm font-semibold text-[#171716] hover:bg-[#b8e020]">
           Buy on WhatsApp
         </a>
       </div>
@@ -140,7 +140,7 @@ export function BuyBox({ product, paymentsOn, whatsapp }: { product: PublicProdu
         )}
       </div>
       {error && <p className="mt-3 text-sm text-red-700" role="alert">{error}</p>}
-      <button type="submit" disabled={busy} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-[#C8F135] px-5 py-3.5 text-base font-semibold text-[#0D0D0D] transition-colors hover:bg-[#b8e020] disabled:opacity-60">
+      <button type="submit" disabled={busy} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-[#C8F135] px-5 py-3.5 text-base font-semibold text-[#171716] transition-colors hover:bg-[#b8e020] disabled:opacity-60">
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
         {busy ? "Opening payment…" : `Pay ${inr(product.price)} & download`}
       </button>

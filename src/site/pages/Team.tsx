@@ -4,6 +4,7 @@ import { Link } from "@/site/router";
 import { ArrowRight } from "lucide-react";
 import SEO from "@/site/components/SEO";
 import { ImageWithFallback } from "@/site/components/ImageWithFallback";
+import TeamRail from "@/site/components/TeamRail";
 const chinmayPhoto = "/site/chinmay-portrait.jpg";
 const shivaprasadPhoto = "/site/shivaprasad.jpg";
 
@@ -70,13 +71,15 @@ export default function Team() {
         </p>
       </section>
 
+      <TeamRail />
+
       {/* Team grid */}
       <section className="border-t border-border">
         <div className="max-w-6xl mx-auto px-6 py-14 md:py-20 space-y-6">
 
           {/* ── Founder featured card ── */}
           {team[0] && (
-            <div className="group relative bg-[#0D0D0D] border border-[#1e1e1e] rounded-sm overflow-hidden hover:border-[#C8F135]/25 transition-colors duration-500 flex flex-col md:flex-row">
+            <div className="group relative bg-[#171716] border border-[#1e1e1e] rounded-sm overflow-hidden hover:border-[#C8F135]/25 transition-colors duration-500 flex flex-col md:flex-row">
               {/* Photo */}
               <div className="relative md:w-[38%] aspect-[4/5] md:aspect-auto overflow-hidden shrink-0">
                 <ImageWithFallback
@@ -85,12 +88,12 @@ export default function Team() {
                   className={`w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ${team[0].photoClass ?? "object-center"}`}
                 />
                 {/* Right-side fade into dark content area */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0D0D0D] hidden md:block" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#171716] hidden md:block" />
                 {/* Bottom fade on mobile */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D]/80 via-transparent to-transparent md:hidden" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#171716]/80 via-transparent to-transparent md:hidden" />
                 {/* Founder badge */}
                 <div className="absolute top-5 left-5">
-                  <span className="font-mono text-[10px] bg-[#C8F135] text-[#0D0D0D] px-3 py-1.5 rounded-sm uppercase tracking-[0.15em] font-black">
+                  <span className="font-mono text-[10px] bg-[#C8F135] text-[#171716] px-3 py-1.5 rounded-sm uppercase tracking-[0.15em] font-black">
                     Founder
                   </span>
                 </div>
@@ -101,7 +104,7 @@ export default function Team() {
                 <span className="font-mono text-[10px] text-[#C8F135] uppercase tracking-[0.2em] mb-3 block">
                   {team[0].tag}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold text-[#F5F4F0] tracking-tight leading-none mb-3">
+                <h2 className="text-4xl md:text-5xl font-bold text-[#eceae4] tracking-tight leading-none mb-3">
                   {team[0].name}
                 </h2>
                 <p className="text-sm text-[#C8F135] font-semibold uppercase tracking-widest mb-6">
@@ -126,7 +129,7 @@ export default function Team() {
                 className="group border border-border rounded-sm overflow-hidden bg-background hover:border-foreground/20 transition-colors duration-300 flex flex-col h-full"
               >
                 {/* Photo */}
-                <div className="relative aspect-[3/4] bg-[#0D0D0D] overflow-hidden shrink-0">
+                <div className="relative aspect-[3/4] bg-[#171716] overflow-hidden shrink-0">
                   {member.photo ? (
                     <ImageWithFallback
                       src={member.photo}
@@ -141,7 +144,7 @@ export default function Team() {
                     </div>
                   )}
                   <div className="absolute top-3 left-3">
-                    <span className="font-mono text-[9px] bg-[#C8F135] text-[#0D0D0D] px-2 py-0.5 rounded-sm uppercase tracking-widest font-bold">
+                    <span className="font-mono text-[9px] bg-[#C8F135] text-[#171716] px-2 py-0.5 rounded-sm uppercase tracking-widest font-bold">
                       {member.badge}
                     </span>
                   </div>
@@ -180,19 +183,19 @@ export default function Team() {
       </section>
 
       {/* Studio values strip */}
-      <section className="border-t border-border bg-[#0D0D0D]">
+      <section className="border-t border-border bg-[#171716]">
         <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
           <div className="mb-10">
             <span className="font-mono text-xs text-[#555] uppercase tracking-widest mb-3 block">How we operate</span>
-            <h2 className="text-2xl md:text-3xl font-semibold text-[#F5F4F0] tracking-tight">
+            <h2 className="text-2xl md:text-3xl font-semibold text-[#eceae4] tracking-tight">
               The way we work, defines the work we do.
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#1a1a1a] border border-[#1a1a1a]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#1f1f1d] border border-[#1f1f1d]">
             {values.map((v) => (
-              <div key={v.n} className="bg-[#0a0a0a] p-6 sm:p-8">
+              <div key={v.n} className="bg-[#141413] p-6 sm:p-8">
                 <span className="font-mono text-3xl font-bold text-[#C8F135] block mb-4 leading-none">{v.n}</span>
-                <h3 className="font-semibold text-[#F5F4F0] text-sm mb-2">{v.title}</h3>
+                <h3 className="font-semibold text-[#eceae4] text-sm mb-2">{v.title}</h3>
                 <p className="text-xs text-[#666] leading-relaxed">{v.body}</p>
               </div>
             ))}
@@ -209,7 +212,7 @@ export default function Team() {
           </div>
           <Link
             to="/connect"
-            className="bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center gap-2"
+            className="bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center gap-2"
           >
             Start a conversation <ArrowRight size={13} />
           </Link>

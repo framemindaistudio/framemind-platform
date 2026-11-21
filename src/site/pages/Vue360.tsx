@@ -93,7 +93,7 @@ export default function Vue360() {
 
       <div className="min-h-screen">
         {/* ── Hero ── */}
-        <section className="bg-[#0D0D0D] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,241,53,0.06),transparent_60%)]" />
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
 
@@ -104,23 +104,23 @@ export default function Vue360() {
             </div>
 
             <div className="max-w-4xl">
-              <h1 className="text-6xl sm:text-7xl md:text-[96px] font-black text-[#F5F4F0] tracking-tight leading-none mb-3">360VUE</h1>
+              <h1 className="text-6xl sm:text-7xl md:text-[96px] font-black text-[#eceae4] tracking-tight leading-none mb-3">360VUE</h1>
               <p className="font-mono text-sm text-[#C8F135] uppercase tracking-widest mb-6">See Every Angle. · Pronounced Three-Sixty View</p>
               <p className="text-lg md:text-xl text-[#888] leading-relaxed max-w-2xl mb-10">
                 360VUE helps businesses present their physical spaces as interactive digital experiences — so customers can explore inside before they visit in person.
               </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1a1a1a] border border-[#1a1a1a] rounded-sm overflow-hidden mb-10">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1f1f1d] border border-[#1f1f1d] rounded-sm overflow-hidden mb-10">
                 {pillars.map((p) => (
-                  <div key={p} className="bg-[#0D0D0D] px-5 py-5 flex items-center gap-2">
+                  <div key={p} className="bg-[#171716] px-5 py-5 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C8F135] shrink-0" />
-                    <span className="text-sm font-bold text-[#F5F4F0] leading-snug">{p}</span>
+                    <span className="text-sm font-bold text-[#eceae4] leading-snug">{p}</span>
                   </div>
                 ))}
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <a href={SITE} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors">
+                <a href={SITE} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors">
                   Visit 360vue.website <ArrowUpRight size={14} />
                 </a>
                 <a href={`${SITE}/pricing`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#888] px-6 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#bbb] transition-colors">
@@ -146,10 +146,10 @@ export default function Vue360() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {services.map((s) => (
-                <div key={s.num} className={`rounded-sm border overflow-hidden flex flex-col ${s.highlight ? "border-[#C8F135] bg-[#0D0D0D] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}>
+                <div key={s.num} className={`rounded-sm border overflow-hidden flex flex-col ${s.highlight ? "border-[#C8F135] bg-[#171716] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}>
                   <div className={`px-5 pt-5 pb-4 border-b ${s.highlight ? "border-[#1e1e1e]" : "border-border"}`}>
                     <span className={`font-mono text-[9px] uppercase tracking-widest ${s.highlight ? "text-[#C8F135]" : "text-muted-foreground"}`}>{s.num}</span>
-                    <h3 className={`mt-3 text-lg font-black tracking-tight ${s.highlight ? "text-[#F5F4F0]" : "text-foreground"}`}>{s.title}</h3>
+                    <h3 className={`mt-3 text-lg font-black tracking-tight ${s.highlight ? "text-[#eceae4]" : "text-foreground"}`}>{s.title}</h3>
                   </div>
                   <div className="px-5 py-4 flex-1">
                     <p className={`text-xs leading-relaxed ${s.highlight ? "text-[#777]" : "text-muted-foreground"}`}>{s.desc}</p>
@@ -189,12 +189,12 @@ export default function Vue360() {
         </section>
 
         {/* ── FrameMind × 360VUE ── */}
-        <section className="border-b border-border bg-[#0D0D0D]">
+        <section className="border-b border-border bg-[#171716]">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
             <SectionLabel>03 · FrameMind × 360VUE</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#F5F4F0] tracking-tight mb-5">A FrameMind AI Studio company.</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#eceae4] tracking-tight mb-5">A FrameMind AI Studio company.</h2>
                 <p className="text-sm text-[#666] leading-relaxed mb-6">
                   FrameMind AI Studio is 360VUE&apos;s parent company. 360VUE focuses on 360° virtual tours and immersive experiences; photography, videography, social media, websites, software and automations are delivered in-house by FrameMind AI Studio.
                 </p>
@@ -229,7 +229,7 @@ export default function Vue360() {
               {founders.map((f) => (
                 <div key={f.name} className="border border-border rounded-sm p-6 bg-background">
                   <div className="flex items-center gap-4 mb-4">
-                    <span className="w-12 h-12 rounded-full bg-[#0D0D0D] text-[#C8F135] font-black text-sm flex items-center justify-center shrink-0">{f.initials}</span>
+                    <span className="w-12 h-12 rounded-full bg-[#171716] text-[#C8F135] font-black text-sm flex items-center justify-center shrink-0">{f.initials}</span>
                     <div>
                       <h3 className="text-base font-bold tracking-tight">{f.name}</h3>
                       <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{f.role}</p>
@@ -244,18 +244,18 @@ export default function Vue360() {
         </section>
 
         {/* ── CTA ── */}
-        <section className="bg-[#0D0D0D]">
+        <section className="bg-[#171716]">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-24">
             <div className="max-w-2xl">
               <span className="font-mono text-[10px] text-[#555] uppercase tracking-[0.2em] mb-4 block">Let customers look inside</span>
-              <h2 className="text-4xl md:text-5xl font-black text-[#F5F4F0] tracking-tight leading-none mb-5">
+              <h2 className="text-4xl md:text-5xl font-black text-[#eceae4] tracking-tight leading-none mb-5">
                 Your space,
                 <br />
                 from every angle.
               </h2>
               <p className="text-sm text-[#666] leading-relaxed mb-8 max-w-lg">Enter your area, floors and rooms on 360VUE&apos;s website and see your exact price in two minutes. Then pick a capture date.</p>
               <div className="flex flex-wrap gap-3">
-                <a href={`${SITE}/pricing`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors">
+                <a href={`${SITE}/pricing`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors">
                   See your price on 360vue.website <ArrowUpRight size={14} />
                 </a>
                 <Link to="/connect" className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#888] px-6 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#bbb] transition-colors">

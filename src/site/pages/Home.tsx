@@ -1,243 +1,358 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
-import { ArrowRight, ArrowUpRight, Bot, Code2, Globe, LayoutGrid, Palette, ShieldCheck, ShoppingBag, Zap, Brain, Check } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { ArrowUpRight, Bot, Brain, Check, Code2, Globe, LayoutGrid, Palette, Zap } from "lucide-react";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
 import { INDUSTRIES, tierPrice, type IndustryRates } from "@/lib/content/industries";
 import { brandOf } from "@/lib/content/industry-brands";
 import { ProductCard } from "@/site/components/shop/ShopBits";
 import type { PublicProduct } from "@/lib/shop/types";
+import { ArrowLink, Kicker, MaskLines, PillLink, Rise, ScrollWords } from "@/site/components/ui/motion-bits";
+import TeamRail from "@/site/components/TeamRail";
 
 /*
- * The home page. One idea per screen:
- *   1. a direct, text-only hero that says at a glance what FrameMind builds (most visitors are on phones)
- *   2. the services as cards that stack as you scroll
- *   3. the ten industry apps on a 3D ring that turns with the scroll
- *   4. the digital store
- *   5. how a project runs, then one call to action
- * 360VUE, Vritta and JOVE live in the footer.
+ * The home page (Nov 2026 redesign). Matte graphite and warm stone with a paper grain, one lime accent, smooth scroll.
+ * References: 13g.fr (pill nav, huge quiet type, statements that light up word by word, colour panels),
+ * royalbev.com (a giant wordmark with an object dropped into it, sections that rise over each other) and the
+ * founder's saved 21st.dev components (Unlimited Design hero pills, Orbiting Circles spotlight, How It Works,
+ * Collapsing Cards accordion, Team Lanyard Rail, Light Beam footer).
+ *
+ *   1. hero: what we build, in one line, with the four things as pills
+ *   2. the giant FrameMind wordmark with the logo dropping into it, then the one-team statement
+ *   3. a marquee of services
+ *   4. services as an orbit: the one in the spotlight explains itself
+ *   5. the ten industry apps on a 3D ring
+ *   6. the store, with its three real advantages marked
+ *   7. how a project runs
+ *   8. our ventures as collapsing cards
+ *   9. the team on a lanyard rail
+ *  10. a lime panel to start a project
  */
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
-
-const WHAT = [
-  { icon: Globe, label: "Websites & brand", to: "/pricing" },
-  { icon: LayoutGrid, label: "Industry apps", to: "/industries" },
-  { icon: Code2, label: "Custom software", to: "/pricing" },
-  { icon: Bot, label: "AI & automation", to: "/pricing" },
-];
-
-const services = [
-  {
-    n: "01",
-    icon: Globe,
-    title: "Websites",
-    outcome: "Your business looks credible before you say a word.",
-    tagline: "Design · Development · Launch",
-    bullets: ["Built from scratch — no templates, no drag-and-drop", "Optimised for speed, SEO and conversions", "Fully handed over with training and support"],
-    price: "From ₹25,000",
-    link: "/pricing",
-  },
-  {
-    n: "02",
-    icon: Palette,
-    title: "Brand Systems",
-    outcome: "Your brand works without you having to explain it.",
-    tagline: "Identity · Guidelines · Assets",
-    bullets: ["Logo, colour, typography — the full system", "Brand guidelines your team actually uses", "Consistent across every touchpoint"],
-    price: "From ₹15,000",
-    link: "/pricing",
-  },
-  {
-    n: "03",
-    icon: Code2,
-    title: "Custom Software",
-    outcome: "A tool built exactly for how your business works.",
-    tagline: "Dashboards · Platforms · Tools",
-    bullets: ["Scoped to your exact requirements — no over-engineering", "Clean code, real documentation, handed over fully", "From internal tools to customer-facing platforms"],
-    price: "Custom quote",
-    link: "/pricing",
-  },
-  {
-    n: "04",
-    icon: Zap,
-    title: "Automations",
-    outcome: "10+ hours a week back — without hiring anyone.",
-    tagline: "Workflow · AI · Integration",
-    bullets: ["We map your manual process and automate the repetitive parts", "WhatsApp flows, CRM sync, invoicing, follow-ups", "Built on n8n, Make, Zapier — whatever fits best"],
-    price: "From ₹12,000",
-    link: "/pricing",
-  },
-  {
-    n: "05",
-    icon: Brain,
-    title: "1:1 AI Coaching",
-    outcome: "AI fluency built around your life — in 90 days.",
-    tagline: "Ages 10–60 · Online & Offline",
-    bullets: ["Personalised curriculum — built for your profession", "Not a course. A 1:1 coach, every session", "90 days to real fluency from zero"],
-    price: "Custom",
-    link: "/personal-coaching",
-  },
-];
-
-const steps = [
-  { n: "01", title: "Tell us what you're building", desc: "A 20-minute call. A direct conversation about what you need and whether we're the right fit." },
-  { n: "02", title: "We scope it honestly", desc: "A clear scope, timeline and price. No vague retainers, no hidden costs." },
-  { n: "03", title: "We build — you stay in the loop", desc: "Regular updates and a client portal, so you see real progress." },
-  { n: "04", title: "Shipped. Then supported.", desc: "Handover, training and support after launch, so the work actually gets used." },
-];
-
-function Eyebrow({ children, dark }: { children: React.ReactNode; dark?: boolean }) {
-  return (
-    <p className={`mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] ${dark ? "text-[#8E95AD]" : "text-muted-foreground"}`}>
-      <span className="h-px w-8 bg-[#C8F135]" />
-      {children}
-    </p>
-  );
-}
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 /* ─────────────────────────── 1. hero ─────────────────────────── */
 
+const WHAT = [
+  { icon: Globe, label: "Websites", to: "/pricing" },
+  { icon: LayoutGrid, label: "Industry apps", to: "/industries" },
+  { icon: Code2, label: "Software", to: "/pricing" },
+  { icon: Bot, label: "AI automation", to: "/pricing" },
+];
+
 function Hero() {
+  const reduce = useReducedMotion();
   return (
-    <section className="relative overflow-hidden bg-[#070A14]" aria-label="FrameMind AI Studio">
-      {/* a quiet dark field: a soft light from the top and a faint lime haze */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_0%,rgba(120,128,150,0.18),transparent_70%),radial-gradient(40%_35%_at_85%_80%,rgba(200,241,53,0.07),transparent_70%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]" />
+    <section className="fm-dark relative flex min-h-[100dvh] flex-col overflow-hidden" aria-label="FrameMind AI Studio">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_55%_at_80%_10%,rgba(217,163,91,0.10),transparent_70%),radial-gradient(50%_45%_at_0%_100%,rgba(200,241,53,0.06),transparent_70%)]" />
 
-      <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-14 sm:px-8 sm:pt-20 md:pb-24 md:pt-28">
-        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#C9CDDB]">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#C8F135]" />
-          Design · Software · AI — one studio
-        </span>
-        <h1 className="max-w-4xl text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.035em] text-[#F5F4F0] sm:text-6xl lg:text-[5rem]">
-          Websites, apps &amp; AI —<span className="block text-[#C8F135]">built for your business.</span>
-        </h1>
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#AEB4C8] sm:text-lg">
-          FrameMind AI Studio designs and builds websites, custom software, ready-made industry apps and AI automations — and looks after them
-          after launch. One team, from idea to live.
-        </p>
+      <div className="relative mx-auto flex w-full max-w-[1320px] flex-1 flex-col justify-end px-5 pb-10 pt-32 sm:px-8 md:pb-14">
+        <motion.div initial={reduce ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: EASE, delay: 0.1 }}>
+          <Kicker>Design · Software · AI studio, India</Kicker>
+        </motion.div>
 
-        <div className="mt-8 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-          {WHAT.map(({ icon: Icon, label, to }) => (
-            <Link
-              key={label}
-              to={to}
-              className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-2.5 text-[13px] font-medium text-[#E6E8F2] transition hover:border-[#C8F135]/60 hover:bg-[#C8F135]/10 sm:text-sm"
-            >
-              <Icon size={15} className="shrink-0 text-[#C8F135]" />
-              {label}
-            </Link>
-          ))}
+        <MaskLines
+          as="h1"
+          className="mt-6 text-[clamp(2.7rem,8.6vw,8.6rem)] font-normal leading-[0.94] tracking-[-0.055em]"
+          lines={[
+            <>We build the</>,
+            <>
+              <span className="text-[#9a9890]">websites, apps</span> &amp; AI
+            </>,
+            <>
+              your business <span className="fm-mark text-[#171716]">runs on.</span>
+            </>,
+          ]}
+          delay={0.15}
+        />
+
+        <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-[1fr_auto] md:items-end">
+          <Rise delay={0.55} y={16}>
+            <p className="max-w-md text-[17px] leading-relaxed text-[#bcbab2]">
+              One studio designs it, builds it, launches it and looks after it. Ready-made apps for ten industries, or something built only for you.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {WHAT.map(({ icon: Icon, label, to }) => (
+                <Link key={label} to={to} className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] py-1.5 pl-1.5 pr-4 text-[13px] text-[#e3e1da] transition-colors hover:border-[var(--fm-lime)]/50">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2a2a27] text-[var(--fm-lime)] transition-transform duration-500 group-hover:rotate-12">
+                    <Icon size={14} />
+                  </span>
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </Rise>
+          <Rise delay={0.7} y={16} className="flex flex-col items-start gap-4 md:items-end">
+            <PillLink to="/connect">Start a project</PillLink>
+            <ArrowLink to="/industries" className="text-[#d6d4cd]">
+              Try an industry app demo
+            </ArrowLink>
+          </Rise>
         </div>
-
-        <div className="mt-8 flex flex-col gap-2.5 sm:flex-row">
-          <Link to="/connect" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#C8F135] px-7 py-4 text-sm font-semibold text-[#0D0D0D] shadow-[0_0_40px_-8px_rgba(200,241,53,0.6)] transition hover:bg-[#d6ff4a]">
-            Start a project <ArrowRight size={15} />
-          </Link>
-          <Link to="/industries" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-7 py-4 text-sm font-semibold text-[#F5F4F0] transition hover:border-white/50">
-            See industry apps
-          </Link>
-        </div>
-
-        <p className="mt-8 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[#7E86A0]">
-          <ShieldCheck size={13} className="text-[#C8F135]" /> MSME registered · Govt. of India · In-house team
-        </p>
       </div>
     </section>
   );
 }
 
-/* ─────────────────────────── 2. services: stacking cards ─────────────────────────── */
+/* ─────────────────────────── 2. wordmark + statement ─────────────────────────── */
 
-function StackCard({ svc, i, total, progress }: { svc: (typeof services)[number]; i: number; total: number; progress: MotionValue<number> }) {
+function Wordmark() {
+  const box = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
-  const scale = useTransform(progress, [i / total, 1], [1, reduce ? 1 : 1 - (total - i) * 0.035]);
-  const Icon = svc.icon;
-  const dark = i % 2 === 0;
+  const { scrollYProgress } = useScroll({ target: box, offset: ["start end", "end start"] });
+  const drop = useTransform(scrollYProgress, [0, 0.55], reduce ? ["0%", "0%"] : ["-70%", "0%"]);
+  const spin = useTransform(scrollYProgress, [0, 0.55, 1], reduce ? [0, 0, 0] : [-28, 0, 10]);
+  const scale = useTransform(scrollYProgress, [0, 0.55], reduce ? [1, 1] : [0.7, 1]);
+  const slideL = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["4%", "-6%"]);
+
   return (
-    <div className="sticky" style={{ top: `calc(88px + ${i * 18}px)` }}>
-      <motion.div style={{ scale, transformOrigin: "top center" }}>
-        <Link
-          to={svc.link}
-          className={`group grid gap-6 rounded-[28px] border p-6 shadow-[0_30px_60px_-30px_rgba(7,10,20,0.45)] sm:p-9 md:grid-cols-[1.1fr_1fr] md:gap-10 ${
-            dark ? "border-[#1A2040] bg-[#0B0F1E] text-[#F5F4F0]" : "border-border bg-white text-foreground"
-          }`}
-        >
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between">
-              <span className={`font-mono text-[11px] tracking-[0.2em] ${dark ? "text-[#E7B866]" : "text-muted-foreground"}`}>{svc.n} / 05</span>
-              <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${dark ? "bg-white/[0.06] text-[#C8F135]" : "bg-[#0D0D0D] text-[#C8F135]"}`}>
-                <Icon size={20} />
-              </span>
-            </div>
-            <h3 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">{svc.title}</h3>
-            <p className={`mt-1 font-mono text-[10px] uppercase tracking-[0.2em] ${dark ? "text-[#7E86A0]" : "text-muted-foreground"}`}>{svc.tagline}</p>
-            <p className={`mt-5 text-lg leading-snug ${dark ? "text-[#C9CDDB]" : "text-foreground/80"}`}>{svc.outcome}</p>
+    <section ref={box} className="fm-dark relative overflow-hidden pb-20 md:pb-32">
+      <div className="relative flex items-center justify-center pt-6 md:pt-10">
+        <motion.p aria-hidden="true" style={{ x: slideL }} className="select-none whitespace-nowrap text-[23vw] font-medium leading-[0.85] tracking-[-0.07em] text-[#eceae4]">
+          FrameMind
+        </motion.p>
+        <motion.img
+          src="/brand/kit/preview/framemind-icon-4k.webp"
+          alt="The FrameMind mark: a camera shutter opening into a mind"
+          width={900}
+          height={900}
+          style={{ y: drop, rotate: spin, scale }}
+          className="absolute left-1/2 top-1/2 w-[30vw] max-w-[420px] -translate-x-1/2 -translate-y-[46%] drop-shadow-[0_40px_60px_rgba(0,0,0,0.55)]"
+        />
+      </div>
+
+      <div className="mx-auto mt-16 grid max-w-[1320px] gap-10 px-5 sm:px-8 md:mt-24 md:grid-cols-[0.8fr_2fr]">
+        <Kicker className="text-[#d6d4cd]">Why one studio</Kicker>
+        <div>
+          <ScrollWords
+            className="text-[clamp(1.7rem,3.6vw,3.3rem)] leading-[1.12] tracking-[-0.03em]"
+            text="Most businesses juggle a designer, a developer, an app company and someone for social media. We are all of them in one team, so nothing falls between people and you get one honest price."
+          />
+          <div className="mt-10 flex flex-wrap gap-x-10 gap-y-4 font-mono text-[11px] uppercase tracking-[0.18em] text-[#9a9890]">
+            <span>
+              <b className="mr-2 text-2xl font-normal tracking-normal text-[#eceae4]">10</b>ready-made industry apps
+            </span>
+            <span>
+              <b className="mr-2 text-2xl font-normal tracking-normal text-[#eceae4]">₹</b>prices on the website
+            </span>
+            <span>
+              <b className="mr-2 text-2xl font-normal tracking-normal text-[#eceae4]">1</b>team from brief to support
+            </span>
           </div>
-          <div className="flex flex-col">
-            <ul className="space-y-2.5">
-              {svc.bullets.map((b) => (
-                <li key={b} className={`flex gap-2.5 text-sm leading-relaxed ${dark ? "text-[#AEB4C8]" : "text-muted-foreground"}`}>
-                  <Check size={15} className="mt-0.5 shrink-0 text-[#7aa800]" />
-                  {b}
-                </li>
-              ))}
-            </ul>
-            <div className={`mt-auto flex items-center justify-between border-t pt-5 ${dark ? "border-white/10" : "border-border"}`}>
-              <span className="text-base font-semibold">{svc.price}</span>
-              <span className={`inline-flex items-center gap-1.5 text-sm font-semibold transition-transform group-hover:translate-x-1 ${dark ? "text-[#C8F135]" : ""}`}>
-                Explore <ArrowRight size={15} />
-              </span>
-            </div>
-          </div>
-        </Link>
-      </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────── 3. marquee ─────────────────────────── */
+
+const MARQUEE = ["Websites", "Brand systems", "Industry apps", "Custom software", "AI automations", "1:1 AI coaching", "Digital store"];
+
+function Marquee() {
+  const row = [...MARQUEE, ...MARQUEE];
+  return (
+    <div className="relative z-10 -my-6 overflow-hidden py-6" aria-hidden="true">
+      <div className="-rotate-2 scale-105 bg-[var(--fm-lime)] py-4 text-[#171716] shadow-[0_20px_40px_-20px_rgba(0,0,0,0.5)]">
+        <div className="flex w-max animate-[fm-marquee_38s_linear_infinite] motion-reduce:animate-none">
+          {row.map((w, i) => (
+            <span key={i} className="flex items-center gap-8 px-4 text-[clamp(1.5rem,3.2vw,2.6rem)] font-medium tracking-[-0.03em]">
+              {w}
+              <span className="h-3 w-3 rounded-full bg-[#171716]" />
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
+/* ─────────────────────────── 4. services: orbiting spotlight ─────────────────────────── */
+
+const SERVICES = [
+  {
+    icon: Globe,
+    title: "Websites",
+    outcome: "Your business looks credible before you say a word.",
+    bullets: ["Designed from scratch, no templates", "Fast, found on Google, built to get enquiries", "Handed over with training and support"],
+    price: "From ₹25,000",
+    to: "/pricing",
+  },
+  {
+    icon: Palette,
+    title: "Brand systems",
+    outcome: "Your brand works without you having to explain it.",
+    bullets: ["Logo, colour and type as one system", "Guidelines your team actually uses", "The same look on every touchpoint"],
+    price: "From ₹15,000",
+    to: "/pricing",
+  },
+  {
+    icon: LayoutGrid,
+    title: "Industry apps",
+    outcome: "Your industry's app, already built, with your name on it.",
+    bullets: ["Ten ready-made apps with live demos", "Live in 3 to 4 weeks", "One-time setup, then a simple monthly plan"],
+    price: "Monthly plans",
+    to: "/industries",
+  },
+  {
+    icon: Code2,
+    title: "Custom software",
+    outcome: "A tool built exactly for how your business works.",
+    bullets: ["Scoped to what you need, nothing extra", "Clean code and real documentation", "Internal tools to customer platforms"],
+    price: "Custom quote",
+    to: "/pricing",
+  },
+  {
+    icon: Zap,
+    title: "Automations",
+    outcome: "Hours back every week, without hiring anyone.",
+    bullets: ["We map the manual work and automate it", "WhatsApp flows, CRM sync, invoices, follow-ups", "Built on the tools that fit you"],
+    price: "From ₹12,000",
+    to: "/pricing",
+  },
+  {
+    icon: Brain,
+    title: "1:1 AI coaching",
+    outcome: "AI fluency built around your work, one coach, every session.",
+    bullets: ["A plan built for your profession", "Online or in person, ages 10 to 60", "Not a course: a coach"],
+    price: "Ask us",
+    to: "/personal-coaching",
+  },
+];
+
 function Services() {
-  const box = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: box, offset: ["start start", "end end"] });
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const reduce = useReducedMotion();
+  const n = SERVICES.length;
+
+  useEffect(() => {
+    if (paused || reduce) return;
+    const id = setInterval(() => setActive((a) => (a + 1) % n), 4200);
+    return () => clearInterval(id);
+  }, [paused, reduce, n]);
+
+  const svc = SERVICES[active]!;
+  const Icon = svc.icon;
+
   return (
-    <section className="bg-[#F5F4F0]">
-      <div className="mx-auto max-w-5xl px-5 pb-10 pt-20 sm:px-8 md:pt-28">
-        <Eyebrow>What we do</Eyebrow>
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-6xl">Everything your business needs. Under one roof.</h2>
-          <Link to="/pricing" className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold">
-            All services &amp; prices <ArrowUpRight size={15} />
-          </Link>
+    <section className="relative overflow-hidden pb-24 pt-28 md:pb-32 md:pt-40">
+      <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <Kicker>What we do</Kicker>
+            <MaskLines className="mt-5 text-[clamp(2.4rem,5.6vw,5.2rem)] font-normal leading-[0.98] tracking-[-0.045em]" lines={["Everything your business", <>needs, <span className="text-[#64635d]">under one roof.</span></>]} />
+          </div>
+          <ArrowLink to="/pricing">All services and prices</ArrowLink>
         </div>
-        <div ref={box} className="mt-12 flex flex-col gap-6 pb-[10vh]">
-          {services.map((svc, i) => (
-            <StackCard key={svc.n} svc={svc} i={i} total={services.length} progress={scrollYProgress} />
-          ))}
+
+        <div className="mt-14 grid items-center gap-10 lg:mt-20 lg:grid-cols-[1.1fr_1fr]" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+          {/* the orbit */}
+          <div className="relative mx-auto aspect-square w-full max-w-[540px]">
+            <div className="absolute inset-[6%] rounded-full border border-[#1b1b19]/12" />
+            <div className="absolute inset-[24%] rounded-full border border-dashed border-[#1b1b19]/15" />
+            <motion.div className="absolute inset-0" animate={reduce ? undefined : { rotate: 360 }} transition={{ duration: 90, ease: "linear", repeat: Infinity }} style={{ rotate: 0 }}>
+              {SERVICES.map((s, i) => {
+                const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+                const SIcon = s.icon;
+                const on = i === active;
+                return (
+                  <div key={s.title} className="absolute" style={{ left: `${50 + 44 * Math.cos(a)}%`, top: `${50 + 44 * Math.sin(a)}%`, transform: "translate(-50%,-50%)" }}>
+                    <motion.button
+                      type="button"
+                      onClick={() => setActive(i)}
+                      aria-pressed={on}
+                      aria-label={s.title}
+                      animate={reduce ? undefined : { rotate: -360 }}
+                      transition={{ duration: 90, ease: "linear", repeat: Infinity }}
+                      className={`flex h-14 w-14 items-center justify-center rounded-full border transition-[background-color,box-shadow,color,border-color] duration-500 sm:h-16 sm:w-16 ${
+                        on ? "border-transparent bg-[#171716] text-[var(--fm-lime)] shadow-[0_0_0_6px_rgba(200,241,53,0.35),0_18px_30px_-10px_rgba(0,0,0,0.45)]" : "border-[#1b1b19]/15 bg-[#f3f2ee] text-[#1b1b19] hover:border-[#1b1b19]/40"
+                      }`}
+                    >
+                      <SIcon size={22} />
+                    </motion.button>
+                  </div>
+                );
+              })}
+            </motion.div>
+            {/* centre panel */}
+            <div className="absolute inset-[27%] flex flex-col items-center justify-center rounded-full bg-[#171716] text-center text-[#eceae4] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06),0_30px_60px_-25px_rgba(0,0,0,0.6)]">
+              <AnimatePresence mode="wait">
+                <motion.div key={active} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4, ease: EASE }} className="px-4">
+                  <Icon size={22} className="mx-auto text-[var(--fm-lime)]" />
+                  <p className="mt-2 text-[clamp(1.1rem,2.4vw,1.6rem)] leading-tight tracking-[-0.02em]">{svc.title}</p>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[#9a9890]">
+                    {String(active + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* the detail of the one in the spotlight */}
+          <div className="min-h-[300px]">
+            <AnimatePresence mode="wait">
+              <motion.div key={active} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.5, ease: EASE }}>
+                <p className="text-[clamp(1.7rem,3vw,2.6rem)] leading-[1.1] tracking-[-0.03em]">{svc.outcome}</p>
+                <ul className="mt-7 space-y-3 border-t border-[#1b1b19]/12 pt-6">
+                  {svc.bullets.map((b) => (
+                    <li key={b} className="flex gap-3 text-[15px] text-[#3f3e3a]">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#171716] text-[var(--fm-lime)]">
+                        <Check size={12} />
+                      </span>
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8 flex flex-wrap items-center gap-5">
+                  <PillLink to={svc.to} tone="ink">
+                    {svc.price}
+                  </PillLink>
+                  <div className="flex gap-1.5" role="tablist" aria-label="Services">
+                    {SERVICES.map((s, i) => (
+                      <button
+                        key={s.title}
+                        type="button"
+                        role="tab"
+                        aria-selected={i === active}
+                        aria-label={s.title}
+                        onClick={() => setActive(i)}
+                        className={`h-1.5 rounded-full transition-all duration-500 ${i === active ? "w-8 bg-[#171716]" : "w-3 bg-[#1b1b19]/20"}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-/* ─────────────────────────── 3. industry apps on a 3D ring ─────────────────────────── */
+/* ─────────────────────────── 5. industry apps on a 3D ring ─────────────────────────── */
 
 function AppCard({ ind, rates }: { ind: (typeof INDUSTRIES)[number]; rates?: IndustryRates | null }) {
   const b = brandOf(ind.id);
   return (
     <Link
       to={`/industries/${ind.slug}`}
-      className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white p-5 text-[#0E1222] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)] transition hover:-translate-y-1"
+      className="group flex h-full flex-col overflow-hidden rounded-[22px] bg-[#f3f2ee] p-5 text-[#1b1b19] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.7)] transition-transform duration-500 hover:-translate-y-1"
     >
       <span className="h-1 w-12 rounded-full" style={{ background: b.colors.accent }} />
       <img src={b.logo} alt={`FrameMind ${b.name}`} className="mt-4 h-8 w-auto self-start" loading="lazy" />
-      <p className="mt-4 text-lg font-semibold leading-tight tracking-tight">{ind.name}</p>
-      <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#0E1222]/65">{ind.tagline}</p>
-      <p className="mt-auto pt-4 text-sm">
-        From <b className="text-base">{inr(tierPrice(rates, ind.id, "starter"))}</b>
-        <span className="text-[#0E1222]/55">/month</span>
+      <p className="mt-4 text-lg font-medium leading-tight tracking-tight">{ind.name}</p>
+      <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#1b1b19]/65">{ind.tagline}</p>
+      <p className="mt-auto flex items-end justify-between pt-4 text-sm">
+        <span>
+          From <b className="text-base font-medium">{inr(tierPrice(rates, ind.id, "starter"))}</b>
+          <span className="text-[#1b1b19]/55">/month</span>
+        </span>
+        <ArrowUpRight size={16} className="opacity-40 transition-opacity group-hover:opacity-100" />
       </p>
     </Link>
   );
@@ -253,73 +368,97 @@ function IndustryRing({ rates }: { rates?: IndustryRates | null }) {
   const R = Math.round((CARD + 26) / (2 * Math.tan(Math.PI / n)));
 
   return (
-    <section ref={box} className="relative overflow-hidden bg-[#070A14] text-[#F5F4F0]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_60%,rgba(123,92,255,0.18),transparent_70%)]" />
-      <div className="relative mx-auto max-w-6xl px-5 pt-20 sm:px-8 md:pt-28">
-        <Eyebrow dark>Industry apps</Eyebrow>
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+    <section ref={box} className="fm-dark relative overflow-hidden rounded-t-[36px] md:rounded-t-[56px]">
+      <div className="relative mx-auto max-w-[1320px] px-5 pt-24 sm:px-8 md:pt-32">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-6xl">
-              Your industry&apos;s app, <span className="text-[#C8F135]">already built.</span>
-            </h2>
-            <p className="mt-4 max-w-xl text-[15px] text-[#AEB4C8]">
-              {n} ready-made apps with your name and logo — live in 3–4 weeks, with a one-time setup and a simple monthly plan. Try any live demo.
+            <Kicker className="text-[#d6d4cd]">Industry apps</Kicker>
+            <MaskLines className="mt-5 text-[clamp(2.4rem,5.6vw,5.2rem)] font-normal leading-[0.98] tracking-[-0.045em]" lines={["Your industry's app,", <span key="a" className="text-[var(--fm-lime)]">already built.</span>]} />
+            <p className="mt-6 max-w-lg text-[16px] leading-relaxed text-[#bcbab2]">
+              {n} ready-made apps with your name and logo, live in 3 to 4 weeks. Open any demo and click around before you talk to us.
             </p>
           </div>
-          <Link to="/industries" className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#C8F135]">
-            All industry apps <ArrowUpRight size={15} />
-          </Link>
+          <PillLink to="/industries" tone="chalk">
+            See all {n} apps
+          </PillLink>
         </div>
       </div>
 
-      {/* large screens: a ring of apps that turns as you scroll */}
-      <div className="relative hidden h-[560px] items-center justify-center lg:flex" style={{ perspective: "1600px" }}>
+      <div className="relative hidden h-[580px] items-center justify-center lg:flex" style={{ perspective: "1600px" }}>
         <motion.div className="relative" style={{ width: CARD, height: 300, transformStyle: "preserve-3d", rotateX: -6, rotateY: turn }}>
           {INDUSTRIES.map((ind, i) => (
-            <div
-              key={ind.id}
-              className="absolute inset-0"
-              style={{ transform: `rotateY(${(i * 360) / n}deg) translateZ(${R}px)`, backfaceVisibility: "hidden" }}
-            >
+            <div key={ind.id} className="absolute inset-0" style={{ transform: `rotateY(${(i * 360) / n}deg) translateZ(${R}px)`, backfaceVisibility: "hidden" }}>
               <AppCard ind={ind} rates={rates} />
             </div>
           ))}
         </motion.div>
       </div>
 
-      {/* phones and tablets: swipe through */}
-      <div className="relative mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-16 sm:px-8 lg:hidden [scrollbar-width:none]">
+      <div className="relative mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-20 sm:px-8 lg:hidden [scrollbar-width:none]" data-lenis-prevent-wheel>
         {INDUSTRIES.map((ind) => (
           <div key={ind.id} className="h-[280px] w-[230px] shrink-0 snap-start">
             <AppCard ind={ind} rates={rates} />
           </div>
         ))}
       </div>
-      <div className="hidden h-10 lg:block" />
+      <div className="hidden h-16 lg:block" />
     </section>
   );
 }
 
-/* ─────────────────────────── 4. the store ─────────────────────────── */
+/* ─────────────────────────── 6. the store ─────────────────────────── */
+
+/** A hand-drawn ring around a word: drawn in when it scrolls into view. */
+function Circled({ children }: { children: React.ReactNode }) {
+  const reduce = useReducedMotion();
+  return (
+    <span className="relative inline-block px-1">
+      {children}
+      <motion.svg viewBox="0 0 200 70" preserveAspectRatio="none" className="pointer-events-none absolute -inset-x-3 -inset-y-2 h-[calc(100%+16px)] w-[calc(100%+24px)] overflow-visible" aria-hidden="true">
+        <motion.path
+          d="M30 12 C80 -2 175 2 192 28 C205 52 150 68 95 66 C40 64 4 54 8 34 C11 18 45 8 120 8"
+          fill="none"
+          stroke="#c8f135"
+          strokeWidth="5"
+          strokeLinecap="round"
+          initial={{ pathLength: reduce ? 1 : 0 }}
+          whileInView={{ pathLength: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.2, ease: EASE, delay: 0.3 }}
+        />
+      </motion.svg>
+    </span>
+  );
+}
 
 function Store({ products }: { products: PublicProduct[] }) {
   if (!products.length) return null;
   return (
-    <section className="bg-[#F5F4F0]">
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 md:py-28">
-        <Eyebrow>FrameMind store</Eyebrow>
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+    <section className="relative -mt-10 rounded-t-[36px] bg-[var(--fm-stone)] md:-mt-14 md:rounded-t-[56px]">
+      <div className="mx-auto max-w-[1320px] px-5 pb-24 pt-24 sm:px-8 md:pb-32 md:pt-32">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-6xl">Tools we use, ready to download.</h2>
-            <p className="mt-4 max-w-xl text-[15px] text-muted-foreground">Templates, guides and toolkits made by the studio — instant download after payment.</p>
+            <Kicker>FrameMind Store</Kicker>
+            <h2 className="mt-5 max-w-3xl text-[clamp(2.4rem,5.6vw,5.2rem)] font-normal leading-[1.02] tracking-[-0.045em]">
+              Tools that <Circled>save you hours,</Circled> not more PDFs.
+            </h2>
+            <div className="mt-7 flex flex-wrap gap-2 text-[14px]">
+              <span className="rounded-full bg-[#171716] px-4 py-2 text-[#eceae4]">
+                <b className="font-medium text-[var(--fm-lime)]">Apps that work offline</b> in most packs
+              </span>
+              <span className="rounded-full border border-[#1b1b19]/15 px-4 py-2">Made in India, priced in ₹</span>
+              <span className="rounded-full border border-[#1b1b19]/15 px-4 py-2">Instant download</span>
+            </div>
           </div>
-          <Link to="/shop" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#0D0D0D] px-5 py-3 text-sm font-semibold text-[#F5F4F0] transition hover:bg-[#222]">
-            <ShoppingBag size={15} className="text-[#C8F135]" /> Visit the store
-          </Link>
+          <PillLink to="/shop" tone="ink">
+            Visit the store
+          </PillLink>
         </div>
-        <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+        <div className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6">
+          {products.map((p, i) => (
+            <Rise key={p.id} delay={i * 0.06}>
+              <ProductCard product={p} />
+            </Rise>
           ))}
         </div>
       </div>
@@ -327,27 +466,47 @@ function Store({ products }: { products: PublicProduct[] }) {
   );
 }
 
-/* ─────────────────────────── 5. how it works ─────────────────────────── */
+/* ─────────────────────────── 7. how a project runs ─────────────────────────── */
+
+const STEPS = [
+  { n: "01", title: "Tell us what you're building", desc: "A 20-minute call about what you need and whether we're the right fit. No sales script.", tag: "Day 1" },
+  { n: "02", title: "We scope it honestly", desc: "A clear scope, timeline and price in writing. No vague retainers, no hidden costs.", tag: "Within days" },
+  { n: "03", title: "We build, you stay in the loop", desc: "Regular updates and a client portal, so you see real progress instead of chasing it.", tag: "Weekly updates" },
+  { n: "04", title: "Shipped. Then supported.", desc: "Handover, training and support after launch, so the work actually gets used.", tag: "After launch" },
+];
 
 function Process() {
-  const box = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: box, offset: ["start 80%", "end 60%"] });
-  const line = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const box = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: box, offset: ["start 70%", "end 60%"] });
+  const fill = useTransform(scrollYProgress, [0, 1], [0, 1]);
   return (
-    <section ref={box} className="bg-[#070A14] text-[#F5F4F0]">
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 md:py-28">
-        <Eyebrow dark>How it works</Eyebrow>
-        <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-6xl">From first message to final delivery.</h2>
-        <div className="relative mt-14">
-          <div className="absolute left-0 right-0 top-[18px] hidden h-px bg-white/10 md:block" />
-          <motion.div style={{ scaleX: line, transformOrigin: "left center" }} className="absolute left-0 right-0 top-[18px] hidden h-px bg-gradient-to-r from-[#C8F135] via-[#E7B866] to-[#7B5CFF] md:block" />
-          <ol className="grid gap-10 md:grid-cols-4 md:gap-6">
-            {steps.map((s) => (
-              <li key={s.n} className="relative">
-                <span className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-[#070A14] font-mono text-[11px] text-[#C8F135]">{s.n}</span>
-                <h3 className="mt-5 text-lg font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#8E95AD]">{s.desc}</p>
-              </li>
+    <section className="fm-dark rounded-t-[36px] md:rounded-t-[56px]">
+      <div className="mx-auto grid max-w-[1320px] gap-12 px-5 py-24 sm:px-8 md:grid-cols-[0.9fr_1.1fr] md:py-32">
+        <div className="md:sticky md:top-32 md:self-start">
+          <Kicker className="text-[#d6d4cd]">How it works</Kicker>
+          <MaskLines className="mt-5 text-[clamp(2.4rem,5vw,4.6rem)] font-normal leading-[0.98] tracking-[-0.045em]" lines={["From first message", <span key="b" className="text-[#9a9890]">to final delivery.</span>]} />
+          <div className="mt-8">
+            <PillLink to="/connect">Book the 20-minute call</PillLink>
+          </div>
+        </div>
+
+        <div ref={box} className="relative">
+          <div className="absolute bottom-6 left-[22px] top-6 w-px bg-white/10" />
+          <motion.div style={{ scaleY: fill }} className="absolute bottom-6 left-[22px] top-6 w-px origin-top bg-[var(--fm-lime)]" />
+          <ol className="flex flex-col gap-5">
+            {STEPS.map((s, i) => (
+              <Rise key={s.n} delay={i * 0.05}>
+                <li className="relative flex gap-5">
+                  <span className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-[#171716] font-mono text-[12px] text-[var(--fm-lime)]">{s.n}</span>
+                  <div className="flex-1 rounded-[22px] border border-white/8 bg-[#1f1f1d] p-6 transition-colors hover:border-white/20 md:p-7">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-xl font-normal tracking-[-0.02em] md:text-2xl">{s.title}</h3>
+                      <span className="rounded-full bg-[#2a2a27] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[#9a9890]">{s.tag}</span>
+                    </div>
+                    <p className="mt-3 text-[15px] leading-relaxed text-[#aaa8a0]">{s.desc}</p>
+                  </div>
+                </li>
+              </Rise>
             ))}
           </ol>
         </div>
@@ -356,18 +515,86 @@ function Process() {
   );
 }
 
+/* ─────────────────────────── 8. ventures: collapsing cards ─────────────────────────── */
+
+const VENTURES = [
+  { to: "/360vue", name: "360VUE", what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.", bg: "#2c3a4a", ink: "#eceae4" },
+  { to: "/vritta", name: "Vritta", what: "Activity records and newsletters for schools and colleges.", bg: "#d9a35b", ink: "#171716" },
+  { to: "/jove", name: "JOVE", what: "Robotics and AI workshops for schools, Grades 1 to 10.", bg: "#3d4a2c", ink: "#eceae4" },
+  { to: "/personal-coaching", name: "Coaching", what: "1:1 AI coaching built around your profession.", bg: "#c8f135", ink: "#171716" },
+];
+
+function Ventures() {
+  const [open, setOpen] = useState(0);
+  return (
+    <section className="bg-[var(--fm-stone)]">
+      <div className="mx-auto max-w-[1320px] px-5 py-24 sm:px-8 md:py-32">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <Kicker>The FrameMind family</Kicker>
+            <MaskLines className="mt-5 text-[clamp(2.4rem,5vw,4.6rem)] font-normal leading-[0.98] tracking-[-0.045em]" lines={["One studio,", <span key="c" className="text-[#64635d]">a family of ventures.</span>]} />
+          </div>
+        </div>
+
+        <div className="mt-12 flex h-[460px] flex-col gap-2 md:h-[440px] md:flex-row">
+          {VENTURES.map((v, i) => {
+            const on = open === i;
+            return (
+              <motion.div
+                key={v.to}
+                layout
+                onMouseEnter={() => setOpen(i)}
+                onFocus={() => setOpen(i)}
+                onClick={() => setOpen(i)}
+                transition={{ duration: 0.6, ease: EASE }}
+                className="relative cursor-pointer overflow-hidden rounded-[26px]"
+                style={{ background: v.bg, color: v.ink, flex: on ? 5 : 1 }}
+              >
+                {/* collapsed: the name runs vertically */}
+                <span className={`absolute bottom-5 left-1/2 hidden origin-center -translate-x-1/2 whitespace-nowrap text-2xl tracking-[-0.02em] transition-opacity duration-300 [writing-mode:vertical-rl] md:block ${on ? "opacity-0" : "rotate-180 opacity-100"}`}>
+                  {v.name}
+                </span>
+                <span className={`absolute left-5 top-1/2 -translate-y-1/2 text-xl tracking-[-0.02em] transition-opacity duration-300 md:hidden ${on ? "opacity-0" : "opacity-100"}`}>{v.name}</span>
+
+                <div className={`absolute inset-0 flex flex-col justify-between p-6 transition-opacity duration-500 md:p-9 ${on ? "opacity-100 delay-200" : "pointer-events-none opacity-0"}`}>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] opacity-60">0{i + 1}</span>
+                  <div>
+                    <p className="text-[clamp(2.6rem,6vw,5.5rem)] leading-[0.9] tracking-[-0.05em]">{v.name}</p>
+                    <p className="mt-4 max-w-sm text-[16px] leading-snug opacity-80">{v.what}</p>
+                    <Link to={v.to} className="mt-6 inline-flex items-center gap-2 rounded-full border border-current/30 px-4 py-2 text-sm transition-colors hover:bg-current/10" tabIndex={on ? 0 : -1}>
+                      Visit {v.name} <ArrowUpRight size={15} />
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────────────────── 10. call to action ─────────────────────────── */
+
 function FinalCta() {
   return (
-    <section className="bg-[#C8F135] text-[#0D0D0D]">
-      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-5 py-16 sm:px-8 md:flex-row md:items-center md:py-20">
-        <h2 className="max-w-2xl text-4xl font-semibold leading-[1.02] tracking-[-0.03em] md:text-5xl">Your business, live online — designed, built and looked after.</h2>
-        <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row">
-          <Link to="/connect" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#0D0D0D] px-6 py-3.5 text-sm font-semibold text-[#F5F4F0]">
-            Start a project <ArrowRight size={15} />
-          </Link>
-          <a href="https://wa.me/918073087576" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full border border-[#0D0D0D] px-6 py-3.5 text-sm font-semibold">
-            WhatsApp us
-          </a>
+    <section className="bg-[var(--fm-stone)] px-3 pb-3 sm:px-5 sm:pb-5">
+      <div className="relative overflow-hidden rounded-[32px] bg-[var(--fm-lime)] text-[#171716] md:rounded-[48px]">
+        <div className="mx-auto max-w-[1320px] px-6 py-20 sm:px-10 md:py-28">
+          <Kicker className="opacity-80">Start here</Kicker>
+          <MaskLines className="mt-6 text-[clamp(3rem,9vw,8.5rem)] font-normal leading-[0.9] tracking-[-0.06em]" lines={["Let's build", "yours."]} />
+          <div className="mt-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <p className="max-w-md text-[17px] leading-relaxed text-[#171716]/75">Tell us what you need. You get a straight answer on scope, time and price, usually within a day.</p>
+            <div className="flex flex-wrap gap-3">
+              <PillLink to="/connect" tone="ink">
+                Start a project
+              </PillLink>
+              <PillLink to="https://wa.me/918073087576" tone="ghost" external>
+                WhatsApp us
+              </PillLink>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -378,13 +605,13 @@ function FinalCta() {
 
 export default function Home({ products = [], rates }: { products?: PublicProduct[]; rates?: IndustryRates | null }) {
   return (
-    <div className="overflow-x-clip">
+    <div className="overflow-x-clip bg-[var(--fm-stone)]">
       <SEO
         title="Web Design, Development & AI Solutions"
-        description="FrameMind AI Studio is an MSME-registered design and development studio in India. We build websites, brand systems, custom software, ready-made industry apps and AI automations — delivered on time, at transparent INR pricing."
+        description="FrameMind AI Studio is an MSME-registered design and development studio in India. We build websites, brand systems, custom software, ready-made industry apps and AI automations, with transparent INR pricing."
         path="/"
         keywords="web design India, website development India, brand identity India, AI studio India, MSME design studio Karnataka, custom software India, industry apps India, FrameMind AI Studio"
-        ogImageAlt="FrameMind AI Studio — Web Design, Development & AI Solutions"
+        ogImageAlt="FrameMind AI Studio: Web Design, Development & AI Solutions"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebSite",
@@ -393,10 +620,14 @@ export default function Home({ products = [], rates }: { products?: PublicProduc
         }}
       />
       <Hero />
+      <Wordmark />
+      <Marquee />
       <Services />
       <IndustryRing rates={rates} />
       <Store products={products} />
       <Process />
+      <Ventures />
+      <TeamRail />
       <FinalCta />
     </div>
   );

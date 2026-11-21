@@ -80,7 +80,7 @@ export default function Testimonials() {
               <blockquote key={t.name} className="bg-background p-6 sm:p-8 flex flex-col justify-between min-h-[340px]">
                 <div>
                   {t.tag && (
-                    <p className="font-mono text-[10px] text-[#C8F135] bg-[#0D0D0D] inline-block px-2.5 py-1 rounded-sm uppercase tracking-widest mb-4">{t.tag}</p>
+                    <p className="font-mono text-[10px] text-[#C8F135] bg-[#171716] inline-block px-2.5 py-1 rounded-sm uppercase tracking-widest mb-4">{t.tag}</p>
                   )}
                   <p className="text-sm leading-relaxed text-muted-foreground">"{t.quote}"</p>
                 </div>
@@ -90,7 +90,7 @@ export default function Testimonials() {
                       ? <img src={t.logo} alt={t.name} className="w-full h-full object-contain bg-white" />
                       : t.photo
                         ? <img src={t.photo} alt={t.name} className="w-full h-full object-cover" />
-                        : <span className="font-mono text-sm font-bold text-[#0D0D0D]">{t.initial}</span>
+                        : <span className="font-mono text-sm font-bold text-[#171716]">{t.initial}</span>
                     }
                   </div>
                   <div>
@@ -123,7 +123,7 @@ export default function Testimonials() {
           </div>
           <Link
             to="/connect"
-            className="bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center gap-2"
+            className="bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center gap-2"
           >
             Connect with us <ArrowRight size={13} />
           </Link>

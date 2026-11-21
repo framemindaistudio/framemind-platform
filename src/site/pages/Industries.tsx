@@ -38,7 +38,7 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
       />
       <div className="min-h-screen">
         {/* hero */}
-        <section className="bg-[#0D0D0D] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,241,53,0.06),transparent_60%)]" />
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
           <div className="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-14 relative z-10">
@@ -46,7 +46,7 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
               <span className="w-2 h-2 rounded-full bg-[#C8F135] animate-pulse" />
               <span className="font-mono text-[10px] text-[#555] uppercase tracking-[0.2em]">Industry apps · Your name · Live in 3–4 weeks</span>
             </div>
-            <h1 className="text-5xl sm:text-6xl md:text-[80px] font-black text-[#F5F4F0] tracking-tight leading-[0.98] mb-6">
+            <h1 className="text-5xl sm:text-6xl md:text-[80px] font-black text-[#eceae4] tracking-tight leading-[0.98] mb-6">
               Your business,
               <br />
               <span className="text-[#C8F135]">already built.</span>
@@ -54,15 +54,15 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
             <p className="text-lg text-[#888] leading-relaxed max-w-2xl mb-10">
               Ready-made apps for your industry — with your name, logo and colours — plus everything digital around them: website, brand, shoots and social media. Try the live demo, get your price, and go live in 3–4 weeks.
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1a1a1a] border border-[#1a1a1a] rounded-sm overflow-hidden">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1f1f1d] border border-[#1f1f1d] rounded-sm overflow-hidden">
               {[
                 [`${INDUSTRIES.length} industries`, "Ready to demo today"],
                 [`From ${inr(setup)} setup`, "Once, then a monthly plan"],
                 ["Your own brand", "Name, logo, colours, domain"],
                 ["Live in 3–4 weeks", "With your data imported"],
               ].map(([t, d]) => (
-                <div key={t} className="bg-[#0D0D0D] px-5 py-5">
-                  <p className="text-sm font-bold text-[#F5F4F0]">{t}</p>
+                <div key={t} className="bg-[#171716] px-5 py-5">
+                  <p className="text-sm font-bold text-[#eceae4]">{t}</p>
                   <p className="text-[11px] text-[#555] mt-1">{d}</p>
                 </div>
               ))}
@@ -148,10 +148,10 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
             <p className="mb-6 max-w-2xl text-sm text-muted-foreground">Prices and limits are set per industry, from what software for that industry costs in India today. Each industry's page has its own prices, limits and overage rates.</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {TIERS.map((t) => (
-                <div key={t.id} className={`rounded-sm border p-5 ${t.badge ? "border-[#0D0D0D] border-2" : "border-border"}`}>
+                <div key={t.id} className={`rounded-sm border p-5 ${t.badge ? "border-[#171716] border-2" : "border-border"}`}>
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-black">{t.name}</h3>
-                    {t.badge && <span className="rounded-sm bg-[#C8F135] px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest text-[#0D0D0D]">{t.badge}</span>}
+                    {t.badge && <span className="rounded-sm bg-[#C8F135] px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest text-[#171716]">{t.badge}</span>}
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{t.summary}</p>
                   <ul className="mt-4 space-y-2">
@@ -190,20 +190,20 @@ export default function Industries({ rates }: { rates?: IndustryRates | null }) 
                 );
               })}
             </div>
-            <Link to="/connect" className="mt-6 inline-flex items-center gap-2 bg-[#0D0D0D] text-[#F5F4F0] px-5 py-3 text-sm font-bold rounded-sm">
+            <Link to="/connect" className="mt-6 inline-flex items-center gap-2 bg-[#171716] text-[#eceae4] px-5 py-3 text-sm font-bold rounded-sm">
               Talk to us about your industry <ArrowRight size={14} />
             </Link>
           </div>
         </section>
 
         {/* studio */}
-        <section className="bg-[#0D0D0D]">
+        <section className="bg-[#171716]">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h2 className="text-4xl font-black text-[#F5F4F0] tracking-tight">Everything digital around your app</h2>
+              <h2 className="text-4xl font-black text-[#eceae4] tracking-tight">Everything digital around your app</h2>
               <p className="mt-3 text-sm text-[#666] max-w-lg">Website, brand identity, photo and video shoots, social media and automations — from the same studio, on one bill.</p>
             </div>
-            <Link to="/pricing" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
+            <Link to="/pricing" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
               Studio services & prices <ArrowRight size={14} />
             </Link>
           </div>

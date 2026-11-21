@@ -1,104 +1,147 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
+import { usePathname } from "next/navigation";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { NavLink, Link } from "@/site/router";
-import { Menu, X } from "lucide-react";
+
+/*
+ * The navbar, after 13g.fr: the logo on the left and a compact cluster of pill links on the right,
+ * floating over the page on a frosted graphite plate. It tucks away while you scroll down and comes back
+ * as soon as you scroll up. On phones the menu opens as a full screen of large links.
+ */
 
 const navLinks = [
-  { to: "/", label: "Home" },
-  { to: "/industries", label: "Industries" },
   { to: "/pricing", label: "Services" },
-  { to: "/personal-coaching", label: "1:1 Coaching" },
-  { to: "/shop", label: "Shop" },
+  { to: "/industries", label: "Industry apps" },
+  { to: "/shop", label: "Store" },
+  { to: "/personal-coaching", label: "Coaching" },
   { to: "/team", label: "Team" },
-  { to: "/connect", label: "Let's Talk" },
 ];
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [solid, setSolid] = useState(false);
+  const path = usePathname();
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (y) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    setSolid(y > 24);
+    // smooth scrolling moves a pixel or two per frame, so compare direction, not distance
+    if (y > prev && y > 240 && !open) setHidden(true);
+    else if (y < prev) setHidden(false);
+  });
+
+  // close the phone menu when the page changes (adjusting state during render, not in an effect)
+  const [lastPath, setLastPath] = useState(path);
+  if (path !== lastPath) {
+    setLastPath(path);
+    setOpen(false);
+  }
+  useEffect(() => {
+    document.documentElement.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
+  }, [open]);
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 whitespace-nowrap font-semibold text-lg tracking-tight" aria-label="FrameMind AI Studio — home">
-          <img src="/brand/fm-mark-light.png" alt="" width={40} height={40} className="h-10 w-10 shrink-0" />
-          <span>
-            FrameMind AI Studio<span className="text-[#C8F135]">.</span>
-          </span>
-        </Link>
-
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-8 whitespace-nowrap">
-          {navLinks.map(({ to, label }) =>
-            to === "/connect" ? (
-              <NavLink
-                key={to}
-                to={to}
-                className="bg-[#C8F135] text-[#0D0D0D] text-sm font-medium px-4 py-2 rounded-sm hover:bg-[#b8e020] transition-colors"
-              >
-                {label}
-              </NavLink>
-            ) : (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === "/"}
-                className={({ isActive }) =>
-                  `text-sm transition-colors ${
-                    isActive
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            )
-          )}
-        </nav>
-
-
-        {/* Mobile toggle */}
-        <button
-          className="lg:hidden p-2 -mr-2"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
+    <>
+      <motion.header
+        className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4"
+        animate={{ y: hidden ? -110 : 0 }}
+        transition={{ duration: 0.5, ease: EASE }}
+      >
+        <div
+          className={`mx-auto flex max-w-[1320px] items-center justify-between gap-4 rounded-full py-2 pl-3 pr-2 transition-[background-color,box-shadow,backdrop-filter] duration-500 sm:pl-4 ${
+            solid || open ? "bg-[#1f1f1d]/85 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl" : "bg-[#1f1f1d]/40 backdrop-blur-md"
+          }`}
         >
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </div>
+          <Link to="/" className="flex items-center gap-2.5 whitespace-nowrap text-[15px] font-medium tracking-tight text-[#eceae4]" aria-label="FrameMind AI Studio, home">
+            <img src="/brand/kit/preview/framemind-icon-4k.webp" alt="" width={34} height={34} className="h-[34px] w-[34px] shrink-0" />
+            <span>
+              FrameMind<span className="hidden text-[#9a9890] sm:inline"> AI Studio</span>
+            </span>
+          </Link>
 
-      {/* Mobile menu */}
-      {open && (
-        <div className="lg:hidden border-t border-border bg-background px-6 py-4 flex flex-col gap-4">
-          {navLinks.map(({ to, label }) =>
-            to === "/connect" ? (
+          <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
+            {navLinks.map(({ to, label }) => (
               <NavLink
                 key={to}
                 to={to}
-                onClick={() => setOpen(false)}
-                className="bg-[#C8F135] text-[#0D0D0D] text-sm font-medium px-4 py-2 rounded-sm text-center hover:bg-[#b8e020] transition-colors"
-              >
-                {label}
-              </NavLink>
-            ) : (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === "/"}
-                onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `text-sm py-1 transition-colors ${
-                    isActive ? "text-foreground font-medium" : "text-muted-foreground"
+                  `rounded-full px-4 py-2 text-[13px] uppercase tracking-[0.06em] transition-colors ${
+                    isActive ? "bg-[#eceae4] text-[#171716]" : "bg-[#2a2a27] text-[#d6d4cd] hover:bg-[#34342f] hover:text-white"
                   }`
                 }
               >
                 {label}
               </NavLink>
-            )
-          )}
+            ))}
+            <Link to="/connect" className="group ml-1 inline-flex items-center gap-2 rounded-full bg-[#2a2a27] py-1 pl-1 pr-4 text-[13px] text-[#eceae4] transition-colors hover:bg-[#34342f]">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--fm-lime)] text-[#171716] transition-transform duration-500 group-hover:rotate-[-45deg]">
+                <ArrowRight size={15} />
+              </span>
+              Let&apos;s talk
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-2 lg:hidden">
+            <Link to="/connect" className="inline-flex h-10 items-center rounded-full bg-[var(--fm-lime)] px-4 text-[13px] font-medium text-[#171716]">
+              Let&apos;s talk
+            </Link>
+            <button
+              type="button"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2a2a27] text-[#eceae4]"
+              onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
+              aria-controls="fm-menu"
+              aria-label={open ? "Close menu" : "Open menu"}
+            >
+              {open ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
         </div>
-      )}
-    </header>
+      </motion.header>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="fm-menu"
+            className="fixed inset-0 z-40 flex flex-col bg-[#171716] px-6 pb-10 pt-28 text-[#eceae4] lg:hidden"
+            initial={{ clipPath: "inset(0 0 100% 0)" }}
+            animate={{ clipPath: "inset(0 0 0% 0)" }}
+            exit={{ clipPath: "inset(0 0 100% 0)" }}
+            transition={{ duration: 0.6, ease: EASE }}
+          >
+            <nav className="flex flex-col" aria-label="Menu">
+              {[{ to: "/", label: "Home" }, ...navLinks, { to: "/connect", label: "Let's talk" }].map(({ to, label }, i) => (
+                <motion.div key={to} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, ease: EASE, delay: 0.12 + i * 0.05 }}>
+                  <NavLink
+                    to={to}
+                    end={to === "/"}
+                    className={({ isActive }) =>
+                      `flex items-center justify-between border-b border-white/10 py-4 text-[2rem] font-normal leading-none tracking-[-0.03em] ${isActive ? "text-[var(--fm-lime)]" : ""}`
+                    }
+                  >
+                    {label}
+                    <ArrowRight size={22} className="opacity-40" />
+                  </NavLink>
+                </motion.div>
+              ))}
+            </nav>
+            <div className="mt-auto flex flex-col gap-1 font-mono text-[11px] uppercase tracking-[0.18em] text-[#9a9890]">
+              <a href="https://wa.me/918073087576" target="_blank" rel="noopener noreferrer">WhatsApp +91 80730 87576</a>
+              <a href="mailto:framemindaistudio@gmail.com">framemindaistudio@gmail.com</a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

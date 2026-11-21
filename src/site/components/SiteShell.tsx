@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import Navbar from "@/site/components/Navbar";
 import Footer from "@/site/components/Footer";
 import Chatbot from "@/site/components/Chatbot";
+import SmoothScroll from "@/site/components/SmoothScroll";
+import NavSpacer from "@/site/components/NavSpacer";
 
 const WA_NUMBER = "918073087576";
 const WA_MESSAGE = encodeURIComponent("Hi FrameMind! I'd like to discuss a project.");
@@ -10,7 +12,10 @@ const WA_MESSAGE = encodeURIComponent("Hi FrameMind! I'd like to discuss a proje
 export default function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="fm-site min-h-screen bg-background text-foreground antialiased">
+      <SmoothScroll />
+      <div className="fm-grain" aria-hidden="true" />
       <Navbar />
+      <NavSpacer />
       <main>
         {children}
       </main>

@@ -36,7 +36,7 @@ export function PriceTag({ product, large }: { product: Pick<PublicProduct, "pri
     <span className="inline-flex items-baseline gap-2">
       <span className={`font-semibold tabular-nums ${large ? "text-3xl" : "text-base"}`}>{inr(product.price)}</span>
       {off > 0 && <span className={`tabular-nums text-muted-foreground line-through ${large ? "text-base" : "text-xs"}`}>{inr(product.mrp!)}</span>}
-      {off > 0 && large && <span className="rounded-full bg-[#C8F135] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#0D0D0D]">{off}% off</span>}
+      {off > 0 && large && <span className="rounded-full bg-[#C8F135] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#171716]">{off}% off</span>}
     </span>
   );
 }
@@ -51,13 +51,13 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           <ProductCover product={product} />
         </div>
         {product.buyable && off > 0 ? (
-          <span className="absolute -right-1.5 -top-1.5 rotate-12 rounded-full border-2 border-[#0D0D0D] bg-[#C8F135] px-2 py-1 font-mono text-[10px] font-bold text-[#0D0D0D] shadow-[2px_2px_0_#0D0D0D]">−{off}%</span>
+          <span className="absolute -right-1.5 -top-1.5 rotate-12 rounded-full border-2 border-[#171716] bg-[#C8F135] px-2 py-1 font-mono text-[10px] font-bold text-[#171716] shadow-[2px_2px_0_#171716]">−{off}%</span>
         ) : null}
       </div>
       <div className="flex flex-1 flex-col px-0.5 pt-3">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold leading-snug tracking-tight">{product.title}</h3>
-          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border transition-colors group-hover:border-[#0D0D0D] group-hover:bg-[#0D0D0D] group-hover:text-[#C8F135]">
+          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border transition-colors group-hover:border-[#171716] group-hover:bg-[#171716] group-hover:text-[#C8F135]">
             <ArrowUpRight className="h-3.5 w-3.5" />
           </span>
         </div>
@@ -65,7 +65,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
         <WorksWith product={product} compact />
         <div className="mt-auto flex flex-wrap items-center gap-x-2.5 gap-y-1 pt-2.5">
           <PriceTag product={product} />
-          {!product.buyable && <span className="rounded-full bg-[#0D0D0D] px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#C8F135]">Dropping soon</span>}
+          {!product.buyable && <span className="rounded-full bg-[#171716] px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest text-[#C8F135]">Dropping soon</span>}
         </div>
       </div>
     </Link>

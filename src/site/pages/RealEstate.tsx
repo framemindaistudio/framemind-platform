@@ -108,7 +108,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
 
       <div className="min-h-screen">
         {/* hero */}
-        <section className="bg-[#0D0D0D] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,241,53,0.06),transparent_60%)]" />
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
           <div className="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-14 relative z-10">
@@ -116,7 +116,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
               <span className="w-2 h-2 rounded-full bg-[#C8F135] animate-pulse" />
               <span className="font-mono text-[10px] text-[#555] uppercase tracking-[0.2em]">Standard pricing model · Layouts · Visualisation · Sales platforms</span>
             </div>
-            <h1 className="text-5xl sm:text-6xl md:text-[80px] font-black text-[#F5F4F0] tracking-tight leading-[0.98] mb-6">
+            <h1 className="text-5xl sm:text-6xl md:text-[80px] font-black text-[#eceae4] tracking-tight leading-[0.98] mb-6">
               Real Estate
               <br />
               <span className="text-[#C8F135]">Digital Platform</span>
@@ -124,15 +124,15 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
             <p className="text-lg text-[#888] leading-relaxed max-w-2xl mb-10">
               One area-based price for every real estate project — residential layouts, villas, plotted developments and townships. Charged per square foot, with a minimum and a maximum, so you know the price before we start.
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1a1a1a] border border-[#1a1a1a] rounded-sm overflow-hidden">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1f1f1d] border border-[#1f1f1d] rounded-sm overflow-hidden">
               {[
                 ["One standard model", "For every project type"],
                 ["Area-based pricing", "Per square foot of the project"],
                 ["3 flexible plans", "Pick what the project needs"],
                 ["Scalable", "From small layouts to townships"],
               ].map(([t, d]) => (
-                <div key={t} className="bg-[#0D0D0D] px-5 py-5">
-                  <p className="text-sm font-bold text-[#F5F4F0]">{t}</p>
+                <div key={t} className="bg-[#171716] px-5 py-5">
+                  <p className="text-sm font-bold text-[#eceae4]">{t}</p>
                   <p className="text-[11px] text-[#555] mt-1">{d}</p>
                 </div>
               ))}
@@ -146,8 +146,8 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
             <SectionLabel>01 · Plans</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {PLANS.map((p) => (
-                <div key={p.id} className={`relative rounded-sm border flex flex-col ${p.recommended ? "border-[#C8F135] bg-[#0D0D0D] text-[#F5F4F0] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}>
-                  {p.recommended && <span className="absolute -top-3 left-5 bg-[#C8F135] text-[#0D0D0D] font-mono text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm">Recommended</span>}
+                <div key={p.id} className={`relative rounded-sm border flex flex-col ${p.recommended ? "border-[#C8F135] bg-[#171716] text-[#eceae4] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}>
+                  {p.recommended && <span className="absolute -top-3 left-5 bg-[#C8F135] text-[#171716] font-mono text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm">Recommended</span>}
                   <div className="p-6 border-b border-current/10">
                     <h3 className="text-2xl font-black tracking-tight">{p.name}</h3>
                     <p className={`text-sm ${p.recommended ? "text-[#888]" : "text-muted-foreground"}`}>{p.tagline}</p>
@@ -204,7 +204,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                       inputMode="decimal"
                       value={area}
                       onChange={(e) => setArea(e.target.value)}
-                      className="w-full rounded-sm border border-border bg-background px-3 py-2.5 text-base tabular-nums focus:outline-none focus:border-[#0D0D0D]"
+                      className="w-full rounded-sm border border-border bg-background px-3 py-2.5 text-base tabular-nums focus:outline-none focus:border-[#171716]"
                       aria-label="Total project area"
                     />
                     <select value={unit} onChange={(e) => setUnit(e.target.value as AreaUnit)} className="rounded-sm border border-border bg-background px-3 py-2.5 text-sm" aria-label="Unit">
@@ -223,7 +223,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                   <p className="text-sm font-semibold mb-2">Plan</p>
                   <div className="grid grid-cols-3 gap-2">
                     {PLANS.map((p) => (
-                      <button key={p.id} type="button" onClick={() => setPlanId(p.id)} className={`rounded-sm border px-3 py-3 text-left transition-colors ${p.id === planId ? "border-[#0D0D0D] bg-[#0D0D0D] text-[#F5F4F0]" : "border-border bg-background hover:border-foreground/30"}`}>
+                      <button key={p.id} type="button" onClick={() => setPlanId(p.id)} className={`rounded-sm border px-3 py-3 text-left transition-colors ${p.id === planId ? "border-[#171716] bg-[#171716] text-[#eceae4]" : "border-border bg-background hover:border-foreground/30"}`}>
                         <p className="text-sm font-bold">{p.name}</p>
                         <p className={`text-xs ${p.id === planId ? "text-[#C8F135]" : "text-muted-foreground"}`}>{rate(p.rate)}/sq ft</p>
                       </button>
@@ -236,8 +236,8 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                     {available.map((a) => {
                       const on = extras.includes(a.id);
                       return (
-                        <label key={a.id} className={`flex items-center gap-3 rounded-sm border px-3 py-2.5 cursor-pointer ${on ? "border-[#0D0D0D] bg-background" : "border-border bg-background/60"}`}>
-                          <input type="checkbox" checked={on} onChange={() => setExtras((x) => (on ? x.filter((i) => i !== a.id) : [...x, a.id]))} className="size-4 accent-[#0D0D0D]" />
+                        <label key={a.id} className={`flex items-center gap-3 rounded-sm border px-3 py-2.5 cursor-pointer ${on ? "border-[#171716] bg-background" : "border-border bg-background/60"}`}>
+                          <input type="checkbox" checked={on} onChange={() => setExtras((x) => (on ? x.filter((i) => i !== a.id) : [...x, a.id]))} className="size-4 accent-[#171716]" />
                           <span className="flex-1 text-sm">{a.label}</span>
                           <span className="text-xs font-semibold tabular-nums">{a.perSqft ? inr(addOnPrice(a, sqft)) : `${inr(a.range!.from)}${a.range!.to ? ` – ${inr(a.range!.to)}` : "+"}`}</span>
                         </label>
@@ -247,7 +247,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                 </div>
               </div>
 
-              <div className="rounded-sm bg-[#0D0D0D] text-[#F5F4F0] p-6 h-fit lg:sticky lg:top-20">
+              <div className="rounded-sm bg-[#171716] text-[#eceae4] p-6 h-fit lg:sticky lg:top-20">
                 <p className="font-mono text-[10px] text-[#C8F135] uppercase tracking-widest mb-4">Live estimate</p>
                 <ul className="space-y-2.5 text-sm">
                   {lines.map((l) => (
@@ -264,7 +264,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                 <p className="mt-2 text-[11px] text-[#666]">
                   {TERMS.tax} Add-ons with a range are shown at their starting price. {plan.freeMonths} months of maintenance included, then {inr(plan.monthly)}/month.
                 </p>
-                <button type="button" onClick={() => (setErr(""), setAsking(true))} disabled={!(sqft > 0)} className="mt-5 w-full bg-[#C8F135] text-[#0D0D0D] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] disabled:opacity-40 flex items-center justify-center gap-2">
+                <button type="button" onClick={() => (setErr(""), setAsking(true))} disabled={!(sqft > 0)} className="mt-5 w-full bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] disabled:opacity-40 flex items-center justify-center gap-2">
                   <Download size={14} /> Get this quote as PDF
                 </button>
                 {sentNo && <p className="mt-2.5 text-center text-[11px] text-[#C8F135]">Quote {sentNo} is with us — we&apos;ll be in touch. Your PDF opened in a new tab.</p>}
@@ -280,7 +280,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
             <div className="overflow-x-auto rounded-sm border border-border">
               <table className="w-full min-w-[560px] text-sm">
                 <thead>
-                  <tr className="bg-[#0D0D0D] text-[#F5F4F0]">
+                  <tr className="bg-[#171716] text-[#eceae4]">
                     <th className="px-4 py-3 text-left font-semibold">Features / services</th>
                     {PLANS.map((p) => (
                       <th key={p.id} className={`px-4 py-3 text-center font-semibold ${p.recommended ? "text-[#C8F135]" : ""}`}>
@@ -338,7 +338,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
             </div>
             <div>
               <SectionLabel>05 · Pricing formula</SectionLabel>
-              <div className="rounded-sm border-2 border-[#0D0D0D] bg-background p-5">
+              <div className="rounded-sm border-2 border-[#171716] bg-background p-5">
                 <p className="font-mono text-sm font-semibold leading-relaxed">
                   Project cost = Total area (sq ft) × Rate per sq ft,
                   <br />
@@ -406,14 +406,14 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
         </section>
 
         {/* CTA */}
-        <section className="bg-[#0D0D0D]">
+        <section className="bg-[#171716]">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h2 className="text-4xl font-black text-[#F5F4F0] tracking-tight">Have a layout to launch?</h2>
+              <h2 className="text-4xl font-black text-[#eceae4] tracking-tight">Have a layout to launch?</h2>
               <p className="mt-3 text-sm text-[#666] max-w-lg">Send the layout drawing and the project&apos;s area. We reply with a written quote.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <a href="#calculator" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
+              <a href="#calculator" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
                 Calculate your price <ArrowRight size={14} />
               </a>
               <Link to="/connect" className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#888] px-6 py-3 text-sm font-medium rounded-sm hover:text-[#bbb]">
@@ -427,9 +427,9 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
       {/* name and phone before the quote */}
       {asking && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4" role="dialog" aria-modal="true" aria-labelledby="re-quote-title" onClick={() => !busy && setAsking(false)}>
-          <form onClick={(e) => e.stopPropagation()} onSubmit={getQuote} className="w-full max-w-md rounded-sm border border-[#1e1e1e] bg-[#0D0D0D] p-6 sm:p-8" noValidate>
+          <form onClick={(e) => e.stopPropagation()} onSubmit={getQuote} className="w-full max-w-md rounded-sm border border-[#1e1e1e] bg-[#171716] p-6 sm:p-8" noValidate>
             <p className="font-mono text-[9px] text-[#C8F135] uppercase tracking-widest mb-2">Your quote · {inr(total)}</p>
-            <h2 id="re-quote-title" className="text-xl font-semibold text-[#F5F4F0] mb-1">Where should we send it?</h2>
+            <h2 id="re-quote-title" className="text-xl font-semibold text-[#eceae4] mb-1">Where should we send it?</h2>
             <p className="text-xs text-[#888] mb-5">Your PDF opens right after. We keep a copy so we can talk it through with you.</p>
             <div className="flex flex-col gap-3">
               {(
@@ -443,16 +443,16 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
               ).map(([k, label, ph, type, auto]) => (
                 <label key={k} className="block">
                   <span className="font-mono text-[9px] text-[#aaa] uppercase tracking-widest block mb-1.5">{label}</span>
-                  <input type={type} value={f[k]} onChange={(e) => setF((x) => ({ ...x, [k]: e.target.value }))} placeholder={ph} autoComplete={auto} className="w-full bg-[#0a0a0a] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#F5F4F0] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50" />
+                  <input type={type} value={f[k]} onChange={(e) => setF((x) => ({ ...x, [k]: e.target.value }))} placeholder={ph} autoComplete={auto} className="w-full bg-[#141413] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#eceae4] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50" />
                 </label>
               ))}
             </div>
             {err && <p className="mt-3 text-xs text-[#ff7a7a]">{err}</p>}
             <div className="mt-5 flex gap-2">
-              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-[#1e1e1e] text-[#888] hover:text-[#F5F4F0] py-3 text-sm rounded-sm">
+              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-[#1e1e1e] text-[#888] hover:text-[#eceae4] py-3 text-sm rounded-sm">
                 Cancel
               </button>
-              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#0D0D0D] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] flex items-center justify-center gap-2 disabled:opacity-60">
+              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] flex items-center justify-center gap-2 disabled:opacity-60">
                 <Download size={13} /> {busy ? "Saving your quote…" : "Get my quote"}
               </button>
             </div>
@@ -474,11 +474,11 @@ function openQuote(
   const rows = q.lines.map((l) => `<tr><td>${esc(l.label)}</td><td class="r">${inr(l.price)}</td></tr>`).join("");
   w.document.write(`<!doctype html><html lang="en-IN"><head><meta charset="utf-8"><title>${esc(q.quoteNo)} — Real Estate Digital Platform</title>
 <style>
-@page{size:A4;margin:16mm}body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#0d0d0d;margin:0}
+@page{size:A4;margin:16mm}body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#171716;margin:0}
 .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #c8f135;padding-bottom:12px}
 .top img{height:64px}.muted{color:#666;font-size:12px}h1{font-size:22px;margin:18px 0 4px}
 table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}td{padding:8px 6px;border-bottom:1px solid #e5e5e5}.r{text-align:right;white-space:nowrap}
-.total td{font-weight:700;font-size:16px;border-bottom:none;border-top:2px solid #0d0d0d}
+.total td{font-weight:700;font-size:16px;border-bottom:none;border-top:2px solid #171716}
 ul{font-size:12px;color:#444;line-height:1.6;padding-left:18px}
 </style></head><body>
 <div class="top"><img src="${location.origin}/brand/fm-logo-light.png" alt="FrameMind AI Studio"><div style="text-align:right"><b>${esc(q.quoteNo)}</b><div class="muted">${today}</div></div></div>

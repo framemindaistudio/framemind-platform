@@ -527,11 +527,11 @@ function openQuote(win: Window | null, d: { quoteNo: string; name: string; busin
   ].join("");
   w.document.write(`<!doctype html><html lang="en-IN"><head><meta charset="utf-8"><title>${esc(d.quoteNo)} — ${esc(d.ind.product)}</title>
 <style>
-@page{size:A4;margin:16mm}body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#0d0d0d;margin:0}
+@page{size:A4;margin:16mm}body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#171716;margin:0}
 .top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #c8f135;padding-bottom:12px}
 .top img{height:64px}.muted{color:#666;font-size:12px}h1{font-size:22px;margin:18px 0 4px}
 table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}td{padding:8px 6px;border-bottom:1px solid #e5e5e5}.r{text-align:right;white-space:nowrap}
-.total td{font-weight:700;font-size:16px;border-bottom:none;border-top:2px solid #0d0d0d}
+.total td{font-weight:700;font-size:16px;border-bottom:none;border-top:2px solid #171716}
 ul{font-size:12px;color:#444;line-height:1.6;padding-left:18px}
 </style></head><body>
 <div class="top"><img src="${location.origin}/brand/fm-logo-light.png" alt="FrameMind AI Studio"><div style="text-align:right"><b>${esc(d.quoteNo)}</b><div class="muted">${today}</div></div></div>

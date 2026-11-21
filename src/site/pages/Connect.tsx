@@ -121,16 +121,16 @@ export default function Connect() {
           {/* Left — founder note + direct links */}
           <div>
             {/* Founder card — bold split layout */}
-            <div className="bg-[#0D0D0D] text-[#F5F4F0] rounded-sm overflow-hidden mb-8">
+            <div className="bg-[#171716] text-[#eceae4] rounded-sm overflow-hidden mb-8">
               {/* Photo — full portrait, no cropping */}
-              <div className="relative w-full bg-[#0D0D0D]">
+              <div className="relative w-full bg-[#171716]">
                 <ImageWithFallback
                   src={founderPhoto}
                   alt="Chinmay R M — Founder, FrameMind AI Studio"
                   className="w-full object-contain block"
                 />
                 {/* Gradient fade into card body */}
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0D0D0D] to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#171716] to-transparent" />
                 {/* Electric Lime accent bar */}
                 <div className="absolute top-0 left-0 w-1 h-full bg-[#C8F135]" />
               </div>
@@ -144,7 +144,7 @@ export default function Connect() {
                 <div className="flex items-center gap-4">
                   <div className="w-1 h-12 bg-[#C8F135] shrink-0" />
                   <div>
-                    <p className="text-2xl font-semibold tracking-tight text-[#F5F4F0]">Chinmay R M</p>
+                    <p className="text-2xl font-semibold tracking-tight text-[#eceae4]">Chinmay R M</p>
                     <p className="font-mono text-xs text-[#888] mt-1">Founder, FrameMind AI Studio</p>
                   </div>
                 </div>
@@ -184,7 +184,7 @@ export default function Connect() {
             {submitted ? (
               <div className="border border-border rounded-sm p-10 text-center h-full flex flex-col items-center justify-center min-h-[400px]">
                 <div className="w-12 h-12 bg-[#C8F135] rounded-sm flex items-center justify-center mb-5">
-                  <ArrowRight size={18} className="text-[#0D0D0D]" />
+                  <ArrowRight size={18} className="text-[#171716]" />
                 </div>
                 <h2 className="font-semibold text-xl mb-2">Message received.</h2>
                 <p className="text-sm text-muted-foreground">
@@ -350,7 +350,7 @@ export default function Connect() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#0D0D0D] text-[#F5F4F0] px-6 py-3.5 text-sm font-medium rounded-sm hover:bg-[#222] transition-colors flex items-center justify-center gap-2 mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="bg-[#171716] text-[#eceae4] px-6 py-3.5 text-sm font-medium rounded-sm hover:bg-[#222] transition-colors flex items-center justify-center gap-2 mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? "Sending…" : <><span>Send message</span><ArrowRight size={13} /></>}
                 </button>

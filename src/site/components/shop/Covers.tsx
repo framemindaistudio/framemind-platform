@@ -31,7 +31,7 @@ const GRAIN =
 const mono = "font-mono uppercase tracking-[0.18em]";
 const cq = (n: number) => `${n}cqw`;
 
-function Frame({ bg, ink = "#F5F4F0", children, grain = 0.22 }: { bg: string; ink?: string; children: ReactNode; grain?: number }) {
+function Frame({ bg, ink = "#eceae4", children, grain = 0.22 }: { bg: string; ink?: string; children: ReactNode; grain?: number }) {
   return (
     <div className="@container relative aspect-[4/5] w-full select-none overflow-hidden" style={{ background: bg, color: ink }} aria-hidden>
       {children}
@@ -269,7 +269,7 @@ const LIBRARY = "2E1A12,A8431F,D98A5B,EED3BC,F8F1E8|1C261B,3F5A36,8EA06B,D9DDBF,
 function Swatch({ p }: { p: PublicProduct }) {
   const feature = LIBRARY[0];
   return (
-    <Frame bg="#141414" ink="#F5F4F0" grain={0.18}>
+    <Frame bg="#141414" ink="#eceae4" grain={0.18}>
       <div style={{ position: "absolute", left: cq(7), top: cq(7), right: cq(7) }}>
         <p className={`${mono} text-white/50`} style={{ fontSize: cq(2.6) }}>
           {LIBRARY.length} palettes · 6 moods
@@ -339,12 +339,12 @@ function Specimen({ p, accent }: { p: PublicProduct; accent: string }) {
 /* ─────────────── Business: the actual document set ─────────────── */
 function Doc({ title, tag, children, style }: { title: string; tag: string; children: ReactNode; style: CSSProperties }) {
   return (
-    <div className="absolute rounded-[1.4cqw] bg-[#FBF8F1] text-[#1A1A1A] shadow-[0_3cqw_7cqw_rgba(0,0,0,.45)]" style={{ width: cq(46), padding: cq(4), ...style }}>
+    <div className="absolute rounded-[1.4cqw] bg-[#FBF8F1] text-[#1f1f1d] shadow-[0_3cqw_7cqw_rgba(0,0,0,.45)]" style={{ width: cq(46), padding: cq(4), ...style }}>
       <div className="flex items-start justify-between">
         <p className="font-semibold" style={{ fontSize: cq(3.6), letterSpacing: "-0.02em" }}>
           {title}
         </p>
-        <span className={`${mono} rounded-full bg-[#1A1A1A] text-white`} style={{ fontSize: cq(1.8), padding: `${cq(0.6)} ${cq(1.4)}` }}>
+        <span className={`${mono} rounded-full bg-[#1f1f1d] text-white`} style={{ fontSize: cq(1.8), padding: `${cq(0.6)} ${cq(1.4)}` }}>
           {tag}
         </span>
       </div>
@@ -428,7 +428,7 @@ function Brutal({ p, accent }: { p: PublicProduct; accent: string }) {
         );
       })}
       {save > 0 && (
-        <div className="absolute z-20 flex items-center justify-center rounded-full border-[0.8cqw] border-[#0D0D0D] text-center font-black leading-none text-[#0D0D0D]" style={{ background: accent, right: cq(5), top: cq(6), width: cq(22), height: cq(22), transform: "rotate(12deg)", fontSize: cq(3.6) }}>
+        <div className="absolute z-20 flex items-center justify-center rounded-full border-[0.8cqw] border-[#171716] text-center font-black leading-none text-[#171716]" style={{ background: accent, right: cq(5), top: cq(6), width: cq(22), height: cq(22), transform: "rotate(12deg)", fontSize: cq(3.6) }}>
           SAVE
           <br />₹{save}
         </div>

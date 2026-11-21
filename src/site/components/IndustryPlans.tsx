@@ -11,8 +11,8 @@ import { DEDICATED, OVERAGE_COMMON, TIERS, tierPrice, type Industry, type Indust
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 const C = {
-  ink: "var(--b-primary, #0D0D0D)",
-  accent: "var(--b-accent-ink, #0D0D0D)",
+  ink: "var(--b-primary, #171716)",
+  accent: "var(--b-accent-ink, #171716)",
   surface: "var(--b-surface, #F1F0EA)",
 };
 
@@ -25,7 +25,7 @@ export function PlanCompare({ ind, rates, freeMonths }: { ind: Industry; rates?:
   ];
   return (
     <div>
-      <div className="overflow-x-auto rounded-2xl border border-[var(--b-primary,#0D0D0D)]/10 bg-white">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--b-primary,#171716)]/10 bg-white">
         <table className="w-full min-w-[720px] text-sm tabular-nums">
           <thead>
             <tr className="text-left">
@@ -43,7 +43,7 @@ export function PlanCompare({ ind, rates, freeMonths }: { ind: Industry; rates?:
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.label} className="border-t border-[var(--b-primary,#0D0D0D)]/10">
+              <tr key={r.label} className="border-t border-[var(--b-primary,#171716)]/10">
                 <td className="px-4 py-2.5 font-medium">{r.label}</td>
                 {r.values.map((v, i) => (
                   <td key={i} className="px-4 py-2.5" style={TIERS[i]?.badge ? { background: C.surface } : undefined}>
@@ -64,7 +64,7 @@ export function PlanCompare({ ind, rates, freeMonths }: { ind: Industry; rates?:
 
 /** Shared app vs dedicated app, with the dedicated app's hosting and storage options. */
 export function BuyOptions({ setup }: { setup: number }) {
-  const card = "rounded-2xl border border-[var(--b-primary,#0D0D0D)]/10 bg-white p-6";
+  const card = "rounded-2xl border border-[var(--b-primary,#171716)]/10 bg-white p-6";
   const tick = (x: string) => (
     <li key={x} className="flex gap-2 text-sm">
       <Check size={14} className="mt-0.5 shrink-0" style={{ color: C.accent }} /> {x}
@@ -100,7 +100,7 @@ export function BuyOptions({ setup }: { setup: number }) {
           </ul>
         </div>
       </div>
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--b-primary,#0D0D0D)]/10 bg-white">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--b-primary,#171716)]/10 bg-white">
         <table className="w-full min-w-[620px] text-sm tabular-nums">
           <thead>
             <tr className="text-left text-[11px] font-semibold uppercase tracking-wider">
@@ -111,18 +111,18 @@ export function BuyOptions({ setup }: { setup: number }) {
           </thead>
           <tbody>
             {DEDICATED.hosting.map((h) => (
-              <tr key={h.name} className="border-t border-[var(--b-primary,#0D0D0D)]/10">
+              <tr key={h.name} className="border-t border-[var(--b-primary,#171716)]/10">
                 <td className="px-4 py-2.5 font-semibold">{h.name}</td>
                 <td className="px-4 py-2.5 opacity-75">{h.detail}</td>
                 <td className="px-4 py-2.5 text-right font-bold">{inr(h.monthly)}/month</td>
               </tr>
             ))}
-            <tr className="border-t border-[var(--b-primary,#0D0D0D)]/10">
+            <tr className="border-t border-[var(--b-primary,#171716)]/10">
               <td className="px-4 py-2.5 font-semibold">Your own cloud account</td>
               <td className="px-4 py-2.5 opacity-75">Runs on your AWS / Google / Vercel / Supabase account, billed to you by the provider; we set it up and manage it under maintenance</td>
               <td className="px-4 py-2.5 text-right font-bold">At actuals + {inr(DEDICATED.ownCloudSetup)} setup</td>
             </tr>
-            <tr className="border-t border-[var(--b-primary,#0D0D0D)]/10">
+            <tr className="border-t border-[var(--b-primary,#171716)]/10">
               <td className="px-4 py-2.5 font-semibold">Extra storage</td>
               <td className="px-4 py-2.5 opacity-75">Photos, documents, reports and backups beyond the managed pack</td>
               <td className="px-4 py-2.5 text-right font-bold">{DEDICATED.extraStorage}</td>

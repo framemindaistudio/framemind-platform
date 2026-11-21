@@ -94,7 +94,7 @@ export default function Jove() {
       <div className="min-h-screen">
 
         {/* ── Hero ── */}
-        <section className="bg-[#0D0D0D] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,241,53,0.06),transparent_60%)]" />
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
 
@@ -105,7 +105,7 @@ export default function Jove() {
             </div>
 
             <div className="max-w-4xl">
-              <h1 className="text-6xl sm:text-7xl md:text-[96px] font-black text-[#F5F4F0] tracking-tight leading-none mb-3">
+              <h1 className="text-6xl sm:text-7xl md:text-[96px] font-black text-[#eceae4] tracking-tight leading-none mb-3">
                 JOVE
               </h1>
               <p className="font-mono text-sm text-[#C8F135] uppercase tracking-widest mb-6">
@@ -116,10 +116,10 @@ export default function Jove() {
               </p>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1a1a1a] border border-[#1a1a1a] rounded-sm overflow-hidden mb-10">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1f1f1d] border border-[#1f1f1d] rounded-sm overflow-hidden mb-10">
                 {highlights.map(({ num, label }) => (
-                  <div key={label} className="bg-[#0D0D0D] px-5 py-5 flex flex-col gap-1.5">
-                    <span className="text-2xl font-black text-[#F5F4F0] tracking-tight leading-none">{num}</span>
+                  <div key={label} className="bg-[#171716] px-5 py-5 flex flex-col gap-1.5">
+                    <span className="text-2xl font-black text-[#eceae4] tracking-tight leading-none">{num}</span>
                     <span className="text-[11px] text-[#555] leading-snug">{label}</span>
                   </div>
                 ))}
@@ -130,7 +130,7 @@ export default function Jove() {
                   href="https://jove.website"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors"
+                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors"
                 >
                   Visit jove.website <ArrowUpRight size={14} />
                 </a>
@@ -164,21 +164,21 @@ export default function Jove() {
               {programs.map((p) => (
                 <div
                   key={p.num}
-                  className={`rounded-sm border overflow-hidden flex flex-col ${p.highlight ? "border-[#C8F135] bg-[#0D0D0D] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}
+                  className={`rounded-sm border overflow-hidden flex flex-col ${p.highlight ? "border-[#C8F135] bg-[#171716] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}
                 >
                   <div className={`px-5 pt-5 pb-4 border-b ${p.highlight ? "border-[#1e1e1e]" : "border-border"}`}>
                     <div className="flex items-center justify-between mb-3">
                       <span className={`font-mono text-[9px] uppercase tracking-widest ${p.highlight ? "text-[#C8F135]" : "text-muted-foreground"}`}>
                         {p.num}
                       </span>
-                      <span className={`font-mono text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm ${p.highlight ? "bg-[#C8F135] text-[#0D0D0D]" : "bg-secondary text-muted-foreground"}`}>
+                      <span className={`font-mono text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm ${p.highlight ? "bg-[#C8F135] text-[#171716]" : "bg-secondary text-muted-foreground"}`}>
                         {p.badge}
                       </span>
                     </div>
                     <p className={`font-mono text-[10px] uppercase tracking-widest mb-1.5 ${p.highlight ? "text-[#555]" : "text-muted-foreground/60"}`}>
                       {p.grade}
                     </p>
-                    <h3 className={`text-lg font-black tracking-tight ${p.highlight ? "text-[#F5F4F0]" : "text-foreground"}`}>
+                    <h3 className={`text-lg font-black tracking-tight ${p.highlight ? "text-[#eceae4]" : "text-foreground"}`}>
                       {p.title}
                     </h3>
                   </div>
@@ -214,12 +214,12 @@ export default function Jove() {
         </section>
 
         {/* ── FrameMind × JOVE ── */}
-        <section className="border-b border-border bg-[#0D0D0D]">
+        <section className="border-b border-border bg-[#171716]">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
             <SectionLabel>03 · FrameMind × JOVE</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#F5F4F0] tracking-tight mb-5">
+                <h2 className="text-3xl md:text-4xl font-bold text-[#eceae4] tracking-tight mb-5">
                   Every workshop is documented.
                 </h2>
                 <p className="text-sm text-[#666] leading-relaxed mb-6">
@@ -276,11 +276,11 @@ export default function Jove() {
         </section>
 
         {/* ── CTA ── */}
-        <section className="bg-[#0D0D0D]">
+        <section className="bg-[#171716]">
           <div className="max-w-6xl mx-auto px-6 py-16 md:py-24">
             <div className="max-w-2xl">
               <span className="font-mono text-[10px] text-[#555] uppercase tracking-[0.2em] mb-4 block">Book a Workshop</span>
-              <h2 className="text-4xl md:text-5xl font-black text-[#F5F4F0] tracking-tight leading-none mb-5">
+              <h2 className="text-4xl md:text-5xl font-black text-[#eceae4] tracking-tight leading-none mb-5">
                 Bring JOVE to<br />your school.
               </h2>
               <p className="text-sm text-[#666] leading-relaxed mb-8 max-w-lg">
@@ -291,7 +291,7 @@ export default function Jove() {
                   href="https://jove.website"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors"
+                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors"
                 >
                   Visit jove.website <ArrowUpRight size={14} />
                 </a>

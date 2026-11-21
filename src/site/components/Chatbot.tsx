@@ -287,13 +287,13 @@ export default function Chatbot() {
         >
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-[#0D0D0D] border-b border-[#1e1e1e] shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#171716] border-b border-[#1e1e1e] shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-[#C8F135] flex items-center justify-center shrink-0">
-                <span className="text-[#0D0D0D] text-[9px] font-black tracking-tight">FM</span>
+                <span className="text-[#171716] text-[9px] font-black tracking-tight">FM</span>
               </div>
               <div>
-                <p className="text-[#F5F4F0] text-xs font-semibold leading-tight">FrameMind Assistant</p>
+                <p className="text-[#eceae4] text-xs font-semibold leading-tight">FrameMind Assistant</p>
                 <div className="flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   <span className="text-[9px] text-[#555]">Online</span>
@@ -310,7 +310,7 @@ export default function Chatbot() {
               </button>
               <button
                 onClick={() => setOpen(false)}
-                className="p-2 text-[#444] hover:text-[#F5F4F0] transition-colors rounded-lg"
+                className="p-2 text-[#444] hover:text-[#eceae4] transition-colors rounded-lg"
               >
                 <X size={14} />
               </button>
@@ -326,14 +326,14 @@ export default function Chatbot() {
               >
                 {msg.from === "bot" && (
                   <div className="w-5 h-5 rounded-full bg-[#C8F135] flex items-center justify-center shrink-0 mb-0.5">
-                    <span className="text-[#0D0D0D] text-[7px] font-black">FM</span>
+                    <span className="text-[#171716] text-[7px] font-black">FM</span>
                   </div>
                 )}
                 <div
                   className={`text-xs leading-relaxed px-3 py-2.5 max-w-[78%] ${
                     msg.from === "bot"
-                      ? "bg-[#1a1a1a] text-[#ccc] rounded-2xl rounded-bl-sm"
-                      : "bg-[#C8F135] text-[#0D0D0D] font-medium rounded-2xl rounded-br-sm"
+                      ? "bg-[#1f1f1d] text-[#ccc] rounded-2xl rounded-bl-sm"
+                      : "bg-[#C8F135] text-[#171716] font-medium rounded-2xl rounded-br-sm"
                   }`}
                 >
                   {msg.text}
@@ -345,9 +345,9 @@ export default function Chatbot() {
             {typing && (
               <div className="flex items-end gap-2">
                 <div className="w-5 h-5 rounded-full bg-[#C8F135] flex items-center justify-center shrink-0">
-                  <span className="text-[#0D0D0D] text-[7px] font-black">FM</span>
+                  <span className="text-[#171716] text-[7px] font-black">FM</span>
                 </div>
-                <div className="bg-[#1a1a1a] px-3.5 py-3 rounded-2xl rounded-bl-sm flex gap-1 items-center">
+                <div className="bg-[#1f1f1d] px-3.5 py-3 rounded-2xl rounded-bl-sm flex gap-1 items-center">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#555] animate-bounce" style={{ animationDelay: "0ms" }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-[#555] animate-bounce" style={{ animationDelay: "160ms" }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-[#555] animate-bounce" style={{ animationDelay: "320ms" }} />
@@ -381,7 +381,7 @@ export default function Chatbot() {
 
           {/* Text input */}
           <div className="px-4 pt-2 pb-4 border-t border-[#1e1e1e] shrink-0">
-            <div className="flex items-center gap-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-3 py-2 focus-within:border-[#3a3a3a] transition-colors">
+            <div className="flex items-center gap-2 bg-[#1f1f1d] border border-[#2a2a2a] rounded-xl px-3 py-2 focus-within:border-[#3a3a3a] transition-colors">
               <input
                 ref={inputRef}
                 type="text"
@@ -415,7 +415,7 @@ export default function Chatbot() {
       {/* ── Toggle button ── */}
       <button
         onClick={open ? () => setOpen(false) : handleOpen}
-        className="relative w-12 h-12 rounded-full bg-[#C8F135] text-[#0D0D0D] flex items-center justify-center shadow-lg hover:bg-[#b8e020] transition-colors"
+        className="relative w-12 h-12 rounded-full bg-[#C8F135] text-[#171716] flex items-center justify-center shadow-lg hover:bg-[#b8e020] transition-colors"
         aria-label={open ? "Close chat" : "Open chat"}
       >
         {open ? <X size={18} /> : <MessageCircle size={18} />}

@@ -42,7 +42,7 @@ function Chips({ title, options, value, onChange }: { title: string; options: st
               aria-pressed={on}
               onClick={() => onChange(on ? value.filter((x) => x !== o) : [...value, o])}
               className={`inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-xs font-medium transition-colors ${
-                on ? "border-[#0D0D0D] bg-[#0D0D0D] text-[#F5F4F0]" : "border-border text-foreground hover:border-foreground/40"
+                on ? "border-[#171716] bg-[#171716] text-[#eceae4]" : "border-border text-foreground hover:border-foreground/40"
               }`}
             >
               {on && <Check size={12} className="text-[#C8F135]" />}
@@ -153,8 +153,8 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{r.code === "R-00" ? "Open" : r.code}</span>
                   {r.hiring && (
-                    <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#C8F135] px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-widest text-[#0D0D0D]">
-                      <span className="size-1.5 rounded-full bg-[#0D0D0D] animate-pulse" aria-hidden />
+                    <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#C8F135] px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-widest text-[#171716]">
+                      <span className="size-1.5 rounded-full bg-[#171716] animate-pulse" aria-hidden />
                       Hiring now
                     </span>
                   )}
@@ -182,16 +182,16 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
       </section>
 
       {/* How it works */}
-      <section className="border-t border-border bg-[#0D0D0D]">
-        <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1a1a1a] border border-[#1a1a1a]">
+      <section className="border-t border-border bg-[#171716]">
+        <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1f1f1d] border border-[#1f1f1d]">
           {[
             { n: "01", t: "You apply", b: "This form takes five minutes. For design, photo and video, the portfolio is the application." },
             { n: "02", t: "We read it", b: "Every application is read by the founder, not filtered by software." },
             { n: "03", t: "We talk", b: "If your work fits what the studio needs, we get in touch for a conversation." },
           ].map((s) => (
-            <div key={s.n} className="bg-[#0a0a0a] p-6 sm:p-8">
+            <div key={s.n} className="bg-[#141413] p-6 sm:p-8">
               <span className="font-mono text-3xl font-bold text-[#C8F135] block mb-4 leading-none">{s.n}</span>
-              <h3 className="font-semibold text-[#F5F4F0] text-sm mb-2">{s.t}</h3>
+              <h3 className="font-semibold text-[#eceae4] text-sm mb-2">{s.t}</h3>
               <p className="text-xs text-[#888] leading-relaxed">{s.b}</p>
             </div>
           ))}
@@ -204,7 +204,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
           {done ? (
             <div className="border border-border rounded-sm p-10 text-center flex flex-col items-center justify-center min-h-[320px]">
               <div className="w-12 h-12 bg-[#C8F135] rounded-sm flex items-center justify-center mb-5">
-                <Check size={18} className="text-[#0D0D0D]" />
+                <Check size={18} className="text-[#171716]" />
               </div>
               <h2 className="font-semibold text-xl mb-2">Thank you, {f.name.trim().split(" ")[0]}. Your application is in.</h2>
               <p className="text-sm text-muted-foreground max-w-md">
@@ -232,7 +232,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
                     return (
                       <label
                         key={r.id}
-                        className={`flex cursor-pointer gap-3 rounded-sm border p-4 transition-colors ${on ? "border-[#0D0D0D] bg-[#0D0D0D] text-[#F5F4F0]" : "border-border hover:border-foreground/40"}`}
+                        className={`flex cursor-pointer gap-3 rounded-sm border p-4 transition-colors ${on ? "border-[#171716] bg-[#171716] text-[#eceae4]" : "border-border hover:border-foreground/40"}`}
                       >
                         <input type="radio" name="role" value={r.id} checked={on} onChange={() => choose(r.id)} className="sr-only" />
                         <span className={`mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border ${on ? "border-[#C8F135]" : "border-foreground/30"}`} aria-hidden>
@@ -280,7 +280,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
                   <input id="c-city" value={f.city} onChange={set("city")} maxLength={80} autoComplete="address-level2" placeholder="e.g. Gadag, Hubballi, Bengaluru" className={field} />
                 </div>
                 <label className="sm:col-span-2 inline-flex items-center gap-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={student} onChange={(e) => setStudent(e.target.checked)} className="size-4 accent-[#0D0D0D]" />
+                  <input type="checkbox" checked={student} onChange={(e) => setStudent(e.target.checked)} className="size-4 accent-[#171716]" />
                   I am a student
                 </label>
                 <div className="flex flex-col gap-1.5">
@@ -364,7 +364,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#0D0D0D] text-[#F5F4F0] px-6 py-3.5 text-sm font-medium rounded-sm hover:bg-[#222] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="bg-[#171716] text-[#eceae4] px-6 py-3.5 text-sm font-medium rounded-sm hover:bg-[#222] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? "Sending…" : <><span>Send application</span><ArrowRight size={13} /></>}
                 </button>

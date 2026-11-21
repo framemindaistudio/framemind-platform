@@ -13,7 +13,7 @@ const ageGroups = [
     range: "Ages 10 – 20",
     tag: "Students & Young Learners",
     accent: "#C8F135",
-    accentText: "#0D0D0D",
+    accentText: "#171716",
     icon: GraduationCap,
     headline: "Build your future before everyone else figures out what AI even is.",
     subline:
@@ -33,7 +33,7 @@ const ageGroups = [
     id: "21-35",
     range: "Ages 21 – 35",
     tag: "Working Professionals & Entrepreneurs",
-    accent: "#0D0D0D",
+    accent: "#171716",
     accentText: "#C8F135",
     icon: Briefcase,
     headline: "The most productive version of you exists on the other side of AI fluency.",
@@ -55,7 +55,7 @@ const ageGroups = [
     range: "Ages 36 – 60",
     tag: "Experienced Professionals & Leaders",
     accent: "#C8F135",
-    accentText: "#0D0D0D",
+    accentText: "#171716",
     icon: Heart,
     headline: "Your experience is the asset. AI is the multiplier.",
     subline:
@@ -123,7 +123,7 @@ const formats = [
 
 function CurriculumModal({ group, onClose }: { group: typeof ageGroups[0]; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D0D0D]/70 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#171716]/70 backdrop-blur-sm" onClick={onClose}>
       <div
         className="bg-background border border-border rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -187,7 +187,7 @@ function CurriculumModal({ group, onClose }: { group: typeof ageGroups[0]; onClo
               ].map((s) => (
                 <div key={s.step} className="flex gap-5 border border-border rounded-sm p-5">
                   <div className="shrink-0">
-                    <span className="font-mono text-xs bg-[#0D0D0D] text-[#C8F135] px-2.5 py-1 rounded-sm">{s.step}</span>
+                    <span className="font-mono text-xs bg-[#171716] text-[#C8F135] px-2.5 py-1 rounded-sm">{s.step}</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-sm mb-1.5">{s.title}</h4>
@@ -207,7 +207,7 @@ function CurriculumModal({ group, onClose }: { group: typeof ageGroups[0]; onClo
 
           <a
             href="/connect"
-            className="bg-[#C8F135] text-[#0D0D0D] text-sm font-semibold px-6 py-3.5 rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2"
+            className="bg-[#C8F135] text-[#171716] text-sm font-semibold px-6 py-3.5 rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2"
           >
             Contact Founder — Discuss Your Plan <ArrowRight size={14} />
           </a>
@@ -252,7 +252,7 @@ export default function PersonalCoaching() {
         }}
       />
       {/* ── Hero ── */}
-      <section className="relative bg-[#0D0D0D] overflow-hidden">
+      <section className="relative bg-[#171716] overflow-hidden">
         {/* Founder photo — right side, barely visible */}
         <div className="absolute inset-y-0 right-0 w-1/2 pointer-events-none">
           <img
@@ -263,8 +263,8 @@ export default function PersonalCoaching() {
             style={{ maskImage: "linear-gradient(to right, transparent 0%, #000 40%)", WebkitMaskImage: "linear-gradient(to right, transparent 0%, #000 40%)" }}
           />
           {/* Fade edges */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0D0D0D] via-transparent to-[#0D0D0D]/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D] via-transparent to-[#0D0D0D]/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#171716] via-transparent to-[#171716]/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#171716] via-transparent to-[#171716]/20" />
         </div>
 
         <div className="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-16 md:pb-20 relative">
@@ -276,7 +276,7 @@ export default function PersonalCoaching() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-[#F5F4F0] tracking-tight leading-[1.0] mb-6 max-w-4xl">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-[#eceae4] tracking-tight leading-[1.0] mb-6 max-w-4xl">
             Learn AI completely.{" "}
             <span className="text-[#C8F135]">In 90 days.</span>
             <br />
@@ -286,7 +286,7 @@ export default function PersonalCoaching() {
           {/* Tagline */}
           <div className="flex items-start gap-4 mb-10 max-w-2xl">
             <div className="shrink-0 mt-1 w-5 h-5 rounded-full bg-[#C8F135] flex items-center justify-center">
-              <Sparkles size={10} className="text-[#0D0D0D]" />
+              <Sparkles size={10} className="text-[#171716]" />
             </div>
             <p className="text-base text-[#888] leading-relaxed">
               Research has proven that with consistent, focused practice, you can achieve genuine fluency in any new skill within 90 days — even if you are starting with absolutely zero prior knowledge. We have built the entire coaching structure around exactly that.
@@ -303,7 +303,7 @@ export default function PersonalCoaching() {
             ].map(({ n, unit, label }) => (
               <div key={label}>
                 <div className="flex items-end gap-1 mb-1">
-                  <span className="text-3xl font-semibold text-[#F5F4F0]">{n}</span>
+                  <span className="text-3xl font-semibold text-[#eceae4]">{n}</span>
                   <span className="text-[#C8F135] font-semibold text-lg mb-0.5">{unit}</span>
                 </div>
                 <p className="font-mono text-xs text-[#555] uppercase tracking-widest">{label}</p>
@@ -315,7 +315,7 @@ export default function PersonalCoaching() {
           <div className="flex flex-wrap gap-4">
             <a
               href="/connect"
-              className="inline-flex items-center gap-2 bg-[#C8F135] text-[#0D0D0D] px-7 py-4 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors"
+              className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-7 py-4 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors"
             >
               Contact Founder <ArrowRight size={14} />
             </a>
@@ -348,7 +348,7 @@ export default function PersonalCoaching() {
             {whyWorks.map(({ icon: IIcon, title, desc }) => (
               <div key={title} className="bg-background p-6 sm:p-8 hover:bg-secondary/50 transition-colors">
                 <div className="w-10 h-10 bg-[#C8F135] rounded-sm flex items-center justify-center mb-5">
-                  <IIcon size={17} className="text-[#0D0D0D]" />
+                  <IIcon size={17} className="text-[#171716]" />
                 </div>
                 <h3 className="font-semibold text-base mb-2">{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
@@ -359,11 +359,11 @@ export default function PersonalCoaching() {
       </section>
 
       {/* ── Age Groups ── */}
-      <section id="age-groups" className="border-t border-border bg-[#0D0D0D]">
+      <section id="age-groups" className="border-t border-border bg-[#171716]">
         <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
           <div className="mb-8 md:mb-10">
             <span className="font-mono text-xs text-[#555] uppercase tracking-widest mb-3 block">Your Track</span>
-            <h2 className="text-3xl font-semibold text-[#F5F4F0] tracking-tight">Coaching built for your age and context.</h2>
+            <h2 className="text-3xl font-semibold text-[#eceae4] tracking-tight">Coaching built for your age and context.</h2>
           </div>
 
           {/* Tab switcher */}
@@ -377,7 +377,7 @@ export default function PersonalCoaching() {
                   onClick={() => setActiveGroup(g.id)}
                   className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-sm border transition-all ${
                     isActive
-                      ? "bg-[#C8F135] text-[#0D0D0D] border-[#C8F135]"
+                      ? "bg-[#C8F135] text-[#171716] border-[#C8F135]"
                       : "border-[#222] text-[#666] hover:text-[#aaa] hover:border-[#333]"
                   }`}
                 >
@@ -399,7 +399,7 @@ export default function PersonalCoaching() {
                 <Icon size={12} />
                 {selectedGroup.tag}
               </div>
-              <h3 className="text-2xl md:text-3xl font-semibold text-[#F5F4F0] tracking-tight mb-4 leading-snug">
+              <h3 className="text-2xl md:text-3xl font-semibold text-[#eceae4] tracking-tight mb-4 leading-snug">
                 {selectedGroup.headline}
               </h3>
               <p className="text-sm text-[#888] leading-relaxed mb-8">{selectedGroup.subline}</p>
@@ -433,7 +433,7 @@ export default function PersonalCoaching() {
               </div>
 
               {/* Personas */}
-              <div className="border border-[#1a1a1a] bg-[#0a0a0a] rounded-sm p-6">
+              <div className="border border-[#1f1f1d] bg-[#141413] rounded-sm p-6">
                 <p className="font-mono text-xs text-[#555] uppercase tracking-widest mb-4">Who this is for</p>
                 <div className="flex flex-wrap gap-2">
                   {selectedGroup.personas.map((p) => (
@@ -447,7 +447,7 @@ export default function PersonalCoaching() {
               {/* Delivery */}
               <div className="grid grid-cols-2 gap-3">
                 {formats.map((f) => (
-                  <div key={f.type} className="border border-[#1a1a1a] rounded-sm p-5">
+                  <div key={f.type} className="border border-[#1f1f1d] rounded-sm p-5">
                     <p className="font-mono text-xs text-[#555] uppercase tracking-widest mb-1">{f.type}</p>
                     <p className="text-xs text-[#666] leading-relaxed">{f.desc.split(".")[0]}.</p>
                   </div>
@@ -457,7 +457,7 @@ export default function PersonalCoaching() {
               {/* CTA */}
               <a
                 href="/connect"
-                className="bg-[#C8F135] text-[#0D0D0D] px-6 py-4 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2"
+                className="bg-[#C8F135] text-[#171716] px-6 py-4 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2"
               >
                 Get a Custom Quote <ArrowRight size={14} />
               </a>
@@ -478,7 +478,7 @@ export default function PersonalCoaching() {
               <div key={f.type} className="border border-border rounded-sm p-8 flex flex-col gap-6 bg-background hover:bg-secondary/30 transition-colors">
                 <div>
                   <div className="w-10 h-10 bg-[#C8F135] rounded-sm flex items-center justify-center mb-4">
-                    <span className="font-mono text-[10px] font-bold text-[#0D0D0D]">{f.type.slice(0, 3).toUpperCase()}</span>
+                    <span className="font-mono text-[10px] font-bold text-[#171716]">{f.type.slice(0, 3).toUpperCase()}</span>
                   </div>
                   <h3 className="font-semibold text-xl mb-2">{f.type} Coaching</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
