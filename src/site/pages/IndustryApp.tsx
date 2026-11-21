@@ -375,7 +375,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--b-secondary)]">Live estimate</p>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={b.logoReverse} alt="" className="h-6 w-auto opacity-90" />
+                  <img src={b.logoReverse.replace(".svg", "-clear.svg")} alt="" className="h-7 w-auto opacity-90" />
                 </div>
                 <ul className="mt-4 space-y-2.5 text-sm">
                   {q.oneTimeItems.map((l) => (

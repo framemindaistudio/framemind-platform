@@ -38,7 +38,7 @@ const lookOf = (c: Ctx, who: "a" | "b" | "c"): Look => (c.people[who] ?? c.peopl
 function TopBar({ c, dark }: { c: Ctx; dark?: boolean }) {
   return (
     <g>
-      <image href={dark ? c.b.logoReverse : c.b.logo} x={60} y={48} width={250} height={64} preserveAspectRatio="xMinYMid meet" />
+      <image href={dark ? c.b.logoReverse.replace(".svg", "-clear.svg") : c.b.logo} x={60} y={48} width={250} height={64} preserveAspectRatio="xMinYMid meet" />
       <g transform={`translate(${W - 60} 80)`}>
         <rect x={-104} y={-28} width={104} height={56} rx={28} fill={dark ? "rgba(255,255,255,0.14)" : "rgba(11,18,48,0.07)"} />
         <text x={-52} y={10} textAnchor="middle" fontFamily={F.body} fontWeight={800} fontSize={26} fill={dark ? "#fff" : INK}>

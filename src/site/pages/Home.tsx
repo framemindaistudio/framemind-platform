@@ -347,7 +347,7 @@ function BrandCard({ ind, rates, big }: { ind: Ind; rates?: IndustryRates | null
       {/* the app's icon, huge and cropped, as a watermark */}
       <img src={b.icon} alt="" aria-hidden="true" className={`pointer-events-none absolute opacity-[0.13] mix-blend-luminosity ${big ? "-bottom-16 -right-16 w-[62%]" : "-bottom-10 -right-10 w-[60%]"}`} />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_10%_0%,rgba(255,255,255,0.18),transparent_60%)]" />
-      <img src={b.logoReverse} alt={`FrameMind ${b.name}`} className={`relative w-auto self-start ${big ? "h-11" : "h-8"}`} />
+      <img src={b.logoReverse.replace(".svg", "-clear.svg")} alt={`FrameMind ${b.name}`} className={`relative w-auto self-start ${big ? "h-14" : "h-10"}`} />
       <p className={`relative font-mono uppercase tracking-[0.2em] text-white/70 ${big ? "mt-auto pt-16 text-[11px]" : "mt-auto pt-10 text-[10px]"}`}>{ind.name}</p>
       <p className={`relative mt-3 leading-[1.05] tracking-[-0.035em] ${big ? "text-[clamp(1.9rem,3vw,2.8rem)]" : "text-[1.45rem]"}`}>{ind.tagline}</p>
       <div className={`relative flex flex-wrap items-center justify-between gap-4 border-t border-white/20 ${big ? "mt-8 pt-6" : "mt-6 pt-4"}`}>
