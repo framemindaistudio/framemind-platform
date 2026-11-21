@@ -127,3 +127,40 @@ export function ArrowLink({ to, children, className = "" }: { to: string; childr
     </Link>
   );
 }
+
+/**
+ * A phrase marked by hand: circled in lime ink, underlined with a quick stroke, or highlighted with a marker.
+ * The ink draws itself in when the phrase scrolls into view (the wrapper observes, so it is never clipped).
+ */
+export function Marked({ children, mark, ink = "#c8f135" }: { children: ReactNode; mark: "circle" | "underline" | "highlight"; ink?: string }) {
+  const reduce = useReducedMotion();
+  const draw = { hide: { pathLength: reduce ? 1 : 0 }, show: { pathLength: 1, transition: { duration: 1.1, ease: EASE, delay: 0.35 } } };
+  if (mark === "highlight")
+    return (
+      <motion.span className="relative isolate inline-block" initial="hide" whileInView="show" viewport={{ once: true }}>
+        <motion.span
+          aria-hidden="true"
+          className="absolute -inset-x-1.5 inset-y-[8%] -z-10 origin-left rounded-[0.25em]"
+          style={{ background: ink }}
+          variants={{ hide: { scaleX: reduce ? 1 : 0 }, show: { scaleX: 1, transition: { duration: 0.8, ease: EASE, delay: 0.35 } } }}
+        />
+        <span className="relative text-[#171716]">{children}</span>
+      </motion.span>
+    );
+  return (
+    <motion.span className={`relative inline-block ${mark === "circle" ? "mx-2" : ""}`} initial="hide" whileInView="show" viewport={{ once: true }}>
+      {children}
+      <svg aria-hidden="true" viewBox={mark === "circle" ? "0 0 200 70" : "0 0 200 14"} preserveAspectRatio="none" className={mark === "circle" ? "pointer-events-none absolute -left-4 -top-2.5 h-[calc(100%+20px)] w-[calc(100%+32px)] overflow-visible" : "pointer-events-none absolute -bottom-2 left-0 h-3 w-full overflow-visible"}>
+        <motion.path
+          d={mark === "circle" ? "M30 12 C80 -2 175 2 192 28 C205 52 150 68 95 66 C40 64 4 54 8 34 C11 18 45 8 120 8" : "M2 9 C40 3 80 12 120 6 C150 2 175 9 198 5"}
+          fill="none"
+          stroke={ink}
+          strokeWidth={mark === "circle" ? 4 : 3.5}
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          variants={draw}
+        />
+      </svg>
+    </motion.span>
+  );
+}

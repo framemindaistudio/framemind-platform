@@ -43,7 +43,7 @@ interface Start {
   business: string;
 }
 
-const field = "w-full rounded-sm border border-border bg-card px-3 py-2.5 text-base outline-none transition-colors focus:border-foreground";
+const field = "w-full rounded-2xl border border-border bg-background px-4 py-3 text-base outline-none transition-colors focus:border-foreground";
 
 export function BuyBox({ product, paymentsOn, whatsapp }: { product: PublicProduct; paymentsOn: boolean; whatsapp: string }) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", coupon: "" });
@@ -56,10 +56,10 @@ export function BuyBox({ product, paymentsOn, whatsapp }: { product: PublicProdu
 
   if (!product.buyable) {
     return (
-      <div className="border border-border bg-card p-5">
+      <div className="rounded-[26px] border border-border bg-card p-5 sm:p-6">
         <PriceTag product={product} large />
         <p className="mt-3 text-sm text-muted-foreground">Coming soon. Message us and we&apos;ll tell you the day it launches.</p>
-        <a href={askLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-sm border border-foreground px-5 py-3 text-sm font-semibold hover:bg-foreground hover:text-background">
+        <a href={askLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-full border border-foreground px-5 py-3.5 text-sm font-semibold hover:bg-foreground hover:text-background">
           Notify me on WhatsApp
         </a>
       </div>
@@ -114,10 +114,10 @@ export function BuyBox({ product, paymentsOn, whatsapp }: { product: PublicProdu
 
   if (!paymentsOn) {
     return (
-      <div className="border border-border bg-card p-5">
+      <div className="rounded-[26px] border border-border bg-card p-5 sm:p-6">
         <PriceTag product={product} large />
         <p className="mt-3 text-sm text-muted-foreground">Online checkout opens shortly. Until then, buy it on WhatsApp and we&apos;ll send a UPI link.</p>
-        <a href={askLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-sm bg-[#C8F135] px-5 py-3 text-sm font-semibold text-[#171716] hover:bg-[#b8e020]">
+        <a href={askLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#C8F135] px-5 py-3.5 text-sm font-semibold text-[#171716] hover:bg-[#b8e020]">
           Buy on WhatsApp
         </a>
       </div>
@@ -125,7 +125,7 @@ export function BuyBox({ product, paymentsOn, whatsapp }: { product: PublicProdu
   }
 
   return (
-    <form onSubmit={buy} className="border border-border bg-card p-5">
+    <form onSubmit={buy} className="rounded-[26px] border border-border bg-card p-5 sm:p-6">
       <PriceTag product={product} large />
       <div className="mt-5 space-y-3">
         <input className={field} placeholder="Your name" autoComplete="name" required value={form.name} onChange={set("name")} aria-label="Your name" />
@@ -139,8 +139,8 @@ export function BuyBox({ product, paymentsOn, whatsapp }: { product: PublicProdu
           </button>
         )}
       </div>
-      {error && <p className="mt-3 text-sm text-red-700" role="alert">{error}</p>}
-      <button type="submit" disabled={busy} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-sm bg-[#C8F135] px-5 py-3.5 text-base font-semibold text-[#171716] transition-colors hover:bg-[#b8e020] disabled:opacity-60">
+      {error && <p className="mt-3 text-sm text-[#ff8a7a]" role="alert">{error}</p>}
+      <button type="submit" disabled={busy} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#C8F135] px-5 py-4 text-base font-semibold text-[#171716] transition-colors hover:bg-[#b8e020] disabled:opacity-60">
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
         {busy ? "Opening payment…" : `Pay ${inr(product.price)} & download`}
       </button>

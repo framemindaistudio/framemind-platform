@@ -334,74 +334,119 @@ function Services() {
   );
 }
 
-/* ─────────────────────────── 5. industry apps on a 3D ring ─────────────────────────── */
+/* ─────────────────────────── 5. industry apps: an index and a brand card ─────────────────────────── */
 
-function AppCard({ ind, rates }: { ind: (typeof INDUSTRIES)[number]; rates?: IndustryRates | null }) {
+type Ind = (typeof INDUSTRIES)[number];
+
+/** One app, in its own brand colour: the reverse logo, its promise, its price and the live demo. */
+function BrandCard({ ind, rates, big }: { ind: Ind; rates?: IndustryRates | null; big?: boolean }) {
   const b = brandOf(ind.id);
+  const bg = `linear-gradient(155deg, color-mix(in oklab, ${b.colors.accent} 88%, black) 0%, color-mix(in oklab, ${b.colors.accent} 42%, #111) 100%)`;
   return (
-    <Link
-      to={`/industries/${ind.slug}`}
-      className="group flex h-full flex-col overflow-hidden rounded-[22px] bg-[#f3f2ee] p-5 text-[#1b1b19] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.7)] transition-transform duration-500 hover:-translate-y-1"
-    >
-      <span className="h-1 w-12 rounded-full" style={{ background: b.colors.accent }} />
-      <img src={b.logo} alt={`FrameMind ${b.name}`} className="mt-4 h-8 w-auto self-start" loading="lazy" />
-      <p className="mt-4 text-lg font-medium leading-tight tracking-tight">{ind.name}</p>
-      <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-[#1b1b19]/65">{ind.tagline}</p>
-      <p className="mt-auto flex items-end justify-between pt-4 text-sm">
-        <span>
-          From <b className="text-base font-medium">{inr(tierPrice(rates, ind.id, "starter"))}</b>
-          <span className="text-[#1b1b19]/55">/month</span>
-        </span>
-        <ArrowUpRight size={16} className="opacity-40 transition-opacity group-hover:opacity-100" />
-      </p>
-    </Link>
+    <div className={`relative flex h-full flex-col overflow-hidden text-white ${big ? "rounded-[32px] p-8 md:p-10" : "rounded-[26px] p-6"}`} style={{ background: bg }}>
+      {/* the app's icon, huge and cropped, as a watermark */}
+      <img src={b.icon} alt="" aria-hidden="true" className={`pointer-events-none absolute opacity-[0.13] mix-blend-luminosity ${big ? "-bottom-16 -right-16 w-[62%]" : "-bottom-10 -right-10 w-[60%]"}`} />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_10%_0%,rgba(255,255,255,0.18),transparent_60%)]" />
+      <img src={b.logoReverse} alt={`FrameMind ${b.name}`} className={`relative w-auto self-start ${big ? "h-11" : "h-8"}`} />
+      <p className={`relative font-mono uppercase tracking-[0.2em] text-white/70 ${big ? "mt-auto pt-16 text-[11px]" : "mt-auto pt-10 text-[10px]"}`}>{ind.name}</p>
+      <p className={`relative mt-3 leading-[1.05] tracking-[-0.035em] ${big ? "text-[clamp(1.9rem,3vw,2.8rem)]" : "text-[1.45rem]"}`}>{ind.tagline}</p>
+      <div className={`relative flex flex-wrap items-center justify-between gap-4 border-t border-white/20 ${big ? "mt-8 pt-6" : "mt-6 pt-4"}`}>
+        <p className="text-[15px] text-white/85">
+          From <b className="text-[1.25em] font-medium text-white">{inr(tierPrice(rates, ind.id, "starter"))}</b>/month
+        </p>
+        <div className="flex gap-2">
+          {ind.demoUrl && (
+            <a href={ind.demoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[13px] font-medium text-[#171716] transition-transform hover:-translate-y-0.5">
+              Live demo <ArrowUpRight size={14} />
+            </a>
+          )}
+          <Link to={`/industries/${ind.slug}`} className="inline-flex items-center rounded-full border border-white/35 px-4 py-2 text-[13px] transition-colors hover:bg-white/10">
+            Plans
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function IndustryRing({ rates }: { rates?: IndustryRates | null }) {
-  const box = useRef<HTMLElement>(null);
+function IndustryIndex({ rates }: { rates?: IndustryRates | null }) {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
   const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: box, offset: ["start end", "end start"] });
-  const turn = useTransform(scrollYProgress, [0, 1], reduce ? [-18, -18] : [40, -220]);
   const n = INDUSTRIES.length;
-  const CARD = 236;
-  const R = Math.round((CARD + 26) / (2 * Math.tan(Math.PI / n)));
 
+  useEffect(() => {
+    if (paused || reduce) return;
+    const id = setInterval(() => setActive((a) => (a + 1) % n), 3600);
+    return () => clearInterval(id);
+  }, [paused, reduce, n]);
+
+  const ind = INDUSTRIES[active]!;
   return (
-    <section ref={box} className="fm-dark relative overflow-hidden rounded-t-[36px] md:rounded-t-[56px]">
-      <div className="relative mx-auto max-w-[1320px] px-5 pt-24 sm:px-8 md:pt-32">
+    <section className="fm-dark relative overflow-hidden rounded-t-[36px] md:rounded-t-[56px]">
+      <div className="relative mx-auto max-w-[1320px] px-5 pb-24 pt-24 sm:px-8 md:pb-32 md:pt-32">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <Kicker className="text-[#d6d4cd]">Industry apps</Kicker>
             <MaskLines className="mt-5 text-[clamp(2.4rem,5.6vw,5.2rem)] font-normal leading-[0.98] tracking-[-0.045em]" lines={["Your industry's app,", <span key="a" className="text-[var(--fm-lime)]">already built.</span>]} />
-            <p className="mt-6 max-w-lg text-[16px] leading-relaxed text-[#bcbab2]">
-              {n} ready-made apps with your name and logo, live in 3 to 4 weeks. Open any demo and click around before you talk to us.
-            </p>
           </div>
+          <p className="max-w-sm text-[16px] leading-relaxed text-[#bcbab2]">
+            {n} ready-made apps with your name and logo, live in 3 to 4 weeks. Open any demo and click around before you talk to us.
+          </p>
+        </div>
+
+        {/* wide screens: the index on the left, the brand card on the right */}
+        <div className="mt-16 hidden gap-12 lg:grid lg:grid-cols-[1fr_1.05fr]" onMouseLeave={() => setPaused(false)}>
+          <ol className="border-t border-white/10">
+            {INDUSTRIES.map((x, i) => {
+              const on = i === active;
+              const b = brandOf(x.id);
+              return (
+                <li key={x.id} className="border-b border-white/10">
+                  <Link
+                    to={`/industries/${x.slug}`}
+                    onMouseEnter={() => {
+                      setActive(i);
+                      setPaused(true);
+                    }}
+                    onFocus={() => setActive(i)}
+                    className="group flex items-center gap-5 py-3.5"
+                  >
+                    <span className="w-6 font-mono text-[11px] text-[#7d7b74]">{String(i + 1).padStart(2, "0")}</span>
+                    <span className={`flex-1 text-[clamp(1.4rem,2.2vw,2rem)] leading-none tracking-[-0.035em] transition-[color,transform] duration-500 ease-[cubic-bezier(.16,1,.3,1)] ${on ? "translate-x-2 text-[#eceae4]" : "text-[#5f5e58]"}`}>{x.name}</span>
+                    <span className="flex items-center gap-2 font-mono text-[11px] text-[#9a9890]">
+                      <span className="h-2 w-2 rounded-full transition-transform duration-500" style={{ background: b.colors.accent, transform: on ? "scale(1.6)" : "scale(1)" }} />
+                      {b.name}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+          <div className="sticky top-28 h-[520px] self-start">
+            <AnimatePresence mode="wait">
+              <motion.div key={ind.id} className="h-full" initial={{ opacity: 0, y: 24, rotate: -1.5 }} animate={{ opacity: 1, y: 0, rotate: 0 }} exit={{ opacity: 0, y: -16, rotate: 1 }} transition={{ duration: 0.55, ease: EASE }}>
+                <BrandCard ind={ind} rates={rates} big />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* phones and tablets: swipe through the brand cards */}
+        <div className="-mx-5 mt-12 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 sm:-mx-8 sm:px-8 lg:hidden [scrollbar-width:none]" data-lenis-prevent-wheel>
+          {INDUSTRIES.map((x) => (
+            <div key={x.id} className="h-[400px] w-[82%] max-w-[340px] shrink-0 snap-start">
+              <BrandCard ind={x} rates={rates} />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12">
           <PillLink to="/industries" tone="chalk">
-            See all {n} apps
+            See all {n} apps and prices
           </PillLink>
         </div>
       </div>
-
-      <div className="relative hidden h-[580px] items-center justify-center lg:flex" style={{ perspective: "1600px" }}>
-        <motion.div className="relative" style={{ width: CARD, height: 300, transformStyle: "preserve-3d", rotateX: -6, rotateY: turn }}>
-          {INDUSTRIES.map((ind, i) => (
-            <div key={ind.id} className="absolute inset-0" style={{ transform: `rotateY(${(i * 360) / n}deg) translateZ(${R}px)`, backfaceVisibility: "hidden" }}>
-              <AppCard ind={ind} rates={rates} />
-            </div>
-          ))}
-        </motion.div>
-      </div>
-
-      <div className="relative mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-20 sm:px-8 lg:hidden [scrollbar-width:none]" data-lenis-prevent-wheel>
-        {INDUSTRIES.map((ind) => (
-          <div key={ind.id} className="h-[280px] w-[230px] shrink-0 snap-start">
-            <AppCard ind={ind} rates={rates} />
-          </div>
-        ))}
-      </div>
-      <div className="hidden h-16 lg:block" />
     </section>
   );
 }
@@ -626,7 +671,7 @@ export default function Home({ products = [], rates, team }: { products?: Public
       <Wordmark />
       <Marquee />
       <Services />
-      <IndustryRing rates={rates} />
+      <IndustryIndex rates={rates} />
       <Store products={products} />
       <Process />
       <Ventures />
