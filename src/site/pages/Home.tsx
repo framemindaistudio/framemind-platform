@@ -546,7 +546,7 @@ const VENTURES = [
     name: "360VUE",
     what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.",
     icon: Orbit,
-    bg: "linear-gradient(140deg, #f6c071 0%, #e08a43 38%, #a4471f 72%, #4a1a0c 100%)",
+    bg: "linear-gradient(160deg, #b8693d 0%, #9c5531 100%)",
     ink: "#fff8ef",
     span: "lg:col-span-7 lg:row-span-2",
   },
@@ -556,7 +556,7 @@ const VENTURES = [
     name: "JOVE",
     what: "Robotics and AI workshops for schools, Grades 1 to 10.",
     icon: Bot,
-    bg: "linear-gradient(150deg, #b9f5da 0%, #4cc596 35%, #16805a 68%, #072f22 100%)",
+    bg: "linear-gradient(160deg, #46705a 0%, #3a5f4c 100%)",
     ink: "#f1fff8",
     span: "lg:col-span-5",
   },
@@ -566,7 +566,7 @@ const VENTURES = [
     name: "Vritta",
     what: "Activity records and newsletters for schools and colleges.",
     icon: Newspaper,
-    bg: "linear-gradient(150deg, #c3ccff 0%, #7f8ff5 35%, #4150cf 68%, #161c5c 100%)",
+    bg: "linear-gradient(160deg, #565c97 0%, #474d83 100%)",
     ink: "#f3f4ff",
     span: "lg:col-span-5",
   },
@@ -576,7 +576,7 @@ const VENTURES = [
     name: "Coaching",
     what: "1:1 AI coaching built around your profession.",
     icon: Brain,
-    bg: "linear-gradient(150deg, #f1ffb0 0%, #d4f55a 32%, #9fc21c 66%, #3d4c08 100%)",
+    bg: "linear-gradient(160deg, #bfd255 0%, #aec244 100%)",
     ink: "#171716",
     span: "lg:col-span-12",
   },
@@ -588,7 +588,7 @@ function VentureCard({ v, i }: { v: (typeof VENTURES)[number]; i: number }) {
   const body = (
     <>
       {/* soft light and grain over the gradient */}
-      <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_15%_0%,rgba(255,255,255,0.35),transparent_60%)] mix-blend-soft-light" />
+      <span aria-hidden="true" className="fm-card-grain pointer-events-none absolute inset-0" />
       <Icon aria-hidden="true" strokeWidth={1} className="pointer-events-none absolute -bottom-10 -right-8 h-52 w-52 opacity-20 transition-transform duration-[1200ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:rotate-[18deg] group-hover:scale-110 md:h-64 md:w-64" />
       <div className="relative flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.2em]">
         <span className="opacity-80">0{i + 1}</span>
@@ -600,7 +600,7 @@ function VentureCard({ v, i }: { v: (typeof VENTURES)[number]; i: number }) {
       <p className="relative mt-3 text-[clamp(3.2rem,8vw,7.5rem)] font-medium leading-[0.85] tracking-[-0.06em]">{v.name}</p>
     </>
   );
-  const cls = `group relative isolate flex min-h-[300px] flex-col overflow-hidden rounded-[30px] p-7 shadow-[0_30px_60px_-30px_rgba(23,23,22,0.55)] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] hover:-translate-y-1.5 md:p-9 ${v.span}`;
+  const cls = `group relative isolate flex min-h-[300px] flex-col overflow-hidden rounded-[30px] p-7 shadow-[0_24px_50px_-30px_rgba(23,23,22,0.45)] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] hover:-translate-y-1.5 md:p-9 ${v.span}`;
   return external ? (
     <a href={v.href} target="_blank" rel="noopener noreferrer" className={cls} style={{ background: v.bg, color: v.ink }}>
       {body}
