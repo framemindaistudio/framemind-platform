@@ -45,18 +45,6 @@ export const PAGE_SEO: Record<string, PageSeo> = {
     "keywords": "real estate website India, layout website, interactive plot map, plot availability website, 3D masterplan, plotted development website, FrameMind real estate",
     "ogImageAlt": "FrameMind AI Studio — Real Estate Digital Platform"
   },
-  "/360vue": {
-    "title": "360VUE — 360° Virtual Tours, SkyVUE Aerial 360° & Google Maps",
-    "description": "360VUE makes 360° virtual tours, SkyVUE drone 360° aerial views and Google Maps listings for restaurants, hotels, showrooms, hospitals, colleges and real estate across South India. A FrameMind AI Studio company.",
-    "keywords": "360 virtual tour India, virtual tour Bengaluru, Google Maps 360 tour, drone 360 aerial view, SkyVUE, real estate virtual tour, hotel virtual tour, 360VUE, FrameMind 360VUE",
-    "ogImageAlt": "360VUE — 360° Virtual Tours, a FrameMind AI Studio company"
-  },
-  "/jove": {
-    "title": "JOVE — School Robotics & AI Workshops Across India",
-    "description": "JOVE brings full-day robotics, AI, and machine learning workshops to school campuses across India for Grades 1–10. Co-founded by the team behind FrameMind AI Studio.",
-    "keywords": "school robotics workshop India, AI workshop schools India, STEM education India, NEP 2020 robotics, machine learning school program, JOVE workshop, FrameMind JOVE",
-    "ogImageAlt": "JOVE — School Robotics & AI Workshops by FrameMind AI Studio"
-  },
   "/shop": {
     "title": "FrameMind Store: Guides, Presets & Templates",
     "description": "Digital downloads from FrameMind AI Studio: Claude Code and vibe coding guides, camera cheat sheets, Lightroom presets, LUTs, carousel templates, colour palettes and freelancer kits. Pay with UPI, download at once.",

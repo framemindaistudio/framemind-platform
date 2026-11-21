@@ -39,6 +39,15 @@ const nextConfig: NextConfig = {
    * address (/demos/clinic/book) has no file of its own, so it is served that folder's index.html. Files that exist
    * (scripts, styles, pictures) are served first, before these rules are looked at.
    */
+  /** 360VUE and JOVE have their own websites: their old pages here send visitors straight there. */
+  async redirects() {
+    return [
+      { source: "/360vue", destination: "https://www.360vue.website", permanent: true },
+      { source: "/360vue/:path*", destination: "https://www.360vue.website", permanent: true },
+      { source: "/jove", destination: "https://jove.website", permanent: true },
+      { source: "/jove/:path*", destination: "https://jove.website", permanent: true },
+    ];
+  },
   async rewrites() {
     return {
       beforeFiles: [],

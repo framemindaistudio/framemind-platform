@@ -106,7 +106,7 @@ const flows: Record<string, FlowNode> = {
   vue360: {
     reply: "360VUE is a FrameMind AI Studio company. It makes 360° virtual tours, SkyVUE drone 360° aerial views and Google Maps listings for restaurants, hotels, showrooms, hospitals, colleges and real estate across South India. Prices are on 360vue.website's calculator.",
     options: [
-      { label: "About 360VUE", to: "/360vue" },
+      { label: "Visit 360vue.website", to: "/360vue" },
       { label: "Talk to us", to: "/connect" },
       { label: "← Back", next: "start" },
     ],
@@ -114,7 +114,6 @@ const flows: Record<string, FlowNode> = {
   jove: {
     reply: "JOVE (Journey of Visionation & Excellence) brings full-day robotics, AI & ML workshops to school campuses across India — Grades 1–10. Co-founded by the FrameMind team. Every event includes professional filming by FrameMind at no extra cost.",
     options: [
-      { label: "See all programs", to: "/jove" },
       { label: "Book a workshop", to: "/connect" },
       { label: "Visit jove.website", to: "/jove" },
       { label: "← Back", next: "start" },

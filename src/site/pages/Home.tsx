@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { ArrowUpRight, Bot, Brain, Check, Code2, Globe, LayoutGrid, Palette, Zap } from "lucide-react";
+import { ArrowUpRight, Bot, Brain, Check, Code2, Globe, LayoutGrid, Newspaper, Orbit, Palette, Zap } from "lucide-react";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
 import { INDUSTRIES, tierPrice, type IndustryRates } from "@/lib/content/industries";
@@ -540,14 +540,79 @@ function Process() {
 /* ─────────────────────────── 8. ventures: collapsing cards ─────────────────────────── */
 
 const VENTURES = [
-  { to: "/360vue", name: "360VUE", what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.", accent: "#d9a35b" },
-  { to: "/vritta", name: "Vritta", what: "Activity records and newsletters for schools and colleges.", accent: "#9fb7ff" },
-  { to: "/jove", name: "JOVE", what: "Robotics and AI workshops for schools, Grades 1 to 10.", accent: "#8fd6b4" },
-  { to: "/personal-coaching", name: "Coaching", what: "1:1 AI coaching built around your profession.", accent: "#c8f135" },
+  {
+    href: "https://www.360vue.website",
+    site: "360vue.website",
+    name: "360VUE",
+    what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.",
+    icon: Orbit,
+    bg: "linear-gradient(140deg, #f6c071 0%, #e08a43 38%, #a4471f 72%, #4a1a0c 100%)",
+    ink: "#fff8ef",
+    span: "lg:col-span-7 lg:row-span-2",
+  },
+  {
+    href: "https://jove.website",
+    site: "jove.website",
+    name: "JOVE",
+    what: "Robotics and AI workshops for schools, Grades 1 to 10.",
+    icon: Bot,
+    bg: "linear-gradient(150deg, #b9f5da 0%, #4cc596 35%, #16805a 68%, #072f22 100%)",
+    ink: "#f1fff8",
+    span: "lg:col-span-5",
+  },
+  {
+    href: "/vritta",
+    site: "",
+    name: "Vritta",
+    what: "Activity records and newsletters for schools and colleges.",
+    icon: Newspaper,
+    bg: "linear-gradient(150deg, #c3ccff 0%, #7f8ff5 35%, #4150cf 68%, #161c5c 100%)",
+    ink: "#f3f4ff",
+    span: "lg:col-span-5",
+  },
+  {
+    href: "/personal-coaching",
+    site: "",
+    name: "Coaching",
+    what: "1:1 AI coaching built around your profession.",
+    icon: Brain,
+    bg: "linear-gradient(150deg, #f1ffb0 0%, #d4f55a 32%, #9fc21c 66%, #3d4c08 100%)",
+    ink: "#171716",
+    span: "lg:col-span-12",
+  },
 ];
 
+function VentureCard({ v, i }: { v: (typeof VENTURES)[number]; i: number }) {
+  const Icon = v.icon;
+  const external = v.href.startsWith("http");
+  const body = (
+    <>
+      {/* soft light and grain over the gradient */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_15%_0%,rgba(255,255,255,0.35),transparent_60%)] mix-blend-soft-light" />
+      <Icon aria-hidden="true" strokeWidth={1} className="pointer-events-none absolute -bottom-10 -right-8 h-52 w-52 opacity-20 transition-transform duration-[1200ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:rotate-[18deg] group-hover:scale-110 md:h-64 md:w-64" />
+      <div className="relative flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.2em]">
+        <span className="opacity-80">0{i + 1}</span>
+        <span className="flex items-center gap-1.5 rounded-full bg-black/15 px-3 py-1.5 backdrop-blur-sm transition-colors group-hover:bg-black/25">
+          {external ? v.site : "On this site"} <ArrowUpRight size={13} className="transition-transform group-hover:rotate-45" />
+        </span>
+      </div>
+      <p className="relative mt-auto max-w-sm pt-16 text-[17px] leading-snug opacity-90">{v.what}</p>
+      <p className="relative mt-3 text-[clamp(3.2rem,8vw,7.5rem)] font-medium leading-[0.85] tracking-[-0.06em]">{v.name}</p>
+    </>
+  );
+  const cls = `group relative isolate flex min-h-[300px] flex-col overflow-hidden rounded-[30px] p-7 shadow-[0_30px_60px_-30px_rgba(23,23,22,0.55)] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] hover:-translate-y-1.5 md:p-9 ${v.span}`;
+  return external ? (
+    <a href={v.href} target="_blank" rel="noopener noreferrer" className={cls} style={{ background: v.bg, color: v.ink }}>
+      {body}
+    </a>
+  ) : (
+    <Link to={v.href} className={cls} style={{ background: v.bg, color: v.ink }}>
+      {body}
+    </Link>
+  );
+}
+
 function Ventures() {
-  const [open, setOpen] = useState(0);
   return (
     <section className="bg-[var(--fm-stone)]">
       <div className="mx-auto max-w-[1320px] px-5 py-24 sm:px-8 md:py-32">
@@ -556,44 +621,14 @@ function Ventures() {
             <Kicker>The FrameMind family</Kicker>
             <MaskLines className="mt-5 text-[clamp(2.4rem,5vw,4.6rem)] font-normal leading-[0.98] tracking-[-0.045em]" lines={["One studio,", <span key="c" className="text-[#64635d]">a family of ventures.</span>]} />
           </div>
+          <p className="max-w-sm text-[16px] leading-relaxed text-[#55544e]">Each one is its own business, built and run with the studio&apos;s team.</p>
         </div>
-
-        <div className="mt-12 flex h-[460px] flex-col gap-2 md:h-[440px] md:flex-row">
-          {VENTURES.map((v, i) => {
-            const on = open === i;
-            return (
-              <motion.div
-                key={v.to}
-                layout
-                onMouseEnter={() => setOpen(i)}
-                onFocus={() => setOpen(i)}
-                onClick={() => setOpen(i)}
-                transition={{ duration: 0.6, ease: EASE }}
-                className="relative cursor-pointer overflow-hidden rounded-[26px] border border-white/[0.06] bg-[#1c1c1a] text-[#eceae4]"
-                style={{ flex: on ? 5 : 1 }}
-              >
-                {/* each venture keeps one colour of its own: a soft wash, the dot and the name when open */}
-                <span aria-hidden="true" className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${on ? "opacity-100" : "opacity-0"}`} style={{ background: `radial-gradient(90% 80% at 85% 10%, ${v.accent}33, transparent 65%)` }} />
-                <span aria-hidden="true" className="absolute left-5 top-5 h-2.5 w-2.5 rounded-full md:left-1/2 md:-translate-x-1/2" style={{ background: v.accent, opacity: on ? 0 : 1 }} />
-                {/* collapsed: the name runs vertically */}
-                <span className={`absolute bottom-5 left-1/2 hidden origin-center -translate-x-1/2 whitespace-nowrap text-2xl tracking-[-0.02em] transition-opacity duration-300 [writing-mode:vertical-rl] md:block ${on ? "opacity-0" : "rotate-180 opacity-100"}`} style={{ color: v.accent }}>
-                  {v.name}
-                </span>
-                <span className={`absolute left-5 top-1/2 -translate-y-1/2 text-xl tracking-[-0.02em] transition-opacity duration-300 md:hidden ${on ? "opacity-0" : "opacity-100"}`} style={{ color: v.accent }}>{v.name}</span>
-
-                <div className={`absolute inset-0 flex flex-col justify-between p-6 transition-opacity duration-500 md:p-9 ${on ? "opacity-100 delay-200" : "pointer-events-none opacity-0"}`}>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: v.accent }}>0{i + 1}</span>
-                  <div>
-                    <p className="text-[clamp(2.6rem,6vw,5.5rem)] leading-[0.9] tracking-[-0.05em]" style={{ color: v.accent }}>{v.name}</p>
-                    <p className="mt-4 max-w-sm text-[16px] leading-snug text-[#bcbab2]">{v.what}</p>
-                    <Link to={v.to} className="mt-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-[#171716] transition-transform hover:-translate-y-0.5" style={{ background: v.accent }} tabIndex={on ? 0 : -1}>
-                      Visit {v.name} <ArrowUpRight size={15} />
-                    </Link>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
+        <div className="mt-12 grid gap-3 lg:grid-cols-12 lg:grid-rows-[minmax(280px,auto)_minmax(280px,auto)]">
+          {VENTURES.map((v, i) => (
+            <Rise key={v.name} delay={i * 0.06} className={v.span}>
+              <VentureCard v={{ ...v, span: "h-full" }} i={i} />
+            </Rise>
+          ))}
         </div>
       </div>
     </section>

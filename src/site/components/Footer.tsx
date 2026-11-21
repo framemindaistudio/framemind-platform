@@ -21,9 +21,9 @@ const PAGES = [
 ];
 
 const VENTURES = [
-  { to: "/360vue", name: "360VUE", what: "Virtual tours", dot: "#d9a35b" },
-  { to: "/vritta", name: "Vritta", what: "School records", dot: "#9fb7ff" },
-  { to: "/jove", name: "JOVE", what: "Robotics workshops", dot: "#8fd6b4" },
+  { to: "https://www.360vue.website", name: "360VUE", what: "Virtual tours", dot: "#e08a43" },
+  { to: "/vritta", name: "Vritta", what: "School records", dot: "#7f8ff5" },
+  { to: "https://jove.website", name: "JOVE", what: "Robotics workshops", dot: "#4cc596" },
   { to: "/personal-coaching", name: "Coaching", what: "1:1 AI coaching", dot: "#c8f135" },
 ];
 
@@ -82,7 +82,7 @@ export default function Footer() {
             <ul className="grid gap-2">
               {VENTURES.map((v) => (
                 <li key={v.to}>
-                  <Link to={v.to} className="group flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-[#1f1f1d] px-4 py-3.5 transition-colors hover:border-white/20">
+                  <Link to={v.to} {...(v.to.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="group flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-[#1f1f1d] px-4 py-3.5 transition-colors hover:border-white/20">
                     <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: v.dot }} />
                     <span className="flex-1">
                       <span className="block text-[16px] leading-tight">{v.name}</span>

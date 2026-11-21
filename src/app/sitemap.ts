@@ -13,8 +13,6 @@ const PAGES: { path: string; priority: number; changeFrequency: "weekly" | "mont
   { path: "/testimonials", priority: 0.7, changeFrequency: "monthly" },
   { path: "/team", priority: 0.6, changeFrequency: "monthly" },
   { path: "/careers", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/jove", priority: 0.6, changeFrequency: "monthly" },
-  { path: "/360vue", priority: 0.6, changeFrequency: "monthly" },
   { path: "/industries", priority: 0.9, changeFrequency: "monthly" },
   ...INDUSTRIES.map((i) => ({ path: `/industries/${i.slug}`, priority: 0.8, changeFrequency: "monthly" as const })),
   { path: "/real-estate", priority: 0.8, changeFrequency: "monthly" },
