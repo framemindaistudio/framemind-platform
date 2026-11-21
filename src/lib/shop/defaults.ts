@@ -114,19 +114,93 @@ export const DEFAULT_CATALOG: ShopCatalog = {
       id: "vibe-coding-101",
       slug: "vibe-coding-101",
       title: "Vibe Coding 101",
-      tagline: "Turn an idea into a working app by describing it to AI.",
+      tagline: "Describe an app, let AI build it, and make it good. Free tools, three evening projects, published free.",
       category: "ai",
       price: 149,
       mrp: 299,
       status: "soon",
       description:
-        "Vibe coding means building software by describing what you want and letting AI write the code. This guide shows how to do it properly: planning the idea, picking the right tool, prompting in small steps and checking what the AI built.\n\nIt ends with three small projects you can finish in an evening each.",
-      includes: ["What vibe coding is, and where it breaks", "Choosing a tool for your project", "The plan → build → check loop", "3 evening projects with step-by-step prompts", "A safety checklist before you share your app", "Guide as PDF + web version with a prompt builder"],
-      formats: ["PDF"],
+        "Vibe coding means building software by describing it to AI. This guide is for people who have never coded: start with free tools in your browser (nothing to install), write a one-page brief, build one small step at a time, check everything, fix bugs calmly and put your app online for free.\n\nThen build three evening projects, each with a start folder, step-by-step prompts, checks and a finished version: an invite page with RSVP on WhatsApp, a tuition fee tracker with reminders, and exam flashcards that learn with you. The offline Vibe Planner app turns your idea into a brief and the exact prompts to send. Tool facts checked on each tool's own pages in November 2026.",
+      includes: ["25-page illustrated guide: tools, the method, prompts, fixing bugs, publishing free, safety", "3 evening projects with starter files, prompts, checks and a finished version", "Vibe Planner: brief builder, step prompts, bug-report helper, safety check (offline)", "Which free tool to start with, and what each one is for", "Publish free on Netlify Drop or GitHub Pages, step by step", "One-page cheat sheet, phone wallpaper and a blank brief"],
+      formats: ["PDF", "HTML", "Project files"],
       level: "Beginners",
       accent: "#9B7BFF",
       files: [],
       featured: true,
+      compare: {
+        "columns": [
+          "FrameMind, ₹149",
+          "Free YouTube tutorials",
+          "Video courses",
+          "Ebooks"
+        ],
+        "rows": [
+          {
+            "label": "Written for people who don't code",
+            "values": [
+              "Yes",
+              "Some",
+              "Some",
+              "Some"
+            ]
+          },
+          {
+            "label": "Starts with free tools, nothing to install",
+            "values": [
+              "Yes",
+              "Varies",
+              "Often a paid tool",
+              "Varies"
+            ]
+          },
+          {
+            "label": "Projects with starter files",
+            "values": [
+              "3, with finished versions",
+              "Follow-along",
+              "Follow-along",
+              "Rarely"
+            ]
+          },
+          {
+            "label": "An app that writes your prompts",
+            "values": [
+              "Vibe Planner, offline",
+              "No",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Indian examples (WhatsApp, UPI, ₹)",
+            "values": [
+              "Yes",
+              "Some",
+              "Rarely",
+              "Rarely"
+            ]
+          },
+          {
+            "label": "Safety before you share",
+            "values": [
+              "Checklist in the app",
+              "Rarely",
+              "Some",
+              "Some"
+            ]
+          },
+          {
+            "label": "Price",
+            "values": [
+              "₹149, keep forever",
+              "Free",
+              "Varies with sales",
+              "About ₹199 to ₹1,500"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026: YouTube tutorials, Udemy and similar course listings, and vibe coding ebooks on Indian and international stores. Their prices and contents change."
+      },
       tags: ["vibe coding", "ai", "no-code"],
     },
     {

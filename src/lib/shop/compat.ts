@@ -42,6 +42,8 @@ export const APPS: Record<string, App> = {
   anycamera: { name: "Any camera", full: "Any camera" },
   vscode: { name: "VS Code", full: "Visual Studio Code" },
   lovable: { name: "Lovable", full: "Lovable" },
+  bolt: { name: "Bolt", full: "Bolt (bolt.new)" },
+  aistudio: { name: "AI Studio", full: "Google AI Studio" },
   googlefonts: { name: "Google Fonts", full: "Google Fonts" },
   indesign: { name: "InDesign", full: "Adobe InDesign" },
   blackmagic: { name: "Blackmagic Camera", full: "Blackmagic Camera" },
@@ -53,7 +55,7 @@ export const APPS: Record<string, App> = {
 /** Which apps each product works with, most important first. */
 export const COMPAT: Record<string, string[]> = {
   "claude-code-beginners": ["claude", "windows", "apple", "linux", "vscode"],
-  "vibe-coding-101": ["chatgpt", "claude", "googlegemini", "cursor", "replit", "lovable"],
+  "vibe-coding-101": ["chatgpt", "claude", "googlegemini", "aistudio", "bolt", "lovable", "replit"],
   "ai-prompts-creators": ["chatgpt", "claude", "googlegemini", "notion"],
   "camera-basics": ["anycamera", "iphone", "android"],
   "phone-cinematography": ["iphone", "android", "edits", "vn", "inshot", "blackmagic"],

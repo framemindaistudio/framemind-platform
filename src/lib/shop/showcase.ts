@@ -92,11 +92,12 @@ export const SHOWCASE: Record<string, Showcase> = {
     ],
   },
   "vibe-coding-101": {
-    promise: "Turn an idea into a working app by describing it to AI, one checked step at a time.",
+    promise: "Describe your idea, build it with free AI tools one small step at a time, and put it online free.",
+    app: { name: "Vibe Planner", does: "Turns your idea into a one-page brief and the exact prompts to send, step by step.", shots: shots("vibe-coding-101") },
     points: [
-      { text: "3 evening projects", mark: "circle" },
-      { text: "Prompt builder in the web version", mark: "highlight" },
-      { text: "Safety checklist before you share", mark: "underline" },
+      { text: "3 evening projects with starter files", mark: "circle" },
+      { text: "Vibe Planner writes your prompts", mark: "highlight" },
+      { text: "Free tools, published free", mark: "underline" },
     ],
   },
   "lightroom-presets": {
