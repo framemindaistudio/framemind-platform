@@ -1,6 +1,8 @@
 "use client";
 
 /* Team Lanyard Rail by dhxwhy on 21st.dev (https://21st.dev/@dhxwhy/components/team-lanyard-rail), used as published. */
+/* Its physics loop reads refs during render by design; the React Compiler lint rules below are switched off for this file only. */
+/* eslint-disable react-hooks/refs, react-hooks/set-state-in-effect, react-hooks/immutability */
 
 import * as React from "react";
 
