@@ -29,7 +29,6 @@ export const APPS: Record<string, App> = {
   cameraraw: { name: "Camera Raw", full: "Adobe Camera Raw" },
   premiere: { name: "Premiere Pro", full: "Adobe Premiere Pro" },
   finalcut: { name: "Final Cut Pro", full: "Final Cut Pro" },
-  capcut: { name: "CapCut", full: "CapCut" },
   procreate: { name: "Procreate", full: "Procreate" },
   canva: { name: "Canva", full: "Canva" },
   word: { name: "Word", full: "Microsoft Word" },
