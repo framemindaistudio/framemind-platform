@@ -153,7 +153,7 @@ function Viewfinder({ p, accent }: { p: PublicProduct; accent: string }) {
         <span>1/250</span>
         <span style={{ color: TREND[4] }}>●●●○</span>
       </div>
-      <AppRow p={p} style={{ right: cq(5), top: cq(13) }} />
+      <AppRow p={p} style={{ right: cq(11), top: cq(16.5) }} />
     </Frame>
   );
 }
@@ -198,13 +198,13 @@ function Split({ p, accent }: { p: PublicProduct; accent: string }) {
       <Chip bg="#fff" color="#111" style={{ position: "absolute", right: cq(5), top: cq(5) }}>
         After
       </Chip>
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent" style={{ padding: `${cq(16)} ${cq(6)} ${cq(6)}` }}>
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent" style={{ padding: `${cq(16)} ${cq(6)} ${appsFor(p).length ? cq(15) : cq(6)}` }}>
         <Title text={p.title} size={10.5} className="text-white" />
         <p className={`${mono} mt-[2.5cqw] text-white/70`} style={{ fontSize: cq(2.6) }}>
           {p.formats.join(" · ")} · one tap
         </p>
       </div>
-      <AppRow p={p} style={{ right: cq(5), bottom: cq(6) }} />
+      <AppRow p={p} style={{ left: cq(6), bottom: cq(5) }} />
     </Frame>
   );
 }
@@ -317,7 +317,7 @@ function Specimen({ p, accent }: { p: PublicProduct; accent: string }) {
     <Frame bg={TREND[6]} ink="#141414" grain={0.2}>
       <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(0,0,0,.07) 1px, transparent 1px)", backgroundSize: `100% ${cq(8)}` }} />
       <p className={`${mono} absolute text-black/50`} style={{ left: cq(7), top: cq(7), fontSize: cq(2.6) }}>
-        Type specimen · 30 pairs
+        Type specimen · 40 pairs
       </p>
       <p className="absolute font-serif leading-none" style={{ left: cq(5), top: cq(14), fontSize: cq(46), color: accent }}>
         Aa
@@ -331,7 +331,7 @@ function Specimen({ p, accent }: { p: PublicProduct; accent: string }) {
           The quick brown fox · ಕನ್ನಡ · हिन्दी
         </p>
       </div>
-      <AppRow p={p} style={{ right: cq(6), top: cq(6) }} />
+      <AppRow p={p} max={3} style={{ right: cq(6), top: cq(5.5) }} />
     </Frame>
   );
 }

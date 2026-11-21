@@ -191,7 +191,7 @@ function AppStage({ product, show }: { product: PublicProduct; show: Showcase })
       <div className="absolute -bottom-2 right-3 w-[30%] min-w-[120px] max-w-[190px] overflow-hidden rounded-[26px] border-[5px] border-[#2a2a27] bg-[#1f1f1d] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.85)] sm:right-6">
         <img src={app.shots.phone} alt={`${app.name} on a phone`} width={390} height={844} className="block aspect-[390/844] w-full object-cover object-top" />
       </div>
-      <div className="absolute -left-2 top-1/2 hidden -translate-y-1/2 -rotate-3 rounded-[18px] bg-[var(--fm-lime)] px-4 py-3 text-[#171716] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.6)] sm:block">
+      <div className="absolute -top-5 left-5 hidden -rotate-2 rounded-[16px] bg-[var(--fm-lime)] px-4 py-2.5 text-[#171716] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.6)] sm:block lg:-top-1">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em]">Included</p>
         <p className="text-[17px] leading-tight tracking-[-0.02em]">{app.name}</p>
       </div>

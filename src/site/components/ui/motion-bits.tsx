@@ -148,11 +148,11 @@ export function Marked({ children, mark, ink = "#c8f135" }: { children: ReactNod
       </motion.span>
     );
   return (
-    <motion.span className={`relative inline-block ${mark === "circle" ? "mx-2" : ""}`} initial="hide" whileInView="show" viewport={{ once: true }}>
+    <motion.span className={`relative inline-block ${mark === "circle" ? "mx-3 my-1" : mark === "underline" ? "mb-2" : ""}`} initial="hide" whileInView="show" viewport={{ once: true }}>
       {children}
-      <svg aria-hidden="true" viewBox={mark === "circle" ? "0 0 200 70" : "0 0 200 14"} preserveAspectRatio="none" className={mark === "circle" ? "pointer-events-none absolute -left-4 -top-2.5 h-[calc(100%+20px)] w-[calc(100%+32px)] overflow-visible" : "pointer-events-none absolute -bottom-2 left-0 h-3 w-full overflow-visible"}>
+      <svg aria-hidden="true" viewBox={mark === "circle" ? "0 0 200 70" : "0 0 200 14"} preserveAspectRatio="none" className={mark === "circle" ? "pointer-events-none absolute -left-5 -top-4 h-[calc(100%+32px)] w-[calc(100%+40px)] overflow-visible" : "pointer-events-none absolute -bottom-[0.55em] left-0 h-3 w-full overflow-visible"}>
         <motion.path
-          d={mark === "circle" ? "M30 12 C80 -2 175 2 192 28 C205 52 150 68 95 66 C40 64 4 54 8 34 C11 18 45 8 120 8" : "M2 9 C40 3 80 12 120 6 C150 2 175 9 198 5"}
+          d={mark === "circle" ? "M104 3 C162 3 197 15 197 35 C197 56 156 67 100 67 C44 67 3 56 3 35 C3 15 40 3 104 3 C138 3 166 6 186 13" : "M2 9 C40 3 80 12 120 6 C150 2 175 9 198 5"}
           fill="none"
           stroke={ink}
           strokeWidth={mark === "circle" ? 4 : 3.5}

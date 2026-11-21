@@ -9,7 +9,7 @@ import { INDUSTRIES, tierPrice, type IndustryRates } from "@/lib/content/industr
 import { brandOf } from "@/lib/content/industry-brands";
 import { ProductCard } from "@/site/components/shop/ShopBits";
 import type { PublicProduct } from "@/lib/shop/types";
-import { ArrowLink, Kicker, MaskLines, PillLink, Rise, ScrollWords } from "@/site/components/ui/motion-bits";
+import { ArrowLink, Kicker, Marked, MaskLines, PillLink, Rise, ScrollWords } from "@/site/components/ui/motion-bits";
 import TeamRail, { type RailMember } from "@/site/components/TeamRail";
 
 /*
@@ -453,29 +453,6 @@ function IndustryIndex({ rates }: { rates?: IndustryRates | null }) {
 
 /* ─────────────────────────── 6. the store ─────────────────────────── */
 
-/** A hand-drawn ring around a word: drawn in when it scrolls into view. */
-function Circled({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
-  return (
-    <span className="relative inline-block px-1">
-      {children}
-      <motion.svg viewBox="0 0 200 70" preserveAspectRatio="none" className="pointer-events-none absolute -inset-x-3 -inset-y-2 h-[calc(100%+16px)] w-[calc(100%+24px)] overflow-visible" aria-hidden="true">
-        <motion.path
-          d="M30 12 C80 -2 175 2 192 28 C205 52 150 68 95 66 C40 64 4 54 8 34 C11 18 45 8 120 8"
-          fill="none"
-          stroke="#c8f135"
-          strokeWidth="5"
-          strokeLinecap="round"
-          initial={{ pathLength: reduce ? 1 : 0 }}
-          whileInView={{ pathLength: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.2, ease: EASE, delay: 0.3 }}
-        />
-      </motion.svg>
-    </span>
-  );
-}
-
 function Store({ products }: { products: PublicProduct[] }) {
   if (!products.length) return null;
   return (
@@ -485,7 +462,7 @@ function Store({ products }: { products: PublicProduct[] }) {
           <div>
             <Kicker>FrameMind Store</Kicker>
             <h2 className="mt-5 max-w-3xl text-[clamp(2.4rem,5.6vw,5.2rem)] font-normal leading-[1.02] tracking-[-0.045em]">
-              Tools that <Circled>save you hours,</Circled> not more PDFs.
+              Tools that <Marked mark="circle">save you hours,</Marked> not more PDFs.
             </h2>
             <div className="mt-7 flex flex-wrap gap-2 text-[14px]">
               <span className="rounded-full bg-[#171716] px-4 py-2 text-[#eceae4]">
