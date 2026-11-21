@@ -10,7 +10,7 @@ import { brandOf } from "@/lib/content/industry-brands";
 import { ProductCard } from "@/site/components/shop/ShopBits";
 import type { PublicProduct } from "@/lib/shop/types";
 import { ArrowLink, Kicker, MaskLines, PillLink, Rise, ScrollWords } from "@/site/components/ui/motion-bits";
-import TeamRail from "@/site/components/TeamRail";
+import TeamRail, { type RailMember } from "@/site/components/TeamRail";
 
 /*
  * The home page (Nov 2026 redesign). Matte graphite and warm stone with a paper grain, one lime accent, smooth scroll.
@@ -518,10 +518,10 @@ function Process() {
 /* ─────────────────────────── 8. ventures: collapsing cards ─────────────────────────── */
 
 const VENTURES = [
-  { to: "/360vue", name: "360VUE", what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.", bg: "#2c3a4a", ink: "#eceae4" },
-  { to: "/vritta", name: "Vritta", what: "Activity records and newsletters for schools and colleges.", bg: "#d9a35b", ink: "#171716" },
-  { to: "/jove", name: "JOVE", what: "Robotics and AI workshops for schools, Grades 1 to 10.", bg: "#3d4a2c", ink: "#eceae4" },
-  { to: "/personal-coaching", name: "Coaching", what: "1:1 AI coaching built around your profession.", bg: "#c8f135", ink: "#171716" },
+  { to: "/360vue", name: "360VUE", what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.", accent: "#d9a35b" },
+  { to: "/vritta", name: "Vritta", what: "Activity records and newsletters for schools and colleges.", accent: "#9fb7ff" },
+  { to: "/jove", name: "JOVE", what: "Robotics and AI workshops for schools, Grades 1 to 10.", accent: "#8fd6b4" },
+  { to: "/personal-coaching", name: "Coaching", what: "1:1 AI coaching built around your profession.", accent: "#c8f135" },
 ];
 
 function Ventures() {
@@ -547,9 +547,12 @@ function Ventures() {
                 onFocus={() => setOpen(i)}
                 onClick={() => setOpen(i)}
                 transition={{ duration: 0.6, ease: EASE }}
-                className="relative cursor-pointer overflow-hidden rounded-[26px]"
-                style={{ background: v.bg, color: v.ink, flex: on ? 5 : 1 }}
+                className="relative cursor-pointer overflow-hidden rounded-[26px] border border-white/[0.06] bg-[#1c1c1a] text-[#eceae4]"
+                style={{ flex: on ? 5 : 1 }}
               >
+                {/* each venture keeps one colour of its own: a soft wash, the dot and the name when open */}
+                <span aria-hidden="true" className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${on ? "opacity-100" : "opacity-0"}`} style={{ background: `radial-gradient(90% 80% at 85% 10%, ${v.accent}33, transparent 65%)` }} />
+                <span aria-hidden="true" className="absolute left-5 top-5 h-2.5 w-2.5 rounded-full md:left-1/2 md:-translate-x-1/2" style={{ background: v.accent, opacity: on ? 0 : 1 }} />
                 {/* collapsed: the name runs vertically */}
                 <span className={`absolute bottom-5 left-1/2 hidden origin-center -translate-x-1/2 whitespace-nowrap text-2xl tracking-[-0.02em] transition-opacity duration-300 [writing-mode:vertical-rl] md:block ${on ? "opacity-0" : "rotate-180 opacity-100"}`}>
                   {v.name}
@@ -559,9 +562,9 @@ function Ventures() {
                 <div className={`absolute inset-0 flex flex-col justify-between p-6 transition-opacity duration-500 md:p-9 ${on ? "opacity-100 delay-200" : "pointer-events-none opacity-0"}`}>
                   <span className="font-mono text-[11px] uppercase tracking-[0.2em] opacity-60">0{i + 1}</span>
                   <div>
-                    <p className="text-[clamp(2.6rem,6vw,5.5rem)] leading-[0.9] tracking-[-0.05em]">{v.name}</p>
-                    <p className="mt-4 max-w-sm text-[16px] leading-snug opacity-80">{v.what}</p>
-                    <Link to={v.to} className="mt-6 inline-flex items-center gap-2 rounded-full border border-current/30 px-4 py-2 text-sm transition-colors hover:bg-current/10" tabIndex={on ? 0 : -1}>
+                    <p className="text-[clamp(2.6rem,6vw,5.5rem)] leading-[0.9] tracking-[-0.05em]" style={{ color: v.accent }}>{v.name}</p>
+                    <p className="mt-4 max-w-sm text-[16px] leading-snug text-[#bcbab2]">{v.what}</p>
+                    <Link to={v.to} className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#eceae4] px-4 py-2 text-sm text-[#171716] transition-transform hover:-translate-y-0.5" tabIndex={on ? 0 : -1}>
                       Visit {v.name} <ArrowUpRight size={15} />
                     </Link>
                   </div>
@@ -579,7 +582,7 @@ function Ventures() {
 
 function FinalCta() {
   return (
-    <section className="bg-[var(--fm-stone)] px-3 pb-3 sm:px-5 sm:pb-5">
+    <section className="bg-[#171716] px-3 pb-3 sm:px-5 sm:pb-5">
       <div className="relative overflow-hidden rounded-[32px] bg-[var(--fm-lime)] text-[#171716] md:rounded-[48px]">
         <div className="mx-auto max-w-[1320px] px-6 py-20 sm:px-10 md:py-28">
           <Kicker className="opacity-80">Start here</Kicker>
@@ -603,7 +606,7 @@ function FinalCta() {
 
 /* ─────────────────────────── page ─────────────────────────── */
 
-export default function Home({ products = [], rates }: { products?: PublicProduct[]; rates?: IndustryRates | null }) {
+export default function Home({ products = [], rates, team }: { products?: PublicProduct[]; rates?: IndustryRates | null; team?: RailMember[] }) {
   return (
     <div className="overflow-x-clip bg-[var(--fm-stone)]">
       <SEO
@@ -627,7 +630,7 @@ export default function Home({ products = [], rates }: { products?: PublicProduc
       <Store products={products} />
       <Process />
       <Ventures />
-      <TeamRail />
+      <TeamRail members={team} />
       <FinalCta />
     </div>
   );

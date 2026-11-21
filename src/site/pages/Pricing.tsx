@@ -537,7 +537,7 @@ async function downloadQuotePDF(who: QuoteFor, service: ServiceDef, quote: Quote
 function ServiceNotesAccordion({ notes }: { notes: ServiceNote[] }) {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <div className="border border-border rounded-sm overflow-hidden">
+    <div className="border border-border rounded-xl overflow-hidden">
       <div className="px-4 py-2.5 bg-secondary border-b border-border flex items-center gap-2">
         <span className="w-1 h-4 rounded-full bg-foreground/20" />
         <span className="text-xs font-semibold">Service Notes</span>
@@ -580,7 +580,7 @@ function OptionCard({ option, selected, type, onToggle }: {
   return (
     <button
       onClick={onToggle}
-      className={`relative w-full text-left px-4 py-3.5 rounded-sm border transition-all duration-150 group ${
+      className={`relative w-full text-left px-4 py-3.5 rounded-xl border transition-all duration-150 group ${
         selected
           ? "border-[#171716] bg-[#171716]"
           : "border-border bg-background hover:border-foreground/30 hover:bg-secondary/40"
@@ -588,7 +588,7 @@ function OptionCard({ option, selected, type, onToggle }: {
     >
       <div className="flex items-start gap-3">
         <span className={`shrink-0 mt-0.5 w-4 h-4 flex items-center justify-center border transition-all ${
-          type === "radio" ? "rounded-full" : "rounded-sm"
+          type === "radio" ? "rounded-full" : "rounded-xl"
         } ${selected ? "bg-[#C8F135] border-[#C8F135]" : "border-border"}`}>
           {selected && <Check size={9} className="text-[#171716]" strokeWidth={3} />}
         </span>
@@ -612,7 +612,7 @@ function OptionCard({ option, selected, type, onToggle }: {
                   : `${option.isBase ? "" : "+"}₹${option.price.toLocaleString("en-IN")}`}
               </span>
               {option.tag && (
-                <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm ${
+                <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-xl ${
                   selected ? "bg-[#C8F135]/20 text-[#C8F135]" : "bg-secondary text-muted-foreground"
                 }`}>{option.tag}</span>
               )}
@@ -693,15 +693,15 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
       <div className="min-h-screen">
 
         {/* ── Hero ── */}
-        <section className="bg-[#171716] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden pt-[76px] sm:pt-[84px]">
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
-          <div className="max-w-6xl mx-auto px-6 pt-14 md:pt-20 pb-14 md:pb-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 pt-14 md:pt-20 pb-14 md:pb-20">
             <div className="max-w-3xl">
               <div className="flex items-center gap-3 mb-8">
                 <span className="w-2 h-2 rounded-full bg-[#C8F135] animate-pulse" />
-                <span className="font-mono text-[11px] text-[#555] uppercase tracking-[0.2em]">FrameMind Studio · Interactive Pricing</span>
+                <span className="font-mono text-[11px] text-[#8a8882] uppercase tracking-[0.2em]">FrameMind Studio · Interactive Pricing</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl md:text-[66px] font-semibold text-[#eceae4] tracking-tight leading-[1.0] mb-6">
+              <h1 className="text-4xl sm:text-5xl md:text-[66px] font-semibold text-[#eceae4] tracking-[-0.05em] leading-[1.0] mb-6">
                 Your project.<br />
                 <em className="not-italic text-[#C8F135]">Your exact price.</em>
               </h1>
@@ -713,8 +713,8 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                   const Icon = iconOf(s.icon);
                   return (
                     <button key={s.id} onClick={() => setActiveId(s.id)}
-                      className={`inline-flex items-center gap-1.5 font-mono text-[10px] border px-3 py-1.5 rounded-sm uppercase tracking-widest transition-colors ${
-                        s.id === activeId ? "border-[#C8F135] text-[#C8F135]" : "border-[#222] text-[#555] hover:border-[#444] hover:text-[#888]"
+                      className={`inline-flex items-center gap-1.5 font-mono text-[10px] border px-3 py-1.5 rounded-xl uppercase tracking-widest transition-colors ${
+                        s.id === activeId ? "border-[#C8F135] text-[#C8F135]" : "border-[#222] text-[#8a8882] hover:border-[#444] hover:text-[#888]"
                       }`}>
                       <Icon size={10} />{s.tabName ?? s.name}
                     </button>
@@ -727,7 +727,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
 
         {/* ── Industry apps ── */}
         <section className="border-b border-border bg-secondary/30">
-          <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col lg:flex-row lg:items-center gap-4">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-6 flex flex-col lg:flex-row lg:items-center gap-4">
             <div className="shrink-0">
               <p className="text-sm font-bold">Running a business in one of these industries?</p>
               <p className="text-xs text-muted-foreground">Get a ready-made app with your name — a setup fee and a monthly plan.</p>
@@ -736,7 +736,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
               {INDUSTRIES.map((ind) => {
                 const Icon = INDUSTRY_ICONS[ind.icon] ?? Building2;
                 return (
-                  <Link key={ind.id} to={`/industries/${ind.slug}`} className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-background px-3 py-1.5 text-xs font-medium hover:border-foreground/40">
+                  <Link key={ind.id} to={`/industries/${ind.slug}`} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium hover:border-foreground/40">
                     <Icon size={12} /> {ind.name}
                   </Link>
                 );
@@ -746,7 +746,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
         </section>
 
         {/* ── Configurator ── */}
-        <section className="max-w-6xl mx-auto px-6 py-10 md:py-14">
+        <section className="max-w-[1320px] mx-auto px-5 sm:px-8 py-10 md:py-14">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
 
             {/* Service picker — left sidebar */}
@@ -760,7 +760,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                   const active = activeId === s.id;
                   return (
                     <button key={s.id} onClick={() => setActiveId(s.id)}
-                      className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-sm text-xs font-medium transition-all whitespace-nowrap ${
+                      className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
                         isBundle
                           ? active ? "bg-[#C85A00] text-white" : "border border-[#C85A00]/40 text-[#C85A00]"
                           : active ? "bg-[#171716] text-[#eceae4]" : "border border-border text-muted-foreground"
@@ -778,7 +778,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                   const active = activeId === s.id;
                   return (
                     <button key={s.id} onClick={() => setActiveId(s.id)}
-                      className={`flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-sm text-sm font-medium transition-all text-left ${
+                      className={`flex items-center gap-2.5 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all text-left ${
                         isBundle
                           ? active
                             ? "bg-[#C85A00] text-white"
@@ -790,7 +790,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                       <Icon size={14} className={active && !isBundle ? "text-[#C8F135]" : ""} />
                       <span className="flex-1">{s.tabName ?? s.name}</span>
                       {isBundle && !active && (
-                        <span className="text-[8px] font-bold bg-[#C85A00] text-white px-1 py-0.5 rounded-sm uppercase tracking-wide">Bundle</span>
+                        <span className="text-[8px] font-bold bg-[#C85A00] text-white px-1 py-0.5 rounded-xl uppercase tracking-wide">Bundle</span>
                       )}
                     </button>
                   );
@@ -801,7 +801,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
             {/* Option groups — main area */}
             <div className="flex-1 min-w-0">
               <div className="mb-8 pb-6 border-b border-border">
-                <h2 className="text-2xl font-semibold tracking-tight mb-1.5">{service.name}</h2>
+                <h2 className="text-2xl font-normal tracking-[-0.04em] mb-1.5">{service.name}</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
               </div>
 
@@ -815,7 +815,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className={`w-1 h-4 rounded-full ${group.type === "radio" ? "bg-[#C8F135]" : "bg-foreground/20"}`} />
                           <h3 className="text-sm font-semibold">{group.title}</h3>
-                          <span className={`font-mono text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm ${
+                          <span className={`font-mono text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-xl ${
                             group.type === "radio" ? "bg-[#C8F135]/10 text-[#6a8200]" : "bg-secondary text-muted-foreground"
                           }`}>{group.type === "radio" ? "Choose one" : "Choose any"}</span>
                         </div>
@@ -855,7 +855,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
             {/* Quote summary — sticky right panel */}
             <div className="lg:w-[300px] shrink-0">
               <div className="lg:sticky lg:top-6">
-                <div className="bg-[#171716] rounded-sm overflow-hidden shadow-2xl">
+                <div className="bg-[#171716] rounded-xl overflow-hidden shadow-2xl">
                   {/* Panel header */}
                   <div className="bg-[#C8F135] px-5 py-3 flex items-center gap-2">
                     <FileText size={12} className="text-[#171716]" />
@@ -869,10 +869,10 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     {/* Empty state */}
                     {!hasSelections && (
                       <div className="py-10 text-center">
-                        <div className="w-10 h-10 border border-[#1f1f1d] rounded-sm flex items-center justify-center mx-auto mb-3">
-                          {(() => { const Icon = iconOf(service.icon); return <Icon size={16} className="text-[#333]" />; })()}
+                        <div className="w-10 h-10 border border-[#1f1f1d] rounded-xl flex items-center justify-center mx-auto mb-3">
+                          {(() => { const Icon = iconOf(service.icon); return <Icon size={16} className="text-[#6f6d66]" />; })()}
                         </div>
-                        <p className="text-xs text-[#444] leading-relaxed">
+                        <p className="text-xs text-[#7d7b74] leading-relaxed">
                           Select options on the left<br />to build your quote.
                         </p>
                       </div>
@@ -898,7 +898,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                         {quote.discountPct > 0 && (
                           <>
                             <div className="flex justify-between text-xs">
-                              <span className="text-[#555]">Subtotal</span>
+                              <span className="text-[#8a8882]">Subtotal</span>
                               <span className="text-[#777] tabular-nums">₹{quote.subtotal.toLocaleString("en-IN")}</span>
                             </div>
                             <div className="flex justify-between text-xs">
@@ -929,7 +929,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                         setAsking(true);
                       }}
                       disabled={!hasSelections}
-                      className="w-full bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="w-full bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-xl hover:bg-[#b8e020] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <Download size={13} />
                       Download Quote as PDF
@@ -949,7 +949,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     <div className="mt-5 pt-4 border-t border-[#1f1f1d] flex flex-col gap-2">
                       <p className="text-xs text-[#aaa]">Want to talk through your quote?</p>
                       <Link to="/connect"
-                        className="w-full border border-[#1e1e1e] text-[#888] hover:text-[#eceae4] hover:border-[#333] py-2.5 text-xs font-medium rounded-sm transition-colors flex items-center justify-center gap-1.5">
+                        className="w-full border border-white/10 text-[#888] hover:text-[#eceae4] hover:border-[#333] py-2.5 text-xs font-medium rounded-xl transition-colors flex items-center justify-center gap-1.5">
                         Book a free 20-min call <ArrowRight size={11} />
                       </Link>
                     </div>
@@ -963,11 +963,11 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
 
         {/* ── FAQ ── */}
         <section className="bg-background border-t border-border">
-          <div className="max-w-6xl mx-auto px-6 py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-20">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-20">
               <div className="lg:col-span-2">
                 <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest mb-4 block">FAQ</span>
-                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-4">Questions<br />we get a lot.</h2>
+                <h2 className="text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-normal tracking-[-0.04em] mb-4">Questions<br />we get a lot.</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Not finding your answer?{" "}
                   <Link to="/connect" className="text-foreground underline underline-offset-2 hover:text-muted-foreground transition-colors">
@@ -1043,7 +1043,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
               setSentNo(quoteNo);
               setAsking(false);
             }}
-            className="relative w-full max-w-md rounded-sm border border-[#1e1e1e] bg-[#171716] p-6 sm:p-8"
+            className="relative w-full max-w-md rounded-xl border border-white/10 bg-[#171716] p-6 sm:p-8"
             noValidate
           >
             <p className="font-mono text-[9px] text-[#C8F135] uppercase tracking-widest mb-2">Your quote</p>
@@ -1067,17 +1067,17 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
                     placeholder={ph}
                     autoComplete={auto}
                     required={required}
-                    className="w-full bg-[#141413] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#eceae4] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50 transition-colors"
+                    className="w-full bg-[#141413] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-[#eceae4] placeholder:text-[#6f6d66] focus:outline-none focus:border-[#C8F135]/50 transition-colors"
                   />
                 </label>
               ))}
             </div>
             {askError && <p className="mt-3 text-xs text-[#ff7a7a]">{askError}</p>}
             <div className="mt-5 flex gap-2">
-              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-[#1e1e1e] text-[#888] hover:text-[#eceae4] py-3 text-sm rounded-sm transition-colors">
+              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-white/10 text-[#888] hover:text-[#eceae4] py-3 text-sm rounded-xl transition-colors">
                 Cancel
               </button>
-              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
+              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-xl hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2 disabled:opacity-60">
                 <Download size={13} /> {busy ? "Saving your quote…" : "Get my quote"}
               </button>
             </div>

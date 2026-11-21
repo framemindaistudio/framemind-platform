@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowRight, Check, Download, Minus } from "lucide-react";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
+import { CtaPanel } from "@/site/components/ui/page-bits";
 import { submitLead } from "@/site/leads";
 import { AREA_UNITS, TERMS, addOnPrice, addOnsFor, belowMarket, comparisonFor, priceRealEstate, realEstateWith, toSqft, type AreaUnit, type Plan, type PlanId, type RealEstateRates } from "@/lib/content/real-estate";
 
@@ -108,15 +109,15 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
 
       <div className="min-h-screen">
         {/* hero */}
-        <section className="bg-[#171716] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden pt-[76px] sm:pt-[84px]">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,241,53,0.06),transparent_60%)]" />
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
-          <div className="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-14 relative z-10">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 pt-16 md:pt-24 pb-14 relative z-10">
             <div className="flex items-center gap-3 mb-8">
               <span className="w-2 h-2 rounded-full bg-[#C8F135] animate-pulse" />
-              <span className="font-mono text-[10px] text-[#555] uppercase tracking-[0.2em]">Standard pricing model · Layouts · Visualisation · Sales platforms</span>
+              <span className="font-mono text-[10px] text-[#8a8882] uppercase tracking-[0.2em]">Standard pricing model · Layouts · Visualisation · Sales platforms</span>
             </div>
-            <h1 className="text-5xl sm:text-6xl md:text-[80px] font-black text-[#eceae4] tracking-tight leading-[0.98] mb-6">
+            <h1 className="text-5xl sm:text-6xl md:text-[80px] font-normal text-[#eceae4] tracking-[-0.05em] leading-[0.98] mb-6">
               Real Estate
               <br />
               <span className="text-[#C8F135]">Digital Platform</span>
@@ -124,7 +125,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
             <p className="text-lg text-[#888] leading-relaxed max-w-2xl mb-10">
               One area-based price for every real estate project — residential layouts, villas, plotted developments and townships. Charged per square foot, with a minimum and a maximum, so you know the price before we start.
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1f1f1d] border border-[#1f1f1d] rounded-sm overflow-hidden">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl overflow-hidden">
               {[
                 ["One standard model", "For every project type"],
                 ["Area-based pricing", "Per square foot of the project"],
@@ -133,7 +134,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
               ].map(([t, d]) => (
                 <div key={t} className="bg-[#171716] px-5 py-5">
                   <p className="text-sm font-bold text-[#eceae4]">{t}</p>
-                  <p className="text-[11px] text-[#555] mt-1">{d}</p>
+                  <p className="text-[11px] text-[#8a8882] mt-1">{d}</p>
                 </div>
               ))}
             </div>
@@ -142,16 +143,16 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
 
         {/* plans */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>01 · Plans</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {PLANS.map((p) => (
-                <div key={p.id} className={`relative rounded-sm border flex flex-col ${p.recommended ? "border-[#C8F135] bg-[#171716] text-[#eceae4] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}>
-                  {p.recommended && <span className="absolute -top-3 left-5 bg-[#C8F135] text-[#171716] font-mono text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm">Recommended</span>}
+                <div key={p.id} className={`relative rounded-xl border flex flex-col ${p.recommended ? "border-[#C8F135] bg-[#171716] text-[#eceae4] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}>
+                  {p.recommended && <span className="absolute -top-3 left-5 bg-[#C8F135] text-[#171716] font-mono text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">Recommended</span>}
                   <div className="p-6 border-b border-current/10">
-                    <h3 className="text-2xl font-black tracking-tight">{p.name}</h3>
+                    <h3 className="text-2xl font-normal tracking-tight">{p.name}</h3>
                     <p className={`text-sm ${p.recommended ? "text-[#888]" : "text-muted-foreground"}`}>{p.tagline}</p>
-                    <p className="mt-5 text-4xl font-black tracking-tight">
+                    <p className="mt-5 text-4xl font-normal tracking-tight">
                       {rate(p.rate)}
                       <span className="text-base font-semibold"> / sq ft</span>
                     </p>
@@ -159,7 +160,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                       Minimum {inr(p.min)} · Maximum {inr(p.max)}
                     </p>
                     {belowMarket(p) > 0 && (
-                      <p className={`mt-3 rounded-sm px-3 py-2 text-xs leading-relaxed ${p.recommended ? "bg-[#C8F135]/10 text-[#C8F135]" : "bg-[#C8F135]/15 text-[#3d5c00]"}`}>
+                      <p className={`mt-3 rounded-xl px-3 py-2 text-xs leading-relaxed ${p.recommended ? "bg-[#C8F135]/10 text-[#C8F135]" : "bg-[#C8F135]/15 text-[#3d5c00]"}`}>
                         <span className="font-mono font-bold uppercase tracking-wider">Starts {belowMarket(p)}% below market.</span> Typical market price from {inr(p.marketFrom)}.
                       </p>
                     )}
@@ -191,7 +192,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
 
         {/* calculator */}
         <section className="border-b border-border bg-secondary/30" id="calculator">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>02 · Your price</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8">
               <div className="space-y-6">
@@ -204,10 +205,10 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                       inputMode="decimal"
                       value={area}
                       onChange={(e) => setArea(e.target.value)}
-                      className="w-full rounded-sm border border-border bg-background px-3 py-2.5 text-base tabular-nums focus:outline-none focus:border-[#171716]"
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-base tabular-nums focus:outline-none focus:border-[#171716]"
                       aria-label="Total project area"
                     />
-                    <select value={unit} onChange={(e) => setUnit(e.target.value as AreaUnit)} className="rounded-sm border border-border bg-background px-3 py-2.5 text-sm" aria-label="Unit">
+                    <select value={unit} onChange={(e) => setUnit(e.target.value as AreaUnit)} className="rounded-xl border border-border bg-background px-3 py-2.5 text-sm" aria-label="Unit">
                       {AREA_UNITS.map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.label}
@@ -223,7 +224,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                   <p className="text-sm font-semibold mb-2">Plan</p>
                   <div className="grid grid-cols-3 gap-2">
                     {PLANS.map((p) => (
-                      <button key={p.id} type="button" onClick={() => setPlanId(p.id)} className={`rounded-sm border px-3 py-3 text-left transition-colors ${p.id === planId ? "border-[#171716] bg-[#171716] text-[#eceae4]" : "border-border bg-background hover:border-foreground/30"}`}>
+                      <button key={p.id} type="button" onClick={() => setPlanId(p.id)} className={`rounded-xl border px-3 py-3 text-left transition-colors ${p.id === planId ? "border-[#171716] bg-[#171716] text-[#eceae4]" : "border-border bg-background hover:border-foreground/30"}`}>
                         <p className="text-sm font-bold">{p.name}</p>
                         <p className={`text-xs ${p.id === planId ? "text-[#C8F135]" : "text-muted-foreground"}`}>{rate(p.rate)}/sq ft</p>
                       </button>
@@ -236,7 +237,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                     {available.map((a) => {
                       const on = extras.includes(a.id);
                       return (
-                        <label key={a.id} className={`flex items-center gap-3 rounded-sm border px-3 py-2.5 cursor-pointer ${on ? "border-[#171716] bg-background" : "border-border bg-background/60"}`}>
+                        <label key={a.id} className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer ${on ? "border-[#171716] bg-background" : "border-border bg-background/60"}`}>
                           <input type="checkbox" checked={on} onChange={() => setExtras((x) => (on ? x.filter((i) => i !== a.id) : [...x, a.id]))} className="size-4 accent-[#171716]" />
                           <span className="flex-1 text-sm">{a.label}</span>
                           <span className="text-xs font-semibold tabular-nums">{a.perSqft ? inr(addOnPrice(a, sqft)) : `${inr(a.range!.from)}${a.range!.to ? ` – ${inr(a.range!.to)}` : "+"}`}</span>
@@ -247,7 +248,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                 </div>
               </div>
 
-              <div className="rounded-sm bg-[#171716] text-[#eceae4] p-6 h-fit lg:sticky lg:top-20">
+              <div className="rounded-xl bg-[#171716] text-[#eceae4] p-6 h-fit lg:sticky lg:top-20">
                 <p className="font-mono text-[10px] text-[#C8F135] uppercase tracking-widest mb-4">Live estimate</p>
                 <ul className="space-y-2.5 text-sm">
                   {lines.map((l) => (
@@ -264,7 +265,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                 <p className="mt-2 text-[11px] text-[#666]">
                   {TERMS.tax} Add-ons with a range are shown at their starting price. {plan.freeMonths} months of maintenance included, then {inr(plan.monthly)}/month.
                 </p>
-                <button type="button" onClick={() => (setErr(""), setAsking(true))} disabled={!(sqft > 0)} className="mt-5 w-full bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] disabled:opacity-40 flex items-center justify-center gap-2">
+                <button type="button" onClick={() => (setErr(""), setAsking(true))} disabled={!(sqft > 0)} className="mt-5 w-full bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-xl hover:bg-[#b8e020] disabled:opacity-40 flex items-center justify-center gap-2">
                   <Download size={14} /> Get this quote as PDF
                 </button>
                 {sentNo && <p className="mt-2.5 text-center text-[11px] text-[#C8F135]">Quote {sentNo} is with us — we&apos;ll be in touch. Your PDF opened in a new tab.</p>}
@@ -275,9 +276,9 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
 
         {/* comparison */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>03 · Service & feature comparison</SectionLabel>
-            <div className="overflow-x-auto rounded-sm border border-border">
+            <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full min-w-[560px] text-sm">
                 <thead>
                   <tr className="bg-[#171716] text-[#eceae4]">
@@ -309,10 +310,10 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
 
         {/* add-ons + formula */}
         <section className="border-b border-border bg-secondary/30">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-10">
             <div>
               <SectionLabel>04 · Add-on services</SectionLabel>
-              <ul className="divide-y divide-border rounded-sm border border-border bg-background">
+              <ul className="divide-y divide-border rounded-xl border border-border bg-background">
                 {ADD_ONS.map((a) => (
                   <li key={a.id} className="flex items-start justify-between gap-4 px-4 py-3">
                     <span>
@@ -338,7 +339,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
             </div>
             <div>
               <SectionLabel>05 · Pricing formula</SectionLabel>
-              <div className="rounded-sm border-2 border-[#171716] bg-background p-5">
+              <div className="rounded-xl border-2 border-[#171716] bg-background p-5">
                 <p className="font-mono text-sm font-semibold leading-relaxed">
                   Project cost = Total area (sq ft) × Rate per sq ft,
                   <br />
@@ -350,7 +351,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                 <li className="flex gap-2.5"><Check size={14} className="mt-0.5 shrink-0 text-[#5a9e00]" /> Plot count does not change the area-based price.</li>
                 <li className="flex gap-2.5"><Check size={14} className="mt-0.5 shrink-0 text-[#5a9e00]" /> Small projects pay the plan&apos;s minimum; large ones never pay more than its maximum.</li>
               </ul>
-              <div className="mt-6 rounded-sm border border-border bg-background">
+              <div className="mt-6 rounded-xl border border-border bg-background">
                 <p className="px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border">Package positioning</p>
                 {PLANS.map((p) => (
                   <div key={p.id} className={`grid grid-cols-[110px_1fr] gap-3 px-4 py-2.5 text-sm ${p.recommended ? "bg-[#C8F135]/10" : ""}`}>
@@ -365,10 +366,10 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
 
         {/* terms */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>06 · Terms, ownership & timeline</SectionLabel>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="rounded-sm border border-border p-5">
+              <div className="rounded-xl border border-border p-5">
                 <h3 className="text-sm font-bold mb-3">Project terms</h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li><strong className="text-foreground">Payment:</strong> {TERMS.payment}</li>
@@ -376,7 +377,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                   <li>{TERMS.tax}</li>
                 </ul>
               </div>
-              <div className="rounded-sm border border-border p-5">
+              <div className="rounded-xl border border-border p-5">
                 <h3 className="text-sm font-bold mb-3">Infrastructure & ownership</h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   {TERMS.infrastructure.map((t) => (
@@ -384,7 +385,7 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
                   ))}
                 </ul>
               </div>
-              <div className="rounded-sm border border-border p-5">
+              <div className="rounded-xl border border-border p-5">
                 <h3 className="text-sm font-bold mb-3">Delivery & maintenance</h3>
                 <p className="text-sm text-muted-foreground">
                   <strong className="text-foreground">Timeline:</strong> {TERMS.timeline}
@@ -405,29 +406,13 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="bg-[#171716]">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h2 className="text-4xl font-black text-[#eceae4] tracking-tight">Have a layout to launch?</h2>
-              <p className="mt-3 text-sm text-[#666] max-w-lg">Send the layout drawing and the project&apos;s area. We reply with a written quote.</p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <a href="#calculator" className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020]">
-                Calculate your price <ArrowRight size={14} />
-              </a>
-              <Link to="/connect" className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#888] px-6 py-3 text-sm font-medium rounded-sm hover:text-[#bbb]">
-                Talk to us <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CtaPanel kicker="Your layout" lines={["Have a layout", "to launch?"]} lede="Send the layout drawing and the project's area. We reply with a written quote." primary={{ to: "#calculator", label: "Calculate your price" }} secondary={{ to: "/connect", label: "Talk to us" }} />
       </div>
 
       {/* name and phone before the quote */}
       {asking && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4" role="dialog" aria-modal="true" aria-labelledby="re-quote-title" onClick={() => !busy && setAsking(false)}>
-          <form onClick={(e) => e.stopPropagation()} onSubmit={getQuote} className="w-full max-w-md rounded-sm border border-[#1e1e1e] bg-[#171716] p-6 sm:p-8" noValidate>
+          <form onClick={(e) => e.stopPropagation()} onSubmit={getQuote} className="w-full max-w-md rounded-xl border border-white/10 bg-[#171716] p-6 sm:p-8" noValidate>
             <p className="font-mono text-[9px] text-[#C8F135] uppercase tracking-widest mb-2">Your quote · {inr(total)}</p>
             <h2 id="re-quote-title" className="text-xl font-semibold text-[#eceae4] mb-1">Where should we send it?</h2>
             <p className="text-xs text-[#888] mb-5">Your PDF opens right after. We keep a copy so we can talk it through with you.</p>
@@ -443,16 +428,16 @@ export default function RealEstate({ rates }: { rates?: RealEstateRates | null }
               ).map(([k, label, ph, type, auto]) => (
                 <label key={k} className="block">
                   <span className="font-mono text-[9px] text-[#aaa] uppercase tracking-widest block mb-1.5">{label}</span>
-                  <input type={type} value={f[k]} onChange={(e) => setF((x) => ({ ...x, [k]: e.target.value }))} placeholder={ph} autoComplete={auto} className="w-full bg-[#141413] border border-[#1e1e1e] rounded-sm px-3 py-2.5 text-sm text-[#eceae4] placeholder:text-[#333] focus:outline-none focus:border-[#C8F135]/50" />
+                  <input type={type} value={f[k]} onChange={(e) => setF((x) => ({ ...x, [k]: e.target.value }))} placeholder={ph} autoComplete={auto} className="w-full bg-[#141413] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-[#eceae4] placeholder:text-[#6f6d66] focus:outline-none focus:border-[#C8F135]/50" />
                 </label>
               ))}
             </div>
             {err && <p className="mt-3 text-xs text-[#ff7a7a]">{err}</p>}
             <div className="mt-5 flex gap-2">
-              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-[#1e1e1e] text-[#888] hover:text-[#eceae4] py-3 text-sm rounded-sm">
+              <button type="button" onClick={() => setAsking(false)} disabled={busy} className="flex-1 border border-white/10 text-[#888] hover:text-[#eceae4] py-3 text-sm rounded-xl">
                 Cancel
               </button>
-              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] flex items-center justify-center gap-2 disabled:opacity-60">
+              <button type="submit" disabled={busy} className="flex-[2] bg-[#C8F135] text-[#171716] py-3 text-sm font-bold rounded-xl hover:bg-[#b8e020] flex items-center justify-center gap-2 disabled:opacity-60">
                 <Download size={13} /> {busy ? "Saving your quote…" : "Get my quote"}
               </button>
             </div>

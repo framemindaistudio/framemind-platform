@@ -3,6 +3,7 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
+import { CtaPanel } from "@/site/components/ui/page-bits";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -94,18 +95,18 @@ export default function Jove() {
       <div className="min-h-screen">
 
         {/* ── Hero ── */}
-        <section className="bg-[#171716] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden pt-[76px] sm:pt-[84px]">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,241,53,0.06),transparent_60%)]" />
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
 
-          <div className="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-16 md:pb-24 relative z-10">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 pt-16 md:pt-24 pb-16 md:pb-24 relative z-10">
             <div className="flex items-center gap-3 mb-8">
               <span className="w-2 h-2 rounded-full bg-[#C8F135] animate-pulse" />
-              <span className="font-mono text-[10px] text-[#555] uppercase tracking-[0.2em]">FrameMind AI Studio · Co-founded Venture</span>
+              <span className="font-mono text-[10px] text-[#8a8882] uppercase tracking-[0.2em]">FrameMind AI Studio · Co-founded Venture</span>
             </div>
 
             <div className="max-w-4xl">
-              <h1 className="text-6xl sm:text-7xl md:text-[96px] font-black text-[#eceae4] tracking-tight leading-none mb-3">
+              <h1 className="text-6xl sm:text-7xl md:text-[96px] font-normal text-[#eceae4] tracking-[-0.05em] leading-none mb-3">
                 JOVE
               </h1>
               <p className="font-mono text-sm text-[#C8F135] uppercase tracking-widest mb-6">
@@ -116,11 +117,11 @@ export default function Jove() {
               </p>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1f1f1d] border border-[#1f1f1d] rounded-sm overflow-hidden mb-10">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl overflow-hidden mb-10">
                 {highlights.map(({ num, label }) => (
                   <div key={label} className="bg-[#171716] px-5 py-5 flex flex-col gap-1.5">
-                    <span className="text-2xl font-black text-[#eceae4] tracking-tight leading-none">{num}</span>
-                    <span className="text-[11px] text-[#555] leading-snug">{label}</span>
+                    <span className="text-2xl font-normal text-[#eceae4] tracking-tight leading-none">{num}</span>
+                    <span className="text-[11px] text-[#8a8882] leading-snug">{label}</span>
                   </div>
                 ))}
               </div>
@@ -130,13 +131,13 @@ export default function Jove() {
                   href="https://jove.website"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors"
+                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-full hover:bg-[#b8e020] transition-colors"
                 >
                   Visit jove.website <ArrowUpRight size={14} />
                 </a>
                 <Link
                   to="/connect"
-                  className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#888] px-6 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#bbb] transition-colors"
+                  className="inline-flex items-center gap-2 border border-white/15 text-[#888] px-6 py-3 text-sm font-medium rounded-full hover:border-[#444] hover:text-[#bbb] transition-colors"
                 >
                   Book a workshop <ArrowRight size={14} />
                 </Link>
@@ -147,11 +148,11 @@ export default function Jove() {
 
         {/* ── Programs ── */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>01 · Programs</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-snug mb-4">
+                <h2 className="text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-normal tracking-[-0.04em] leading-snug mb-4">
                   Four programs. One school. One day.
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
@@ -164,21 +165,21 @@ export default function Jove() {
               {programs.map((p) => (
                 <div
                   key={p.num}
-                  className={`rounded-sm border overflow-hidden flex flex-col ${p.highlight ? "border-[#C8F135] bg-[#171716] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}
+                  className={`rounded-xl border overflow-hidden flex flex-col ${p.highlight ? "border-[#C8F135] bg-[#171716] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}
                 >
-                  <div className={`px-5 pt-5 pb-4 border-b ${p.highlight ? "border-[#1e1e1e]" : "border-border"}`}>
+                  <div className={`px-5 pt-5 pb-4 border-b ${p.highlight ? "border-white/10" : "border-border"}`}>
                     <div className="flex items-center justify-between mb-3">
                       <span className={`font-mono text-[9px] uppercase tracking-widest ${p.highlight ? "text-[#C8F135]" : "text-muted-foreground"}`}>
                         {p.num}
                       </span>
-                      <span className={`font-mono text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm ${p.highlight ? "bg-[#C8F135] text-[#171716]" : "bg-secondary text-muted-foreground"}`}>
+                      <span className={`font-mono text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-xl ${p.highlight ? "bg-[#C8F135] text-[#171716]" : "bg-secondary text-muted-foreground"}`}>
                         {p.badge}
                       </span>
                     </div>
-                    <p className={`font-mono text-[10px] uppercase tracking-widest mb-1.5 ${p.highlight ? "text-[#555]" : "text-muted-foreground/60"}`}>
+                    <p className={`font-mono text-[10px] uppercase tracking-widest mb-1.5 ${p.highlight ? "text-[#8a8882]" : "text-muted-foreground/60"}`}>
                       {p.grade}
                     </p>
-                    <h3 className={`text-lg font-black tracking-tight ${p.highlight ? "text-[#eceae4]" : "text-foreground"}`}>
+                    <h3 className={`text-lg font-normal tracking-tight ${p.highlight ? "text-[#eceae4]" : "text-foreground"}`}>
                       {p.title}
                     </h3>
                   </div>
@@ -195,11 +196,11 @@ export default function Jove() {
 
         {/* ── What's included ── */}
         <section className="border-b border-border bg-secondary/30">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>02 · What's included</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {includes.map(({ title, desc }) => (
-                <div key={title} className="border border-border rounded-sm p-6 bg-background hover:border-foreground/20 transition-colors">
+                <div key={title} className="border border-border rounded-xl p-6 bg-background hover:border-foreground/20 transition-colors">
                   <div className="flex items-start gap-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C8F135] shrink-0 mt-1.5" />
                     <div>
@@ -215,17 +216,17 @@ export default function Jove() {
 
         {/* ── FrameMind × JOVE ── */}
         <section className="border-b border-border bg-[#171716]">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>03 · FrameMind × JOVE</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#eceae4] tracking-tight mb-5">
+                <h2 className="text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-bold text-[#eceae4] tracking-tight mb-5">
                   Every workshop is documented.
                 </h2>
                 <p className="text-sm text-[#666] leading-relaxed mb-6">
                   FrameMind AI Studio documents every JOVE event — from drone footage of the full campus to cinematic highlight films. Schools receive professional media content for admissions marketing and social media, included at no extra cost.
                 </p>
-                <div className="bg-[#C8F135]/5 border border-[#C8F135]/20 rounded-sm px-5 py-4 mb-6">
+                <div className="bg-[#C8F135]/5 border border-[#C8F135]/20 rounded-xl px-5 py-4 mb-6">
                   <p className="font-mono text-[9px] text-[#C8F135] uppercase tracking-widest mb-1.5">Valued at ₹60,000</p>
                   <p className="text-sm text-[#888] leading-relaxed">
                     Professional event documentation — included with every JOVE workshop at no additional charge.
@@ -233,15 +234,15 @@ export default function Jove() {
                 </div>
               </div>
 
-              <div className="border border-[#1e1e1e] rounded-sm overflow-hidden">
-                <div className="bg-[#111] px-5 py-3 border-b border-[#1e1e1e] flex items-center gap-2">
+              <div className="border border-white/10 rounded-xl overflow-hidden">
+                <div className="bg-[#111] px-5 py-3 border-b border-white/10 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#C8F135]" />
-                  <span className="font-mono text-[9px] text-[#555] uppercase tracking-widest">What FrameMind delivers</span>
+                  <span className="font-mono text-[9px] text-[#8a8882] uppercase tracking-widest">What FrameMind delivers</span>
                 </div>
                 <div className="p-5 flex flex-col gap-3">
                   {framemindJove.map((item) => (
                     <div key={item} className="flex items-start gap-3">
-                      <span className="text-[#C8F135] text-xs mt-0.5 shrink-0 font-black leading-none">→</span>
+                      <span className="text-[#C8F135] text-xs mt-0.5 shrink-0 font-normal leading-none">→</span>
                       <p className="text-sm text-[#888] leading-relaxed">{item}</p>
                     </div>
                   ))}
@@ -253,20 +254,20 @@ export default function Jove() {
 
         {/* ── Curriculum alignment ── */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>04 · Curriculum Alignment</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1">
-                <h2 className="text-3xl font-bold tracking-tight mb-4">Built for Indian schools.</h2>
+                <h2 className="text-3xl font-normal tracking-[-0.04em] mb-4">Built for Indian schools.</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Every JOVE program is aligned with Indian educational frameworks — so the day isn't an elective detour but a recognised part of the learning calendar.
                 </p>
               </div>
-              <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-px bg-border border border-border rounded-sm overflow-hidden">
+              <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl overflow-hidden">
                 {["CBSE", "ICSE", "State Boards", "NEP 2020"].map((board) => (
                   <div key={board} className="bg-background px-4 py-6 flex flex-col items-center justify-center text-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#C8F135]" />
-                    <span className="text-sm font-bold tracking-tight">{board}</span>
+                    <span className="text-sm font-normal tracking-[-0.04em]">{board}</span>
                     <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Aligned</span>
                   </div>
                 ))}
@@ -275,36 +276,7 @@ export default function Jove() {
           </div>
         </section>
 
-        {/* ── CTA ── */}
-        <section className="bg-[#171716]">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-24">
-            <div className="max-w-2xl">
-              <span className="font-mono text-[10px] text-[#555] uppercase tracking-[0.2em] mb-4 block">Book a Workshop</span>
-              <h2 className="text-4xl md:text-5xl font-black text-[#eceae4] tracking-tight leading-none mb-5">
-                Bring JOVE to<br />your school.
-              </h2>
-              <p className="text-sm text-[#666] leading-relaxed mb-8 max-w-lg">
-                One message is all it takes. Tell us your school name, approximate student count by grade, and a preferred date — we will take it from there.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <a
-                  href="https://jove.website"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors"
-                >
-                  Visit jove.website <ArrowUpRight size={14} />
-                </a>
-                <Link
-                  to="/connect"
-                  className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#888] px-6 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#bbb] transition-colors"
-                >
-                  Contact FrameMind <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        <CtaPanel kicker="Book a workshop" lines={["Bring JOVE to", "your school."]} lede="Tell us your school name, the approximate number of students by grade and a preferred date. We take it from there." primary={{ to: "https://jove.website", label: "Visit jove.website", external: true }} secondary={{ to: "/connect", label: "Contact FrameMind" }} />
 
       </div>
     </>

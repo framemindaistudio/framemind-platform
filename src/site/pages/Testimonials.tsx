@@ -1,7 +1,8 @@
 "use client";
 
-import { Link } from "@/site/router";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { CtaPanel, PageHero } from "@/site/components/ui/page-bits";
+import { Rise } from "@/site/components/ui/motion-bits";
 import SEO from "@/site/components/SEO";
 const founderPhoto = "/site/testimonial-founder.jpg";
 const jagkalyanMissionLogo = "/site/jagkalyan-logo.jpg";
@@ -43,7 +44,7 @@ const testimonials: {
 
 export default function Testimonials() {
   return (
-    <div>
+    <div className="bg-[var(--fm-stone)]">
       <SEO
         title="Client Testimonials — Real Results from Real Businesses"
         description="What our clients say about working with FrameMind Studio — real feedback from Indian businesses we've helped build their digital presence, brand, and tools."
@@ -59,76 +60,51 @@ export default function Testimonials() {
           "publisher": { "@type": "Organization", "name": "FrameMind AI Studio" },
         }}
       />
-      {/* Header */}
-      <section className="max-w-6xl mx-auto px-6 pt-20 pb-12">
-        <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-4 block">
-          Testimonials
-        </span>
-        <h1 className="text-3xl md:text-5xl font-semibold tracking-tight mb-5 max-w-2xl">
-          What people say.
-        </h1>
-        <p className="text-base text-muted-foreground leading-relaxed max-w-xl">
-          From founders who shipped with us to students who competed on what we built.
-        </p>
-      </section>
+      <PageHero
+        kicker="Testimonials"
+        lines={["What people", <span key="b" className="text-[#9a9890]">say about us.</span>]}
+        lede="Real feedback from the businesses and missions we built for. Each one links to the work itself."
+      />
 
-      {/* Testimonials grid — all equal size */}
-      <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border">
-            {testimonials.map((t) => (
-              <blockquote key={t.name} className="bg-background p-6 sm:p-8 flex flex-col justify-between min-h-[340px]">
-                <div>
-                  {t.tag && (
-                    <p className="font-mono text-[10px] text-[#C8F135] bg-[#171716] inline-block px-2.5 py-1 rounded-sm uppercase tracking-widest mb-4">{t.tag}</p>
-                  )}
-                  <p className="text-sm leading-relaxed text-muted-foreground">"{t.quote}"</p>
-                </div>
-                <footer className="flex items-start gap-3 border-t border-border pt-5 mt-8">
-                  <div className="w-9 h-9 rounded-sm overflow-hidden shrink-0 bg-[#C8F135] flex items-center justify-center">
-                    {t.logo
-                      ? <img src={t.logo} alt={t.name} className="w-full h-full object-contain bg-white" />
-                      : t.photo
-                        ? <img src={t.photo} alt={t.name} className="w-full h-full object-cover" />
-                        : <span className="font-mono text-sm font-bold text-[#171716]">{t.initial}</span>
-                    }
-                  </div>
+      <section className="rounded-t-[36px] bg-[var(--fm-stone)] md:-mt-10 md:rounded-t-[56px] relative">
+        <div className="mx-auto max-w-[1320px] px-5 py-20 sm:px-8 md:py-28">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <Rise key={t.name} delay={i * 0.07}>
+                <blockquote className={`flex h-full flex-col justify-between rounded-[28px] p-7 sm:p-9 ${i === 0 ? "bg-[#171716] text-[#eceae4]" : "bg-[#f3f2ee]"}`}>
                   <div>
-                    <p className="font-medium text-sm">{t.name}</p>
-                    <p className="font-mono text-[10px] text-muted-foreground mt-0.5">
-                      {t.role} · {t.company}
-                    </p>
-                    <a
-                      href={t.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground hover:text-foreground mt-1.5 hover:underline transition-colors"
-                    >
-                      Visit site <ArrowUpRight size={10} />
-                    </a>
+                    <span className={`block text-[4rem] leading-[0.6] ${i === 0 ? "text-[var(--fm-lime)]" : "text-[#1b1b19]/25"}`}>&ldquo;</span>
+                    {t.tag && <p className="mt-4 inline-block rounded-full bg-[var(--fm-lime)] px-3 py-1 text-[12px] text-[#171716]">{t.tag}</p>}
+                    <p className={`mt-5 text-[16px] leading-relaxed ${i === 0 ? "text-[#d6d4cd]" : "text-[#3f3e3a]"}`}>{t.quote}</p>
                   </div>
-                </footer>
-              </blockquote>
+                  <footer className={`mt-10 flex items-center gap-4 border-t pt-6 ${i === 0 ? "border-white/10" : "border-[#1b1b19]/10"}`}>
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--fm-lime)]">
+                      {t.logo ? (
+                        <img src={t.logo} alt={t.name} className="h-full w-full bg-[#f3f2ee] object-contain" />
+                      ) : t.photo ? (
+                        <img src={t.photo} alt={t.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="font-mono text-sm font-bold text-[#171716]">{t.initial}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[15px] font-medium leading-tight">{t.name}</p>
+                      <p className={`mt-1 text-[13px] leading-snug ${i === 0 ? "text-[#9a9890]" : "text-[#64635d]"}`}>
+                        {t.role} · {t.company}
+                      </p>
+                    </div>
+                    <a href={t.url} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${t.name}`} className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors ${i === 0 ? "border-white/15 hover:bg-white/10" : "border-[#1b1b19]/15 hover:bg-[#1b1b19] hover:text-[#eceae4]"}`}>
+                      <ArrowUpRight size={16} />
+                    </a>
+                  </footer>
+                </blockquote>
+              </Rise>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Closing CTA */}
-      <section className="border-t border-border bg-secondary">
-        <div className="max-w-6xl mx-auto px-6 py-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight mb-1">Ready to be next?</h2>
-            <p className="text-sm text-muted-foreground">Tell us what you're building.</p>
-          </div>
-          <Link
-            to="/connect"
-            className="bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center gap-2"
-          >
-            Connect with us <ArrowRight size={13} />
-          </Link>
-        </div>
-      </section>
+      <CtaPanel lines={["Ready to be", "next?"]} lede="Tell us what you're building." />
     </div>
   );
 }

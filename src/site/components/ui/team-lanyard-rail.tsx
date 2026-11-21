@@ -64,6 +64,8 @@ export interface TeamLanyardRailProps extends React.ComponentProps<"section"> {
 
 const RATIO = 96 / 62;
 const MAX_W = 124;
+/* FrameMind: badges may grow past the 124 px design size (geometry scales by W / MAX_W) */
+const MAX_SHOWN_W = 190;
 const MIN_RAIL_W = 100;
 const EM = 11.2;
 const RAIL_PITCH_MIN = 1.16;
@@ -328,7 +330,7 @@ const BadgeFaces = React.memo(function BadgeFaces({ item, tone }: { item: Lanyar
   const links = (item.links ?? []).slice(0, 3);
   return (
     <>
-      <span data-face="front" className="absolute inset-0 flex flex-col items-center overflow-hidden rounded-[0.85em] border border-border bg-card px-[0.8em] pb-[0.7em] text-card-foreground [backface-visibility:hidden]" style={{ transform: "translateZ(1px)" }}>
+      <span data-face="front" className="absolute inset-0 flex flex-col items-center overflow-hidden fm-badge-face rounded-[0.85em] border border-border bg-card px-[0.8em] pb-[0.7em] text-card-foreground [backface-visibility:hidden]" style={{ transform: "translateZ(1px)" }}>
         <Band tone={tone} tall />
         <Hole />
         <span className="relative mt-[2.05em] block size-[5.3em] shrink-0 rounded-full bg-card p-[0.2em]" style={{ boxShadow: "0 0.15em 0.5em color-mix(in oklab, var(--color-foreground) 22%, transparent)" }}>
@@ -348,7 +350,7 @@ const BadgeFaces = React.memo(function BadgeFaces({ item, tone }: { item: Lanyar
         </span>
         <Finish />
       </span>
-      <span data-face="back" className="absolute inset-0 overflow-hidden rounded-[0.85em] border border-border bg-card text-card-foreground [backface-visibility:hidden]" style={{ transform: "rotateY(180deg) translateZ(1px)" }}>
+      <span data-face="back" className="absolute inset-0 overflow-hidden fm-badge-face rounded-[0.85em] border border-border bg-card text-card-foreground [backface-visibility:hidden]" style={{ transform: "rotateY(180deg) translateZ(1px)" }}>
         <Band tone={tone} />
         <Hole />
         <span className="absolute inset-x-[0.85em] top-[2.6em] block">
@@ -463,7 +465,7 @@ export function TeamLanyardRail({
     if (!stage) return;
     const measure = (width: number) => {
       const n = Math.max(1, live.current.count);
-      const railW = Math.min(MAX_W, (width - 40) / (n * RAIL_PITCH_MIN + 0.4));
+      const railW = Math.min(MAX_SHOWN_W, (width - 40) / (n * RAIL_PITCH_MIN + 0.4));
       const carousel = railW < MIN_RAIL_W;
       const W = Math.round((carousel ? clamp(width * 0.3, 96, 118) : railW) * 4) / 4;
       setSize((old) => (Math.abs(old.width - width) < 0.5 && old.carousel === carousel && old.W === W ? old : { width, W, carousel }));

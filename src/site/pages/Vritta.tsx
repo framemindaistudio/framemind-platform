@@ -295,22 +295,22 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
       <div className="min-h-screen">
 
         {/* ── Hero ── */}
-        <section className="bg-[#171716] relative overflow-hidden">
+        <section className="bg-[#171716] relative overflow-hidden pt-[76px] sm:pt-[84px]">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,241,53,0.06),transparent_60%)]" />
           <div className="absolute top-0 inset-x-0 h-[2px] bg-[#C8F135]" />
-          <div className="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-16 md:pb-24 relative z-10">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 pt-16 md:pt-24 pb-16 md:pb-24 relative z-10">
             <div className="flex items-center gap-3 mb-8">
               <span className="w-2 h-2 rounded-full bg-[#C8F135] animate-pulse" />
-              <span className="font-mono text-[10px] text-[#555] uppercase tracking-[0.2em]">FrameMind AI Studio · Product</span>
+              <span className="font-mono text-[10px] text-[#8a8882] uppercase tracking-[0.2em]">FrameMind AI Studio · Product</span>
             </div>
             <div className="max-w-4xl">
-              <h1 className="text-6xl sm:text-7xl md:text-[96px] font-black text-[#eceae4] tracking-tight leading-none mb-4">
+              <h1 className="text-6xl sm:text-7xl md:text-[96px] font-normal text-[#eceae4] tracking-[-0.05em] leading-none mb-4">
                 Vritta
               </h1>
               <p className="text-lg md:text-xl text-[#888] leading-relaxed max-w-2xl mb-10">
                 A departmental activity record for educational institutions — that produces the institution's newsletter as a by-product.
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#1f1f1d] border border-[#1f1f1d] rounded-sm overflow-hidden mb-10">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl overflow-hidden mb-10">
                 {[
                   { num: "4 weeks", label: "From PO to first issue" },
                   { num: "3", label: "Editions — Essential to Institutional" },
@@ -318,18 +318,18 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                   { num: "0", label: "Accounts needed · Departments just file" },
                 ].map(({ num, label }) => (
                   <div key={label} className="bg-[#171716] px-5 py-5 flex flex-col gap-1.5">
-                    <span className="text-2xl font-black text-[#eceae4] tracking-tight leading-none">{num}</span>
-                    <span className="text-[11px] text-[#555] leading-snug">{label}</span>
+                    <span className="text-2xl font-normal text-[#eceae4] tracking-tight leading-none">{num}</span>
+                    <span className="text-[11px] text-[#8a8882] leading-snug">{label}</span>
                   </div>
                 ))}
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link to="/connect"
-                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors">
+                  className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-6 py-3 text-sm font-bold rounded-full hover:bg-[#b8e020] transition-colors">
                   Enquire about Vritta <ArrowRight size={14} />
                 </Link>
                 <a href="#rate-card"
-                  className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#888] px-6 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#bbb] transition-colors">
+                  className="inline-flex items-center gap-2 border border-white/15 text-[#888] px-6 py-3 text-sm font-medium rounded-full hover:border-[#444] hover:text-[#bbb] transition-colors">
                   View pricing <ArrowRight size={14} />
                 </a>
               </div>
@@ -339,11 +339,11 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── What the institution is buying ── */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>01 · What the institution is buying</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16 mb-12">
               <div className="lg:col-span-2">
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-snug mb-5">
+                <h2 className="text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-normal tracking-[-0.04em] leading-snug mb-5">
                   Every department already does the work.
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -354,10 +354,10 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                 {layers.map((layer) => {
                   const Icon = layer.icon;
                   return (
-                    <div key={layer.num} className="border border-border rounded-sm p-5 flex flex-col gap-4 bg-background hover:border-foreground/20 transition-colors">
+                    <div key={layer.num} className="border border-border rounded-xl p-5 flex flex-col gap-4 bg-background hover:border-foreground/20 transition-colors">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest">{layer.num}</span>
-                        <div className="w-8 h-8 border border-border rounded-sm flex items-center justify-center">
+                        <div className="w-8 h-8 border border-border rounded-xl flex items-center justify-center">
                           <Icon size={14} className="text-muted-foreground" />
                         </div>
                       </div>
@@ -369,7 +369,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
               </div>
             </div>
             {/* Positioning note */}
-            <div className="bg-[#171716] rounded-sm px-6 py-5 flex flex-col sm:flex-row gap-4 sm:items-start">
+            <div className="bg-[#171716] rounded-xl px-6 py-5 flex flex-col sm:flex-row gap-4 sm:items-start">
               <span className="font-mono text-[9px] text-[#C8F135] uppercase tracking-widest shrink-0 mt-0.5">Positioning</span>
               <p className="text-sm text-[#888] leading-relaxed">
                 Sold as newsletter software, this competes with a freelance designer's day rate. Sold as an activity record, it competes with the three weeks an IQAC spends reconstructing two years of departmental evidence from group chats before a visit. <span className="text-[#C8F135] font-medium">Price and pitch accordingly.</span>
@@ -380,25 +380,25 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── Editions ── */}
         <section className="border-b border-border bg-secondary/30">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>02 · Editions</SectionLabel>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
               {editions.map((ed) => (
                 <div key={ed.num}
-                  className={`rounded-sm border overflow-hidden flex flex-col ${ed.highlight ? "border-[#C8F135] bg-[#171716] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}>
+                  className={`rounded-xl border overflow-hidden flex flex-col ${ed.highlight ? "border-[#C8F135] bg-[#171716] shadow-[0_0_40px_rgba(200,241,53,0.08)]" : "border-border bg-background"}`}>
                   {/* Card header */}
-                  <div className={`px-6 pt-6 pb-5 border-b ${ed.highlight ? "border-[#1e1e1e]" : "border-border"}`}>
+                  <div className={`px-6 pt-6 pb-5 border-b ${ed.highlight ? "border-white/10" : "border-border"}`}>
                     <div className="flex items-start justify-between mb-3">
                       <span className={`font-mono text-[9px] uppercase tracking-widest ${ed.highlight ? "text-[#C8F135]" : "text-muted-foreground"}`}>
                         Edition {ed.num}
                       </span>
                       {ed.badge && (
-                        <span className="font-mono text-[8px] font-bold uppercase tracking-widest bg-[#C8F135] text-[#171716] px-2 py-0.5 rounded-sm">
+                        <span className="font-mono text-[8px] font-bold uppercase tracking-widest bg-[#C8F135] text-[#171716] px-2 py-0.5 rounded-full">
                           {ed.badge}
                         </span>
                       )}
                     </div>
-                    <h3 className={`text-2xl font-black tracking-tight mb-2 ${ed.highlight ? "text-[#eceae4]" : "text-foreground"}`}>
+                    <h3 className={`text-2xl font-normal tracking-tight mb-2 ${ed.highlight ? "text-[#eceae4]" : "text-foreground"}`}>
                       {ed.label}
                     </h3>
                     <p className={`text-xs leading-relaxed ${ed.highlight ? "text-[#777]" : "text-muted-foreground"}`}>
@@ -415,8 +415,8 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                     ))}
                   </div>
                   {/* Support */}
-                  <div className={`px-6 py-4 border-t flex justify-between items-center ${ed.highlight ? "border-[#1e1e1e]" : "border-border"}`}>
-                    <span className={`text-[10px] uppercase tracking-wider ${ed.highlight ? "text-[#555]" : "text-muted-foreground/60"}`}>Support</span>
+                  <div className={`px-6 py-4 border-t flex justify-between items-center ${ed.highlight ? "border-white/10" : "border-border"}`}>
+                    <span className={`text-[10px] uppercase tracking-wider ${ed.highlight ? "text-[#8a8882]" : "text-muted-foreground/60"}`}>Support</span>
                     <span className={`text-xs font-semibold ${ed.highlight ? "text-[#C8F135]" : "text-foreground"}`}>{ed.support}</span>
                   </div>
                 </div>
@@ -425,7 +425,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
             {/* Capability table */}
             <h3 className="text-sm font-bold mb-4 text-muted-foreground uppercase tracking-widest text-xs">Capability by edition</h3>
-            <div className="overflow-x-auto rounded-sm border border-border">
+            <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-[#171716]">
@@ -452,17 +452,17 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── Rate Card ── */}
         <section id="rate-card" className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>03 · Rate Card</SectionLabel>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">Pricing</h2>
+                <h2 className="text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-normal tracking-[-0.04em] mb-2">Pricing</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                   Annual billing carries the equivalent of two months free against monthly. Perpetual is set at four times the annual licence.
                 </p>
               </div>
               {/* Toggle */}
-              <div className="flex border border-border rounded-sm overflow-hidden shrink-0 self-start sm:self-auto">
+              <div className="flex border border-border rounded-xl overflow-hidden shrink-0 self-start sm:self-auto">
                 {(["colleges", "schools"] as const).map((seg) => (
                   <button key={seg} onClick={() => setSegment(seg)}
                     className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors capitalize ${segment === seg ? "bg-[#171716] text-[#C8F135]" : "bg-background text-muted-foreground hover:text-foreground"}`}>
@@ -473,7 +473,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
             </div>
 
             {/* Pricing table */}
-            <div className="overflow-x-auto rounded-sm border border-border mb-10">
+            <div className="overflow-x-auto rounded-xl border border-border mb-10">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-[#171716]">
@@ -491,7 +491,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                         <td className="px-5 py-4">
                           <div className="font-semibold text-foreground flex items-center gap-2">
                             {ed.label}
-                            {ed.badge && <span className="font-mono text-[8px] font-bold bg-[#171716] text-[#C8F135] px-1.5 py-0.5 rounded-sm uppercase tracking-wide">{ed.badge}</span>}
+                            {ed.badge && <span className="font-mono text-[8px] font-bold bg-[#171716] text-[#C8F135] px-1.5 py-0.5 rounded-full uppercase tracking-wide">{ed.badge}</span>}
                           </div>
                           <div className="text-xs text-muted-foreground mt-0.5">Edition {ed.num}</div>
                         </td>
@@ -513,7 +513,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
             </div>
 
             {/* Note on monthly */}
-            <div className="bg-secondary/50 border border-border rounded-sm px-5 py-4 mb-10">
+            <div className="bg-secondary/50 border border-border rounded-xl px-5 py-4 mb-10">
               <p className="text-xs text-muted-foreground leading-relaxed">
                 <span className="font-bold text-foreground">On monthly billing: </span>
                 Monthly is offered for pilots, not as a standing arrangement. A three-month paid pilot converting to annual is the intended path, and the pilot fee is credited in full against the first annual invoice.
@@ -522,7 +522,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
             {/* One-time charges */}
             <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground text-xs mb-4">One-time charges</h3>
-            <div className="overflow-x-auto rounded-sm border border-border">
+            <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-[#171716]">
@@ -547,11 +547,11 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── Hosting ── */}
         <section className="border-b border-border bg-secondary/30">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>04 · Hosting & Where the Data Lives</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
               {hostingOptions.map((opt) => (
-                <div key={opt.label} className="border border-border bg-background rounded-sm p-6 flex flex-col gap-4">
+                <div key={opt.label} className="border border-border bg-background rounded-xl p-6 flex flex-col gap-4">
                   <div>
                     <h3 className="text-base font-bold mb-1">{opt.label}</h3>
                     <p className="text-xs text-muted-foreground">{opt.sub}</p>
@@ -580,7 +580,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                 </div>
               ))}
             </div>
-            <div className="bg-[#171716] rounded-sm px-5 py-4">
+            <div className="bg-[#171716] rounded-xl px-5 py-4">
               <p className="text-xs text-[#666] leading-relaxed">
                 <span className="text-[#888] font-medium">Practical note: </span>
                 Managed hosting and perpetual licences are mutually exclusive. A perpetual licence transfers a right to run the software indefinitely; it cannot also oblige us to operate infrastructure indefinitely. Institutions wanting a single capital payment take self-hosting.
@@ -591,13 +591,13 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── Implementation ── */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>05 · Implementation</SectionLabel>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Go live in 4 weeks.</h2>
+              <h2 className="text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-normal tracking-[-0.04em]">Go live in 4 weeks.</h2>
               <p className="text-sm text-muted-foreground">From purchase order to first published issue.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-0 border border-border rounded-sm overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-0 border border-border rounded-xl overflow-hidden">
               {timeline.map((step, i) => (
                 <div key={step.label} className={`p-5 flex flex-col gap-3 border-b md:border-b-0 md:border-r border-border last:border-0 ${i === 4 ? "bg-secondary/50" : "bg-background"}`}>
                   <div>
@@ -613,7 +613,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── Licensing ── */}
         <section className="border-b border-border bg-secondary/30">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>06 · Licensing Terms</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div>
@@ -649,7 +649,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                 <p className="text-xs text-muted-foreground leading-relaxed mb-4">
                   All content submitted by the institution remains the property of the institution. On termination, a complete export is provided in open formats within fifteen working days at no charge.
                 </p>
-                <div className="bg-background border border-border rounded-sm p-4">
+                <div className="bg-background border border-border rounded-xl p-4">
                   <p className="font-mono text-[9px] text-muted-foreground uppercase tracking-widest mb-1">Maintenance contract</p>
                   <p className="text-sm font-bold text-foreground mb-2">{amcPct}% of perpetual fee / year</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
@@ -663,13 +663,13 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── Dos and Don'ts ── */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>07 · Dos &amp; Don'ts</SectionLabel>
             <p className="text-sm text-muted-foreground mb-10 max-w-xl">
               Stated openly because most implementation failures are predictable, and every one of these has a specific cost attached.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="border border-border rounded-sm overflow-hidden">
+              <div className="border border-border rounded-xl overflow-hidden">
                 <div className="bg-secondary border-b border-border px-5 py-3 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-foreground/40" />
                   <span className="text-xs font-bold uppercase tracking-widest text-foreground">Do</span>
@@ -683,7 +683,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                   ))}
                 </div>
               </div>
-              <div className="border border-border rounded-sm overflow-hidden">
+              <div className="border border-border rounded-xl overflow-hidden">
                 <div className="bg-red-50 dark:bg-red-950/20 border-b border-border px-5 py-3 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-red-400" />
                   <span className="text-xs font-bold uppercase tracking-widest text-foreground">Don't</span>
@@ -701,7 +701,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
             {/* Commitments */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="border border-border rounded-sm p-5">
+              <div className="border border-border rounded-xl p-5">
                 <h4 className="text-xs font-bold uppercase tracking-widest mb-4 text-foreground">We will</h4>
                 <div className="flex flex-col gap-2.5">
                   {[
@@ -718,7 +718,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                   ))}
                 </div>
               </div>
-              <div className="border border-border rounded-sm p-5">
+              <div className="border border-border rounded-xl p-5">
                 <h4 className="text-xs font-bold uppercase tracking-widest mb-4 text-foreground">We will not</h4>
                 <div className="flex flex-col gap-2.5">
                   {[
@@ -741,9 +741,9 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── Commercial Terms ── */}
         <section className="border-b border-border bg-secondary/30">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>08 · Commercial Terms</SectionLabel>
-            <div className="overflow-x-auto rounded-sm border border-border mb-6">
+            <div className="overflow-x-auto rounded-xl border border-border mb-6">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-[#171716]">
@@ -761,7 +761,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                 </tbody>
               </table>
             </div>
-            <div className="bg-background border border-amber-200 dark:border-amber-900/40 rounded-sm px-5 py-4">
+            <div className="bg-background border border-amber-200 dark:border-amber-900/40 rounded-xl px-5 py-4">
               <p className="text-xs text-muted-foreground leading-relaxed">
                 <span className="font-bold text-foreground">Procurement note: </span>
                 Purchases above roughly ₹50,000 generally move from a head's discretionary approval to a purchase committee, and may require three comparative quotations. Expect a cycle of three to nine months for perpetual and Institutional-edition purchases, and begin the conversation in the preceding academic year.
@@ -772,7 +772,7 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── FAQs ── */}
         <section className="border-b border-border">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>09 · Questions we are always asked</SectionLabel>
             <div className="max-w-3xl mx-auto divide-y divide-border">
               {faqs.map((f) => ({ ...f, a: pct(f.a) })).map((faq, i) => (
@@ -797,23 +797,23 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
 
         {/* ── Studio ── */}
         <section className="bg-[#171716]">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>10 · The Studio</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#eceae4] tracking-tight mb-5">
+                <h2 className="text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-bold text-[#eceae4] tracking-tight mb-5">
                   Built by FrameMind AI Studio.
                 </h2>
                 <p className="text-sm text-[#666] leading-relaxed mb-8">
                   Vritta is built and delivered by FrameMind AI Studio — a design and software studio working end to end, in house, from identity through to the software that runs on it. A twenty-minute call. No deck, no proposal. A direct conversation about what the institution needs and whether we are the right fit for it.
                 </p>
-                <div className="border border-[#1e1e1e] rounded-sm p-5 mb-6">
-                  <p className="font-mono text-[9px] text-[#555] uppercase tracking-widest mb-2">Reference engagement</p>
+                <div className="border border-white/10 rounded-xl p-5 mb-6">
+                  <p className="font-mono text-[9px] text-[#8a8882] uppercase tracking-widest mb-2">Reference engagement</p>
                   <p className="text-sm text-[#888] leading-relaxed">
                     Vritta is in production at an autonomous engineering college in Karnataka publishing a monthly sixteen-page issue across thirteen departments and five cells and committees. A reference conversation can be arranged for serious enquiries.
                   </p>
                 </div>
-                <div className="bg-[#C8F135]/5 border border-[#C8F135]/20 rounded-sm px-5 py-4">
+                <div className="bg-[#C8F135]/5 border border-[#C8F135]/20 rounded-xl px-5 py-4">
                   <p className="text-xs text-[#888] leading-relaxed">
                     <span className="text-[#C8F135] font-semibold">MSME registered · Govt. of India. </span>
                     Where an institution runs a comparative-quotation process, MSME registration is frequently a scored criterion rather than a formality.
@@ -831,17 +831,17 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
                   { label: "Office", value: "Gadag, Karnataka, India" },
                 ].map(({ label, value }) => (
                   <div key={label} className="flex gap-4 py-3 border-b border-[#1f1f1d]">
-                    <span className="font-mono text-[9px] text-[#444] uppercase tracking-widest w-24 shrink-0 mt-0.5">{label}</span>
+                    <span className="font-mono text-[9px] text-[#7d7b74] uppercase tracking-widest w-24 shrink-0 mt-0.5">{label}</span>
                     <span className="text-sm text-[#aaa]">{value}</span>
                   </div>
                 ))}
                 <div className="mt-4 flex gap-3">
                   <Link to="/connect"
-                    className="flex-1 bg-[#C8F135] text-[#171716] px-4 py-3 text-sm font-bold rounded-sm hover:bg-[#b8e020] transition-colors text-center flex items-center justify-center gap-2">
+                    className="flex-1 bg-[#C8F135] text-[#171716] px-4 py-3 text-sm font-bold rounded-full hover:bg-[#b8e020] transition-colors text-center flex items-center justify-center gap-2">
                     Book a call <ArrowRight size={13} />
                   </Link>
                   <a href="mailto:framemindaistudio@gmail.com"
-                    className="flex-1 border border-[#2a2a2a] text-[#888] px-4 py-3 text-sm font-medium rounded-sm hover:border-[#444] hover:text-[#bbb] transition-colors text-center flex items-center justify-center gap-2">
+                    className="flex-1 border border-white/15 text-[#888] px-4 py-3 text-sm font-medium rounded-full hover:border-[#444] hover:text-[#bbb] transition-colors text-center flex items-center justify-center gap-2">
                     Email us <ArrowUpRight size={13} />
                   </a>
                 </div>
@@ -851,9 +851,9 @@ export default function Vritta({ rates = null }: { rates?: VrittaRates | null })
         </section>
 
         {/* Legal footer note */}
-        <div className="border-t border-[#1f1f1d] bg-[#080808]">
-          <div className="max-w-6xl mx-auto px-6 py-6">
-            <p className="text-[10px] text-[#333] leading-relaxed">
+        <div className="border-t border-[#1f1f1d] bg-[#141413]">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-6">
+            <p className="text-[11px] text-[#6f6d66] leading-relaxed">
               Vritta is a working product name and may be adapted to the studio's own branding. All figures are in Indian rupees. No GST is charged at present; see Part 08. This rate card is a commercial proposal document; it is not a contract, and it does not constitute legal, tax or financial advice. Licence terms take effect only through an executed agreement, which should be reviewed by a qualified professional before signature. Third-party hosting costs quoted in Part 04 are estimates based on typical single-institution volumes and are subject to the relevant provider's own pricing. © 2026 FrameMind AI Studio.
             </p>
           </div>

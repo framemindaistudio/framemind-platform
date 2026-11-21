@@ -433,3 +433,13 @@ html.lenis, html.lenis body { height: auto; }
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+
+/* lanyard badges are always light cards, so names read on the dark team section */
+.fm-badge-face {
+  --color-card: #f3f2ee;
+  --color-card-foreground: #1b1b19;
+  --color-foreground: #1b1b19;
+  --color-muted-foreground: #5f5e58;
+  --color-muted: #e3e1da;
+  --color-border: rgba(27, 27, 25, 0.12);
+}

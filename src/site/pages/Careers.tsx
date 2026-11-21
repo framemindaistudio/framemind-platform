@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import SEO from "@/site/components/SEO";
+import { PageHero } from "@/site/components/ui/page-bits";
+import { PillLink } from "@/site/components/ui/motion-bits";
 import { submitLead } from "@/site/leads";
 import { APPLY_ROLES, ENGAGEMENT, HEARD, LANGUAGES, SKILLS, WORK_MODE, appliedFor, linksRequired, type RoleId } from "@/lib/content/careers";
 
@@ -26,7 +28,7 @@ const PROMPTS: Record<RoleId, { links: string; linksHint: string; message: strin
 };
 
 const label = "font-mono text-xs text-muted-foreground uppercase tracking-widest";
-const field = "border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground";
+const field = "border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground";
 
 function Chips({ title, options, value, onChange }: { title: string; options: string[]; value: string[]; onChange: (v: string[]) => void }) {
   return (
@@ -41,7 +43,7 @@ function Chips({ title, options, value, onChange }: { title: string; options: st
               type="button"
               aria-pressed={on}
               onClick={() => onChange(on ? value.filter((x) => x !== o) : [...value, o])}
-              className={`inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors ${
                 on ? "border-[#171716] bg-[#171716] text-[#eceae4]" : "border-border text-foreground hover:border-foreground/40"
               }`}
             >
@@ -112,7 +114,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
   }
 
   return (
-    <div>
+    <div className="bg-[var(--fm-stone)]">
       <SEO
         title="Careers — Work at FrameMind AI Studio"
         description="Join FrameMind AI Studio in Gadag, Karnataka: designers, developers, photographers and video editors, social media and business development. Full-time, internship and freelance."
@@ -126,34 +128,32 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
         }}
       />
 
-      {/* Header */}
-      <section className="max-w-6xl mx-auto px-6 pt-20 pb-12">
-        <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-4 block">Careers</span>
-        <h1 className="text-3xl md:text-5xl font-semibold tracking-tight mb-5 max-w-2xl">Build real work with us.</h1>
-        <p className="text-base text-muted-foreground max-w-xl leading-relaxed">
-          FrameMind is a small, founder-led studio in Gadag building websites, brands, software and media for real clients. We are hiring for every role below — full-time, part-time, internship or freelance.
-        </p>
-      </section>
+      <PageHero
+        kicker="Careers"
+        lines={["Build real work", <span key="b" className="text-[#9a9890]">with us.</span>]}
+        lede="FrameMind is a small, founder-led studio in Gadag building websites, brands, software and media for real clients. Every role below is open as full-time, part-time, internship or freelance."
+        actions={<PillLink to="#apply">Apply now</PillLink>}
+      />
 
       {/* Roles */}
-      <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
+      <section className="relative rounded-t-[36px] bg-[var(--fm-stone)] md:-mt-10 md:rounded-t-[56px]">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-12 md:py-16">
           <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
             <div>
               <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-3 block">Hiring now</span>
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Every role, open now.</h2>
+              <h2 className="text-[clamp(1.8rem,3.4vw,2.8rem)] leading-[1.05] font-normal tracking-[-0.04em]">Every role, open now.</h2>
             </div>
             <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
               Each role is open as full-time, part-time, internship or freelance. Pick what suits you in the form.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border border border-border">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {APPLY_ROLES.map((r) => (
-              <div key={r.id} className="bg-background p-6 flex flex-col">
+              <div key={r.id} className="rounded-[24px] bg-[#f3f2ee] p-6 flex flex-col">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{r.code === "R-00" ? "Open" : r.code}</span>
                   {r.hiring && (
-                    <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#C8F135] px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-widest text-[#171716]">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C8F135] px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-widest text-[#171716]">
                       <span className="size-1.5 rounded-full bg-[#171716] animate-pulse" aria-hidden />
                       Hiring now
                     </span>
@@ -163,7 +163,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{r.short}</p>
                 <ul className="flex flex-wrap gap-1.5 mb-4" aria-label="Open as">
                   {ENGAGEMENT.map((e) => (
-                    <li key={e} className="border border-border rounded-sm px-2 py-0.5 font-mono text-[9px] text-muted-foreground uppercase tracking-widest">
+                    <li key={e} className="border border-border rounded-xl px-2 py-0.5 font-mono text-[9px] text-muted-foreground uppercase tracking-widest">
                       {e}
                     </li>
                   ))}
@@ -183,13 +183,13 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
 
       {/* How it works */}
       <section className="border-t border-border bg-[#171716]">
-        <div className="max-w-6xl mx-auto px-6 py-12 md:py-16 grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1f1f1d] border border-[#1f1f1d]">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-12 md:py-16 grid grid-cols-1 md:grid-cols-3 gap-3">
           {[
             { n: "01", t: "You apply", b: "This form takes five minutes. For design, photo and video, the portfolio is the application." },
             { n: "02", t: "We read it", b: "Every application is read by the founder, not filtered by software." },
             { n: "03", t: "We talk", b: "If your work fits what the studio needs, we get in touch for a conversation." },
           ].map((s) => (
-            <div key={s.n} className="bg-[#141413] p-6 sm:p-8">
+            <div key={s.n} className="rounded-[24px] bg-[#1f1f1d] p-6 sm:p-8">
               <span className="font-mono text-3xl font-bold text-[#C8F135] block mb-4 leading-none">{s.n}</span>
               <h3 className="font-semibold text-[#eceae4] text-sm mb-2">{s.t}</h3>
               <p className="text-xs text-[#888] leading-relaxed">{s.b}</p>
@@ -202,8 +202,8 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
       <section className="border-t border-border" id="apply">
         <div ref={formTop} className="max-w-3xl mx-auto px-6 py-12 md:py-16 scroll-mt-20">
           {done ? (
-            <div className="border border-border rounded-sm p-10 text-center flex flex-col items-center justify-center min-h-[320px]">
-              <div className="w-12 h-12 bg-[#C8F135] rounded-sm flex items-center justify-center mb-5">
+            <div className="border border-border rounded-xl p-10 text-center flex flex-col items-center justify-center min-h-[320px]">
+              <div className="w-12 h-12 bg-[#C8F135] rounded-xl flex items-center justify-center mb-5">
                 <Check size={18} className="text-[#171716]" />
               </div>
               <h2 className="font-semibold text-xl mb-2">Thank you, {f.name.trim().split(" ")[0]}. Your application is in.</h2>
@@ -215,7 +215,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
             <form onSubmit={submit} className="flex flex-col gap-8" aria-label="Job application">
               <div>
                 <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-3 block">Apply</span>
-                <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Tell us about you.</h2>
+                <h2 className="text-[clamp(1.8rem,3.4vw,2.8rem)] leading-[1.05] font-normal tracking-[-0.04em]">Tell us about you.</h2>
               </div>
 
               {/* honeypot: hidden from people, filled by bots */}
@@ -232,7 +232,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
                     return (
                       <label
                         key={r.id}
-                        className={`flex cursor-pointer gap-3 rounded-sm border p-4 transition-colors ${on ? "border-[#171716] bg-[#171716] text-[#eceae4]" : "border-border hover:border-foreground/40"}`}
+                        className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition-colors ${on ? "border-[#171716] bg-[#171716] text-[#eceae4]" : "border-border hover:border-foreground/40"}`}
                       >
                         <input type="radio" name="role" value={r.id} checked={on} onChange={() => choose(r.id)} className="sr-only" />
                         <span className={`mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border ${on ? "border-[#C8F135]" : "border-foreground/30"}`} aria-hidden>
@@ -354,7 +354,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
               </fieldset>
 
               {error && (
-                <p role="alert" className="border border-[#d4183d]/30 bg-[#d4183d]/5 text-[#d4183d] rounded-sm px-4 py-3 text-sm">
+                <p role="alert" className="border border-[#d4183d]/30 bg-[#d4183d]/5 text-[#d4183d] rounded-xl px-4 py-3 text-sm">
                   {error}
                 </p>
               )}
@@ -364,7 +364,7 @@ export default function Careers({ initialRole = "" }: { initialRole?: string }) 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#171716] text-[#eceae4] px-6 py-3.5 text-sm font-medium rounded-sm hover:bg-[#222] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="bg-[#171716] text-[#eceae4] px-6 py-3.5 text-sm font-medium rounded-full hover:bg-[#222] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? "Sending…" : <><span>Send application</span><ArrowRight size={13} /></>}
                 </button>

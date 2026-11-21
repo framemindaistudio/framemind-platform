@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Download, Mail, ShieldCheck, Smartphone } from "lucide-react";
+import { Download, Mail, ShieldCheck, Smartphone } from "lucide-react";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
+import { CtaPanel, PageHero } from "@/site/components/ui/page-bits";
 import { ProductCard, CategoryIcon, ProductCover } from "@/site/components/shop/ShopBits";
 import type { PublicShop } from "@/site/shop";
 
@@ -38,7 +39,7 @@ export default function Shop({ shop, initialCategory }: { shop: PublicShop; init
   };
 
   return (
-    <div>
+    <div className="bg-[var(--fm-stone)]">
       <SEO
         title="FrameMind Store: Guides, Presets & Templates"
         description="Digital downloads from FrameMind AI Studio: Claude Code and vibe coding guides, camera cheat sheets, Lightroom presets, LUTs, carousel templates, colour palettes and freelancer kits. Pay with UPI, download at once."
@@ -53,61 +54,58 @@ export default function Shop({ shop, initialCategory }: { shop: PublicShop; init
         }}
       />
 
-      {/* Header */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 pb-14 pt-14 md:grid-cols-[1.15fr_1fr] md:items-center md:pt-20">
-          <div>
-            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 font-mono text-[10px] uppercase tracking-widest">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#FF3B30]" /> New drops every week
-            </span>
-            <h1 className="text-[2.6rem] font-semibold leading-[0.98] tracking-[-0.035em] sm:text-6xl md:text-7xl">
-              Steal our <span className="font-serif font-normal italic">shortcuts</span>
-              <span className="text-[#9B7BFF]">.</span>
-            </h1>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
-              Guides, presets and templates from the studio&apos;s own workflow, packed for creators and builders. Prices start at ₹49, and downloads are instant.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-widest">
-              {["UPI · GPay · PhonePe", "Instant download", "Made in India"].map((t) => (
-                <span key={t} className="rounded-full border border-border px-3 py-1.5 text-muted-foreground">
-                  {t}
-                </span>
-              ))}
-            </div>
+      <PageHero
+        kicker="FrameMind Store · new drops every week"
+        lines={["Steal our", <span key="b">shortcuts<span className="text-[var(--fm-lime)]">.</span></span>]}
+        lede={
+          <>
+            Guides, presets and templates from the studio&apos;s own workflow. <b className="font-medium text-[#eceae4]">Most packs include an app that works offline.</b> From ₹49, instant download.
+          </>
+        }
+        actions={
+          <div className="flex flex-wrap gap-2 text-[13px]">
+            {["UPI · GPay · PhonePe", "Instant download", "Made in India"].map((t) => (
+              <span key={t} className="rounded-full border border-white/12 px-4 py-2 text-[#d6d4cd]">
+                {t}
+              </span>
+            ))}
           </div>
-          {fan.length === 3 && (
-            <div className="relative mx-auto h-[300px] w-full max-w-[420px] sm:h-[380px]" aria-hidden>
+        }
+        aside={
+          fan.length === 3 ? (
+            <div className="relative mx-auto h-[300px] w-full max-w-[440px] sm:h-[380px]" aria-hidden>
               {fan.map((p, i) => (
                 <div
                   key={p.id}
-                  className="absolute w-[46%] rounded-2xl shadow-[0_24px_50px_-18px_rgba(0,0,0,.5)]"
+                  className="absolute w-[46%] rounded-2xl shadow-[0_30px_60px_-18px_rgba(0,0,0,.7)]"
                   style={{ left: `${[2, 27, 52][i]}%`, top: `${[14, 6, 14][i]}%`, transform: `rotate(${[-9, 0, 9][i]}deg)`, zIndex: [1, 3, 2][i] }}
                 >
                   <ProductCover product={p} />
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          ) : undefined
+        }
+      >
         {/* ticker */}
-        <div className="overflow-hidden border-y border-[#171716] bg-[#171716] py-2.5 text-[#C8F135]">
+        <div className="overflow-hidden bg-[var(--fm-lime)] py-3 text-[#171716]">
           <div className="flex w-max animate-[fm-marquee_38s_linear_infinite] gap-8 whitespace-nowrap font-mono text-xs uppercase tracking-[0.2em] motion-reduce:animate-none">
             {[0, 1].map((k) => (
               <span key={k} className="flex gap-8">
                 {["Claude Code", "Vibe coding", "Lightroom presets", "Cinematic LUTs", "Carousel templates", "Colour palettes", "Camera basics", "Freelancer kit"].map((t) => (
                   <span key={t} className="flex items-center gap-8">
-                    {t} <span className="text-[#eceae4]/40">✦</span>
+                    {t} <span className="h-2 w-2 rounded-full bg-[#171716]" />
                   </span>
                 ))}
               </span>
             ))}
           </div>
         </div>
-      </section>
+      </PageHero>
 
       {/* Categories */}
-      <section className="sticky top-16 z-30 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-6 py-3 [scrollbar-width:none]">
+      <section className="sticky top-[76px] z-30 bg-[var(--fm-stone)]/90 backdrop-blur-xl sm:top-[84px]">
+        <div className="mx-auto flex max-w-[1320px] gap-2 overflow-x-auto px-5 py-3 sm:px-8 [scrollbar-width:none]">
           {[{ id: "all", name: "All", icon: "" }, ...shop.categories].map((c) => {
             const on = cat === c.id;
             return (
@@ -127,7 +125,7 @@ export default function Shop({ shop, initialCategory }: { shop: PublicShop; init
       </section>
 
       {/* Products */}
-      <section className="mx-auto max-w-6xl px-6 py-10">
+      <section className="mx-auto max-w-[1320px] px-5 py-12 sm:px-8 md:py-16">
         {current && <p className="mb-6 text-sm text-muted-foreground">{current.blurb}</p>}
         {shown.length ? (
           <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4">
@@ -141,14 +139,14 @@ export default function Shop({ shop, initialCategory }: { shop: PublicShop; init
       </section>
 
       {/* How it works */}
-      <section className="border-t border-border bg-[#171716] text-[#eceae4]">
-        <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
-          <span className="mb-8 block font-mono text-[10px] uppercase tracking-widest text-[#C8F135]">How buying works</span>
+      <section className="rounded-t-[36px] bg-[#171716] text-[#eceae4] md:rounded-t-[56px]">
+        <div className="mx-auto max-w-[1320px] px-5 py-20 sm:px-8 md:py-28">
+          <p className="mb-12 text-[clamp(2rem,4vw,3.4rem)] leading-none tracking-[-0.045em]">How buying works.</p>
           <div className="grid gap-8 md:grid-cols-3">
             {STEPS.map(({ icon: Icon, title, desc }) => (
-              <div key={title}>
+              <div key={title} className="rounded-[24px] border border-white/[0.07] bg-[#1f1f1d] p-7">
                 <Icon className="mb-4 h-6 w-6 text-[#C8F135]" strokeWidth={1.6} />
-                <h2 className="mb-2 text-lg font-semibold">{title}</h2>
+                <h2 className="mb-2 text-xl font-normal tracking-[-0.02em]">{title}</h2>
                 <p className="text-sm leading-relaxed text-[#999]">{desc}</p>
               </div>
             ))}
@@ -169,16 +167,7 @@ export default function Shop({ shop, initialCategory }: { shop: PublicShop; init
         </div>
       </section>
 
-      {/* Custom work */}
-      <section className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-6 py-14 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Need it made for you instead?</h2>
-          <p className="mt-1 text-muted-foreground">Websites, brand kits, photo, video and AI coaching, done by the studio.</p>
-        </div>
-        <Link to="/connect" className="inline-flex items-center gap-2 rounded-sm bg-[#C8F135] px-6 py-3 text-sm font-semibold text-[#171716] transition-colors hover:bg-[#b8e020]">
-          Let&apos;s talk <ArrowRight className="h-4 w-4" />
-        </Link>
-      </section>
+      <CtaPanel kicker="Custom work" lines={["Need it made", "for you instead?"]} lede="Websites, brand kits, photo, video and AI coaching, done by the studio." primary={{ to: "/connect", label: "Let's talk" }} />
     </div>
   );
 }

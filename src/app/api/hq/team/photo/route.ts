@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
+import { TEAM_TAG } from "@/site/team";
 import { apiEditor } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
 import { getRecord, upsertRecord } from "@/lib/hq/records";
@@ -28,6 +30,7 @@ export async function PUT(req: Request) {
     const path = pathOf(member.id);
     await store.write(path, buf, `Profile photo for ${String(member.name ?? member.id)}`, { author: user.name });
     const saved = await upsertRecord("team", { ...member, photo: path, photoUpdatedAt: new Date().toISOString() }, user.name);
+    revalidateTag(TEAM_TAG, { expire: 0 });
     return NextResponse.json({ member: saved });
   } catch (e) {
     return apiError(e);
@@ -42,6 +45,7 @@ export async function DELETE(req: Request) {
     if (!member) return NextResponse.json({ error: "That team member was not found." }, { status: 404 });
     if (member.photo) await store.remove(String(member.photo), `Remove the profile photo of ${String(member.name ?? member.id)}`, { author: user.name }).catch(() => undefined);
     const saved = await upsertRecord("team", { ...member, photo: "", photoUpdatedAt: new Date().toISOString() }, user.name);
+    revalidateTag(TEAM_TAG, { expire: 0 });
     return NextResponse.json({ member: saved });
   } catch (e) {
     return apiError(e);

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowRight, Brain, Briefcase, GraduationCap, Heart, Sparkles, ChevronDown, CheckCircle2, Clock, User, Zap, BookOpen, Target, X } from "lucide-react";
 const founderPhoto = "/site/chinmay-portrait.jpg";
 import SEO from "@/site/components/SEO";
+import { CtaPanel } from "@/site/components/ui/page-bits";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -125,7 +126,7 @@ function CurriculumModal({ group, onClose }: { group: typeof ageGroups[0]; onClo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#171716]/70 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-background border border-border rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-background border border-border rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 bg-background border-b border-border px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between">
@@ -133,14 +134,14 @@ function CurriculumModal({ group, onClose }: { group: typeof ageGroups[0]; onClo
             <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-1">Curriculum · {group.range}</p>
             <h3 className="font-semibold text-lg">How we build your personal plan</h3>
           </div>
-          <button onClick={onClose} className="p-2 rounded-sm hover:bg-secondary transition-colors">
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-secondary transition-colors">
             <X size={18} />
           </button>
         </div>
 
         <div className="px-5 sm:px-8 py-6 sm:py-8 flex flex-col gap-6 sm:gap-8">
           {/* Why no template */}
-          <div className="bg-[#C8F135]/10 border border-[#C8F135]/30 rounded-sm p-6">
+          <div className="bg-[#C8F135]/10 border border-[#C8F135]/30 rounded-xl p-6">
             <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">Why there is no standard curriculum</p>
             <p className="text-sm leading-relaxed text-foreground">
               A doctor using AI for clinical notes has completely different needs than a CA using it for compliance research, or a college student using it for JEE prep. A single template would serve none of them well. So we don't have one. Your curriculum is built in session one, and refined every week based on what you need next.
@@ -185,9 +186,9 @@ function CurriculumModal({ group, onClose }: { group: typeof ageGroups[0]; onClo
                   desc: "Final phase focuses on making you self-sufficient: evaluating new AI tools on your own, adapting your workflows as AI evolves, and handling edge cases without needing a coach. You leave genuinely fluent — not dependent.",
                 },
               ].map((s) => (
-                <div key={s.step} className="flex gap-5 border border-border rounded-sm p-5">
+                <div key={s.step} className="flex gap-5 border border-border rounded-xl p-5">
                   <div className="shrink-0">
-                    <span className="font-mono text-xs bg-[#171716] text-[#C8F135] px-2.5 py-1 rounded-sm">{s.step}</span>
+                    <span className="font-mono text-xs bg-[#171716] text-[#C8F135] px-2.5 py-1 rounded-xl">{s.step}</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-sm mb-1.5">{s.title}</h4>
@@ -207,7 +208,7 @@ function CurriculumModal({ group, onClose }: { group: typeof ageGroups[0]; onClo
 
           <a
             href="/connect"
-            className="bg-[#C8F135] text-[#171716] text-sm font-semibold px-6 py-3.5 rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2"
+            className="bg-[#C8F135] text-[#171716] text-sm font-semibold px-6 py-3.5 rounded-full hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2"
           >
             Contact Founder — Discuss Your Plan <ArrowRight size={14} />
           </a>
@@ -252,7 +253,7 @@ export default function PersonalCoaching() {
         }}
       />
       {/* ── Hero ── */}
-      <section className="relative bg-[#171716] overflow-hidden">
+      <section className="relative bg-[#171716] overflow-hidden pt-[76px] sm:pt-[84px]">
         {/* Founder photo — right side, barely visible */}
         <div className="absolute inset-y-0 right-0 w-1/2 pointer-events-none">
           <img
@@ -267,16 +268,16 @@ export default function PersonalCoaching() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#171716] via-transparent to-[#171716]/20" />
         </div>
 
-        <div className="max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-16 md:pb-20 relative">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-8 pt-16 md:pt-24 pb-16 md:pb-20 relative">
           {/* Label */}
           <div className="flex items-center gap-3 mb-6">
             <span className="font-mono text-xs text-[#C8F135] uppercase tracking-widest">1:1 Personal Coaching</span>
             <span className="w-6 h-px bg-[#C8F135]/40" />
-            <span className="font-mono text-xs text-[#555] uppercase tracking-widest">AI & ML · All Ages</span>
+            <span className="font-mono text-xs text-[#8a8882] uppercase tracking-widest">AI & ML · All Ages</span>
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-[#eceae4] tracking-tight leading-[1.0] mb-6 max-w-4xl">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-[#eceae4] tracking-[-0.05em] leading-[1.0] mb-6 max-w-4xl">
             Learn AI completely.{" "}
             <span className="text-[#C8F135]">In 90 days.</span>
             <br />
@@ -306,7 +307,7 @@ export default function PersonalCoaching() {
                   <span className="text-3xl font-semibold text-[#eceae4]">{n}</span>
                   <span className="text-[#C8F135] font-semibold text-lg mb-0.5">{unit}</span>
                 </div>
-                <p className="font-mono text-xs text-[#555] uppercase tracking-widest">{label}</p>
+                <p className="font-mono text-xs text-[#8a8882] uppercase tracking-widest">{label}</p>
               </div>
             ))}
           </div>
@@ -315,13 +316,13 @@ export default function PersonalCoaching() {
           <div className="flex flex-wrap gap-4">
             <a
               href="/connect"
-              className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-7 py-4 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors"
+              className="inline-flex items-center gap-2 bg-[#C8F135] text-[#171716] px-7 py-4 text-sm font-semibold rounded-full hover:bg-[#b8e020] transition-colors"
             >
               Contact Founder <ArrowRight size={14} />
             </a>
             <a
               href="#age-groups"
-              className="inline-flex items-center gap-2 border border-[#333] text-[#888] px-7 py-4 text-sm font-medium rounded-sm hover:border-[#555] hover:text-[#aaa] transition-colors"
+              className="inline-flex items-center gap-2 border border-[#333] text-[#888] px-7 py-4 text-sm font-medium rounded-full hover:border-[#555] hover:text-[#aaa] transition-colors"
             >
               Find your age group <ChevronDown size={14} />
             </a>
@@ -331,11 +332,11 @@ export default function PersonalCoaching() {
 
       {/* ── Why this works ── */}
       <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-14 md:py-20">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10 md:mb-14">
             <div>
               <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-3 block">The Difference</span>
-              <h2 className="text-3xl font-semibold tracking-tight max-w-xl leading-snug">
+              <h2 className="text-3xl font-normal tracking-[-0.04em] max-w-xl leading-snug">
                 Why 1:1 personalized coaching works when nothing else has.
               </h2>
             </div>
@@ -344,10 +345,10 @@ export default function PersonalCoaching() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-border">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {whyWorks.map(({ icon: IIcon, title, desc }) => (
-              <div key={title} className="bg-background p-6 sm:p-8 hover:bg-secondary/50 transition-colors">
-                <div className="w-10 h-10 bg-[#C8F135] rounded-sm flex items-center justify-center mb-5">
+              <div key={title} className="rounded-[24px] bg-[#f3f2ee] p-6 sm:p-8 hover:bg-secondary/50 transition-colors">
+                <div className="w-10 h-10 bg-[#C8F135] rounded-xl flex items-center justify-center mb-5">
                   <IIcon size={17} className="text-[#171716]" />
                 </div>
                 <h3 className="font-semibold text-base mb-2">{title}</h3>
@@ -360,9 +361,9 @@ export default function PersonalCoaching() {
 
       {/* ── Age Groups ── */}
       <section id="age-groups" className="border-t border-border bg-[#171716]">
-        <div className="max-w-6xl mx-auto px-6 py-14 md:py-20">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-14 md:py-20">
           <div className="mb-8 md:mb-10">
-            <span className="font-mono text-xs text-[#555] uppercase tracking-widest mb-3 block">Your Track</span>
+            <span className="font-mono text-xs text-[#8a8882] uppercase tracking-widest mb-3 block">Your Track</span>
             <h2 className="text-3xl font-semibold text-[#eceae4] tracking-tight">Coaching built for your age and context.</h2>
           </div>
 
@@ -375,7 +376,7 @@ export default function PersonalCoaching() {
                 <button
                   key={g.id}
                   onClick={() => setActiveGroup(g.id)}
-                  className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-sm border transition-all ${
+                  className={`flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-xl border transition-all ${
                     isActive
                       ? "bg-[#C8F135] text-[#171716] border-[#C8F135]"
                       : "border-[#222] text-[#666] hover:text-[#aaa] hover:border-[#333]"
@@ -393,7 +394,7 @@ export default function PersonalCoaching() {
             {/* Left: headline & uses */}
             <div>
               <div
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm mb-5 text-xs font-mono font-semibold uppercase tracking-widest"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl mb-5 text-xs font-mono font-semibold uppercase tracking-widest"
                 style={{ backgroundColor: selectedGroup.accent, color: selectedGroup.accentText }}
               >
                 <Icon size={12} />
@@ -417,7 +418,7 @@ export default function PersonalCoaching() {
               {/* Curriculum button */}
               <button
                 onClick={() => setCurriculumGroup(selectedGroup)}
-                className="inline-flex items-center gap-2 border border-[#333] text-[#888] px-5 py-3 text-sm font-medium rounded-sm hover:border-[#C8F135] hover:text-[#C8F135] transition-colors"
+                className="inline-flex items-center gap-2 border border-[#333] text-[#888] px-5 py-3 text-sm font-medium rounded-full hover:border-[#C8F135] hover:text-[#C8F135] transition-colors"
               >
                 <BookOpen size={14} />
                 See How the Curriculum is Built
@@ -427,17 +428,17 @@ export default function PersonalCoaching() {
             {/* Right: highlight + personas + CTA */}
             <div className="flex flex-col gap-6">
               {/* Highlight */}
-              <div className="border border-[#C8F135]/30 bg-[#C8F135]/5 rounded-sm p-6">
+              <div className="border border-[#C8F135]/30 bg-[#C8F135]/5 rounded-xl p-6">
                 <p className="font-mono text-xs text-[#C8F135] uppercase tracking-widest mb-3">The Highlight</p>
                 <p className="text-sm text-[#ddd] leading-relaxed">{selectedGroup.highlight}</p>
               </div>
 
               {/* Personas */}
-              <div className="border border-[#1f1f1d] bg-[#141413] rounded-sm p-6">
-                <p className="font-mono text-xs text-[#555] uppercase tracking-widest mb-4">Who this is for</p>
+              <div className="border border-[#1f1f1d] bg-[#141413] rounded-xl p-6">
+                <p className="font-mono text-xs text-[#8a8882] uppercase tracking-widest mb-4">Who this is for</p>
                 <div className="flex flex-wrap gap-2">
                   {selectedGroup.personas.map((p) => (
-                    <span key={p} className="text-xs border border-[#2a2a2a] text-[#666] px-3 py-1.5 rounded-sm">
+                    <span key={p} className="text-xs border border-white/15 text-[#666] px-3 py-1.5 rounded-xl">
                       {p}
                     </span>
                   ))}
@@ -447,8 +448,8 @@ export default function PersonalCoaching() {
               {/* Delivery */}
               <div className="grid grid-cols-2 gap-3">
                 {formats.map((f) => (
-                  <div key={f.type} className="border border-[#1f1f1d] rounded-sm p-5">
-                    <p className="font-mono text-xs text-[#555] uppercase tracking-widest mb-1">{f.type}</p>
+                  <div key={f.type} className="border border-[#1f1f1d] rounded-xl p-5">
+                    <p className="font-mono text-xs text-[#8a8882] uppercase tracking-widest mb-1">{f.type}</p>
                     <p className="text-xs text-[#666] leading-relaxed">{f.desc.split(".")[0]}.</p>
                   </div>
                 ))}
@@ -457,7 +458,7 @@ export default function PersonalCoaching() {
               {/* CTA */}
               <a
                 href="/connect"
-                className="bg-[#C8F135] text-[#171716] px-6 py-4 text-sm font-semibold rounded-sm hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2"
+                className="bg-[#C8F135] text-[#171716] px-6 py-4 text-sm font-semibold rounded-full hover:bg-[#b8e020] transition-colors flex items-center justify-center gap-2"
               >
                 Get a Custom Quote <ArrowRight size={14} />
               </a>
@@ -468,16 +469,16 @@ export default function PersonalCoaching() {
 
       {/* ── Delivery formats ── */}
       <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-20">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-20">
           <div className="mb-12">
             <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-3 block">Delivery</span>
-            <h2 className="text-3xl font-semibold tracking-tight">Online or Offline — both are truly 1:1.</h2>
+            <h2 className="text-3xl font-normal tracking-[-0.04em]">Online or Offline — both are truly 1:1.</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {formats.map((f) => (
-              <div key={f.type} className="border border-border rounded-sm p-8 flex flex-col gap-6 bg-background hover:bg-secondary/30 transition-colors">
+              <div key={f.type} className="border border-border rounded-xl p-8 flex flex-col gap-6 bg-background hover:bg-secondary/30 transition-colors">
                 <div>
-                  <div className="w-10 h-10 bg-[#C8F135] rounded-sm flex items-center justify-center mb-4">
+                  <div className="w-10 h-10 bg-[#C8F135] rounded-xl flex items-center justify-center mb-4">
                     <span className="font-mono text-[10px] font-bold text-[#171716]">{f.type.slice(0, 3).toUpperCase()}</span>
                   </div>
                   <h3 className="font-semibold text-xl mb-2">{f.type} Coaching</h3>
@@ -497,6 +498,8 @@ export default function PersonalCoaching() {
         </div>
       </section>
 
+
+      <CtaPanel kicker="1:1 AI coaching" lines={["Start with one", "conversation."]} lede="Tell us who the coaching is for and what they do. We suggest a plan built around their work." primary={{ to: "/connect", label: "Book a call" }} />
 
       {/* Curriculum modal */}
       {curriculumGroup && (

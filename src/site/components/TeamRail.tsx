@@ -3,59 +3,72 @@
 import TeamLanyardRail, { type LanyardMember } from "@/site/components/ui/team-lanyard-rail";
 import { PillLink } from "@/site/components/ui/motion-bits";
 
-/** The real team on the 21st.dev lanyard rail, plus an honest "your badge" pointing at open roles. */
-const TEAM: LanyardMember[] = [
+export interface RailMember {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  photo: string;
+}
+
+/**
+ * Shown until a founder marks people "Show on the website" in HQ → Team. The founder's portrait and words are already
+ * public on this site; nobody else appears until HQ says so.
+ */
+const FALLBACK: RailMember[] = [
   {
-    id: "chinmay",
+    id: "founder",
     name: "Chinmay R M",
     role: "Founder",
-    team: "FrameMind · Studio",
-    tone: 1,
-    image: "/site/chinmay-portrait.jpg",
     bio: "Founded the studio so founders get real design and real software. Leads every project from the first brief to the handover.",
-    tags: ["Design", "Software", "AI"],
-    links: [
-      { label: "Email", href: "mailto:framemindaistudio@gmail.com" },
-      { label: "LinkedIn", href: "https://www.linkedin.com/in/chinmay-rm/" },
-    ],
-  },
-  {
-    id: "shivaprasad",
-    name: "Shivaprasad Reddy S S",
-    role: "Business Development",
-    team: "FrameMind · Clients",
-    tone: 2,
-    image: "/site/shivaprasad.jpg",
-    bio: "Your first conversation with FrameMind. Finds the right fit for each client and stays with them well beyond the first project.",
-    tags: ["Partnerships", "Client relations"],
-    links: [
-      { label: "WhatsApp", href: "https://wa.me/918073087576" },
-      { label: "Email", href: "mailto:framemindaistudio@gmail.com" },
-    ],
-  },
-  {
-    id: "you",
-    name: "Your badge?",
-    role: "We're hiring",
-    team: "FrameMind · Careers",
-    tone: 5,
-    image: "/brand/kit/preview/framemind-icon-4k.webp",
-    bio: "We add people when the work needs them. See the open roles and send us your work.",
-    tags: ["Open roles"],
-    links: [{ label: "Careers", href: "/careers" }],
+    photo: "/site/chinmay-portrait.jpg",
   },
 ];
 
-export default function TeamRail() {
+const TONES = [1, 2, 3, 4, 5] as const;
+
+/** The team on the 21st.dev lanyard rail: the people HQ publishes, then an honest "your badge" for open roles. */
+export default function TeamRail({ members }: { members?: RailMember[] }) {
+  const people = members?.length ? members : FALLBACK;
+  const items: LanyardMember[] = [
+    ...people.map((m, i) => ({
+      id: m.id,
+      name: m.name,
+      role: m.role,
+      team: "FrameMind AI Studio",
+      tone: TONES[i % TONES.length],
+      image: m.photo || "/brand/kit/preview/framemind-icon-4k.webp",
+      bio: m.bio || undefined,
+      links: [
+        { label: "Email", href: "mailto:framemindaistudio@gmail.com" },
+        { label: "WhatsApp", href: "https://wa.me/918073087576" },
+      ],
+    })),
+    {
+      id: "you",
+      name: "Your badge?",
+      role: "We're hiring",
+      team: "FrameMind · Careers",
+      tone: 5,
+      image: "/brand/kit/preview/framemind-icon-4k.webp",
+      bio: "We add people when the work needs them. See the open roles and send us your work.",
+      tags: ["Open roles"],
+      links: [{ label: "Careers", href: "/careers" }],
+    },
+  ];
   return (
     <section className="fm-dark relative overflow-hidden py-20 md:py-28">
       <TeamLanyardRail
-        items={TEAM}
+        items={items}
         eyebrow="Meet the team"
         heading="The people you'll actually talk to."
         caption="Hover a badge to meet someone, pull it down, or click to flip it."
         autoplay
-        action={<PillLink to="/team" tone="chalk">About the team</PillLink>}
+        action={
+          <PillLink to="/team" tone="chalk">
+            About the team
+          </PillLink>
+        }
       />
     </section>
   );

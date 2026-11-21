@@ -2,6 +2,7 @@ import Home from "@/site/pages/Home";
 import { publicRateCard } from "@/site/rates";
 import { pageMetadata } from "@/site/seo";
 import { publicShop } from "@/site/shop";
+import { publicTeam } from "@/site/team";
 
 export const metadata = pageMetadata("/");
 
@@ -13,12 +14,12 @@ export const dynamic = "force-static";
 export const revalidate = 86400;
 
 export default async function Page() {
-  const [shop, card] = await Promise.all([publicShop().catch(() => null), publicRateCard().catch(() => null)]);
+  const [shop, card, team] = await Promise.all([publicShop().catch(() => null), publicRateCard().catch(() => null), publicTeam().catch(() => [])]);
   const products = shop?.products ?? [];
   // ones that can be bought today first, featured ones first among those; four at most
   const picked = [...products]
     .filter((p) => p.status !== "hidden")
     .sort((a, b) => Number(b.buyable) - Number(a.buyable) || Number(!!b.featured) - Number(!!a.featured))
     .slice(0, 4);
-  return <Home products={picked} rates={card?.industries} />;
+  return <Home products={picked} rates={card?.industries} team={team} />;
 }

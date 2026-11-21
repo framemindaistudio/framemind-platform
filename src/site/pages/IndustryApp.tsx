@@ -106,7 +106,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
   const b = brandOf(ind.id);
   const word = b.name.endsWith("OS") ? b.name.slice(0, -2) : b.name;
   const btnAccent = "inline-flex items-center gap-2 rounded-xl bg-[var(--b-accent)] text-[var(--b-on-accent)] px-6 py-3 text-sm font-bold shadow-[0_8px_24px_-10px_var(--b-accent)] transition hover:brightness-95";
-  const btnGhost = "inline-flex items-center gap-2 rounded-xl border border-[var(--b-primary)]/15 bg-white px-6 py-3 text-sm font-semibold text-[var(--b-primary)] transition hover:border-[var(--b-accent)] hover:text-[var(--b-accent-ink)]";
+  const btnGhost = "inline-flex items-center gap-2 rounded-xl border border-[var(--b-primary)]/15 bg-[#f3f2ee] px-6 py-3 text-sm font-semibold text-[var(--b-primary)] transition hover:border-[var(--b-accent)] hover:text-[var(--b-accent-ink)]";
 
   return (
     <>
@@ -117,7 +117,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--b-surface),transparent_62%)]" />
           <div className="absolute inset-0 opacity-50 [background-image:radial-gradient(var(--b-secondary)_1.2px,transparent_1.2px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent_75%)]" />
           <div className="absolute top-0 inset-x-0 h-1 bg-[var(--b-accent)]" />
-          <div className="max-w-6xl mx-auto px-6 pt-12 md:pt-16 pb-14 relative z-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-10 lg:items-center">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 pt-12 md:pt-16 pb-14 relative z-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-10 lg:items-center">
             <div className="min-w-0">
               <Link to="/industries" className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--b-primary)]/55 hover:text-[var(--b-accent-ink)]">
                 ← All industries
@@ -128,7 +128,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                 </span>
                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--b-primary)]/65">{ind.who}</span>
               </div>
-              <h1 className="mt-5 text-5xl sm:text-6xl md:text-[76px] font-black tracking-tight leading-[0.95]">
+              <h1 className="mt-5 text-5xl sm:text-6xl md:text-[76px] font-normal tracking-[-0.05em] leading-[0.95]">
                 <span className="block text-base sm:text-lg font-semibold tracking-normal text-[var(--b-primary)]/60">FrameMind</span>
                 {word}
                 <span className="text-[var(--b-accent-ink)]">{b.name.endsWith("OS") ? "OS" : ""}</span>
@@ -176,10 +176,10 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
         {/* one industry, two products: which one is this visitor's? */}
         {ind.chooser && ind.related && (
           <section className="border-b border-[var(--b-primary)]/10">
-            <div className="max-w-6xl mx-auto px-6 py-10">
+            <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-10">
               <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--b-primary)]/55">Which one are you?</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="#price" className="rounded-2xl border-2 border-[var(--b-accent)] bg-white p-5">
+                <a href="#price" className="rounded-2xl border-2 border-[var(--b-accent)] bg-[#f3f2ee] p-5">
                   <p className="text-lg font-bold">{ind.chooser.self.who}</p>
                   <p className="mt-1 text-sm text-[var(--b-primary)]/70">
                     {ind.product} — leads, site visits, follow-ups and brokerage. {ind.chooser.self.price}.
@@ -188,7 +188,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                     This page: see your price <ArrowRight size={14} />
                   </span>
                 </a>
-                <Link to={ind.related.to} className="rounded-2xl border border-[var(--b-primary)]/12 bg-white p-5 hover:border-[var(--b-accent)]">
+                <Link to={ind.related.to} className="rounded-2xl border border-[var(--b-primary)]/12 bg-[#f3f2ee] p-5 hover:border-[var(--b-accent)]">
                   <p className="text-lg font-bold">{ind.chooser.other.who}</p>
                   <p className="mt-1 text-sm text-[var(--b-primary)]/70">
                     {ind.related.label} — project website, interactive plot map and 3D masterplan. {ind.chooser.other.price}.
@@ -205,9 +205,9 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
         {/* what sells this app, in three cards */}
         {ind.pitch ? (
           <section className="border-b border-[var(--b-primary)]/10 bg-white/60">
-            <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-4">
               {ind.pitch.map((x) => (
-                <div key={x.title} className="relative overflow-hidden rounded-2xl border border-[var(--b-primary)]/10 bg-white p-6 shadow-[0_12px_30px_-22px_rgba(0,11,45,0.4)]">
+                <div key={x.title} className="relative overflow-hidden rounded-2xl border border-[var(--b-primary)]/10 bg-[#f3f2ee] p-6 shadow-[0_12px_30px_-22px_rgba(0,11,45,0.4)]">
                   <span className="absolute inset-x-0 top-0 h-1 bg-[var(--b-accent)]" />
                   <p className="text-lg font-bold">{x.title}</p>
                   <p className="mt-1.5 text-sm text-[var(--b-primary)]/70">{x.detail}</p>
@@ -220,10 +220,10 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
         {/* the bigger version we build (TradeOS: a city's own network) — the navy primary band, the kit's dark surface */}
         {ind.bigger ? (
           <section className="bg-[var(--b-primary)] text-white">
-            <div className="max-w-6xl mx-auto px-6 py-12 md:py-14 grid grid-cols-1 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-8 md:items-center">
+            <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-12 md:py-14 grid grid-cols-1 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-8 md:items-center">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--b-secondary)]">{ind.bigger.eyebrow}</p>
-                <h2 className="mt-3 text-3xl md:text-4xl font-black tracking-tight">{ind.bigger.title}</h2>
+                <h2 className="mt-3 text-[clamp(2rem,4.2vw,3.6rem)] leading-[1.02] font-normal tracking-tight">{ind.bigger.title}</h2>
                 <p className="mt-3 text-sm md:text-base text-white/70 leading-relaxed max-w-xl">{ind.bigger.detail}</p>
               </div>
               <div>
@@ -244,11 +244,11 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
 
         {/* features */}
         <section className="border-b border-[var(--b-primary)]/10">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>01 · What the app does</SectionLabel>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {ind.features.map((x) => (
-                <div key={x.title} className="rounded-2xl border border-[var(--b-primary)]/10 bg-white p-5">
+                <div key={x.title} className="rounded-2xl border border-[var(--b-primary)]/10 bg-[#f3f2ee] p-5">
                   <span className="grid size-8 place-items-center rounded-lg bg-[var(--b-surface)] text-[var(--b-accent-ink)]">
                     <Check size={16} />
                   </span>
@@ -266,7 +266,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
               ))}
             </div>
             {ind.related && !ind.chooser && (
-              <div className="mt-6 rounded-2xl border border-[var(--b-primary)]/10 bg-white p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="mt-6 rounded-2xl border border-[var(--b-primary)]/10 bg-[#f3f2ee] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <p className="text-sm text-[var(--b-primary)]/70">{ind.related.detail}</p>
                 <Link to={ind.related.to} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[var(--b-accent-ink)]">
                   {ind.related.label} <ArrowRight size={14} />
@@ -278,14 +278,14 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
 
         {/* calculator */}
         <section className="border-b border-[var(--b-primary)]/10 bg-white/60" id="price">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>02 · Your price</SectionLabel>
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8">
               <div className="space-y-6">
                 <div>
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold">Plan</p>
-                    <div className="inline-flex rounded-xl border border-[var(--b-primary)]/12 bg-white p-0.5 text-xs font-semibold">
+                    <div className="inline-flex rounded-xl border border-[var(--b-primary)]/12 bg-[#f3f2ee] p-0.5 text-xs font-semibold">
                       {(["annual", "monthly"] as const).map((bl) => (
                         <button key={bl} type="button" onClick={() => setBilling(bl)} className={`rounded-lg px-3 py-1.5 ${billing === bl ? "bg-[var(--b-primary)] text-white" : "text-[var(--b-primary)]/60"}`}>
                           {bl === "annual" ? `Yearly · ${freeMonths} months free` : "Monthly"}
@@ -299,10 +299,10 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                       const m = tierPrice(rates, ind.id, t.id);
                       const shown = billing === "annual" ? Math.round((m * (12 - freeMonths)) / 12) : m;
                       return (
-                        <button key={t.id} type="button" onClick={() => setTier(t.id)} className={`flex min-w-0 flex-col rounded-2xl border px-3.5 py-3.5 text-left transition-colors ${on ? "border-[var(--b-primary)] bg-[var(--b-primary)] text-white" : "border-[var(--b-primary)]/12 bg-white hover:border-[var(--b-accent)]"}`}>
+                        <button key={t.id} type="button" onClick={() => setTier(t.id)} className={`flex min-w-0 flex-col rounded-2xl border px-3.5 py-3.5 text-left transition-colors ${on ? "border-[var(--b-primary)] bg-[var(--b-primary)] text-white" : "border-[var(--b-primary)]/12 bg-[#f3f2ee] hover:border-[var(--b-accent)]"}`}>
                           <span className="text-sm font-bold leading-tight">{t.name}</span>
                           <span className={`mt-1 h-3.5 font-mono text-[8px] font-bold uppercase leading-[14px] tracking-widest ${on ? "text-[var(--b-secondary)]" : "text-[var(--b-accent-ink)]"}`}>{t.badge ?? ""}</span>
-                          <span className="mt-2 text-xl font-black leading-none tabular-nums">{inr(shown)}</span>
+                          <span className="mt-2 text-xl font-normal leading-none tabular-nums">{inr(shown)}</span>
                           <span className={`mt-1 text-[11px] font-medium ${on ? "text-white/60" : "text-[var(--b-primary)]/55"}`}>a month{billing === "annual" ? ", billed yearly" : ""}</span>
                           <span className={`mt-2 border-t pt-2 text-[11px] leading-snug ${on ? "border-white/15 text-[var(--b-secondary)]" : "border-[var(--b-primary)]/10 text-[var(--b-primary)]/65"}`}>{ind.limits[i]}</span>
                         </button>
@@ -320,7 +320,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                 <div>
                   <p className="text-sm font-semibold mb-2">Branches</p>
                   <div className="flex items-center gap-3">
-                    <div className="inline-flex items-center rounded-xl border border-[var(--b-primary)]/12 bg-white">
+                    <div className="inline-flex items-center rounded-xl border border-[var(--b-primary)]/12 bg-[#f3f2ee]">
                       <button type="button" aria-label="Fewer branches" onClick={() => setBranches((x) => Math.max(1, x - 1))} className="px-3 py-2 text-lg leading-none">
                         −
                       </button>
@@ -338,7 +338,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                     {INDUSTRY_ADD_ONS.map((a) => {
                       const on = extras.includes(a.id);
                       return (
-                        <label key={a.id} className={`flex items-start gap-3 rounded-xl border px-3 py-2.5 cursor-pointer bg-white ${on ? "border-[var(--b-accent)]" : "border-[var(--b-primary)]/12"}`}>
+                        <label key={a.id} className={`flex items-start gap-3 rounded-xl border px-3 py-2.5 cursor-pointer bg-[#f3f2ee] ${on ? "border-[var(--b-accent)]" : "border-[var(--b-primary)]/12"}`}>
                           <input type="checkbox" checked={on} onChange={() => setExtras((x) => (on ? x.filter((i) => i !== a.id) : [...x, a.id]))} className="mt-0.5 size-4 accent-[var(--b-accent-ink)]" />
                           <span className="flex-1">
                             <span className="block text-sm">{a.label}</span>
@@ -358,7 +358,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                       {studio.map((s) => {
                         const on = studioPicked.includes(s.id);
                         return (
-                          <label key={s.id} className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer bg-white ${on ? "border-[var(--b-accent)]" : "border-[var(--b-primary)]/12"}`}>
+                          <label key={s.id} className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer bg-[#f3f2ee] ${on ? "border-[var(--b-accent)]" : "border-[var(--b-primary)]/12"}`}>
                             <input type="checkbox" checked={on} onChange={() => setStudioPicked((x) => (on ? x.filter((i) => i !== s.id) : [...x, s.id]))} className="size-4 accent-[var(--b-accent-ink)]" />
                             <span className="flex-1 text-sm">{s.label}</span>
                             <span className="text-[11px] text-[var(--b-primary)]/60 tabular-nums">{s.from ? `from ${inr(s.from)}` : "on quote"}</span>
@@ -419,13 +419,13 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
 
         {/* every plan side by side, then the two ways to buy */}
         <section className="border-b border-[var(--b-primary)]/10">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>03 · Compare the plans</SectionLabel>
             <PlanCompare ind={ind} rates={rates} freeMonths={freeMonths} />
           </div>
         </section>
         <section className="border-b border-[var(--b-primary)]/10 bg-white/60">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>04 · Two ways to buy</SectionLabel>
             <BuyOptions setup={q.setup} />
           </div>
@@ -433,7 +433,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
 
         {/* terms */}
         <section className="border-b border-[var(--b-primary)]/10">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20">
             <SectionLabel>05 · Good to know</SectionLabel>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               {[
@@ -441,7 +441,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
                 ["Your data is yours", "Export it any time. If you stop the plan, we hand over your data in a standard format."],
                 ["Change plans any time", "Move up a plan when you grow; add branches when you open them. Yearly plans renew once a year."],
               ].map(([t, d]) => (
-                <div key={t} className="rounded-2xl border border-[var(--b-primary)]/10 bg-white p-5">
+                <div key={t} className="rounded-2xl border border-[var(--b-primary)]/10 bg-[#f3f2ee] p-5">
                   <p className="font-bold">{t}</p>
                   <p className="mt-1.5 text-[var(--b-primary)]/70">{d}</p>
                 </div>
@@ -452,11 +452,11 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
 
         {/* CTA */}
         <section className="bg-[var(--b-surface)]">
-          <div className="max-w-6xl mx-auto px-6 py-16 md:py-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={b.logo} alt={`FrameMind ${b.name}`} className="h-9 w-auto" />
-              <h2 className="mt-5 text-4xl font-black tracking-tight">See it working before you decide</h2>
+              <h2 className="mt-5 text-4xl font-normal tracking-tight">See it working before you decide</h2>
               <p className="mt-3 text-sm text-[var(--b-primary)]/70 max-w-lg">Book a 20-minute demo and we walk you through the app with your own business in mind.</p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -473,7 +473,7 @@ export default function IndustryApp({ industry: ind, rates, studio }: { industry
 
       {asking && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#000B2D]/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="ind-quote-title" onClick={() => !busy && setAsking(false)} style={brandVars(b)}>
-          <form onClick={(e) => e.stopPropagation()} onSubmit={getQuote} className="w-full max-w-md rounded-3xl border border-[var(--b-primary)]/10 bg-white p-6 sm:p-8 text-[var(--b-primary)] shadow-2xl" noValidate>
+          <form onClick={(e) => e.stopPropagation()} onSubmit={getQuote} className="w-full max-w-md rounded-3xl border border-[var(--b-primary)]/10 bg-[#f3f2ee] p-6 sm:p-8 text-[var(--b-primary)] shadow-2xl" noValidate>
             <div className="flex items-center justify-between gap-3 mb-3">
               <p className="font-mono text-[9px] uppercase tracking-widest text-[var(--b-accent-ink)]">Your quote · {inr(q.firstPayment)} first payment</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}

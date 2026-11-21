@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
+import { TEAM_TAG } from "@/site/team";
 import { apiEditor, apiUser } from "@/lib/hq/auth";
 import { apiError } from "@/lib/hq/api";
 import { getCollection } from "@/lib/hq/collections";
@@ -113,6 +115,7 @@ export async function POST(req: Request, ctx: Ctx) {
         for (const r of records) done.push(await ensurePayrollExpense(r, user.name));
         records = done;
       }
+      if (name === "team") revalidateTag(TEAM_TAG, { expire: 0 });
       return NextResponse.json({ records });
     }
     if (!body.record || typeof body.record !== "object") return NextResponse.json({ error: "Missing record" }, { status: 400 });
@@ -122,6 +125,7 @@ export async function POST(req: Request, ctx: Ctx) {
     if (name === "payroll") record = await ensurePayrollExpense(record, user.name);
     // the first payment on a project's invoice opens the client's portal (when email is set up)
     if (name === "invoices") await autoPortalOnPayment(before, record, user.name);
+    if (name === "team") revalidateTag(TEAM_TAG, { expire: 0 });
     return NextResponse.json({ record });
   } catch (e) {
     return apiError(e);
@@ -151,6 +155,7 @@ export async function DELETE(req: Request, ctx: Ctx) {
       return NextResponse.json({ ok: true, removed });
     }
     await deleteRecord(name, id, user.name);
+    if (name === "team") revalidateTag(TEAM_TAG, { expire: 0 });
     return NextResponse.json({ ok: true });
   } catch (e) {
     if (e instanceof ProjectHasInvoices || e instanceof ClientHasInvoices) return NextResponse.json({ error: e.message, invoices: e.invoices }, { status: 409 });

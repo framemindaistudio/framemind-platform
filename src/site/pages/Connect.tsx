@@ -6,6 +6,8 @@ import { Linkedin } from "@/site/components/BrandIcons";
 import SEO from "@/site/components/SEO";
 import { SERVICE_IDS, submitLead } from "@/site/leads";
 import { ImageWithFallback } from "@/site/components/ImageWithFallback";
+import { PageHero } from "@/site/components/ui/page-bits";
+import { PillLink } from "@/site/components/ui/motion-bits";
 const founderPhoto = "/site/chinmay-portrait.jpg";
 
 const services = [
@@ -90,7 +92,7 @@ export default function Connect() {
   };
 
   return (
-    <div>
+    <div className="bg-[var(--fm-stone)]">
       <SEO
         title="Contact Us — Start a Project"
         description="Tell us what you're building. FrameMind Studio offers a free 20-minute discovery call — no decks, no proposals. Just a direct conversation about your project."
@@ -106,22 +108,28 @@ export default function Connect() {
           "publisher": { "@type": "Organization", "name": "FrameMind AI Studio" },
         }}
       />
-      {/* Header */}
-      <section className="max-w-6xl mx-auto px-6 pt-20 pb-12">
-        <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-4 block">
-          Connect
-        </span>
-        <h1 className="text-3xl md:text-5xl font-semibold tracking-tight mb-5 max-w-2xl">
-          {"Let's talk."}
-        </h1>
-      </section>
+      <PageHero
+        kicker="Connect"
+        lines={["Let's talk.", <span key="b" className="text-[#9a9890]">No sales script.</span>]}
+        lede="A 20-minute conversation about what you need and whether we're the right fit. Message us directly or fill the form below."
+        actions={
+          <>
+            <PillLink to="https://wa.me/918073087576" external>
+              WhatsApp us
+            </PillLink>
+            <PillLink to="mailto:framemindaistudio@gmail.com" tone="ghost" external>
+              Email us
+            </PillLink>
+          </>
+        }
+      />
 
-      <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-6 py-10 md:py-16 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+      <section className="relative rounded-t-[36px] bg-[var(--fm-stone)] md:-mt-10 md:rounded-t-[56px]">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-8 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           {/* Left — founder note + direct links */}
           <div>
             {/* Founder card — bold split layout */}
-            <div className="bg-[#171716] text-[#eceae4] rounded-sm overflow-hidden mb-8">
+            <div className="bg-[#171716] text-[#eceae4] rounded-[28px] overflow-hidden mb-8">
               {/* Photo — full portrait, no cropping */}
               <div className="relative w-full bg-[#171716]">
                 <ImageWithFallback
@@ -156,7 +164,7 @@ export default function Connect() {
                 href="mailto:framemindaistudio@gmail.com"
                 className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
               >
-                <div className="w-8 h-8 border border-border rounded-sm flex items-center justify-center group-hover:border-foreground/30 transition-colors">
+                <div className="w-8 h-8 border border-border rounded-xl flex items-center justify-center group-hover:border-foreground/30 transition-colors">
                   <Mail size={14} />
                 </div>
                 framemindaistudio@gmail.com
@@ -167,7 +175,7 @@ export default function Connect() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
               >
-                <div className="w-8 h-8 border border-border rounded-sm flex items-center justify-center group-hover:border-foreground/30 transition-colors">
+                <div className="w-8 h-8 border border-border rounded-xl flex items-center justify-center group-hover:border-foreground/30 transition-colors">
                   <Linkedin size={14} />
                 </div>
                 linkedin
@@ -182,8 +190,8 @@ export default function Connect() {
           {/* Right — form */}
           <div>
             {submitted ? (
-              <div className="border border-border rounded-sm p-10 text-center h-full flex flex-col items-center justify-center min-h-[400px]">
-                <div className="w-12 h-12 bg-[#C8F135] rounded-sm flex items-center justify-center mb-5">
+              <div className="border border-border rounded-xl p-10 text-center h-full flex flex-col items-center justify-center min-h-[400px]">
+                <div className="w-12 h-12 bg-[#C8F135] rounded-xl flex items-center justify-center mb-5">
                   <ArrowRight size={18} className="text-[#171716]" />
                 </div>
                 <h2 className="font-semibold text-xl mb-2">Message received.</h2>
@@ -192,7 +200,8 @@ export default function Connect() {
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-[28px] bg-[#f3f2ee] p-6 sm:p-9">
+                <p className="text-[1.8rem] leading-tight tracking-[-0.03em]">Tell us what you&apos;re building.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="flex flex-col gap-1.5">
                     <label className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
@@ -204,7 +213,7 @@ export default function Connect() {
                       value={form.name}
                       onChange={handleChange}
                       placeholder="Your name"
-                      className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground"
+                      className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -218,7 +227,7 @@ export default function Connect() {
                       value={form.email}
                       onChange={handleChange}
                       placeholder="you@company.com"
-                      className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground"
+                      className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground"
                     />
                   </div>
                 </div>
@@ -235,7 +244,7 @@ export default function Connect() {
                       value={form.phone}
                       onChange={handleChange}
                       placeholder="+91 98765 43210"
-                      className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground"
+                      className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -248,7 +257,7 @@ export default function Connect() {
                     value={form.company}
                     onChange={handleChange}
                     placeholder="Where you're building from"
-                    className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground"
+                    className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground"
                   />
                   </div>
                 </div>
@@ -261,7 +270,7 @@ export default function Connect() {
                     name="service"
                     value={form.service}
                     onChange={handleChange}
-                    className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 text-muted-foreground"
+                    className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 text-muted-foreground"
                   >
                     <option value="">Select a service</option>
                     {services.map((s) => (
@@ -279,7 +288,7 @@ export default function Connect() {
                     name="budget"
                     value={form.budget}
                     onChange={handleChange}
-                    className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 text-muted-foreground"
+                    className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 text-muted-foreground"
                   >
                     <option value="">Select a range</option>
                     {budgetRanges.map((r) => (
@@ -298,7 +307,7 @@ export default function Connect() {
                       name="timeline"
                       value={form.timeline}
                       onChange={handleChange}
-                      className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 text-muted-foreground"
+                      className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 text-muted-foreground"
                     >
                       <option value="">When do you want to start?</option>
                       {timelines.map((t) => (
@@ -315,7 +324,7 @@ export default function Connect() {
                       name="source"
                       value={form.source}
                       onChange={handleChange}
-                      className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 text-muted-foreground"
+                      className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 text-muted-foreground"
                     >
                       <option value="">Select one</option>
                       {sources.map((s) => (
@@ -336,21 +345,21 @@ export default function Connect() {
                     onChange={handleChange}
                     rows={5}
                     placeholder="Tell us what you're building..."
-                    className="border border-border rounded-sm px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground resize-none"
+                    className="border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30 placeholder:text-muted-foreground resize-none"
                   />
                 </div>
 
                 {/* honeypot: hidden from people, filled by bots */}
                 <input type="text" name="website" value={trap} onChange={(e) => setTrap(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
                 {error && (
-                  <p role="alert" className="border border-[#d4183d]/30 bg-[#d4183d]/5 text-[#d4183d] rounded-sm px-4 py-3 text-sm">
+                  <p role="alert" className="border border-[#d4183d]/30 bg-[#d4183d]/5 text-[#d4183d] rounded-xl px-4 py-3 text-sm">
                     {error}
                   </p>
                 )}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#171716] text-[#eceae4] px-6 py-3.5 text-sm font-medium rounded-sm hover:bg-[#222] transition-colors flex items-center justify-center gap-2 mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="bg-[#171716] text-[#eceae4] px-6 py-3.5 text-sm font-medium rounded-full hover:bg-[#222] transition-colors flex items-center justify-center gap-2 mt-1 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? "Sending…" : <><span>Send message</span><ArrowRight size={13} /></>}
                 </button>

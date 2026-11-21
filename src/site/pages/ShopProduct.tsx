@@ -10,7 +10,7 @@ export default function ShopProduct({ product, category, related, inBundle, paym
   const paragraphs = product.description.split(/\n\s*\n/).filter(Boolean);
   return (
     <div>
-      <section className="mx-auto max-w-6xl px-6 pb-14 pt-8 md:pt-12">
+      <section className="mx-auto max-w-[1320px] px-5 sm:px-8 pb-14 pt-8 md:pt-12">
         <Link to={category ? `/shop?c=${category.id}` : "/shop"} className="mb-8 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> {category?.name ?? "Store"}
         </Link>
@@ -60,11 +60,11 @@ export default function ShopProduct({ product, category, related, inBundle, paym
             )}
 
             <dl className="mt-10 grid grid-cols-2 gap-px border border-border bg-border text-sm">
-              <div className="bg-background p-4">
+              <div className="rounded-[24px] bg-[#f3f2ee] p-4">
                 <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Format</dt>
                 <dd className="mt-1 font-medium">{product.formats.join(", ")}</dd>
               </div>
-              <div className="bg-background p-4">
+              <div className="rounded-[24px] bg-[#f3f2ee] p-4">
                 <dt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Delivery</dt>
                 <dd className="mt-1 inline-flex items-center gap-1.5 font-medium">
                   <FileDown className="h-4 w-4" /> Instant download
@@ -85,8 +85,8 @@ export default function ShopProduct({ product, category, related, inBundle, paym
 
       {inBundle.length > 0 && (
         <section className="border-t border-border">
-          <div className="mx-auto max-w-6xl px-6 py-12">
-            <h2 className="mb-6 text-2xl font-semibold tracking-tight">Inside this bundle</h2>
+          <div className="mx-auto max-w-[1320px] px-5 sm:px-8 py-12">
+            <h2 className="mb-6 text-2xl font-normal tracking-[-0.04em]">Inside this bundle</h2>
             <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 lg:grid-cols-4">
               {inBundle.map((p) => (
                 <ProductCard key={p.id} product={p} />
@@ -98,8 +98,8 @@ export default function ShopProduct({ product, category, related, inBundle, paym
 
       {related.length > 0 && (
         <section className="border-t border-border">
-          <div className="mx-auto max-w-6xl px-6 py-12">
-            <h2 className="mb-6 text-2xl font-semibold tracking-tight">You may also like</h2>
+          <div className="mx-auto max-w-[1320px] px-5 sm:px-8 py-12">
+            <h2 className="mb-6 text-2xl font-normal tracking-[-0.04em]">You may also like</h2>
             <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 lg:grid-cols-4">
               {related.map((p) => (
                 <ProductCard key={p.id} product={p} />
@@ -124,8 +124,8 @@ function Compare({ product }: { product: PublicProduct }) {
   };
   return (
     <section className="border-t border-border">
-      <div className="mx-auto max-w-6xl px-6 py-14">
-        <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">How it compares</h2>
+      <div className="mx-auto max-w-[1320px] px-5 sm:px-8 py-14">
+        <h2 className="text-2xl font-normal tracking-[-0.04em] md:text-3xl">How it compares</h2>
         <div className="mt-8 overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-left text-sm">
             <thead>

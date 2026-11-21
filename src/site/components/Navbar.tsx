@@ -16,7 +16,6 @@ const navLinks = [
   { to: "/pricing", label: "Services" },
   { to: "/industries", label: "Industry apps" },
   { to: "/shop", label: "Store" },
-  { to: "/personal-coaching", label: "Coaching" },
   { to: "/team", label: "Team" },
 ];
 
@@ -58,8 +57,8 @@ export default function Navbar() {
         transition={{ duration: 0.5, ease: EASE }}
       >
         <div
-          className={`mx-auto flex max-w-[1320px] items-center justify-between gap-4 rounded-full py-2 pl-3 pr-2 transition-[background-color,box-shadow,backdrop-filter] duration-500 sm:pl-4 ${
-            solid || open ? "bg-[#1f1f1d]/85 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.5)] backdrop-blur-xl" : "bg-[#1f1f1d]/40 backdrop-blur-md"
+          className={`mx-auto flex max-w-[1320px] items-center justify-between gap-4 rounded-full border border-white/[0.07] bg-[#1c1c1a]/95 py-2 pl-3 pr-2 backdrop-blur-xl transition-shadow duration-500 sm:pl-4 ${
+            solid || open ? "shadow-[0_14px_34px_-14px_rgba(0,0,0,0.55)]" : ""
           }`}
         >
           <Link to="/" className="flex items-center gap-2.5 whitespace-nowrap text-[15px] font-medium tracking-tight text-[#eceae4]" aria-label="FrameMind AI Studio, home">
