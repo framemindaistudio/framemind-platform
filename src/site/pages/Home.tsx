@@ -576,17 +576,17 @@ function Ventures() {
                 <span aria-hidden="true" className={`pointer-events-none absolute inset-0 transition-opacity duration-700 ${on ? "opacity-100" : "opacity-0"}`} style={{ background: `radial-gradient(90% 80% at 85% 10%, ${v.accent}33, transparent 65%)` }} />
                 <span aria-hidden="true" className="absolute left-5 top-5 h-2.5 w-2.5 rounded-full md:left-1/2 md:-translate-x-1/2" style={{ background: v.accent, opacity: on ? 0 : 1 }} />
                 {/* collapsed: the name runs vertically */}
-                <span className={`absolute bottom-5 left-1/2 hidden origin-center -translate-x-1/2 whitespace-nowrap text-2xl tracking-[-0.02em] transition-opacity duration-300 [writing-mode:vertical-rl] md:block ${on ? "opacity-0" : "rotate-180 opacity-100"}`}>
+                <span className={`absolute bottom-5 left-1/2 hidden origin-center -translate-x-1/2 whitespace-nowrap text-2xl tracking-[-0.02em] transition-opacity duration-300 [writing-mode:vertical-rl] md:block ${on ? "opacity-0" : "rotate-180 opacity-100"}`} style={{ color: v.accent }}>
                   {v.name}
                 </span>
-                <span className={`absolute left-5 top-1/2 -translate-y-1/2 text-xl tracking-[-0.02em] transition-opacity duration-300 md:hidden ${on ? "opacity-0" : "opacity-100"}`}>{v.name}</span>
+                <span className={`absolute left-5 top-1/2 -translate-y-1/2 text-xl tracking-[-0.02em] transition-opacity duration-300 md:hidden ${on ? "opacity-0" : "opacity-100"}`} style={{ color: v.accent }}>{v.name}</span>
 
                 <div className={`absolute inset-0 flex flex-col justify-between p-6 transition-opacity duration-500 md:p-9 ${on ? "opacity-100 delay-200" : "pointer-events-none opacity-0"}`}>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] opacity-60">0{i + 1}</span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: v.accent }}>0{i + 1}</span>
                   <div>
                     <p className="text-[clamp(2.6rem,6vw,5.5rem)] leading-[0.9] tracking-[-0.05em]" style={{ color: v.accent }}>{v.name}</p>
                     <p className="mt-4 max-w-sm text-[16px] leading-snug text-[#bcbab2]">{v.what}</p>
-                    <Link to={v.to} className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#eceae4] px-4 py-2 text-sm text-[#171716] transition-transform hover:-translate-y-0.5" tabIndex={on ? 0 : -1}>
+                    <Link to={v.to} className="mt-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-[#171716] transition-transform hover:-translate-y-0.5" style={{ background: v.accent }} tabIndex={on ? 0 : -1}>
                       Visit {v.name} <ArrowUpRight size={15} />
                     </Link>
                   </div>
