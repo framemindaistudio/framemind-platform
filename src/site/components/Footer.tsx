@@ -21,10 +21,10 @@ const PAGES = [
 ];
 
 const VENTURES = [
-  { to: "https://www.360vue.website", name: "360VUE", what: "Virtual tours", dot: "#9b6a8a" },
-  { to: "/vritta", name: "Vritta", what: "School records", dot: "#4f8f99" },
-  { to: "https://jove.website", name: "JOVE", what: "Robotics workshops", dot: "#cfa547" },
-  { to: "/personal-coaching", name: "Coaching", what: "1:1 AI coaching", dot: "#dcaaa3" },
+  { to: "https://www.360vue.website", name: "360VUE", what: "Virtual tours", dot: "#c79a73" },
+  { to: "/vritta", name: "Vritta", what: "School records", dot: "#7f95e0" },
+  { to: "https://jove.website", name: "JOVE", what: "Robotics workshops", dot: "#6fb08a" },
+  { to: "/personal-coaching", name: "Coaching", what: "1:1 AI coaching", dot: "#d9849a" },
 ];
 
 const MORE = [

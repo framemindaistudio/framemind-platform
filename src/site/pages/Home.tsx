@@ -546,8 +546,9 @@ const VENTURES = [
     name: "360VUE",
     what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.",
     icon: Orbit,
-    bg: "linear-gradient(160deg, #5e3b52 0%, #4d3044 100%)",
-    ink: "#f6ecf2",
+    bg: "linear-gradient(160deg, #5f4134 0%, #4a3127 100%)",
+    ink: "#f1e4d8",
+    hi: "#e6c3a2",
     span: "lg:col-span-7 lg:row-span-2",
   },
   {
@@ -556,8 +557,9 @@ const VENTURES = [
     name: "JOVE",
     what: "Robotics and AI workshops for schools, Grades 1 to 10.",
     icon: Bot,
-    bg: "linear-gradient(160deg, #cfa547 0%, #be943a 100%)",
-    ink: "#1f1a10",
+    bg: "linear-gradient(160deg, #1f4d3c 0%, #173c2f 100%)",
+    ink: "#e3efe7",
+    hi: "#a8d5b9",
     span: "lg:col-span-5",
   },
   {
@@ -566,8 +568,9 @@ const VENTURES = [
     name: "Vritta",
     what: "Activity records and newsletters for schools and colleges.",
     icon: Newspaper,
-    bg: "linear-gradient(160deg, #2f5d66 0%, #264f57 100%)",
-    ink: "#e9f4f5",
+    bg: "linear-gradient(160deg, #22325f 0%, #1a274c 100%)",
+    ink: "#e6eaf6",
+    hi: "#b6c3f2",
     span: "lg:col-span-5",
   },
   {
@@ -576,8 +579,9 @@ const VENTURES = [
     name: "Coaching",
     what: "1:1 AI coaching built around your profession.",
     icon: Brain,
-    bg: "linear-gradient(160deg, #dcaaa3 0%, #cf9a93 100%)",
-    ink: "#2a1a18",
+    bg: "linear-gradient(160deg, #612335 0%, #4c1a29 100%)",
+    ink: "#f5e3e7",
+    hi: "#f0b8c5",
     span: "lg:col-span-12",
   },
 ];
@@ -597,7 +601,7 @@ function VentureCard({ v, i }: { v: (typeof VENTURES)[number]; i: number }) {
         </span>
       </div>
       <p className="relative mt-auto max-w-sm pt-16 text-[17px] leading-snug opacity-90">{v.what}</p>
-      <p className="relative mt-3 text-[clamp(3.2rem,8vw,7.5rem)] font-medium leading-[0.85] tracking-[-0.06em]">{v.name}</p>
+      <p className="relative mt-3 text-[clamp(3.2rem,8vw,7.5rem)] font-medium leading-[0.85] tracking-[-0.06em]" style={{ color: v.hi }}>{v.name}</p>
     </>
   );
   const cls = `group relative isolate flex min-h-[300px] flex-col overflow-hidden rounded-[30px] p-7 shadow-[0_24px_50px_-30px_rgba(23,23,22,0.45)] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] hover:-translate-y-1.5 md:p-9 ${v.span}`;
