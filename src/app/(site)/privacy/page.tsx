@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LegalDoc } from "@/site/components/ui/page-bits";
 import { site } from "@/lib/site";
 
 /**
@@ -52,37 +53,20 @@ const SECTIONS: [string, string[]][] = [
 
 export default function Page() {
   return (
-    <div className="min-h-screen">
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
-          <Link href="/" className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
-            ← FrameMind AI Studio
-          </Link>
-          <h1 className="mt-6 text-4xl font-semibold tracking-tight md:text-5xl">Privacy policy</h1>
-          <p className="mt-4 text-muted-foreground">Last updated 17 November 2026.</p>
-        </div>
-      </section>
-      <section className="mx-auto max-w-3xl px-6 py-12">
-        <dl className="divide-y divide-border">
-          {SECTIONS.map(([k, items]) => (
-            <div key={k} className="grid gap-2 py-6 md:grid-cols-[180px_1fr] md:gap-8">
-              <dt className="font-semibold">{k}</dt>
-              <dd className="space-y-3 leading-relaxed text-muted-foreground">
-                {items.map((t) => (
-                  <p key={t}>{t}</p>
-                ))}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <p className="mt-8 text-sm text-muted-foreground">
+    <LegalDoc
+      kicker="FrameMind AI Studio"
+      title={["Privacy", <span key="b" className="text-[#9a9890]">policy.</span>]}
+      lede="What we collect through this website and store, why, and what you can ask us to do with it. Last updated 17 November 2026."
+      items={SECTIONS.map(([title, paras]) => ({ title, body: paras.map((t) => <p key={t}>{t}</p>) }))}
+      after={
+        <p>
           Buying from the store? See also the{" "}
           <Link href="/shop/terms" className="underline underline-offset-2">
             store terms, refunds and delivery
           </Link>
           .
         </p>
-      </section>
-    </div>
+      }
+    />
   );
 }

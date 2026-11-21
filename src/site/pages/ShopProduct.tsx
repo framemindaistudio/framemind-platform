@@ -28,7 +28,7 @@ export default function ShopProduct({ product, category, related, inBundle, paym
       {/* ── first screen ── */}
       <section className="fm-dark relative overflow-hidden">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_55%_at_85%_10%,rgba(200,241,53,0.10),transparent_70%)]" />
-        <div className="relative mx-auto max-w-[1320px] px-5 pb-16 pt-28 sm:px-8 md:pb-24 md:pt-36">
+        <div className="relative mx-auto max-w-[1320px] px-5 pb-16 pt-32 sm:px-8 md:pb-24 md:pt-40">
           <Link to={category ? `/shop?c=${category.id}` : "/shop"} className="inline-flex items-center gap-2 rounded-full bg-[#2a2a27] px-3.5 py-1.5 text-[13px] text-[#d6d4cd] transition-colors hover:bg-[#34342f]">
             <ArrowLeft className="h-3.5 w-3.5" /> {category?.name ?? "Store"}
           </Link>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { site } from "@/lib/site";
+import { LegalDoc } from "@/site/components/ui/page-bits";
 
 /**
  * Store terms, refund and delivery policy for the digital products at /shop (Razorpay asks for these pages).
@@ -30,26 +31,20 @@ const TERMS: [string, string][] = [
 
 export default function Page() {
   return (
-    <div className="min-h-screen">
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
-          <Link href="/shop" className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
-            ← FrameMind Store
+    <LegalDoc
+      kicker="FrameMind Store"
+      title={["Store terms,", <span key="b" className="text-[#9a9890]">refunds &amp; delivery.</span>]}
+      lede="For digital products bought at framemindaistudio.com/shop. Last updated 17 November 2026."
+      items={TERMS.map(([title, body]) => ({ title, body: <p>{body}</p> }))}
+      after={
+        <p>
+          See also the{" "}
+          <Link href="/privacy" className="underline underline-offset-2">
+            privacy policy
           </Link>
-          <h1 className="mt-6 text-4xl font-semibold tracking-tight md:text-5xl">Store terms, refunds &amp; delivery</h1>
-          <p className="mt-4 text-muted-foreground">For digital products bought at framemindaistudio.com/shop. Last updated 17 November 2026.</p>
-        </div>
-      </section>
-      <section className="mx-auto max-w-3xl px-6 py-12">
-        <dl className="divide-y divide-border">
-          {TERMS.map(([k, v]) => (
-            <div key={k} className="grid gap-2 py-6 md:grid-cols-[180px_1fr] md:gap-8">
-              <dt className="font-semibold">{k}</dt>
-              <dd className="leading-relaxed text-muted-foreground">{v}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-    </div>
+          .
+        </p>
+      }
+    />
   );
 }

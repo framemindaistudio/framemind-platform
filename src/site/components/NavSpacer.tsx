@@ -3,10 +3,10 @@
 import { usePathname } from "next/navigation";
 
 /**
- * The navbar floats over the page. Pages that open with a graphite hero run underneath it; the few that open
- * straight into content (a store product, an industry app, policies, order pages) get room under it.
+ * The navbar floats over the page. Every page now opens with a graphite hero that runs underneath it, except an
+ * industry app's own page, which opens in its app's colours and needs room under the bar.
  */
-const NEEDS_ROOM = [/^\/shop\/(?!$)/, /^\/industries\/.+/, /^\/privacy/, /^\/verify/];
+const NEEDS_ROOM = [/^\/industries\/(?!terms)[^/]+/, /^\/verify/];
 
 export default function NavSpacer() {
   const path = usePathname() ?? "/";

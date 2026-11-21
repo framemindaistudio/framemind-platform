@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LegalDoc } from "@/site/components/ui/page-bits";
 import { DEDICATED, OVERAGE_COMMON } from "@/lib/content/industries";
 
 /**
@@ -34,30 +35,11 @@ const TERMS: [string, string][] = [
 
 export default function Page() {
   return (
-    <div className="min-h-screen">
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-3xl px-6 py-16 md:py-20">
-          <a href="/industries" className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
-            ← Industry apps
-          </a>
-          <h1 className="mt-6 text-4xl font-black tracking-tight md:text-5xl">Industry app terms and conditions</h1>
-          <p className="mt-4 text-muted-foreground">
-            These terms cover FrameMind&apos;s industry apps: shared apps on the FrameMind platform and dedicated apps on their own servers. Your written quote or agreement can add to them; where the two differ, the signed document applies.
-          </p>
-          <ol className="mt-10 space-y-6">
-            {TERMS.map(([t, d], i) => (
-              <li key={t} className="grid grid-cols-[2rem_1fr] gap-2">
-                <span className="font-mono text-sm text-muted-foreground">{i + 1}.</span>
-                <div>
-                  <h2 className="font-bold">{t}</h2>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{d}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-12 text-xs text-muted-foreground">Last updated 16 November 2026.</p>
-        </div>
-      </section>
-    </div>
+    <LegalDoc
+      kicker="Industry apps"
+      title={["Industry app", <span key="b" className="text-[#9a9890]">terms.</span>]}
+      lede="These terms cover FrameMind's industry apps: shared apps on the FrameMind platform and dedicated apps on their own servers. Your written quote or agreement can add to them; where the two differ, the signed document applies. Last updated 16 November 2026."
+      items={TERMS.map(([title, body]) => ({ title, body: <p>{body}</p> }))}
+    />
   );
 }

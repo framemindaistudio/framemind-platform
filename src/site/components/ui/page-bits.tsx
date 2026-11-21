@@ -127,3 +127,26 @@ export function HeroStats({ items }: { items: { value: ReactNode; label: string 
     </div>
   );
 }
+
+/** Terms and policy pages: the matte hero, then numbered sections on one quiet card. */
+export function LegalDoc({ kicker, title, lede, items, after }: { kicker: string; title: ReactNode[]; lede?: ReactNode; items: { title: string; body: ReactNode }[]; after?: ReactNode }) {
+  return (
+    <div className="bg-[var(--fm-stone)]">
+      <PageHero kicker={kicker} lines={title} lede={lede} />
+      <section className="relative -mt-8 rounded-t-[36px] bg-[var(--fm-stone)] md:-mt-12 md:rounded-t-[56px]">
+        <div className="mx-auto max-w-[1040px] px-5 py-16 sm:px-8 md:py-24">
+          <ol className="divide-y divide-[#1b1b19]/10 overflow-hidden rounded-[28px] bg-[#f3f2ee]">
+            {items.map((it, i) => (
+              <li key={it.title} className="grid gap-3 px-6 py-7 sm:px-9 md:grid-cols-[56px_220px_1fr] md:gap-6">
+                <span className="font-mono text-[12px] text-[#8a8882]">{String(i + 1).padStart(2, "0")}</span>
+                <h2 className="text-[1.15rem] leading-snug tracking-[-0.015em]">{it.title}</h2>
+                <div className="space-y-3 text-[15px] leading-relaxed text-[#55544e]">{it.body}</div>
+              </li>
+            ))}
+          </ol>
+          {after && <div className="mt-8 text-sm text-[#64635d]">{after}</div>}
+        </div>
+      </section>
+    </div>
+  );
+}

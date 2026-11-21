@@ -21,14 +21,16 @@ export default async function Page({ params, searchParams }: { params: Promise<{
 
   if (!order || order.status !== "paid") {
     return (
-      <section className="mx-auto max-w-xl px-6 py-24 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight">We can&apos;t open this order</h1>
-        <p className="mt-4 text-muted-foreground">
+      <section className="fm-dark px-5 pb-24 pt-40 text-center">
+        <div className="mx-auto max-w-xl">
+        <h1 className="text-[clamp(2.4rem,6vw,4.4rem)] font-normal leading-[0.98] tracking-[-0.05em]">We can&apos;t open this order.</h1>
+        <p className="mt-5 text-[17px] leading-relaxed text-[#bcbab2]">
           The link may be incomplete. Use the button in your email, or <Link href="/shop/downloads" className="underline underline-offset-2">get your download links emailed again</Link>.
         </p>
-        <a href={wa} target="_blank" rel="noreferrer" className="mt-8 inline-flex items-center gap-2 rounded-sm border border-foreground px-5 py-3 text-sm font-semibold">
+        <a href={wa} target="_blank" rel="noreferrer" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--fm-lime)] px-6 py-3.5 text-sm font-medium text-[#171716]">
           <MessageCircle className="h-4 w-4" /> WhatsApp us
         </a>
+        </div>
       </section>
     );
   }
@@ -44,47 +46,55 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   });
 
   return (
-    <section className="mx-auto max-w-2xl px-6 py-14 md:py-20">
-      <CheckCircle2 className="h-10 w-10 text-[#4d6b00]" strokeWidth={1.6} />
-      <h1 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">Thank you, {order.name.split(" ")[0]}!</h1>
-      <p className="mt-3 text-muted-foreground">
+    <div className="bg-[var(--fm-stone)]">
+    <section className="fm-dark px-5 pb-20 pt-36 sm:px-8 md:pt-44">
+      <div className="mx-auto max-w-3xl">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--fm-lime)] text-[#171716]">
+        <CheckCircle2 className="h-7 w-7" strokeWidth={1.8} />
+      </span>
+      <h1 className="mt-7 text-[clamp(2.6rem,6.5vw,5rem)] font-normal leading-[0.95] tracking-[-0.05em]">Thank you, {order.name.split(" ")[0]}!</h1>
+      <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-[#bcbab2]">
         Payment received ({inr(order.total)}). Your files are below.{" "}
         {mailReady() ? (
           <>
-            We&apos;ve also emailed this page&apos;s link to <b className="text-foreground">{order.email}</b>, so you can come back any time.
+            We&apos;ve also emailed this page&apos;s link to <b className="font-medium text-[#eceae4]">{order.email}</b>, so you can come back any time.
           </>
         ) : (
           <>Bookmark this page to come back to your files any time.</>
         )}
       </p>
       {order.mode !== "live" && (
-        <p className="mt-4 border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-900">Test order ({order.mode}): no real money was taken.</p>
+        <p className="mt-5 inline-block rounded-full bg-[#d9a35b] px-4 py-1.5 text-sm text-[#171716]">Test order ({order.mode}): no real money was taken.</p>
       )}
+      </div>
+    </section>
 
-      <div className="mt-10 space-y-8">
+    <section className="relative -mt-8 rounded-t-[36px] bg-[var(--fm-stone)] px-5 py-16 sm:px-8 md:-mt-12 md:rounded-t-[56px] md:py-20">
+      <div className="mx-auto max-w-3xl">
+      <div className="space-y-8">
         {groups.map(({ item, parts }) => (
           <div key={item.id}>
-            <h2 className="mb-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">{item.title}</h2>
+            <h2 className="mb-4 text-[1.6rem] leading-tight tracking-[-0.03em]">{item.title}</h2>
             <div className="space-y-4">
               {parts.map((part) => (
-                <div key={part.title} className="border border-border bg-card">
-                  {parts.length > 1 && <p className="border-b border-border px-4 py-2.5 text-sm font-semibold">{part.title}</p>}
+                <div key={part.title} className="overflow-hidden rounded-[24px] bg-[#f3f2ee]">
+                  {parts.length > 1 && <p className="border-b border-[#1b1b19]/10 px-5 py-3 text-sm font-medium">{part.title}</p>}
                   {part.files.length ? (
-                    <ul className="divide-y divide-border">
+                    <ul className="divide-y divide-[#1b1b19]/10">
                       {part.files.map((f) => (
-                        <li key={f.href} className="flex items-center justify-between gap-4 px-4 py-3">
+                        <li key={f.href} className="flex items-center justify-between gap-4 px-5 py-4">
                           <span className="min-w-0">
                             <span className="block truncate text-sm font-medium">{f.name}</span>
                             <span className="text-xs text-muted-foreground">{formatBytes(f.size)}</span>
                           </span>
-                          <a href={f.href} className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-[#C8F135] px-3.5 py-2 text-sm font-semibold text-[#0D0D0D] hover:bg-[#b8e020]">
+                          <a href={f.href} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#171716] px-4 py-2.5 text-sm font-medium text-[var(--fm-lime)] transition-transform active:scale-[0.98]">
                             <Download className="h-4 w-4" /> Download
                           </a>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="px-4 py-3 text-sm text-muted-foreground">We&apos;re preparing this file. It will appear here, and we&apos;ll WhatsApp or email you when it does.</p>
+                    <p className="px-5 py-4 text-sm text-muted-foreground">We&apos;re preparing this file. It will appear here, and we&apos;ll WhatsApp or email you when it does.</p>
                   )}
                 </div>
               ))}
@@ -93,7 +103,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
         ))}
       </div>
 
-      <div className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">
+      <div className="mt-10 rounded-[24px] border border-[#1b1b19]/10 p-6 text-sm leading-relaxed text-muted-foreground">
         <p>
           Download buttons work for {DOWNLOAD_HOURS} hours; reopen this page for fresh ones. Order <span className="font-mono">{order.id}</span>.
         </p>
@@ -105,6 +115,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
           and we&apos;ll fix it.
         </p>
       </div>
+      </div>
     </section>
+    </div>
   );
 }
