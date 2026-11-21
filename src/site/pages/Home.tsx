@@ -546,8 +546,8 @@ const VENTURES = [
     name: "360VUE",
     what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.",
     icon: Orbit,
-    bg: "linear-gradient(160deg, #b8693d 0%, #9c5531 100%)",
-    ink: "#fff8ef",
+    bg: "linear-gradient(160deg, #5e3b52 0%, #4d3044 100%)",
+    ink: "#f6ecf2",
     span: "lg:col-span-7 lg:row-span-2",
   },
   {
@@ -556,8 +556,8 @@ const VENTURES = [
     name: "JOVE",
     what: "Robotics and AI workshops for schools, Grades 1 to 10.",
     icon: Bot,
-    bg: "linear-gradient(160deg, #46705a 0%, #3a5f4c 100%)",
-    ink: "#f1fff8",
+    bg: "linear-gradient(160deg, #cfa547 0%, #be943a 100%)",
+    ink: "#1f1a10",
     span: "lg:col-span-5",
   },
   {
@@ -566,8 +566,8 @@ const VENTURES = [
     name: "Vritta",
     what: "Activity records and newsletters for schools and colleges.",
     icon: Newspaper,
-    bg: "linear-gradient(160deg, #565c97 0%, #474d83 100%)",
-    ink: "#f3f4ff",
+    bg: "linear-gradient(160deg, #2f5d66 0%, #264f57 100%)",
+    ink: "#e9f4f5",
     span: "lg:col-span-5",
   },
   {
@@ -576,8 +576,8 @@ const VENTURES = [
     name: "Coaching",
     what: "1:1 AI coaching built around your profession.",
     icon: Brain,
-    bg: "linear-gradient(160deg, #bfd255 0%, #aec244 100%)",
-    ink: "#171716",
+    bg: "linear-gradient(160deg, #dcaaa3 0%, #cf9a93 100%)",
+    ink: "#2a1a18",
     span: "lg:col-span-12",
   },
 ];
