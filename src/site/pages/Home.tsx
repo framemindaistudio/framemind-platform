@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { ArrowUpRight, Bot, Brain, Check, Code2, Globe, LayoutGrid, Newspaper, Palette, Zap } from "lucide-react";
+import { ArrowUpRight, Bot, Brain, Check, Code2, Globe, LayoutGrid, Palette, Zap } from "lucide-react";
 import { Link } from "@/site/router";
 import SEO from "@/site/components/SEO";
 import { INDUSTRIES, tierPrice, type IndustryRates } from "@/lib/content/industries";
@@ -26,9 +26,9 @@ import TeamRail, { type RailMember } from "@/site/components/TeamRail";
  *   5. the ten industry apps on a 3D ring
  *   6. the store, with its three real advantages marked
  *   7. how a project runs
- *   8. our ventures as collapsing cards
- *   9. the team on a lanyard rail
- *  10. a lime panel to start a project
+ *   8. the team on a lanyard rail
+ *   9. a lime panel to start a project
+ * 360VUE, Vritta, JOVE and 1:1 coaching are in the footer only.
  */
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
@@ -56,14 +56,14 @@ function Hero() {
 
         <MaskLines
           as="h1"
-          className="mt-6 text-[clamp(2.7rem,8.6vw,8.6rem)] font-normal leading-[0.94] tracking-[-0.055em]"
+          className="mt-6 text-[clamp(2.7rem,8.6vw,8.6rem)] font-normal leading-[1.04] tracking-[-0.05em] md:leading-[0.94] md:tracking-[-0.055em]"
           lines={[
             <>We build the</>,
             <>
               <span className="text-[#9a9890]">websites, apps</span> &amp; AI
             </>,
             <>
-              your business <span className="fm-mark text-[#171716]">runs on.</span>
+              your business <span className="fm-mark whitespace-nowrap text-[#171716]">runs on.</span>
             </>,
           ]}
           delay={0.15}
@@ -537,145 +537,7 @@ function Process() {
   );
 }
 
-/* ─────────────────────────── 8. ventures: collapsing cards ─────────────────────────── */
-
-/*
- * Each venture in its own brand: 360VUE's midnight, bronze and sunset with its logo and emblem (D:\360VUE),
- * JOVE's warm paper and graphite blueprint with its logo and robot-arm mark (D:\JOVE…). Vritta and 1:1 coaching are
- * FrameMind's own products, so they wear FrameMind graphite and lime.
- */
-type Venture = {
-  href: string;
-  site: string;
-  name: string;
-  what: string;
-  bg: string;
-  ink: string;
-  /** colour of the big name, when the card shows a name rather than a logo */
-  hi?: string;
-  /** the brand's own logo, shown instead of the big name */
-  logo?: { src: string; w: number; h: number };
-  /** the brand's mark, large and cropped in the corner */
-  mark?: string;
-  icon?: typeof Bot;
-  /** extra layer: a sunset glow, a blueprint grid */
-  layer?: string;
-  span: string;
-};
-
-const VENTURES: Venture[] = [
-  {
-    href: "https://www.360vue.website",
-    site: "360vue.website",
-    name: "360VUE",
-    what: "360° virtual tours, SkyVUE aerial 360° and Google Maps listings.",
-    bg: "#0e0b08",
-    ink: "#ebd6b5",
-    logo: { src: "/brand/ventures/360vue-logo-on-dark.webp", w: 1100, h: 370 },
-    mark: "/brand/ventures/360vue-emblem.webp",
-    layer: "radial-gradient(70% 60% at 85% 100%, rgba(245,158,76,0.32), transparent 70%), radial-gradient(50% 45% at 0% 0%, rgba(154,90,49,0.35), transparent 70%)",
-    span: "lg:col-span-7 lg:row-span-2",
-  },
-  {
-    href: "https://jove.website",
-    site: "jove.website",
-    name: "JOVE",
-    what: "Robotics and AI workshops for schools, Grades 1 to 10.",
-    bg: "#f5f1e8",
-    ink: "#2b2b2b",
-    logo: { src: "/brand/ventures/jove-logo-ink.webp", w: 1100, h: 587 },
-    layer: "linear-gradient(rgba(43,43,43,0.07) 1px, transparent 1px) 0 0 / 22px 22px, linear-gradient(90deg, rgba(43,43,43,0.07) 1px, transparent 1px) 0 0 / 22px 22px",
-    span: "lg:col-span-5",
-  },
-  {
-    href: "/vritta",
-    site: "",
-    name: "Vritta",
-    what: "Activity records and newsletters for schools and colleges.",
-    bg: "#1c1c1a",
-    ink: "#d6d4cd",
-    hi: "#c8f135",
-    icon: Newspaper,
-    span: "lg:col-span-5",
-  },
-  {
-    href: "/personal-coaching",
-    site: "",
-    name: "Coaching",
-    what: "1:1 AI coaching built around your profession.",
-    bg: "#c8f135",
-    ink: "#171716",
-    hi: "#171716",
-    icon: Brain,
-    span: "lg:col-span-12",
-  },
-];
-
-function VentureCard({ v, i }: { v: Venture; i: number }) {
-  const Icon = v.icon;
-  const external = v.href.startsWith("http");
-  const light = v.bg === "#f5f1e8" || v.bg === "#c8f135";
-  const body = (
-    <>
-      {v.layer && <span aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: v.layer }} />}
-      <span aria-hidden="true" className="fm-card-grain pointer-events-none absolute inset-0" />
-      {v.mark ? (
-        <img src={v.mark} alt="" aria-hidden="true" className="pointer-events-none absolute -right-12 top-10 w-[58%] max-w-[420px] transition-transform duration-[1200ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-2 group-hover:rotate-[8deg]" />
-      ) : Icon ? (
-        <Icon aria-hidden="true" strokeWidth={1} className="pointer-events-none absolute -bottom-10 -right-8 h-52 w-52 opacity-20 transition-transform duration-[1200ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:rotate-[18deg] group-hover:scale-110" />
-      ) : null}
-      <div className="relative flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.2em]">
-        <span className="opacity-70">0{i + 1}</span>
-        <span className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 backdrop-blur-sm transition-colors ${light ? "bg-black/[0.07] group-hover:bg-black/[0.12]" : "bg-white/10 group-hover:bg-white/15"}`}>
-          {external ? v.site : "On this site"} <ArrowUpRight size={13} className="transition-transform group-hover:rotate-45" />
-        </span>
-      </div>
-      <p className="relative mt-auto max-w-[19rem] pt-16 text-[17px] leading-snug">{v.what}</p>
-      {v.logo ? (
-        <img src={v.logo.src} alt={v.name} width={v.logo.w} height={v.logo.h} className={`relative mt-4 h-auto ${v.mark ? "w-[min(62%,380px)]" : "w-[min(86%,440px)]"}`} />
-      ) : (
-        <p className="relative mt-3 text-[clamp(3.2rem,8vw,7.5rem)] font-medium leading-[0.85] tracking-[-0.06em]" style={{ color: v.hi }}>
-          {v.name}
-        </p>
-      )}
-    </>
-  );
-  const cls = `group relative isolate flex h-full min-h-[300px] flex-col overflow-hidden rounded-[30px] p-7 shadow-[0_24px_50px_-30px_rgba(23,23,22,0.45)] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] hover:-translate-y-1.5 md:p-9 ${light ? "ring-1 ring-black/[0.06]" : ""}`;
-  return external ? (
-    <a href={v.href} target="_blank" rel="noopener noreferrer" className={cls} style={{ background: v.bg, color: v.ink }}>
-      {body}
-    </a>
-  ) : (
-    <Link to={v.href} className={cls} style={{ background: v.bg, color: v.ink }}>
-      {body}
-    </Link>
-  );
-}
-
-function Ventures() {
-  return (
-    <section className="bg-[var(--fm-stone)]">
-      <div className="mx-auto max-w-[1320px] px-5 py-24 sm:px-8 md:py-32">
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div>
-            <Kicker>The FrameMind family</Kicker>
-            <MaskLines className="mt-5 text-[clamp(2.4rem,5vw,4.6rem)] font-normal leading-[0.98] tracking-[-0.045em]" lines={["One studio,", <span key="c" className="text-[#64635d]">a family of ventures.</span>]} />
-          </div>
-          <p className="max-w-sm text-[16px] leading-relaxed text-[#55544e]">Each one is its own business, built and run with the studio&apos;s team.</p>
-        </div>
-        <div className="mt-12 grid gap-3 lg:grid-cols-12 lg:grid-rows-[minmax(280px,auto)_minmax(280px,auto)]">
-          {VENTURES.map((v, i) => (
-            <Rise key={v.name} delay={i * 0.06} className={v.span}>
-              <VentureCard v={v} i={i} />
-            </Rise>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────────────────── 10. call to action ─────────────────────────── */
+/* ─────────────────────────── 9. call to action ─────────────────────────── */
 
 function FinalCta() {
   return (
@@ -726,7 +588,6 @@ export default function Home({ products = [], rates, team }: { products?: Public
       <IndustryIndex rates={rates} />
       <Store products={products} />
       <Process />
-      <Ventures />
       <TeamRail members={team} />
       <FinalCta />
     </div>
