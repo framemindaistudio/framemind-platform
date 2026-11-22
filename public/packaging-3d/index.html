@@ -253,20 +253,25 @@ function fit(){
   const dist=Math.max((sz.y*.5+deep*.3)/t,(span*.5+deep*.25)/(t*cam.aspect))*pad*(story&&!mob&&!BARE?1.3:1);
   const dir=new THREE.Vector3(story?0:.35,elev,1).normalize();
   ctl.target.copy(c);cam.position.copy(c).addScaledVector(dir,dist);cam.near=dist/60;cam.far=dist*30;
-  if(story&&!mob&&!BARE)cam.setViewOffset(innerWidth,innerHeight,-innerWidth*.13,innerHeight*.02,innerWidth,innerHeight);else cam.clearViewOffset();
+  // stories sit the set low in the frame (where the tabletop is) and, on desktop, right of the brand card
+  if(story)cam.setViewOffset(innerWidth,innerHeight,(!mob&&!BARE)?-innerWidth*.13:0,-innerHeight*(STORIES[st.brand].stage.surf===null?0:.11),innerWidth,innerHeight);else cam.clearViewOffset();
   cam.updateProjectionMatrix();
   // stories: the camera stays put (the photo cannot move with it) and you turn the set; single packs and sizes: free 360 orbit
   ctl.enabled=!story;ctl.enableZoom=true;ctl.minDistance=dist*.45;ctl.maxDistance=dist*2.2;
   ctl.minAzimuthAngle=-Infinity;ctl.maxAzimuthAngle=Infinity;ctl.minPolarAngle=.12;ctl.maxPolarAngle=1.52;
-  ctl.update();base={dist,target:c.clone()};placeBackdrop();
+  if(story){ctl.enabled=false;cam.lookAt(c);}else ctl.update();
+  base={dist,target:c.clone()};placeBackdrop();requestAnimationFrame(placeBackdrop);
 }
-function placeBackdrop(){ // once per layout: the photo's tabletop sits under the set and never moves after that
-  if(st.mode!=='story'||!bd.naturalWidth)return;const sg=STORIES[st.brand].stage,W=innerWidth,H=innerHeight;
-  const sc=Math.max(W/bd.naturalWidth,H/bd.naturalHeight)*1.16,iw=bd.naturalWidth*sc,ih=bd.naturalHeight*sc;
-  let left=(W-iw)/2,top=(H-ih)/2;
-  if(sg.surf!==null){const p=new THREE.Vector3(base.target.x,0,base.target.z).project(cam);const sy=(1-p.y)/2*H,sx=(p.x+1)/2*W;
-    top=Math.min(0,Math.max(H-ih,sy-sg.surf*ih));left=Math.min(0,Math.max(W-iw,sx-sg.cx*iw));}
-  bd.style.width=iw+'px';bd.style.height=ih+'px';bd.style.transform='translate('+Math.round(left)+'px,'+Math.round(top)+'px)';}
+function placeBackdrop(){ // once per layout: the photo's tabletop sits exactly under the set and never moves after that
+  if(st.mode!=='story'||!bd.naturalWidth)return;const sg=STORIES[st.brand].stage,W=innerWidth,H=innerHeight,ar=bd.naturalWidth/bd.naturalHeight;
+  let ih=Math.max(W/ar,H)*1.12,left,top;
+  if(sg.surf!==null){
+    const p=new THREE.Vector3(base.target.x,0,base.target.z).project(cam);const sy=(1-p.y)/2*H,sx=(p.x+1)/2*W;
+    // grow the photo until its tabletop line (surf) can meet the packs' base without exposing an edge
+    ih=Math.max(ih,sy/sg.surf,(H-sy)/(1-sg.surf),sx/(sg.cx*ar),(W-sx)/((1-sg.cx)*ar))*1.01;
+    top=sy-sg.surf*ih;left=sx-sg.cx*ih*ar;
+  }else{top=(H-ih)/2;left=(W-ih*ar)/2;}
+  bd.style.width=ih*ar+'px';bd.style.height=ih+'px';bd.style.transform='translate('+Math.round(left)+'px,'+Math.round(top)+'px)';}
 bd.addEventListener('load',()=>placeBackdrop());
 function ui(){
   const i=ORDER.indexOf(st.brand),S0=STORIES[st.brand],el=document.getElementById('story');el.classList.remove('in');
@@ -315,6 +320,6 @@ const clock=new THREE.Clock();
 (function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();
   floaters.forEach(f=>{f.o.position.y=f.y+Math.sin(t*.9+f.ph)*5;f.o.rotation.y+=.0015;});
   if(st.mode==='story'&&!drag){if(st.spin)root.rotation.y+=.004;else if(Math.abs(spinV)>1e-4){root.rotation.y+=spinV;spinV*=.94;}}
-  ctl.update();R.render(scene,cam);})();
+  if(st.mode!=='story')ctl.update();R.render(scene,cam);})();
 show().then(()=>{setTimeout(()=>ORDER.forEach(b=>{const i=new Image();i.src=STORIES[b].bd;STORIES[b].comp.forEach(c=>BY[c.k]&&loadImg(BY[c.k].img));}),1500);});
 </script></body></html>

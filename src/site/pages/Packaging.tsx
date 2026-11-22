@@ -17,8 +17,8 @@ const C = { bg: "#1b1916", panel: "#24211d", panel2: "#2c2823", line: "#3a342d",
 const GRAIN = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")`;
 const STUDIO = "/packaging-3d/index.html";
 
-function Grain() {
-  return <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.16] mix-blend-overlay" style={{ backgroundImage: GRAIN }} />;
+function Grain({ className = "" }: { className?: string }) {
+  return <div aria-hidden="true" className={`pointer-events-none absolute inset-0 opacity-[0.16] mix-blend-overlay ${className}`} style={{ backgroundImage: GRAIN }} />;
 }
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
@@ -100,11 +100,16 @@ export default function Packaging({ rates = null }: { rates?: PackagingRates | n
   return (
     <div style={{ background: C.bg, color: C.bone }}>
       {/* ── hero ── */}
-      <section className="relative isolate flex min-h-[100dvh] items-end overflow-hidden">
-        <img src="/packaging/hero-chai.webp" alt="Chai Kutty sample range in 3D: three pouches, a tea tin and a tea-bag box on a tea-stall table" className="absolute inset-y-0 right-0 -z-20 h-full w-full object-cover object-[62%_50%] md:w-[76%] md:object-center" />
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,#1b1916_10%,#1b1916e0_50%,#1b1916a6_100%)] md:bg-[linear-gradient(90deg,#1b1916_24%,#1b1916d9_34%,#1b191600_52%),linear-gradient(0deg,#1b1916_0%,#1b191600_30%)]" />
-        <Grain />
-        <div className="relative mx-auto w-full max-w-[1320px] px-5 pb-16 pt-36 sm:px-8 md:pb-24">
+      <section className="relative isolate overflow-hidden bg-[#1b1916] md:flex md:min-h-[100dvh] md:items-end">
+        {/* phones: the packs first, as a tall close-up that melts into the page */}
+        <div className="relative h-[64svh] min-h-[440px] md:hidden">
+          <img src="/packaging/tall-chai.webp" alt="Chai Kutty sample pouches and tea tin in 3D on a tea-stall table" className="absolute inset-0 h-full w-full object-cover object-[50%_60%] [mask-image:linear-gradient(180deg,#000_0%,#000_55%,transparent_90%)]" />
+          <div aria-hidden="true" className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(180deg,#1b1916cc,#1b191600)]" />
+        </div>
+        <img src="/packaging/hero-chai.webp" alt="Chai Kutty sample range in 3D: three pouches, a tea tin and a tea-bag box on a tea-stall table" className="absolute inset-y-0 right-0 -z-20 hidden h-full w-[76%] object-cover md:block" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 hidden md:block md:bg-[linear-gradient(90deg,#1b1916_24%,#1b1916d9_34%,#1b191600_52%),linear-gradient(0deg,#1b1916_0%,#1b191600_30%)]" />
+        <Grain className="hidden md:block" />
+        <div className="relative mx-auto -mt-16 w-full max-w-[1320px] px-5 pb-16 sm:px-8 md:mt-0 md:pb-24 md:pt-36">
           <Rise y={14}><Eyebrow>New at FrameMind · Packaging design studio</Eyebrow></Rise>
           <Rise delay={0.08} y={18}>
             <h1 className="mt-6 max-w-[11ch] text-[clamp(2.8rem,6vw,5.4rem)] font-normal leading-[0.95] tracking-[-0.055em]">
@@ -117,11 +122,11 @@ export default function Packaging({ rates = null }: { rates?: PackagingRates | n
             </p>
           </Rise>
           <Rise delay={0.24} y={12}>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <a href="#quote" className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-[15px] font-semibold transition-transform active:scale-[0.98]" style={{ background: C.brass, color: "#1b1916" }}>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <a href="#quote" className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-[15px] font-semibold transition-transform active:scale-[0.98]" style={{ background: C.brass, color: "#1b1916" }}>
                 Get a packaging quote <ArrowRight className="h-4 w-4" />
               </a>
-              <a href="#studio" className="inline-flex items-center gap-2 rounded-full border px-6 py-3.5 text-[15px] font-semibold backdrop-blur-md transition-colors hover:bg-white/5" style={{ borderColor: "#ffffff33" }}>
+              <a href="#studio" className="inline-flex items-center justify-center gap-2 rounded-full border px-6 py-3.5 text-[15px] font-semibold backdrop-blur-md transition-colors hover:bg-white/5" style={{ borderColor: "#ffffff33" }}>
                 <Play className="h-4 w-4" /> Walk the brands in 3D
               </a>
             </div>
@@ -146,14 +151,19 @@ export default function Packaging({ rates = null }: { rates?: PackagingRates | n
               <Maximize2 className="h-4 w-4" /> Open full screen
             </a>
           </div>
-          <div className="relative mt-10 aspect-[16/10] w-full overflow-hidden rounded-[22px] border shadow-[0_50px_120px_-40px_rgba(0,0,0,0.8)] md:aspect-[16/9]" style={{ borderColor: C.line, background: "#11100e" }}>
+          <div className="relative mt-10 aspect-[4/5] w-full overflow-hidden rounded-[22px] border shadow-[0_50px_120px_-40px_rgba(0,0,0,0.8)] sm:aspect-[16/10] md:aspect-[16/9]" style={{ borderColor: C.line, background: "#11100e" }}>
             {live ? (
               <iframe src={STUDIO} title="FrameMind brand stories in 3D" className="absolute inset-0 h-full w-full" allow="fullscreen" />
             ) : (
               <button onClick={() => setLive(true)} className="group absolute inset-0 h-full w-full text-left" aria-label="Load the 3D brand stories">
-                <img src="/packaging/story-kaapi.webp" alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" />
+                <img src="/packaging/tall-kaapi.webp" alt="" className="absolute inset-0 h-full w-full object-cover sm:hidden" />
+                <img src="/packaging/story-kaapi.webp" alt="" className="absolute inset-0 hidden h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02] sm:block" />
                 <div className="absolute inset-0" style={{ background: "linear-gradient(0deg,#0d0c0bcc,#0d0c0b10 55%)" }} />
-                <div className="absolute bottom-6 left-6 right-6 flex flex-wrap items-center justify-between gap-4 sm:bottom-9 sm:left-9 sm:right-9">
+                {/* phones: just the play chip on the poster, the words sit under it */}
+                <span className="absolute bottom-6 left-1/2 inline-flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-6 py-3.5 text-[15px] font-semibold sm:hidden" style={{ background: C.brass, color: "#1b1916" }}>
+                  <Play className="h-4 w-4" /> Start the 3D studio
+                </span>
+                <div className="absolute bottom-6 left-6 right-6 hidden flex-wrap items-center justify-between gap-4 sm:bottom-9 sm:left-9 sm:right-9 sm:flex">
                   <div>
                     <p className="font-mono text-[11px] uppercase tracking-[0.22em]" style={{ color: C.brass2 }}>Interactive · loads about 16 MB</p>
                     <p className="mt-2 text-[clamp(1.4rem,2.6vw,2.2rem)] tracking-[-0.03em]">Kaapi Katte, Mithaas, Monsoon Soda and four more</p>
@@ -165,6 +175,7 @@ export default function Packaging({ rates = null }: { rates?: PackagingRates | n
               </button>
             )}
           </div>
+          <p className="mt-4 text-center text-[13px] sm:hidden" style={{ color: C.muted }}>Seven brands · every size · about 16 MB, best on Wi-Fi</p>
         </div>
       </section>
 
@@ -174,11 +185,12 @@ export default function Packaging({ rates = null }: { rates?: PackagingRates | n
           <Eyebrow>Sample brand worlds</Eyebrow>
           <H2>Seven industries, seven voices.</H2>
           <p className="mt-5 max-w-2xl text-[17px] leading-relaxed" style={{ color: C.muted }}>
+            <span className="mb-2 block font-mono text-[11px] uppercase tracking-[0.2em] md:hidden" style={{ color: C.brass }}>Swipe through the seven →</span>
             Each concept brand has a platform (vision and voice), a palette with roles, a type pairing, one graphic device, and a full range of print-ready packs across sizes.
           </p>
-          <div className="mt-12 grid gap-5 md:grid-cols-6">
+          <div className="-mx-5 mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:px-8 md:mx-0 md:grid md:grid-cols-6 md:gap-5 md:overflow-visible md:px-0 md:pb-0">
             {BRAND_WORLDS.map((b, i) => (
-              <Rise key={b.id} delay={(i % 3) * 0.06} y={18} className={i < 2 ? "md:col-span-3" : i < 5 ? "md:col-span-2" : "md:col-span-3"}>
+              <Rise key={b.id} delay={(i % 3) * 0.06} y={18} className={`w-[84vw] max-w-[420px] shrink-0 snap-center md:w-auto md:max-w-none ${i < 2 ? "md:col-span-3" : i < 5 ? "md:col-span-2" : "md:col-span-3"}`}>
                 <article className="group h-full overflow-hidden rounded-[20px] border" style={{ borderColor: C.line, background: C.panel }}>
                   <div className="relative aspect-[16/10] overflow-hidden">
                     <img src={`/packaging/story-${b.id}.webp`} alt={`${b.name} sample packaging range in 3D`} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
@@ -198,7 +210,7 @@ export default function Packaging({ rates = null }: { rates?: PackagingRates | n
                 </article>
               </Rise>
             ))}
-            <Rise delay={0.12} y={18} className="md:col-span-6">
+            <Rise delay={0.12} y={18} className="w-[84vw] max-w-[420px] shrink-0 snap-center md:w-auto md:max-w-none md:col-span-6">
               <a href={STUDIO} target="_blank" rel="noopener" className="flex h-full min-h-[180px] flex-col justify-between gap-6 md:flex-row md:items-end rounded-[20px] border p-7 transition-colors hover:bg-white/[0.03]" style={{ borderColor: C.brass + "66" }}>
                 <Eyebrow>All 40 pack designs</Eyebrow>
                 <p className="max-w-2xl text-[clamp(1.5rem,2.4vw,2rem)] leading-tight tracking-[-0.03em]">Open the 3D studio and switch to <em className="not-italic" style={{ color: C.brass2 }}>All sizes</em> to compare every pouch, can, jar and box.</p>
