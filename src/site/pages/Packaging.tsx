@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, Box, Check, Layers, Maximize2, Minus, PenTool, Play, Plus, Ruler, ScanEye, ShieldCheck } from "lucide-react";
+import { ArrowRight, Box, Check, Download, Layers, Maximize2, Minus, PenTool, Play, Plus, Ruler, ScanEye, ShieldCheck } from "lucide-react";
 import { Link } from "@/site/router";
 import { Rise } from "@/site/components/ui/motion-bits";
 import { submitLead } from "@/site/leads";
 import { BRAND_WORLDS, inr, packagingWith, PRICE_FACTORS, type PackagingRates } from "@/lib/content/packaging";
+import type { PublicProduct } from "@/lib/shop/types";
 
 /*
  * Packaging design (Nov 2026). Its own matte world, apart from the lime site: espresso board, brass rules, bone type and
@@ -51,7 +52,10 @@ const PACK_TYPES = [
   { id: "rigid", label: "Gift boxes or carry bags" },
 ];
 
-export default function Packaging({ rates = null }: { rates?: PackagingRates | null }) {
+/** The store kit, as the live catalogue has it (price, status, address). */
+export type KitPromo = Pick<PublicProduct, "slug" | "title" | "price" | "mrp" | "status" | "buyable">;
+
+export default function Packaging({ rates = null, kit = null }: { rates?: PackagingRates | null; kit?: KitPromo | null }) {
   const { tiers: PACK_TIERS, extras: PACK_EXTRAS, bundles: PACK_BUNDLES } = useMemo(() => packagingWith(rates), [rates]);
   const [live, setLive] = useState(false);
   const [counts, setCounts] = useState<Record<string, number>>({ label: 0, pouch: 1, carton: 0, rigid: 0 });
@@ -221,6 +225,46 @@ export default function Packaging({ rates = null }: { rates?: PackagingRates | n
         </div>
       </section>
 
+      {/* ── the DIY route: the store kit behind these samples ── */}
+      {kit && (
+        <section className="relative overflow-hidden" style={{ background: "#ede6da", color: "#1b1916" }}>
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.22] mix-blend-multiply" style={{ backgroundImage: GRAIN }} />
+          <div className="relative mx-auto grid max-w-[1320px] items-center gap-12 px-5 py-20 sm:px-8 md:py-28 lg:grid-cols-[1.05fr_1fr]">
+            {/* collage: a 3D chapter, a filled photo mockup and a print dieline, the three things in the download */}
+            <div className="relative mx-auto aspect-[5/4] w-full max-w-[620px]">
+              <img src="/packaging/story-mithaas.webp" alt="Mithaas sample range from the kit, in 3D" loading="lazy" className="absolute left-0 top-[6%] w-[78%] rounded-[18px] shadow-[0_40px_70px_-30px_rgba(27,25,22,0.55)] ring-1 ring-black/5" />
+              <img src="/packaging/scene-01.webp" alt="Stand-up pouch photo mockup from the kit" loading="lazy" className="absolute bottom-0 right-0 w-[46%] rotate-[3deg] rounded-[14px] border-[6px] border-white shadow-[0_30px_60px_-24px_rgba(27,25,22,0.55)]" />
+              <img src="/packaging/dieline-sutra.webp" alt="Serum carton dieline from the kit" loading="lazy" className="absolute -bottom-[4%] left-[6%] w-[34%] -rotate-[4deg] rounded-[12px] border-[6px] border-white bg-white shadow-[0_30px_60px_-24px_rgba(27,25,22,0.5)]" />
+              <span className="absolute right-[4%] top-0 rotate-[6deg] rounded-full px-4 py-2 font-mono text-[11px] uppercase tracking-[0.16em] shadow-lg" style={{ background: "#1b1916", color: C.brass2 }}>
+                {kit.mrp && kit.mrp > kit.price ? `${Math.round((1 - kit.price / kit.mrp) * 100)}% off` : "Instant download"}
+              </span>
+            </div>
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-[#8a6a3a]">From the FrameMind Store · do it yourself</p>
+              <h2 className="mt-4 text-[clamp(2rem,4.2vw,3.4rem)] font-normal leading-[1.02] tracking-[-0.045em]">Rather design it yourself? Get the kit behind these packs.</h2>
+              <p className="mt-5 max-w-lg text-[16.5px] leading-relaxed text-[#4a4339]">Every sample on this page, as files you can open and make your own: the dielines, the photo mockups and the 3D brand stories.</p>
+              <ul className="mt-7 grid gap-3 sm:grid-cols-2">
+                {["18 layered PSD photo mockups", "40 print-ready pack designs with dielines", "Every size of every pack in 3D", "Browser studio, no Photoshop needed"].map((t) => (
+                  <li key={t} className="flex gap-3 text-[15px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[#8a6a3a]" />{t}</li>
+                ))}
+              </ul>
+              <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
+                <p className="flex items-baseline gap-3">
+                  <span className="text-[44px] leading-none tracking-[-0.05em]">{inr(kit.price)}</span>
+                  {kit.mrp && kit.mrp > kit.price ? <span className="text-[18px] text-[#8b8172] line-through">{inr(kit.mrp)}</span> : null}
+                </p>
+                <Link to={`/shop/${kit.slug}`} className="inline-flex items-center gap-2 rounded-full bg-[#1b1916] px-7 py-4 text-[15px] font-semibold text-[#ede6da] shadow-[0_20px_40px_-20px_rgba(27,25,22,0.8)] transition-transform hover:-translate-y-0.5 active:scale-[0.98]">
+                  {kit.status === "live" && kit.buyable ? <><Download className="h-4 w-4" /> Get the kit</> : <>See the kit <ArrowRight className="h-4 w-4" /></>}
+                </Link>
+              </div>
+              <p className="mt-4 text-[13px] text-[#6b6357]">
+                {kit.status === "live" && kit.buyable ? "Instant download · use it for your own and client work." : "Launching soon. Open the kit page to get a WhatsApp message the day it is out."}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── craft ── */}
       <section className="relative overflow-hidden border-y" style={{ borderColor: C.line, background: C.panel }}>
         <Grain />
@@ -355,6 +399,11 @@ export default function Packaging({ rates = null }: { rates?: PackagingRates | n
             <Eyebrow>Get a quote</Eyebrow>
             <H2>Tell us about your range.</H2>
             <p className="mt-5 max-w-md text-[16px] leading-relaxed" style={{ color: C.muted }}>Pick your packs and we will reply within one working day with a written quote, a timeline and the questions for your printer.</p>
+            {kit && (
+              <Link to={`/shop/${kit.slug}`} className="mt-5 inline-flex items-center gap-2 text-[14px] font-semibold hover:underline" style={{ color: C.brass2 }}>
+                On a tight budget? Start with the {inr(kit.price)} kit and design it yourself <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
             <div className="mt-10 space-y-3">
               {PACK_TYPES.map((p) => (
                 <div key={p.id} className="flex items-center justify-between rounded-2xl border px-5 py-3.5" style={{ borderColor: C.line, background: C.panel }}>
