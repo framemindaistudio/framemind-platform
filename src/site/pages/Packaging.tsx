@@ -148,7 +148,7 @@ export default function Packaging({ rates = null, kit = null }: { rates?: Packag
               <Eyebrow>Brand stories in 3D</Eyebrow>
               <H2>Seven brands. Every pack. Turn them in your hands.</H2>
               <p className="mt-5 max-w-2xl text-[17px] leading-relaxed" style={{ color: C.muted }}>
-                This is how you will review your own packs: each brand as a chapter, its full range on a set that speaks its voice, and every size side by side. Drag to turn, use the arrows to move between brands.
+                This is how you will review your own packs: each brand as a chapter, its full range on a set that speaks its voice, and every size side by side. Drag to turn a whole set, tap any pack to inspect it, and use Explore packs to see every pack together or one at a time.
               </p>
             </div>
             <a href={STUDIO} target="_blank" rel="noopener" className="inline-flex items-center gap-2 self-start rounded-full border px-5 py-3 text-[14px] font-semibold transition-colors hover:bg-white/5 lg:self-end" style={{ borderColor: C.line }}>
@@ -217,7 +217,7 @@ export default function Packaging({ rates = null, kit = null }: { rates?: Packag
             <Rise delay={0.12} y={18} className="w-[84vw] max-w-[420px] shrink-0 snap-center md:w-auto md:max-w-none md:col-span-6">
               <a href={STUDIO} target="_blank" rel="noopener" className="flex h-full min-h-[180px] flex-col justify-between gap-6 md:flex-row md:items-end rounded-[20px] border p-7 transition-colors hover:bg-white/[0.03]" style={{ borderColor: C.brass + "66" }}>
                 <Eyebrow>All 40 pack designs</Eyebrow>
-                <p className="max-w-2xl text-[clamp(1.5rem,2.4vw,2rem)] leading-tight tracking-[-0.03em]">Open the 3D studio and switch to <em className="not-italic" style={{ color: C.brass2 }}>All sizes</em> to compare every pouch, can, jar and box.</p>
+                <p className="max-w-2xl text-[clamp(1.5rem,2.4vw,2rem)] leading-tight tracking-[-0.03em]">Open the 3D studio and choose <em className="not-italic" style={{ color: C.brass2 }}>Explore packs</em> to see every pouch, can, jar and box together, or one at a time.</p>
                 <span className="inline-flex items-center gap-2 text-[15px] font-semibold" style={{ color: C.brass2 }}>Open full screen <ArrowRight className="h-4 w-4" /></span>
               </a>
             </Rise>
