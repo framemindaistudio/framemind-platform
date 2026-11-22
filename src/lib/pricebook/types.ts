@@ -16,6 +16,7 @@
 import type { Service, VrittaEdition, VrittaSegment } from "@/lib/content/catalog";
 import type { RealEstateRates } from "@/lib/content/real-estate";
 import type { IndustryRates } from "@/lib/content/industries";
+import type { PackagingRates } from "@/lib/content/packaging";
 
 export interface SocialContract {
   months: number;
@@ -73,6 +74,8 @@ export interface RateCard {
   realEstate: RealEstateRates;
   /** industry apps: setup, monthly plans per industry, branches and add-ons (website /industries and quotes) */
   industries: IndustryRates;
+  /** packaging design: the "from" price of each pack type, add-on and bundle (website /packaging) */
+  packaging: PackagingRates;
   terms: QuoteTerms;
 }
 

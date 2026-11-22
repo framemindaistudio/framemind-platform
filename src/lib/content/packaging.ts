@@ -5,7 +5,8 @@
  * ₹20k–60k, agencies ₹75k–2.5L+, and size or flavour variants of an approved design ₹5k–25k (sources: avval.in,
  * suramya.co, creativeline.co.in, kavinarulraj.com packaging-cost guides). FrameMind sits at the studio end of the
  * freelancer range with agency-grade files: real dielines, regulatory panels and a 3D proof of every size.
- * They are not in HQ's rate card yet; change them here.
+ * These are the defaults: HQ → Money → Rate Card → Packaging overrides every "from" price (RateCard.packaging), and the
+ * website reads it through packagingWith().
  */
 
 export interface PackTier {
@@ -64,5 +65,31 @@ export const BRAND_WORLDS: BrandWorld[] = [
   { id: "neela", name: "Neela Achaar", industry: "Pickles", vision: "Ammamma's terrace recipes, sun-cured and sealed the old way.", voice: ["Homely", "Spirited", "Rooted"], palette: ["#1F2E66", "#E7B03A", "#C7372F", "#F6ECD6"], range: "Jar labels in 3 sizes · gift box of 3" },
   { id: "kora", name: "Kora Studio", industry: "Homeware", vision: "Fewer, better objects, made by hand and built to be used every day.", voice: ["Spare", "Considered", "Honest"], palette: ["#3A3835", "#8E8A84", "#C9C4BC", "#E9E6E1"], range: "Shopping bag · rigid box · candle tin · stationery" },
 ];
+
+/** HQ's saved packaging prices: a "from" price per tier, extra and bundle id. */
+export interface PackagingRates {
+  prices: { id: string; from: number }[];
+}
+
+const ALL = () => [...PACK_TIERS, ...PACK_EXTRAS, ...PACK_BUNDLES];
+
+export const DEFAULT_PACKAGING_RATES: PackagingRates = { prices: ALL().map((x) => ({ id: x.id, from: x.from })) };
+
+/** Every packaging price item (tiers, extras, bundles) with its name, for HQ's editor. */
+export const PACKAGING_ITEMS: { id: string; name: string; unit: string; group: "Packs" | "Add-ons" | "Bundles" }[] = [
+  ...PACK_TIERS.map((x) => ({ id: x.id, name: x.name, unit: x.unit, group: "Packs" as const })),
+  ...PACK_EXTRAS.map((x) => ({ id: x.id, name: x.name, unit: x.unit, group: "Add-ons" as const })),
+  ...PACK_BUNDLES.map((x) => ({ id: x.id, name: x.name, unit: "per project", group: "Bundles" as const })),
+];
+
+/** The published prices with HQ's rate card applied (falls back to the defaults above when none is saved). */
+export function packagingWith(rates?: PackagingRates | null) {
+  const price = (id: string, d: number) => rates?.prices.find((p) => p.id === id)?.from ?? d;
+  return {
+    tiers: PACK_TIERS.map((t) => ({ ...t, from: price(t.id, t.from) })),
+    extras: PACK_EXTRAS.map((t) => ({ ...t, from: price(t.id, t.from) })),
+    bundles: PACK_BUNDLES.map((t) => ({ ...t, from: price(t.id, t.from) })),
+  };
+}
 
 export const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;

@@ -10,11 +10,12 @@ import {
 } from "lucide-react";
 import SEO from "@/site/components/SEO";
 import { submitLead } from "@/site/leads";
+import { inr, packagingWith } from "@/lib/content/packaging";
 import { WEBSITE_SERVICES, type Group, type Option, type ServiceDef, type ServiceId, type ServiceNote } from "@/lib/content/site-pricing";
 import type { RateCard } from "@/lib/pricebook/types";
 
 /** The part of the rate card the public pricing page receives: prices only, never costs, margins or plans. */
-export type PublicRates = Pick<RateCard, "services" | "socialContracts" | "bundleSteps">;
+export type PublicRates = Pick<RateCard, "services" | "socialContracts" | "bundleSteps"> & Partial<Pick<RateCard, "packaging">>;
 const framemindLogo = "/site/framemind-logo.jpg";
 const msmeLogo = "/site/msme-logo.png";
 
@@ -738,7 +739,7 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-[#c9a46a]">New service · Packaging design</p>
               <h2 className="mt-4 text-[clamp(1.9rem,3.6vw,3rem)] font-normal leading-[1.02] tracking-[-0.045em]">Packaging that tells your <span className="text-[#e0c08a]">brand&apos;s story</span>, in 3D before you print.</h2>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#a99f90]">Pouches, cartons, labels, cans and gift boxes on real dielines, built in Adobe to your brand guidelines. From ₹9,500 per SKU.</p>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#a99f90]">Pouches, cartons, labels, cans and gift boxes on real dielines, built in Adobe to your brand guidelines. From {inr(Math.min(...packagingWith(rates?.packaging).tiers.map((t) => t.from)))} per SKU.</p>
               <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#c9a46a] px-5 py-3 text-[14px] font-semibold text-[#1b1916] transition-transform group-active:scale-[0.98]">See packaging and samples →</span>
             </div>
             <div className="grid grid-cols-3 gap-3">

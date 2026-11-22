@@ -3,6 +3,7 @@ import { store, StoreConflictError } from "@/lib/store";
 import { COACHING, SERVICES, SOCIAL_CONTRACTS, BUNDLE, TERMS, VRITTA, type Service, type ServiceGroup, type ServiceId, type VrittaEdition, type VrittaSegment } from "@/lib/content/catalog";
 import { DEFAULT_RE_RATES, type RealEstateRates } from "@/lib/content/real-estate";
 import { DEFAULT_INDUSTRY_RATES, type IndustryRates } from "@/lib/content/industries";
+import { DEFAULT_PACKAGING_RATES, type PackagingRates } from "@/lib/content/packaging";
 import type { MoneyLine, PriceBook, RateCard, RevenueStream, VrittaRate } from "@/lib/pricebook/types";
 import { uid } from "@/lib/utils";
 import { ValidationError } from "./records";
@@ -31,6 +32,7 @@ export function startingBook(): PriceBook {
       coaching: { online: COACHING.fees.online, offline: COACHING.fees.offline, sessions: 0 },
       realEstate: structuredClone(DEFAULT_RE_RATES),
       industries: structuredClone(DEFAULT_INDUSTRY_RATES),
+      packaging: structuredClone(DEFAULT_PACKAGING_RATES),
       terms: { validityDays: TERMS.validityDays, revisionRounds: TERMS.revisionRounds, milestones: structuredClone(TERMS.defaultMilestones) },
     },
     planner: {
@@ -120,6 +122,19 @@ const cleanStreams = (v: unknown): RevenueStream[] =>
     .filter((l) => l.name);
 
 /** Real estate prices: the plans and add-ons are fixed (the website and quotes name them); their numbers are the founders'. */
+/** Packaging prices: only the known ids, each a whole-rupee "from" price; missing ones keep the saved or default price. */
+function cleanPackaging(v: unknown, base: PackagingRates): PackagingRates {
+  const i = obj(v);
+  const inn = Array.isArray(i.prices) ? i.prices.map(obj) : [];
+  return {
+    prices: DEFAULT_PACKAGING_RATES.prices.map((d) => {
+      const b = base.prices.find((x) => x.id === d.id) ?? d;
+      const r = inn.find((x) => x.id === d.id) ?? {};
+      return { id: d.id, from: num(r.from, b.from, 0, 100_000_000) };
+    }),
+  };
+}
+
 function cleanRealEstate(v: unknown, base: RealEstateRates): RealEstateRates {
   const i = obj(v);
   const plansIn = Array.isArray(i.plans) ? i.plans.map(obj) : [];
@@ -228,6 +243,7 @@ function cleanRates(input: unknown, base: RateCard): RateCard {
     coaching: { online: num(c.online, base.coaching.online, 0, 10_000_000), offline: num(c.offline, base.coaching.offline, 0, 10_000_000), sessions: num(c.sessions, base.coaching.sessions, 0, 500) },
     realEstate: cleanRealEstate(i.realEstate, base.realEstate ?? DEFAULT_RE_RATES),
     industries: cleanIndustries(i.industries, base.industries ?? DEFAULT_INDUSTRY_RATES),
+    packaging: cleanPackaging(i.packaging, base.packaging ?? DEFAULT_PACKAGING_RATES),
     terms: { validityDays: num(t.validityDays, base.terms.validityDays, 1, 365), revisionRounds: num(t.revisionRounds, base.terms.revisionRounds, 0, 20), milestones },
   };
 }

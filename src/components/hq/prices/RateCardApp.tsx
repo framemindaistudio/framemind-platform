@@ -7,6 +7,7 @@ import type { Service, ServiceGroup, ServiceOption, VrittaEdition, VrittaSegment
 import { VRITTA } from "@/lib/content/catalog";
 import { INDUSTRIES, INDUSTRY_ADD_ONS, TIERS, setupFor, type IndustryRates } from "@/lib/content/industries";
 import { ADD_ONS as RE_ADD_ONS, PLANS as RE_PLANS, type RealEstateRates } from "@/lib/content/real-estate";
+import { DEFAULT_PACKAGING_RATES, PACKAGING_ITEMS, type PackagingRates } from "@/lib/content/packaging";
 import type { PriceBook, RateCard } from "@/lib/pricebook/types";
 import { can, LEADERSHIP } from "@/lib/hq/roles";
 import { cn, formatDateTime, formatINR, uid } from "@/lib/utils";
@@ -16,8 +17,8 @@ import { EmptyState, Loading, PageHeader, Panel } from "@/components/hq/ui";
 import { Button } from "@/components/ui/Button";
 import { Tabs } from "@/components/ui/Tabs";
 
-type TabId = "services" | "discounts" | "industries" | "realestate" | "vritta" | "coaching" | "terms";
-const TAB_NAMES: Record<TabId, string> = { services: "Services", discounts: "Bundles & retainers", industries: "Industry apps", realestate: "Real estate", vritta: "Vritta", coaching: "AI Coaching", terms: "Terms & GST" };
+type TabId = "services" | "discounts" | "industries" | "realestate" | "packaging" | "vritta" | "coaching" | "terms";
+const TAB_NAMES: Record<TabId, string> = { services: "Services", discounts: "Bundles & retainers", industries: "Industry apps", realestate: "Real estate", packaging: "Packaging", vritta: "Vritta", coaching: "AI Coaching", terms: "Terms & GST" };
 const LEAVE_QUESTION = "You have changes that are not saved. Leave this page without saving them?";
 
 interface Loaded {
@@ -255,6 +256,8 @@ export function RateCardApp() {
           {tab === "industries" && <IndustryPrices value={rates.industries} editable={editable} onChange={(industries) => setRates((r) => ({ ...r, industries }))} />}
 
           {tab === "realestate" && <RealEstatePrices value={rates.realEstate} editable={editable} onChange={(realEstate) => setRates((r) => ({ ...r, realEstate }))} />}
+
+          {tab === "packaging" && <PackagingPrices value={rates.packaging ?? DEFAULT_PACKAGING_RATES} editable={editable} onChange={(packaging) => setRates((r) => ({ ...r, packaging }))} />}
 
           {tab === "vritta" && <VrittaRates rates={rates} editable={editable} setRates={setRates} />}
 
@@ -602,6 +605,27 @@ function IndustryPrices({ value, editable, onChange }: { value: IndustryRates; e
 }
 
 /** HQ → Rate Card → Real estate: the per-sq-ft plans and add-ons of the website's /real-estate page and of quotes. */
+function PackagingPrices({ value, editable, onChange }: { value: PackagingRates; editable: boolean; onChange: (v: PackagingRates) => void }) {
+  const set = (id: string, from: number) => onChange({ prices: value.prices.map((p) => (p.id === id ? { ...p, from } : p)) });
+  return (
+    <div className="space-y-6">
+      {(["Packs", "Add-ons", "Bundles"] as const).map((group) => (
+        <Panel key={group} title={group} subtitle={group === "Packs" ? "The starting price per SKU on framemindaistudio.com/packaging. The website and its quote estimator use these at once." : group === "Add-ons" ? "Extras the estimator adds: extra sizes, illustration, languages, printer coordination." : "Fixed-scope packages shown under the pack prices."}>
+          <div className="space-y-2">
+            {PACKAGING_ITEMS.filter((x) => x.group === group).map((x) => (
+              <div key={x.id} className="grid items-center gap-2 border-t border-graphite/8 pt-2 sm:grid-cols-[1fr_140px_160px]">
+                <span className="text-sm font-medium">{x.name}</span>
+                <span className="annot text-[10px] text-blueprint sm:text-right">from · {x.unit}</span>
+                <Money label={`${x.name} from`} value={value.prices.find((p) => p.id === x.id)?.from ?? 0} disabled={!editable} onChange={(v) => set(x.id, v)} />
+              </div>
+            ))}
+          </div>
+        </Panel>
+      ))}
+    </div>
+  );
+}
+
 function RealEstatePrices({ value, editable, onChange }: { value: RealEstateRates; editable: boolean; onChange: (v: RealEstateRates) => void }) {
   const setPlan = (id: string, k: string, v: number) => onChange({ ...value, plans: value.plans.map((p) => (p.id === id ? { ...p, [k]: v } : p)) });
   const setAdd = (id: string, k: string, v: number) => onChange({ ...value, addOns: value.addOns.map((a) => (a.id === id ? { ...a, [k]: v } : a)) });

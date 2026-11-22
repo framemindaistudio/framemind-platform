@@ -5,7 +5,7 @@ import { ArrowRight, Box, Check, Layers, Maximize2, Minus, PenTool, Play, Plus, 
 import { Link } from "@/site/router";
 import { Rise } from "@/site/components/ui/motion-bits";
 import { submitLead } from "@/site/leads";
-import { BRAND_WORLDS, inr, PACK_BUNDLES, PACK_EXTRAS, PACK_TIERS, PRICE_FACTORS } from "@/site/packaging";
+import { BRAND_WORLDS, inr, packagingWith, PRICE_FACTORS, type PackagingRates } from "@/lib/content/packaging";
 
 /*
  * Packaging design (Nov 2026). Its own matte world, apart from the lime site: espresso board, brass rules, bone type and
@@ -51,7 +51,8 @@ const PACK_TYPES = [
   { id: "rigid", label: "Gift boxes or carry bags" },
 ];
 
-export default function Packaging() {
+export default function Packaging({ rates = null }: { rates?: PackagingRates | null }) {
+  const { tiers: PACK_TIERS, extras: PACK_EXTRAS, bundles: PACK_BUNDLES } = useMemo(() => packagingWith(rates), [rates]);
   const [live, setLive] = useState(false);
   const [counts, setCounts] = useState<Record<string, number>>({ label: 0, pouch: 1, carton: 0, rigid: 0 });
   const [sizes, setSizes] = useState(1);
@@ -67,7 +68,7 @@ export default function Packaging() {
     t += skus * Math.max(0, sizes - 1) * PACK_EXTRAS[0].from;
     if (illus) t += PACK_EXTRAS[1].from;
     return t;
-  }, [counts, sizes, illus, skus]);
+  }, [counts, sizes, illus, skus, PACK_TIERS, PACK_EXTRAS]);
 
   const step = (id: string, d: number) => setCounts((c) => ({ ...c, [id]: Math.max(0, Math.min(20, (c[id] ?? 0) + d)) }));
 

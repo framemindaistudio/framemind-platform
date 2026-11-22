@@ -5,6 +5,7 @@
 import { BUNDLE, COACHING, SERVICES, TERMS, VRITTA } from "@/lib/content/catalog";
 import { DEFAULT_RE_RATES } from "@/lib/content/real-estate";
 import { DEFAULT_INDUSTRY_RATES } from "@/lib/content/industries";
+import { DEFAULT_PACKAGING_RATES } from "@/lib/content/packaging";
 import type { RateCard } from "@/lib/pricebook/types";
 import { formatINR } from "@/lib/utils";
 import type { DeckTheme, IconName } from "./types";
@@ -21,6 +22,7 @@ export const SERVICE_ICON: Record<string, IconName> = {
   social: "Megaphone",
 };
 
+
 /** The rate card the deck reads: the saved one, or the published prices when it has not loaded. */
 export function card(rates?: RateCard | null): RateCard {
   if (rates) return rates;
@@ -33,6 +35,7 @@ export function card(rates?: RateCard | null): RateCard {
     coaching: { online: COACHING.fees.online, offline: COACHING.fees.offline, sessions: 0 },
     realEstate: DEFAULT_RE_RATES,
     industries: DEFAULT_INDUSTRY_RATES,
+    packaging: DEFAULT_PACKAGING_RATES,
     terms: { validityDays: TERMS.validityDays, revisionRounds: TERMS.revisionRounds, milestones: TERMS.defaultMilestones },
   };
 }

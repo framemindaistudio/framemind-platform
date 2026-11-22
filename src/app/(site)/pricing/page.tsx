@@ -10,5 +10,5 @@ export const revalidate = 86400;
 
 export default async function Page() {
   const [card, gstOn] = await Promise.all([publicRateCard(), publicGstOn()]);
-  return <Pricing gstOn={gstOn} rates={card && { services: card.services, socialContracts: card.socialContracts, bundleSteps: card.bundleSteps }} />;
+  return <Pricing gstOn={gstOn} rates={card && { services: card.services, socialContracts: card.socialContracts, bundleSteps: card.bundleSteps, packaging: card.packaging }} />;
 }
