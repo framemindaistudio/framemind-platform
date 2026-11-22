@@ -79,8 +79,29 @@ body.light .shade{background:linear-gradient(90deg,#f4f1ea55 0%,#f4f1ea00 45%)}
 .rng{margin-top:16px;font:500 12px/1.5 "Hanken Grotesk";color:var(--muted)}
 .rng b{color:var(--ink);font-weight:700}
 @media (max-width:820px){#story{width:auto;padding:14px 16px 14px;border-radius:18px}.card-top{display:none}#story .bn{font-size:30px;margin:0 0 8px}.quote{font-size:14px;padding-left:12px}.tone,.grid2,.rng{display:none}}
+
+/* ── hotspots: a pulse above every pack in the story ── */
+#hots{position:fixed;inset:0;pointer-events:none;z-index:2}
+#hots .hot{position:absolute;left:0;top:0;width:30px;height:30px;margin:-15px 0 0 -15px;padding:0;border:0;border-radius:50%;background:transparent;pointer-events:auto;cursor:pointer;backdrop-filter:none;transition:opacity .3s}
+#hots .hot:before{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.35),0 4px 14px rgba(0,0,0,.45)}
+#hots .hot:after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.9);animation:hotPulse 2.2s cubic-bezier(.16,1,.3,1) infinite}
+#hots .hot span{position:absolute;left:50%;bottom:calc(100% + 6px);transform:translate(-50%,4px);white-space:nowrap;font:700 11.5px "Hanken Grotesk";letter-spacing:.02em;
+  background:rgba(12,13,16,.82);color:#fff;padding:6px 10px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+#hots .hot:hover span,#hots .hot:focus-visible span{opacity:1;transform:translate(-50%,0)}
+#hots .hot:hover:before{background:var(--hotc,#e0c08a)}
+@keyframes hotPulse{0%{transform:scale(.55);opacity:1}100%{transform:scale(1.9);opacity:0}}
+#hint{white-space:nowrap;position:fixed;left:50%;top:calc(3.2vh + 80px);transform:translate(-50%,-6px);z-index:3;display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:999px;
+  background:rgba(12,13,16,.72);color:#fff;font:700 12.5px "Hanken Grotesk";backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .5s,transform .5s}
+#hint.on{opacity:1;transform:translate(-50%,0)}
+#hint i{width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:hintDot 1.6s infinite}
+@keyframes hintDot{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}100%{box-shadow:0 0 0 12px rgba(255,255,255,0)}}
+.explore{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:11px 18px;border:0;border-radius:999px;background:var(--acc);color:#11120f;font:800 13px "Hanken Grotesk";cursor:pointer}
+body.light .explore{color:#fff}
+.explore:hover{transform:translateY(-1px)}
+body.sizes #hots,body.sizes #hint,body.clean #hots,body.clean #hint,body.bare #hots{display:none}
+@media (max-width:820px){#hint{top:calc(3.2vh + 64px);font-size:12px}.explore{margin-top:10px;padding:10px 16px}}
 </style></head><body class="bars">
-<img id="bd" alt=""><div id="studio"></div><div id="mark3d"></div><canvas id="c"></canvas><div class="shade"></div><div class="grain"></div>
+<img id="bd" alt=""><div id="studio"></div><div id="mark3d"></div><canvas id="c"></canvas><div id="hots"></div><div id="hint"><i></i>Tap any pack to explore it in 3D</div><div class="shade"></div><div class="grain"></div>
 <div id="load">SETTING THE STAGE</div>
 <header><div class="mark">FrameMind · Brand stories in 3D</div><div class="tools"><button id="mStory" class="on">Brand story</button><button id="mPacks">Explore packs</button><button id="spin">Auto-turn</button><button id="save">Save image</button></div></header>
 <section id="story"></section>
@@ -241,7 +262,7 @@ async function show(){
   else{bd.classList.remove('on');}
   const mk=document.getElementById('mark3d');mk.textContent=story?'':S0.name;mk.style.fontFamily="'"+S0.word_font+"'";mk.style.fontWeight=S0.word_font==='Familjen Grotesk'?700:400;
   document.body.style.setProperty('--glow',S0.paper);document.body.style.background=story?'#11212D':`linear-gradient(180deg,${S0.paper} 0%,${S0.paper} 55%,color-mix(in srgb,${S0.paper} 82%,${S0.ink}) 100%)`;
-  spinV=0;fit();ui();requestAnimationFrame(()=>{canvas.classList.remove('out');bd.classList.remove('out');});document.getElementById('load').style.opacity=0;setTimeout(()=>document.getElementById('load').style.display='none',650);
+  spinV=0;fit();ui();buildHots();requestAnimationFrame(()=>{canvas.classList.remove('out');bd.classList.remove('out');});document.getElementById('load').style.opacity=0;setTimeout(()=>document.getElementById('load').style.display='none',650);
   requestAnimationFrame(()=>requestAnimationFrame(()=>{window.__ready=true;}));
 }
 let base={dist:5,target:new THREE.Vector3()};
@@ -286,7 +307,8 @@ function ui(){
    <p class="tone">Voice &nbsp;${S0.voice.map(v=>`<b>${v}</b>`).join(' · ')}</p>
    <div class="grid2"><div class="spec"><div class="aa" style="font-family:'${wf}'${bold}">Aa</div><small>${S0.fonts[0].split(' · ')[0]}<br>${(S0.fonts[1]||'').split(' · ')[0]}</small></div>
    <div class="strips">${pal.map(([n,h])=>`<div class="strip"><i style="background:${h}"></i><b>${n}</b><span>${h.toUpperCase()}</span></div>`).join('')}</div></div>
-   <p class="rng"><b>${nPacks} print-ready packs</b> · ${S0.device}</p>`;
+   <p class="rng"><b>${nPacks} print-ready packs</b> · ${S0.device}</p>
+   <button class="explore" data-explore="1">Explore all ${nPacks} packs in 3D →</button>`;
   requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('in')));
   document.getElementById('nav').innerHTML=ORDER.map(b=>`<button data-b="${b}" class="${b===st.brand?'on':''}">${STORIES[b].name}</button>`).join('');
   document.getElementById('mStory').classList.toggle('on',st.mode==='story');document.getElementById('mPacks').classList.toggle('on',st.mode==='packs');document.getElementById('spin').classList.toggle('on',st.spin);
@@ -298,6 +320,7 @@ function ui(){
   ctl.autoRotate=st.spin&&st.mode!=='story';history.replaceState(null,'','#brand='+st.brand+'&mode='+st.mode+(st.key&&st.mode==='packs'?'&size='+st.key:''));
 }
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.explore){st.mode='packs';st.key=null;show();return;}
   if(b.dataset.k){st.key=b.dataset.k;st.brand=BY[st.key].brand;st.mode='packs';show();}
   else if(b.dataset.all){st.key=null;show();}
   else if(b.dataset.b){st.brand=b.dataset.b;st.key=null;show();}
@@ -321,10 +344,28 @@ canvas.addEventListener('pointerup',e=>{if(!drag)return;const moved=Math.hypot(e
 canvas.style.touchAction='none';
 function size(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();}
 addEventListener('resize',()=>{size();fit();});size();
+let hots=[],hintShown=false;
+function buildHots(){
+  const box=document.getElementById('hots');box.innerHTML='';hots=[];
+  if(st.mode!=='story')return;
+  root.children.forEach(o=>{const k=o.userData.key;if(!k||!BY[k])return;
+    const b=document.createElement('button');b.className='hot';b.dataset.k=k;b.setAttribute('aria-label','Explore '+shortName(BY[k])+' in 3D');
+    b.style.setProperty('--hotc',STORIES[st.brand].accent);b.innerHTML='<span>'+shortName(BY[k])+' · tap to explore</span>';box.appendChild(b);hots.push({o,b});});
+  if(!hintShown){hintShown=true;const h=document.getElementById('hint');setTimeout(()=>h.classList.add('on'),900);setTimeout(()=>h.classList.remove('on'),6500);}
+}
+const _bx=new THREE.Box3(),_v=new THREE.Vector3();
+function placeHots(){
+  if(st.mode!=='story'||!hots.length)return;const W=innerWidth,H=innerHeight;
+  const done=[];
+  hots.forEach(({o,b})=>{_bx.setFromObject(o);_v.set((_bx.min.x+_bx.max.x)/2,_bx.max.y,(_bx.min.z+_bx.max.z)/2).project(cam);
+    let x=(_v.x+1)/2*W,y=(1-_v.y)/2*H-18;
+    for(let n=0;n<4&&done.some(q=>Math.hypot(q[0]-x,q[1]-y)<36);n++)x+=38; // stacked packs: step the next pulse sideways
+    done.push([x,y]);b.style.transform='translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px)';b.style.opacity=_v.z<1?1:0;});
+}
 const clock=new THREE.Clock();
 (function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();
   floaters.forEach(f=>{f.o.position.y=f.y+Math.sin(t*.9+f.ph)*5;f.o.rotation.y+=.0015;});
   if(st.mode==='story'&&!drag){if(st.spin)root.rotation.y+=.004;else if(Math.abs(spinV)>1e-4){root.rotation.y+=spinV;spinV*=.94;}}
-  if(st.mode!=='story')ctl.update();R.render(scene,cam);})();
+  if(st.mode!=='story')ctl.update();R.render(scene,cam);placeHots();})();
 show().then(()=>{setTimeout(()=>ORDER.forEach(b=>{const i=new Image();i.src=STORIES[b].bd;STORIES[b].comp.forEach(c=>BY[c.k]&&loadImg(BY[c.k].img));}),1500);});
 </script></body></html>
