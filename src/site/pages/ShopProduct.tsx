@@ -11,6 +11,7 @@ import { site } from "@/lib/site";
 import { showcaseFor, type Showcase } from "@/lib/shop/showcase";
 import { Kicker, Marked, MaskLines, Rise } from "@/site/components/ui/motion-bits";
 import { SectionHead } from "@/site/components/ui/page-bits";
+import Packs3D from "@/site/components/shop/Packs3D";
 
 /*
  * A store product page (Nov 2026). The first screen answers "what does this do for me" with almost no reading:
@@ -94,6 +95,9 @@ export default function ShopProduct({ product, category, related, inBundle, paym
           </div>
         </div>
       </section>
+
+      {/* ── the packs in 3D (PSD Mockups) ── */}
+      {product.id === "psd-mockups" && <Packs3D />}
 
       {/* ── the app ── */}
       {show?.app && <AppBand show={show} />}

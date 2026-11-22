@@ -612,19 +612,84 @@ export const DEFAULT_CATALOG: ShopCatalog = {
     {
       id: "psd-mockups",
       slug: "psd-mockup-pack",
-      title: "PSD Mockup Pack",
-      tagline: "Show your designs on phones, posters and cards.",
+      title: "PSD Mockups + Packaging Kit",
+      tagline: "18 photo mockups, 40 print-ready pack designs for 7 brands, a browser studio and every pack in 3D.",
       category: "templates",
       price: 199,
       mrp: 499,
       status: "soon",
       description:
-        "Six clean, modern mockup scenes with smart objects: put your design in, save, and it appears on the phone, poster, card or laptop at the right size and angle.\n\nUse them for portfolios, client presentations and product posts. No Photoshop? The guide's web version has a Mockup Studio that puts your design into every scene right in your browser.",
-      includes: ["6 PSD scenes at 3000×2250: phones, framed poster, business cards, Instagram post, laptop", "Full-resolution smart objects", "Background colours you can change", "Browser Mockup Studio (no Photoshop needed)", "Step-by-step guide (PDF + web)"],
-      formats: ["PSD"],
+        "Eighteen layered mockup scenes with a matte, cinematic finish: stand-up pouch, serum carton and dropper, achaar jar, coffee bag, mithai box, drink cans, paper bag, business cards, stationery, poster, book, magazine, tee, tote, mug, phone, laptop and a skincare set. Double-click the smart object, paste your design, save: the product's own shadows and highlights sit on top. No Photoshop? The offline Mockup Studio puts your design on any scene with true perspective and the curve of cans, jars and mugs.\n\nThe packaging kit is the part most packs skip: 40 print-ready designs for seven sample brands across tea, coffee, skincare, sweets, drinks, pickles and homeware, as editable SVG and true-size PDF with cut, fold, bleed and safe-area lines, live text and the full Indian legal panel (placeholders to replace). Every size of every pack, from a 100 g pouch to a 500 ml can, also turns in 3D in Brand Stories, a cinematic chapter per brand with its vision, voice, palette and type.",
+      includes: ["18 layered PSD scenes at 3312 × 2480 with smart objects, shadows and highlights", "40 print-ready packaging designs: SVG, true-size PDF and PNG, with dielines", "Pouches, bags, cartons, gift boxes, labels, cans, cups, carry bags and stationery in typical supplier sizes", "Brand Stories 3D: seven brands on cinematic sets, every size side by side (offline)", "Mockup Studio: your design on any scene in the browser, PNG export (offline)", "Filled examples of every scene, the fonts (SIL OFL) and a 9-page guide"],
+      formats: ["PSD", "SVG", "PDF", "HTML"],
       level: "All levels",
       accent: "#4D7CFE",
       files: [],
+      compare: {
+        "columns": [
+          "FrameMind, ₹199",
+          "Premium mockup packs",
+          "Free mockup sites",
+          "Dieline template packs"
+        ],
+        "rows": [
+          {
+            "label": "Layered photo mockups",
+            "values": [
+              "18 scenes, matte finish",
+              "Yes, often 10 to 50",
+              "One at a time",
+              "No"
+            ]
+          },
+          {
+            "label": "Print-ready packaging with dielines",
+            "values": [
+              "40 designs, SVG and PDF",
+              "No, mockups only",
+              "No",
+              "Blank dielines"
+            ]
+          },
+          {
+            "label": "Every size in 3D",
+            "values": [
+              "Yes, offline",
+              "Rarely",
+              "No",
+              "No"
+            ]
+          },
+          {
+            "label": "Works without Photoshop",
+            "values": [
+              "Mockup Studio in the browser",
+              "Rarely",
+              "Some online editors",
+              "Needs Illustrator"
+            ]
+          },
+          {
+            "label": "Indian packs and legal panel",
+            "values": [
+              "FSSAI, MRP, veg mark, Indian scripts",
+              "Rarely",
+              "Rarely",
+              "Rarely"
+            ]
+          },
+          {
+            "label": "Price",
+            "values": [
+              "₹199, keep forever",
+              "About $15 to $60 each",
+              "Free with attribution or a subscription",
+              "Varies"
+            ]
+          }
+        ],
+        "note": "Checked in November 2026 on mockup and dieline listings on Creative Market, Envato Elements, Etsy and free mockup sites. Their prices and contents change."
+      },
       tags: ["mockups", "psd", "photoshop"],
     },
     {

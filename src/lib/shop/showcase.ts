@@ -117,11 +117,11 @@ export const SHOWCASE: Record<string, Showcase> = {
     ],
   },
   "psd-mockups": {
-    promise: "Show clients your designs on phones, posters and cards in minutes.",
+    promise: "Real-life mockups, print-ready packaging for seven brands, and every pack turning in 3D.",
     points: [
-      { text: "6 scenes at 3000×2250", mark: "circle" },
-      { text: "Browser studio, no Photoshop needed", mark: "highlight" },
-      { text: "Smart objects you just replace", mark: "underline" },
+      { text: "18 layered PSD scenes", mark: "circle" },
+      { text: "40 print-ready pack designs with dielines", mark: "highlight" },
+      { text: "Every size in 3D, plus a browser studio", mark: "underline" },
     ],
   },
 };

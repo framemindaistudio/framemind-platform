@@ -1,0 +1,261 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brand Stories in 3D · FrameMind</title>
+<style>
+@font-face{font-family:"Hanken Grotesk";src:url("assets/HankenGroteskwght.ttf");font-weight:100 900;font-display:swap}@font-face{font-family:"Young Serif";src:url("assets/YoungSerif-Regular.ttf");font-weight:400;font-display:swap}@font-face{font-family:"Rozha One";src:url("assets/RozhaOne-Regular.ttf");font-weight:400;font-display:swap}@font-face{font-family:"Gilda Display";src:url("assets/GildaDisplay-Regular.ttf");font-weight:400;font-display:swap}@font-face{font-family:"Anton";src:url("assets/Anton-Regular.ttf");font-weight:400;font-display:swap}@font-face{font-family:"Gloock";src:url("assets/Gloock-Regular.ttf");font-weight:400;font-display:swap}@font-face{font-family:"Familjen Grotesk";src:url("assets/FamiljenGroteskwght.ttf");font-weight:400 700;font-display:swap}@font-face{font-family:"Fragment Mono";src:url("assets/FragmentMono-Regular.ttf");font-weight:400;font-display:swap}
+:root{--ink:#F4F1EA;--muted:#F4F1EAb3;--line:#ffffff2e;--chip:#00000033;--on:#F4F1EA;--onink:#11212D}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#11212D;color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif}
+body.light{--ink:#11212D;--muted:#11212Dbf;--line:#11212D26;--chip:#ffffff66;--on:#11212D;--onink:#fff}
+#bd{position:fixed;left:0;top:0;transform-origin:0 0;will-change:transform;opacity:0;transition:opacity .8s ease}
+#bd.on{opacity:1}
+#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+.shade{position:fixed;inset:0;pointer-events:none;transition:background .8s}
+body:not(.light) .shade{background:linear-gradient(90deg,#0b0d10d9 0%,#0b0d1099 26%,#0b0d1000 52%),linear-gradient(0deg,#0b0d10a6 0%,#0b0d1000 28%)}
+body.light .shade{background:linear-gradient(90deg,#f4f1eae6 0%,#f4f1ea99 26%,#f4f1ea00 50%)}
+body.sizes .shade{background:none}
+.grain{position:fixed;inset:0;pointer-events:none;opacity:.18;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.bars:before,.bars:after{content:"";position:fixed;left:0;right:0;height:3.2vh;background:#07090b;z-index:2;pointer-events:none}
+.bars:before{top:0}.bars:after{bottom:0}
+header{position:fixed;left:44px;right:44px;top:calc(3.2vh + 18px);display:flex;justify-content:space-between;align-items:center;z-index:3}
+.mark{font:700 11px "Hanken Grotesk";letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+.tools{display:flex;gap:8px}
+button{font:700 12.5px "Hanken Grotesk";border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:10px 16px;border-radius:999px;cursor:pointer;backdrop-filter:blur(10px);transition:transform .15s,background .2s}
+button:hover{transform:translateY(-1px)}button:active{transform:scale(.97)}
+button.on{background:var(--on);color:var(--onink);border-color:var(--on)}
+#story{position:fixed;left:44px;bottom:calc(3.2vh + 40px);width:min(430px,38vw);z-index:3}
+#story>*{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+#story.in>*{opacity:1;transform:none}
+#story.in>*:nth-child(2){transition-delay:.06s}#story.in>*:nth-child(3){transition-delay:.12s}#story.in>*:nth-child(4){transition-delay:.18s}
+#story.in>*:nth-child(5){transition-delay:.24s}#story.in>*:nth-child(6){transition-delay:.3s}#story.in>*:nth-child(7){transition-delay:.36s}
+.chap{font:700 11px "Hanken Grotesk";letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.bn{font-size:62px;line-height:.98;margin:12px 0 14px;letter-spacing:.01em}
+.vision{font:400 21px/1.34 "Young Serif";max-width:30ch}
+.voice{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+.voice span{font:700 11px "Hanken Grotesk";letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--line);padding:7px 11px;border-radius:999px}
+.pal{display:flex;gap:0;margin-top:20px;border-radius:10px;overflow:hidden;width:min(320px,100%);height:38px;box-shadow:0 10px 30px -14px #0008}
+.pal i{flex:1;position:relative}
+.pal i:after{content:attr(data-h);position:absolute;left:6px;bottom:4px;font:600 9px "Fragment Mono";color:#fff;mix-blend-mode:difference;opacity:.85}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin-top:20px;font-size:13px;line-height:1.45}
+.meta b{font:700 10.5px "Hanken Grotesk";letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+nav{position:fixed;right:44px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:3;align-items:flex-end}
+nav button{background:none;border:0;padding:6px 0;font:700 12px "Hanken Grotesk";letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;align-items:center;backdrop-filter:none}
+nav button:after{content:"";width:22px;height:1.5px;background:currentColor;transition:width .3s}
+nav button.on{color:var(--ink);background:none}nav button.on:after{width:46px}
+.arrows{position:fixed;right:44px;bottom:calc(3.2vh + 40px);display:flex;gap:8px;z-index:3}
+.arrows button{width:46px;height:46px;padding:0;font-size:18px}
+.disc{position:fixed;left:44px;right:44px;bottom:calc(3.2vh + 12px);font:500 10.5px "Hanken Grotesk";color:var(--muted);z-index:3;text-align:right}
+#load{position:fixed;inset:0;display:grid;place-items:center;font:700 11px "Hanken Grotesk";letter-spacing:.3em;color:#F4F1EA99;z-index:5;background:#11212D;transition:opacity .6s}
+#sizes{position:fixed;left:44px;bottom:calc(3.2vh + 40px);display:none;z-index:3;flex-direction:column;gap:10px}
+body.sizes #sizes{display:flex}body.sizes #story,body.sizes nav{display:none}
+#sizes .row{display:flex;gap:8px;flex-wrap:wrap}
+body.bare #story,body.bare .shade{display:none}body.clean header,body.clean nav,body.clean .arrows,body.clean .disc,body.clean #sizes{display:none}
+@media (max-width:820px){.bn{font-size:40px}.vision{font-size:16px}#story{width:auto;right:24px;left:24px;bottom:calc(3.2vh + 74px)}nav{display:none}.meta,.pal{display:none}
+ header{left:20px;right:20px}.arrows{right:20px;bottom:calc(3.2vh + 16px)}.disc{display:none}
+ body:not(.light) .shade{background:linear-gradient(0deg,#0b0d10e6 0%,#0b0d1066 45%,#0b0d1000 70%)}body.light .shade{background:linear-gradient(0deg,#f4f1eaf0 0%,#f4f1ea80 45%,#f4f1ea00 70%)}}
+</style></head><body class="bars">
+<img id="bd" alt=""><canvas id="c"></canvas><div class="shade"></div><div class="grain"></div>
+<div id="load">SETTING THE STAGE</div>
+<header><div class="mark">FrameMind · Brand stories in 3D</div><div class="tools"><button id="mStory" class="on">Brand story</button><button id="mSizes">All sizes</button><button id="spin">Turntable</button><button id="save">Save PNG</button></div></header>
+<section id="story"></section>
+<div id="sizes"><div class="chap" id="szTitle"></div><div class="row" id="szLines"></div></div>
+<nav id="nav"></nav>
+<div class="arrows"><button id="prev" aria-label="Previous brand">←</button><button id="next" aria-label="Next brand">→</button></div>
+<div class="disc">Concept brands designed by FrameMind as samples. Backdrops and hero illustrations are AI-assisted; every pack is a print-ready dieline file.</div>
+<script src="assets/three.min.js"></script><script src="assets/three-extras.js"></script>
+<script>
+const ITEMS=[{"key": "chai-100", "brand": "chai", "name": "Chai Kutty - stand-up pouch 100 g - 120x200+70 mm", "title": "stand-up pouch 100 g", "geo": {"type": "pouch", "w": 120, "h": 200, "g": 70}, "faces": null, "trim": [245.14, 200.0], "k": 0.8571428571428571, "img": "assets/chai-100.jpg"}, {"key": "chai-250", "brand": "chai", "name": "Chai Kutty - stand-up pouch 250 g - 140x220+80 mm", "title": "stand-up pouch 250 g", "geo": {"type": "pouch", "w": 140, "h": 220, "g": 80}, "faces": null, "trim": [286.0, 220.0], "k": 1.0, "img": "assets/chai-250.jpg"}, {"key": "chai-500", "brand": "chai", "name": "Chai Kutty - stand-up pouch 500 g - 160x260+90 mm", "title": "stand-up pouch 500 g", "geo": {"type": "pouch", "w": 160, "h": 260, "g": 90}, "faces": null, "trim": [326.86, 260.0], "k": 1.1428571428571428, "img": "assets/chai-500.jpg"}, {"key": "chai-1000", "brand": "chai", "name": "Chai Kutty - stand-up pouch 1 kg - 200x300+100 mm", "title": "stand-up pouch 1 kg", "geo": {"type": "pouch", "w": 200, "h": 300, "g": 100}, "faces": null, "trim": [408.57, 300.0], "k": 1.4285714285714286, "img": "assets/chai-1000.jpg"}, {"key": "kaapi-250", "brand": "kaapi", "name": "Kaapi Katte - flat-bottom bag 250 g - 120x200x45 mm", "title": "flat-bottom bag 250 g", "geo": {"type": "bag", "f": 120, "g": 45, "h": 200}, "faces": null, "trim": [330.0, 200.0], "k": 1.0, "img": "assets/kaapi-250.jpg"}, {"key": "kaapi-500", "brand": "kaapi", "name": "Kaapi Katte - flat-bottom bag 500 g - 150x260x56 mm", "title": "flat-bottom bag 500 g", "geo": {"type": "bag", "f": 150, "g": 56, "h": 260}, "faces": null, "trim": [412.5, 260.0], "k": 1.25, "img": "assets/kaapi-500.jpg"}, {"key": "kaapi-1000", "brand": "kaapi", "name": "Kaapi Katte - flat-bottom bag 1 kg - 180x330x68 mm", "title": "flat-bottom bag 1 kg", "geo": {"type": "bag", "f": 180, "g": 68, "h": 330}, "faces": null, "trim": [495.0, 330.0], "k": 1.5, "img": "assets/kaapi-1000.jpg"}, {"key": "sutra-15", "brand": "sutra", "name": "Sutra Botanics - serum carton 15 ml - 32x32x96 mm", "title": "serum carton 15 ml", "geo": {"type": "carton", "w": 32, "d": 32, "h": 96}, "faces": null, "trim": [137.6, 184.0], "k": 0.8, "img": "assets/sutra-15.jpg"}, {"key": "sutra-30", "brand": "sutra", "name": "Sutra Botanics - serum carton 30 ml - 40x40x120 mm", "title": "serum carton 30 ml", "geo": {"type": "carton", "w": 40, "d": 40, "h": 120}, "faces": null, "trim": [172.0, 230.0], "k": 1.0, "img": "assets/sutra-30.jpg"}, {"key": "sutra-50", "brand": "sutra", "name": "Sutra Botanics - serum carton 50 ml - 45x45x135 mm", "title": "serum carton 50 ml", "geo": {"type": "carton", "w": 45, "d": 45, "h": 135}, "faces": null, "trim": [193.5, 258.75], "k": 1.125, "img": "assets/sutra-50.jpg"}, {"key": "mithaas-250", "brand": "mithaas", "name": "Mithaas - sweet box lid 250 g - 160x160x40 mm", "title": "sweet box lid 250 g", "geo": {"type": "lidbox", "s": 160, "wall": 40}, "faces": null, "trim": [240.0, 240.0], "k": 0.8, "img": "assets/mithaas-250.jpg"}, {"key": "mithaas-500", "brand": "mithaas", "name": "Mithaas - sweet box lid 500 g - 200x200x50 mm", "title": "sweet box lid 500 g", "geo": {"type": "lidbox", "s": 200, "wall": 50}, "faces": null, "trim": [300.0, 300.0], "k": 1.0, "img": "assets/mithaas-500.jpg"}, {"key": "mithaas-1000", "brand": "mithaas", "name": "Mithaas - sweet box lid 1 kg - 250x250x62 mm", "title": "sweet box lid 1 kg", "geo": {"type": "lidbox", "s": 250, "wall": 62.5}, "faces": null, "trim": [375.0, 375.0], "k": 1.25, "img": "assets/mithaas-1000.jpg"}, {"key": "kokum-250", "brand": "monsoon", "name": "Monsoon Soda - Kokum can 250 ml - wrap 182x126 mm", "title": "Kokum can 250 ml", "geo": {"type": "can", "dia": 58, "h": 134, "wrap": 126}, "faces": null, "trim": [182.0, 126.0], "k": 0.883495145631068, "img": "assets/kokum-250.jpg"}, {"key": "kokum-330", "brand": "monsoon", "name": "Monsoon Soda - Kokum can 330 ml - wrap 206x107 mm", "title": "Kokum can 330 ml", "geo": {"type": "can", "dia": 66, "h": 115, "wrap": 107}, "faces": null, "trim": [206.0, 107.0], "k": 1.0, "img": "assets/kokum-330.jpg"}, {"key": "kokum-500", "brand": "monsoon", "name": "Monsoon Soda - Kokum can 500 ml - wrap 206x160 mm", "title": "Kokum can 500 ml", "geo": {"type": "can", "dia": 66, "h": 168, "wrap": 160}, "faces": null, "trim": [206.0, 160.0], "k": 1.0, "img": "assets/kokum-500.jpg"}, {"key": "jeera-250", "brand": "monsoon", "name": "Monsoon Soda - Jeera can 250 ml - wrap 182x126 mm", "title": "Jeera can 250 ml", "geo": {"type": "can", "dia": 58, "h": 134, "wrap": 126}, "faces": null, "trim": [182.0, 126.0], "k": 0.883495145631068, "img": "assets/jeera-250.jpg"}, {"key": "jeera-330", "brand": "monsoon", "name": "Monsoon Soda - Jeera can 330 ml - wrap 206x107 mm", "title": "Jeera can 330 ml", "geo": {"type": "can", "dia": 66, "h": 115, "wrap": 107}, "faces": null, "trim": [206.0, 107.0], "k": 1.0, "img": "assets/jeera-330.jpg"}, {"key": "jeera-500", "brand": "monsoon", "name": "Monsoon Soda - Jeera can 500 ml - wrap 206x160 mm", "title": "Jeera can 500 ml", "geo": {"type": "can", "dia": 66, "h": 168, "wrap": 160}, "faces": null, "trim": [206.0, 160.0], "k": 1.0, "img": "assets/jeera-500.jpg"}, {"key": "neela-200", "brand": "neela", "name": "Neela Achaar - jar wrap label 200 g - 210x88 mm", "title": "jar wrap label 200 g", "geo": {"type": "jar", "dia": 67, "h": 100, "label": 87.5}, "faces": null, "trim": [210.0, 87.5], "k": 0.875, "img": "assets/neela-200.jpg"}, {"key": "neela-300", "brand": "neela", "name": "Neela Achaar - jar wrap label 300 g - 240x100 mm", "title": "jar wrap label 300 g", "geo": {"type": "jar", "dia": 76, "h": 115, "label": 100}, "faces": null, "trim": [240.0, 100.0], "k": 1.0, "img": "assets/neela-300.jpg"}, {"key": "neela-500", "brand": "neela", "name": "Neela Achaar - jar wrap label 500 g - 276x115 mm", "title": "jar wrap label 500 g", "geo": {"type": "jar", "dia": 88, "h": 135, "label": 115}, "faces": null, "trim": [276.0, 115.0], "k": 1.15, "img": "assets/neela-500.jpg"}, {"key": "chai-tin", "brand": "chai", "name": "Chai Kutty - tea tin 250 g - wrap 236x92 mm", "title": "tea tin 250 g", "geo": {"type": "tin", "dia": 75, "h": 110, "wrap": 92}, "faces": {"wrap": [0, 0, 236, 92]}, "trim": [236.0, 92.0], "k": 1, "img": "assets/chai-tin.jpg"}, {"key": "chai-bags", "brand": "chai", "name": "Chai Kutty - 25 tea bags - carton 125x65x80 mm", "title": "25 tea bags", "geo": {"type": "carton", "w": 125, "d": 65, "h": 80}, "faces": {"front": [77, 148, 125, 80], "left": [12, 148, 65, 80], "right": [202, 148, 65, 80], "back": [267, 148, 125, 80], "top": [77, 83, 125, 65], "bottom": [267, 228, 125, 65]}, "trim": [392.0, 311.0], "k": 1, "img": "assets/chai-bags.jpg"}, {"key": "sutra-pump", "brand": "sutra", "name": "Sutra Botanics - pump bottle label 200 ml - wrap 160x82 mm", "title": "pump bottle label 200 ml", "geo": {"type": "bottle", "dia": 52, "h": 150, "label": 82, "cap": "pump"}, "faces": {"wrap": [0, 0, 160, 82]}, "trim": [160.0, 82.0], "k": 1, "img": "assets/sutra-pump.jpg"}, {"key": "kora-bag", "brand": "kora", "name": "Kora Studio - shopping bag - bag 320x260x110 mm", "title": "shopping bag", "geo": {"type": "carrybag", "w": 320, "h": 260, "g": 110}, "faces": {"front": [0, 40, 320, 260], "right": [320, 40, 110, 260], "back": [430, 40, 320, 260], "left": [750, 40, 110, 260]}, "trim": [875.0, 371.0], "k": 1, "img": "assets/kora-bag.jpg"}, {"key": "kaapi-cup", "brand": "kaapi", "name": "Kaapi Katte - paper cup 8 oz - wrap 214x90 mm", "title": "paper cup 8 oz", "geo": {"type": "cup", "top": 80, "bot": 56, "h": 92}, "faces": {"wrap": [0, 0, 214, 90]}, "trim": [214.0, 90.0], "k": 1, "img": "assets/kaapi-cup.jpg"}, {"key": "kaapi-drip", "brand": "kaapi", "name": "Kaapi Katte - 10 drip bags - carton 100x50x140 mm", "title": "10 drip bags", "geo": {"type": "carton", "w": 100, "d": 50, "h": 140}, "faces": {"front": [62, 118, 100, 140], "left": [12, 118, 50, 140], "right": [162, 118, 50, 140], "back": [212, 118, 100, 140], "top": [62, 68, 100, 50], "bottom": [212, 258, 100, 50]}, "trim": [312.0, 326.0], "k": 1, "img": "assets/kaapi-drip.jpg"}, {"key": "sutra-dropper", "brand": "sutra", "name": "Sutra Botanics - dropper bottle label 30 ml - wrap 98x42 mm", "title": "dropper bottle label 30 ml", "geo": {"type": "bottle", "dia": 32, "h": 72, "label": 42, "cap": "dropper"}, "faces": {"wrap": [0, 0, 98, 42]}, "trim": [98.0, 42.0], "k": 1, "img": "assets/sutra-dropper.jpg"}, {"key": "sutra-soap", "brand": "sutra", "name": "Sutra Botanics - soap box 100 g - box 95x65x30 mm", "title": "soap box 100 g", "geo": {"type": "lidbox", "w": 95, "d": 65, "wall": 30}, "faces": {"top": [30, 30, 95, 65], "front": [30, 95, 95, 30, 0], "back": [30, 0, 95, 30, 180], "left": [0, 30, 30, 65, 90], "right": [125, 30, 30, 65, -90]}, "trim": [155.0, 125.0], "k": 1, "img": "assets/sutra-soap.jpg"}, {"key": "mithaas-bag", "brand": "mithaas", "name": "Mithaas - carry bag - bag 260x300x110 mm", "title": "carry bag", "geo": {"type": "carrybag", "w": 260, "h": 300, "g": 110}, "faces": {"front": [0, 40, 260, 300], "right": [260, 40, 110, 300], "back": [370, 40, 260, 300], "left": [630, 40, 110, 300]}, "trim": [755.0, 411.0], "k": 1, "img": "assets/mithaas-bag.jpg"}, {"key": "monsoon-4pack", "brand": "monsoon", "name": "Monsoon Soda - 4-can carrier - carrier 138x138x90 mm", "title": "4-can carrier", "geo": {"type": "sleeve", "w": 138, "d": 138, "h": 90}, "faces": {"front": [0, 0, 138, 90], "right": [138, 0, 138, 90], "back": [276, 0, 138, 90], "left": [414, 0, 138, 90]}, "trim": [567.0, 90.0], "k": 1, "img": "assets/monsoon-4pack.jpg"}, {"key": "neela-gift", "brand": "neela", "name": "Neela Achaar - gift box of 3 jars - box 260x95x70 mm", "title": "gift box of 3 jars", "geo": {"type": "lidbox", "w": 260, "d": 95, "wall": 70}, "faces": {"top": [70, 70, 260, 95], "front": [70, 165, 260, 70, 0], "back": [70, 0, 260, 70, 180], "left": [0, 70, 70, 95, 90], "right": [330, 70, 70, 95, -90]}, "trim": [400.0, 235.0], "k": 1, "img": "assets/neela-gift.jpg"}, {"key": "kora-box", "brand": "kora", "name": "Kora Studio - rigid box - box 300x220x60 mm", "title": "rigid box", "geo": {"type": "lidbox", "w": 300, "d": 220, "wall": 60}, "faces": {"top": [60, 60, 300, 220], "front": [60, 280, 300, 60, 0], "back": [60, 0, 300, 60, 180], "left": [0, 60, 60, 220, 90], "right": [360, 60, 60, 220, -90]}, "trim": [420.0, 340.0], "k": 1, "img": "assets/kora-box.jpg"}, {"key": "kora-tin", "brand": "kora", "name": "Kora Studio - candle tin - wrap 214x70 mm", "title": "candle tin", "geo": {"type": "tin", "dia": 68, "h": 78, "wrap": 70}, "faces": {"wrap": [0, 0, 214, 70]}, "trim": [214.0, 70.0], "k": 1, "img": "assets/kora-tin.jpg"}, {"key": "kora-business", "brand": "kora", "name": "Kora Studio - business card front and back - 85x55 mm", "title": "business card front and back", "geo": {"type": "card", "w": 85, "h": 55}, "faces": {"front": [0, 0, 85, 55], "back": [91, 0, 85, 55]}, "trim": [176.0, 55.0], "k": 1, "img": "assets/kora-business.jpg"}, {"key": "kora-dl", "brand": "kora", "name": "Kora Studio - DL envelope - 220x110 mm", "title": "DL envelope", "geo": {"type": "sheet", "w": 220, "h": 110, "t": 1.2}, "faces": {"front": [0, 0, 220, 110]}, "trim": [220.0, 110.0], "k": 1, "img": "assets/kora-dl.jpg"}, {"key": "kora-letterhead", "brand": "kora", "name": "Kora Studio - letterhead A4 - 210x297 mm", "title": "letterhead A4", "geo": {"type": "sheet", "w": 210, "h": 297, "t": 0.3}, "faces": {"front": [0, 0, 210, 297]}, "trim": [210.0, 297.0], "k": 1, "img": "assets/kora-letterhead.jpg"}, {"key": "kora-notebook", "brand": "kora", "name": "Kora Studio - notebook cover A5 - 148x210 mm", "title": "notebook cover A5", "geo": {"type": "sheet", "w": 148, "h": 210, "t": 6}, "faces": {"front": [0, 0, 148, 210]}, "trim": [148.0, 210.0], "k": 1, "img": "assets/kora-notebook.jpg"}],STORIES={"chai": {"name": "Chai Kutty", "industry": "Tea", "vision": "Bring the tea-stall pour home: strong, spiced, unhurried.", "voice": ["Warm", "Street-smart", "Generous"], "device": "The arch window: every pack opens onto the Munnar stall.", "fonts": ["Rozha One · display", "Manjari · Malayalam", "Hanken Grotesk · text"], "word_font": "Rozha One", "paper": "#F6EBD9", "primary": "#B23A2B", "secondary": "#4E7A45", "ink": "#4A2A1A", "accent": "#D9A441", "head": "POURED HIGH", "range": ["25 tea bags", "stand-up pouch 1 kg", "stand-up pouch 100 g", "stand-up pouch 250 g", "stand-up pouch 500 g", "tea tin 250 g"], "stage": {"surf": 0.8, "cx": 0.52, "key": [-5, 5, 3], "kc": "#ffd0a0", "ki": 1.7, "amb": 0.42, "elev": 0.16, "tone": "dark", "shadow": 0.42}, "comp": [{"k": "chai-500", "x": 0, "z": 0, "ry": -0.15}, {"k": "chai-250", "x": -200, "z": 70, "ry": 0.25}, {"k": "chai-tin", "x": 175, "z": 70, "ry": -0.4}, {"k": "chai-bags", "x": 330, "z": 0, "ry": -0.6}, {"k": "chai-100", "x": -345, "z": 10, "ry": 0.45}], "bd": "assets/bd-chai.jpg", "sizes": ["chai-"]}, "kaapi": {"name": "Kaapi Katte", "industry": "Coffee", "vision": "Every Bengaluru morning deserves a proper davara-tumbler kaapi.", "voice": ["Proud", "Precise", "Neighbourly"], "device": "Brass and brown: the arch frames the filter, the strength meter rates the roast.", "fonts": ["Young Serif · display", "Tiro Kannada · Kannada", "Hanken Grotesk · text"], "word_font": "Young Serif", "paper": "#F3E6D0", "primary": "#3B2418", "secondary": "#C65A33", "ink": "#3B2418", "accent": "#C9963B", "head": "STRONG MORNINGS", "range": ["10 drip bags", "flat-bottom bag 1 kg", "flat-bottom bag 250 g", "flat-bottom bag 500 g", "paper cup 8 oz"], "stage": {"surf": 0.8, "cx": 0.47, "key": [-5, 5, -1], "kc": "#ffd9a8", "ki": 1.6, "amb": 0.4, "elev": 0.17, "tone": "dark", "shadow": 0.45}, "comp": [{"k": "kaapi-500", "x": 0, "z": 0, "ry": -0.2}, {"k": "kaapi-250", "x": -205, "z": 60, "ry": 0.3}, {"k": "kaapi-cup", "x": 165, "z": 95, "ry": 0}, {"k": "kaapi-drip", "x": 290, "z": -10, "ry": -0.5}], "bd": "assets/bd-kaapi.jpg", "sizes": ["kaapi-"]}, "sutra": {"name": "Sutra Botanics", "industry": "Skincare", "vision": "Ayurvedic botanicals, measured like a lab and presented like a herbarium.", "voice": ["Calm", "Exact", "Quietly confident"], "device": "The botanical plate on bone, a navy base band and one copper rule.", "fonts": ["Gilda Display · wordmark", "Marcellus · product names", "Hanken Grotesk · text"], "word_font": "Gilda Display", "paper": "#EFE9DF", "primary": "#11212D", "secondary": "#8FA58E", "ink": "#4A5C6A", "accent": "#B87333", "head": "Herbarium skincare", "range": ["dropper bottle label 30 ml", "pump bottle label 200 ml", "serum carton 15 ml", "serum carton 30 ml", "serum carton 50 ml", "soap box 100 g"], "stage": {"surf": 0.76, "cx": 0.45, "key": [4, 6, 2], "kc": "#fff6ea", "ki": 1.35, "amb": 0.5, "elev": 0.2, "tone": "light", "shadow": 0.3}, "comp": [{"k": "sutra-50", "x": -75, "z": -10, "ry": 0.3}, {"k": "sutra-pump", "x": 35, "z": -25, "ry": -0.2}, {"k": "sutra-dropper", "x": -5, "z": 70, "ry": 0.25}, {"k": "sutra-30", "x": 115, "z": 35, "ry": -0.45}, {"k": "sutra-soap", "x": -170, "z": 75, "ry": 0.45}], "bd": "assets/bd-sutra.jpg", "sizes": ["sutra-"]}, "mithaas": {"name": "Mithaas", "industry": "Sweets", "vision": "A box worth keeping long after the laddoos are gone.", "voice": ["Festive", "Hospitable", "Abundant"], "device": "The jharokha pattern in rani pink, saffron ribbon, ivory name plate.", "fonts": ["Rozha One · display", "Tiro Devanagari · Hindi", "Hanken Grotesk · text"], "word_font": "Rozha One", "paper": "#FBF1DE", "primary": "#C4215E", "secondary": "#F29F05", "ink": "#5C1430", "accent": "#8DAA4F", "head": "MADE FOR SHARING", "range": ["carry bag", "sweet box lid 1 kg", "sweet box lid 250 g", "sweet box lid 500 g"], "stage": {"surf": 0.73, "cx": 0.52, "key": [-4, 6, 3], "kc": "#ffd9b0", "ki": 1.55, "amb": 0.45, "elev": 0.2, "tone": "dark", "shadow": 0.4}, "comp": [{"k": "mithaas-1000", "x": 10, "z": 0, "ry": -0.25}, {"k": "mithaas-500", "x": 10, "y": 71, "z": 0, "ry": 0.08}, {"k": "mithaas-250", "x": 270, "z": 95, "ry": -0.5}, {"k": "mithaas-bag", "x": -290, "z": -50, "ry": 0.35}], "bd": "assets/bd-mithaas.jpg", "sizes": ["mithaas-"]}, "monsoon": {"name": "Monsoon Soda", "industry": "Beverages", "vision": "The first Konkan rain, bottled cold for city afternoons.", "voice": ["Loud", "Playful", "Coastal"], "device": "A rain-postcard window; flavour codes the can colour (kokum plum, jeera green).", "fonts": ["Anton · wordmark", "Big Shoulders · flavour", "Hanken Grotesk · text"], "word_font": "Anton", "paper": "#F7EEDC", "primary": "#6B1E4A", "secondary": "#C6E04B", "ink": "#11212D", "accent": "#2F5D3A", "head": "RAIN IN A CAN.", "range": ["4-can carrier", "Jeera can 250 ml", "Jeera can 330 ml", "Jeera can 500 ml", "Kokum can 250 ml", "Kokum can 330 ml", "Kokum can 500 ml"], "stage": {"surf": null, "cx": 0.5, "key": [-3, 4, 5], "kc": "#ffe8f6", "ki": 1.5, "amb": 0.45, "elev": 0.08, "tone": "dark", "shadow": 0, "rim": "#c06bff"}, "comp": [{"k": "kokum-500", "x": -105, "y": 50, "z": 0, "ry": 0.4, "rx": 0.25, "rz": 0.32}, {"k": "jeera-330", "x": 95, "y": 150, "z": -40, "ry": -0.6, "rx": -0.25, "rz": -0.3}, {"k": "kokum-250", "x": 15, "y": -20, "z": 100, "ry": 0.2, "rx": 0.45, "rz": -0.55}, {"k": "monsoon-4pack", "x": 215, "y": -40, "z": -110, "ry": -0.55, "rx": 0.18, "rz": 0.12}], "bd": "assets/bd-monsoon.jpg", "sizes": ["kokum-", "jeera-"]}, "neela": {"name": "Neela Achaar", "industry": "Pickles", "vision": "Ammamma's terrace recipes, sun-cured and sealed the old way.", "voice": ["Homely", "Spirited", "Rooted"], "device": "Indigo wall, turmeric keyline, the arch die-cut that rises above the label.", "fonts": ["Gloock · wordmark", "Tiro Telugu · Telugu", "Dela Gothic One · stamps"], "word_font": "Gloock", "paper": "#F6ECD6", "primary": "#1F2E66", "secondary": "#E7B03A", "ink": "#1F2E66", "accent": "#C7372F", "head": "FROM AMMAMMA'S TERRACE", "range": ["gift box of 3 jars", "jar wrap label 200 g", "jar wrap label 300 g", "jar wrap label 500 g"], "stage": {"surf": 0.87, "cx": 0.5, "key": [5, 7, 3], "kc": "#fff1d6", "ki": 2.0, "amb": 0.42, "elev": 0.18, "tone": "dark", "shadow": 0.5, "sharp": true}, "comp": [{"k": "neela-gift", "x": 0, "z": -120, "ry": 0}, {"k": "neela-500", "x": -130, "z": 60, "ry": 0.3}, {"k": "neela-300", "x": 15, "z": 95, "ry": -0.1}, {"k": "neela-200", "x": 145, "z": 70, "ry": -0.4}], "bd": "assets/bd-neela.jpg", "sizes": ["neela-"]}, "kora": {"name": "Kora Studio", "industry": "Homeware", "vision": "Fewer, better objects, made by hand and built to be used every day.", "voice": ["Spare", "Considered", "Honest"], "device": "One oversized lowercase wordmark, charcoal kraft, nothing else.", "fonts": ["Familjen Grotesk · wordmark and text", "Fragment Mono · details"], "word_font": "Familjen Grotesk", "paper": "#E9E6E1", "primary": "#3A3835", "secondary": "#8E8A84", "ink": "#3A3835", "accent": "#C9C4BC", "head": "fewer, better", "range": ["DL envelope", "business card front and back", "candle tin", "letterhead A4", "notebook cover A5", "rigid box", "shopping bag"], "stage": {"surf": 0.8, "cx": 0.5, "key": [-4, 7, 3], "kc": "#ffffff", "ki": 1.3, "amb": 0.55, "elev": 0.5, "tone": "light", "shadow": 0.28}, "comp": [{"k": "kora-bag", "x": -240, "z": -90, "ry": 0.35}, {"k": "kora-box", "x": 240, "z": -50, "ry": -0.35}, {"k": "kora-business", "x": -10, "z": 60, "ry": 0.12}, {"k": "kora-dl", "x": 90, "z": 190, "ry": -0.2}, {"k": "kora-letterhead", "x": 340, "z": 230, "ry": -0.3}, {"k": "kora-notebook", "x": -210, "z": 215, "ry": 0.22}, {"k": "kora-tin", "x": 110, "z": 55, "ry": 0}], "bd": "assets/bd-kora.jpg", "sizes": []}},ORDER=["chai", "kaapi", "sutra", "mithaas", "monsoon", "neela", "kora"];
+const BY={};ITEMS.forEach(i=>BY[i.key]=i);
+const S=0.01;if(THREE.ColorManagement)THREE.ColorManagement.legacyMode=false;
+const qs=new URLSearchParams(location.hash.slice(1));
+let st={brand:qs.get('brand')||'chai',mode:qs.get('mode')||'story',line:qs.get('line')||null,spin:false};
+if(qs.get('ui')==='0')document.body.classList.add('clean');const BARE=qs.get('bare')==='1';if(BARE)document.body.classList.add('bare');
+const canvas=document.getElementById('c'),bd=document.getElementById('bd');
+const R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));R.outputEncoding=THREE.sRGBEncoding;R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene(),pm=new THREE.PMREMGenerator(R);scene.environment=pm.fromScene(new THREE.RoomEnvironment(),.04).texture;
+const cam=new THREE.PerspectiveCamera(24,1,.05,200),ctl=new THREE.OrbitControls(cam,canvas);
+ctl.enableDamping=true;ctl.dampingFactor=.06;ctl.enablePan=false;ctl.autoRotateSpeed=.9;
+const hemi=new THREE.HemisphereLight(0xffffff,0x6b5a4a,.45);scene.add(hemi);
+const key=new THREE.DirectionalLight(0xffffff,1.5);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.bias=-.0004;
+Object.assign(key.shadow.camera,{left:-7,right:7,top:7,bottom:-7,near:.5,far:40});scene.add(key);
+const rim=new THREE.DirectionalLight(0xffffff,.5);rim.position.set(4,3,-5);scene.add(rim);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.ShadowMaterial({opacity:.35}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+let root=new THREE.Group();scene.add(root);
+
+const imgs={};const loadImg=s=>imgs[s]||(imgs[s]=new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=s;}));
+function crop(img,it,x,y,w,h,rot=0,clip=null){
+  const s=img.width/(it.trim[0]+6),sw=w*s,sh=h*s,sc=Math.min(1,2048/Math.max(sw,sh)),swap=Math.abs(rot)===90,c=document.createElement('canvas');
+  c.width=Math.max(2,Math.round((swap?sh:sw)*sc));c.height=Math.max(2,Math.round((swap?sw:sh)*sc));
+  const g=c.getContext('2d');g.translate(c.width/2,c.height/2);g.rotate(rot*Math.PI/180);g.drawImage(img,(x+3)*s,(y+3)*s,sw,sh,-sw*sc/2,-sh*sc/2,sw*sc,sh*sc);
+  if(clip){const f=s*sc*it.k;g.setTransform(f,0,0,f,0,0);g.globalCompositeOperation='destination-in';g.fill(new Path2D(clip));}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=R.capabilities.getMaxAnisotropy();return t;}
+const F=(img,it,f)=>crop(img,it,f[0],f[1],f[2],f[3],f[4]||0);
+const mat=(map,o={})=>new THREE.MeshStandardMaterial(Object.assign({map,roughness:.6,metalness:0,envMapIntensity:.35},o));
+const plain=(color,o={})=>new THREE.MeshStandardMaterial(Object.assign({color,roughness:.7,envMapIntensity:.4},o));
+const metal=(c='#cfd4d8',r=.28)=>new THREE.MeshStandardMaterial({color:c,metalness:1,roughness:r,envMapIntensity:1.1});
+const lathe=(pts,seg=96,ps=0)=>new THREE.LatheGeometry(pts.map(p=>new THREE.Vector2(p[0],p[1])),seg,ps);
+function box(w,h,d,mats,y=h/2){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mats);m.position.y=y;return m;}
+const B=it=>STORIES[it.brand];
+
+// ── original-size packs (designs.py) ──
+function pouch(it,img){const{w,h,g}=it.geo,k=it.k,G=new THREE.Group(),front=crop(img,it,0,0,w,h),back=crop(img,it,146*k,0,w,h),nu=48,nv=72;
+  const depth=v=>{const t=Math.min(1,Math.max(0,(v-.1)/.62)),s=t*t*(3-2*t);return 1.2+(g*.45-1.2)*s;};
+  const side=(tex,sign)=>{const pos=[],uv=[],idx=[];for(let j=0;j<=nv;j++){const v=j/nv,D=depth(v),pinch=1-.05*Math.min(1,Math.max(0,(v-.5)/.5));
+    for(let i=0;i<=nu;i++){const u=i/nu,x=(u-.5)*w*pinch;pos.push(sign>0?x:-x,h*(1-v),sign*D*Math.pow(Math.sin(Math.PI*u),.5));uv.push(u,1-v);}}
+    for(let j=0;j<nv;j++)for(let i=0;i<nu;i++){const a=j*(nu+1)+i,b=a+nu+1;idx.push(a,b,a+1,a+1,b,b+1);}
+    const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+    return new THREE.Mesh(ge,mat(tex,{side:THREE.DoubleSide,roughness:.55,envMapIntensity:.3}));};
+  G.add(side(front,1),side(back,-1));const sh=new THREE.Shape(),D=depth(1);
+  for(let i=0;i<=48;i++){const u=i/48;sh[i?'lineTo':'moveTo']((u-.5)*w*.95,D*Math.pow(Math.sin(Math.PI*u),.5));}for(let i=48;i>=0;i--){const u=i/48;sh.lineTo((u-.5)*w*.95,-D*Math.pow(Math.sin(Math.PI*u),.5));}
+  const bot=new THREE.Mesh(new THREE.ShapeGeometry(sh),plain(B(it).primary));bot.rotation.x=Math.PI/2;bot.position.y=.2;G.add(bot);
+  const seal=new THREE.Mesh(new THREE.BoxGeometry(w,7*k,2.2),mat(crop(img,it,0,0,w,7*k)));seal.position.y=h-3.5*k;G.add(seal);return{obj:G,foot:w};}
+function bag(it,img){const{h}=it.geo,k=it.k,Fw=120*k,Gg=45*k,G=new THREE.Group();
+  const m=[mat(crop(img,it,Gg+Fw,0,Gg,h)),mat(crop(img,it,0,0,Gg,h)),plain('#3B2418'),plain('#2b1a11'),mat(crop(img,it,Gg,0,Fw,h)),mat(crop(img,it,2*Gg+Fw,0,Fw,h))];
+  m.forEach(x=>x.roughness=.75);G.add(box(Fw,h,Gg,m));const fin=box(Fw,10*k,1.6,plain('#F3E6D0',{roughness:.6}),h+5*k-.5);G.add(fin);
+  const v=new THREE.Mesh(new THREE.CylinderGeometry(6*k,6*k,1.2,32),plain('#2a1b12',{roughness:.4}));v.rotation.x=Math.PI/2;v.position.set(0,h-30*k,Gg/2+.4);G.add(v);return{obj:G,foot:Fw};}
+function cartonOld(it,img){const k=it.k,W=40*k,D=40*k,H=120*k,top=55*k,bot=175*k;
+  const m=[mat(crop(img,it,92*k,top,D,H)),mat(crop(img,it,12*k,top,D,H)),mat(crop(img,it,52*k,top-D,W,D)),mat(crop(img,it,132*k,bot,W,D,180)),mat(crop(img,it,52*k,top,W,H)),mat(crop(img,it,132*k,top,W,H))];
+  m.forEach(x=>{x.roughness=.55;x.envMapIntensity=.5;});const G=new THREE.Group();G.add(box(W,H,D,m));return{obj:G,foot:W};}
+function lidboxOld(it,img){const k=it.k,Sx=200*k,Wl=50*k,lip=6*k,b=B(it);
+  const m=[mat(crop(img,it,Wl+Sx,Wl,Wl,Sx,-90)),mat(crop(img,it,0,Wl,Wl,Sx,90)),mat(crop(img,it,Wl,Wl,Sx,Sx)),plain(b.primary),mat(crop(img,it,Wl,Wl+Sx,Sx,Wl)),mat(crop(img,it,Wl,0,Sx,Wl,180))];
+  m.forEach(x=>{x.roughness=.45;x.envMapIntensity=.6;});const G=new THREE.Group();G.add(box(Sx-4*k,Wl+lip,Sx-4*k,plain(b.ink,{roughness:.5})));
+  const L=box(Sx,Wl,Sx,m,lip+Wl/2+.3);G.add(L);const r1=box(Sx+1.2,Wl+.8,9*k,plain('#F29F05',{roughness:.3,metalness:.25}),L.position.y);G.add(r1);return{obj:G,foot:Sx,height:lip+Wl};}
+function canProfile(r,h){return[[0,1.5],[r*.72,0],[r*.9,.6],[r*.98,3],[r,7],[r,h-16],[r*.93,h-9],[r*.8,h-4],[r*.82,h-1.2],[r*.79,h],[r*.74,h-1.6],[0,h-1.4]];}
+function rAt(r,h,y){const p=canProfile(r,h).slice(1,9);for(let i=0;i<p.length-1;i++){if(y>=p[i][1]&&y<=p[i+1][1]){const t=(y-p[i][1])/((p[i+1][1]-p[i][1])||1);return p[i][0]+(p[i+1][0]-p[i][0])*t;}}return r;}
+function can(it,img){const{dia,h}=it.geo,r=dia/2,G=new THREE.Group();G.add(new THREE.Mesh(lathe(canProfile(r,h)),metal()));
+  const y0=3,y1=h-5,pts=[];for(let i=0;i<=60;i++){const y=y0+(y1-y0)*i/60;pts.push([rAt(r,h,y)+.08,y]);}
+  G.add(new THREE.Mesh(lathe(pts,128,Math.PI),mat(crop(img,it,0,0,it.trim[0],it.trim[1]),{roughness:.3,metalness:.35,envMapIntensity:.9})));
+  const tab=box(r*.55,.5,r*.3,metal(),h-1);tab.position.z=-r*.2;G.add(tab);return{obj:G,foot:dia};}
+function jar(it,img){const{dia,h,label}=it.geo,r=dia/2,k=it.k,G=new THREE.Group(),b=B(it),neck=h-16;
+  const glass=new THREE.MeshPhysicalMaterial({color:'#ffffff',roughness:.06,transmission:.92,thickness:2.5,ior:1.5,envMapIntensity:1.1,transparent:true});
+  G.add(new THREE.Mesh(lathe([[0,0],[r*.92,0],[r,4],[r,neck-8],[r*.9,neck-2],[r*.86,neck],[r*.86,h-4],[r*.82,h-4],[r*.82,neck+1],[r*.86,neck-2],[r*.96,neck-8],[r*.96,4],[r*.88,2],[0,2]]),glass));
+  const fill=new THREE.Mesh(new THREE.CylinderGeometry(r*.94,r*.94,neck-12,64),plain('#6e2109',{roughness:.3}));fill.position.y=(neck-12)/2+2.5;G.add(fill);
+  G.add(new THREE.Mesh(lathe([[0,h+1.5],[r*.9,h+1.5],[r*.93,h],[r*.93,h-13],[r*.9,h-14],[r*.88,h-14],[r*.88,h-1],[0,h-1]]),plain(b.accent,{metalness:.15,roughness:.38})));
+  const lab=new THREE.Mesh(new THREE.CylinderGeometry(r+.12,r+.12,label,128,1,true,Math.PI,Math.PI*2),mat(crop(img,it,0,0,240*k,label,0,'M0,26 H77 V43 A43,43 0 0 1 163,43 V26 H240 V100 H0 Z'),{transparent:true,alphaTest:.5,side:THREE.DoubleSide}));
+  lab.position.y=6+label/2;G.add(lab);return{obj:G,foot:dia};}
+// ── brand-world packs (designs2.py, faces in trim mm) ──
+function carton(it,img){const g=it.geo,f=it.faces,m=[mat(F(img,it,f.right)),mat(F(img,it,f.left)),mat(F(img,it,f.top)),mat(F(img,it,[...f.bottom.slice(0,4),180])),mat(F(img,it,f.front)),mat(F(img,it,f.back))];
+  m.forEach(x=>{x.roughness=.55;x.envMapIntensity=.5;});const G=new THREE.Group();G.add(box(g.w,g.h,g.d,m));return{obj:G,foot:g.w};}
+function lidbox(it,img){const g=it.geo,f=it.faces,b=B(it),lip=Math.min(8,g.wall*.15);
+  const m=[mat(F(img,it,f.right)),mat(F(img,it,f.left)),mat(F(img,it,f.top)),plain(b.primary),mat(F(img,it,f.front)),mat(F(img,it,f.back))];m.forEach(x=>{x.roughness=.5;x.envMapIntensity=.5;});
+  const G=new THREE.Group();G.add(box(g.w-3,g.wall+lip,g.d-3,plain(it.brand==='kora'?'#2c2a28':b.ink,{roughness:.6})));G.add(box(g.w,g.wall,g.d,m,lip+g.wall/2+.3));return{obj:G,foot:g.w,height:g.wall+lip};}
+function tin(it,img){const g=it.geo,r=g.dia/2,b=B(it),G=new THREE.Group(),lidc=it.brand==='kora'?'#3a3835':b.accent;
+  G.add(new THREE.Mesh(lathe([[0,0],[r-1,0],[r,1.2],[r,g.h-14],[r-.6,g.h-13],[0,g.h-13]]),metal('#c9ccd0',.35)));
+  G.add(new THREE.Mesh(lathe([[0,g.h],[r+.6,g.h],[r+1,g.h-1],[r+1,g.h-15],[r+.4,g.h-15.5],[0,g.h-15.5]]),new THREE.MeshStandardMaterial({color:lidc,metalness:.6,roughness:.35,envMapIntensity:.8,side:THREE.DoubleSide})));
+  const lab=new THREE.Mesh(new THREE.CylinderGeometry(r+.1,r+.1,g.wrap,128,1,true,Math.PI,Math.PI*2),mat(F(img,it,it.faces.wrap),{roughness:.45}));lab.position.y=2+g.wrap/2;G.add(lab);return{obj:G,foot:g.dia};}
+function cup(it,img){const g=it.geo,G=new THREE.Group(),rt=g.top/2,rb=g.bot/2;
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,g.h,128,1,true,Math.PI,Math.PI*2),mat(F(img,it,it.faces.wrap),{roughness:.7,side:THREE.DoubleSide}));body.position.y=g.h/2;G.add(body);
+  G.add(new THREE.Mesh(lathe([[0,g.h+9],[rt*.55,g.h+9],[rt*.62,g.h+7],[rt*.72,g.h+6.5],[rt+1.6,g.h+2],[rt+1.6,g.h-1],[rt+.2,g.h-1.5],[0,g.h-1.5]]),plain('#f4f1ea',{roughness:.45})));
+  const bt=new THREE.Mesh(new THREE.CircleGeometry(rb,48),plain('#e9e2d6'));bt.rotation.x=-Math.PI/2;bt.position.y=.3;G.add(bt);return{obj:G,foot:g.top};}
+function bottle(it,img){const g=it.geo,r=g.dia/2,G=new THREE.Group(),sh=g.h*.82;
+  const glass=new THREE.MeshPhysicalMaterial({color:'#e4ece2',roughness:.42,transmission:.75,thickness:3,ior:1.45,envMapIntensity:.9});
+  G.add(new THREE.Mesh(lathe([[0,0],[r-2,0],[r,2],[r,sh],[r*.85,sh+r*.35],[r*.42,sh+r*.5],[r*.42,g.h*.9],[0,g.h*.9]]),glass));
+  const liq=new THREE.Mesh(new THREE.CylinderGeometry(r*.9,r*.9,sh*.88,64),plain('#cfdcae',{roughness:.3,transparent:true,opacity:.75}));liq.position.y=sh*.44+2;G.add(liq);
+  const lab=new THREE.Mesh(new THREE.CylinderGeometry(r+.15,r+.15,g.label,128,1,true,Math.PI,Math.PI*2),mat(F(img,it,it.faces.wrap),{roughness:.65}));lab.position.y=sh*.48;G.add(lab);
+  const blk=plain('#1b1d1f',{roughness:.55,envMapIntensity:.5});const y0=g.h*.88;
+  if(g.cap==='dropper'){G.add(new THREE.Mesh(lathe([[0,y0],[r*.55,y0],[r*.55,y0+9],[r*.36,y0+10],[r*.36,y0+12],[0,y0+12]]),metal('#b9bdc2',.3)));
+    G.add(new THREE.Mesh(lathe([[0,y0+12],[r*.33,y0+12],[r*.36,y0+16],[r*.33,y0+22],[r*.2,y0+25],[0,y0+25.5]]),blk));}
+  else{G.add(new THREE.Mesh(lathe([[0,y0],[r*.5,y0],[r*.5,y0+12],[r*.2,y0+13],[r*.2,y0+20],[0,y0+20]]),blk));
+    const head=box(r*.9,9,r*.6,blk,y0+24);G.add(head);const noz=box(5,4,r*.9,blk,y0+25);noz.position.z=r*.6;G.add(noz);}
+  return{obj:G,foot:g.dia};}
+function carrybag(it,img){const g=it.geo,f=it.faces,b=B(it),G=new THREE.Group(),inner=plain(it.brand==='kora'?'#2c2a28':b.primary,{side:THREE.BackSide,roughness:.8});
+  const m=[mat(F(img,it,f.right)),mat(F(img,it,f.left)),inner,plain(b.primary),mat(F(img,it,f.front)),mat(F(img,it,f.back))];m.forEach(x=>{if(x.map){x.roughness=.8;x.envMapIntensity=.3;}});
+  const geo=new THREE.BoxGeometry(g.w,g.h,g.g);geo.groups=geo.groups.filter((gr,i)=>i!==2);const body=new THREE.Mesh(geo,m);body.position.y=g.h/2;G.add(body);
+  const inside=new THREE.Mesh(new THREE.BoxGeometry(g.w-.6,g.h-.6,g.g-.6),[inner,inner,new THREE.MeshBasicMaterial({visible:false}),inner,inner,inner]);inside.position.y=g.h/2;G.add(inside);
+  const rope=plain(it.brand==='kora'?'#2c2a28':(it.brand==='mithaas'?'#F29F05':b.ink),{roughness:.7});
+  [1,-1].forEach(s=>{const c=new THREE.CatmullRomCurve3([new THREE.Vector3(-g.w*.22,g.h-12,s*(g.g/2-.8)),new THREE.Vector3(-g.w*.2,g.h+g.h*.18,s*(g.g/2-2)),new THREE.Vector3(0,g.h+g.h*.26,s*(g.g/2-3)),new THREE.Vector3(g.w*.2,g.h+g.h*.18,s*(g.g/2-2)),new THREE.Vector3(g.w*.22,g.h-12,s*(g.g/2-.8))]);
+    G.add(new THREE.Mesh(new THREE.TubeGeometry(c,64,2.2,10),rope));});return{obj:G,foot:g.w};}
+async function sleeve(it,img){const g=it.geo,f=it.faces,b=B(it),G=new THREE.Group(),inner=plain('#2b1020',{side:THREE.BackSide});
+  const m=[mat(F(img,it,f.right)),mat(F(img,it,f.left)),inner,plain(b.primary),mat(F(img,it,f.front)),mat(F(img,it,f.back))];
+  const geo=new THREE.BoxGeometry(g.w,g.h,g.d);geo.groups=geo.groups.filter((gr,i)=>i!==2);const s=new THREE.Mesh(geo,m);s.position.y=g.h/2;G.add(s);
+  const ks=['kokum-330','jeera-330','jeera-330','kokum-330'];for(let i=0;i<4;i++){const c=await make(BY[ks[i]]);c.obj.position.set((i%2?1:-1)*33.5,1,(i<2?1:-1)*33.5);c.obj.rotation.y=i*1.3;G.add(c.obj);}
+  return{obj:G,foot:g.w};}
+function cards(it,img){const g=it.geo,f=it.faces,G=new THREE.Group(),b=B(it);
+  [[f.front,-50,0,-.1],[f.back,52,-8,.18]].forEach(([fc,x,z,r])=>{const n=14,stack=new THREE.Group();
+    for(let i=0;i<n;i++){const top=i===n-1;const c=box(g.w,.62,g.h,[plain('#d9d5ce'),plain('#d9d5ce'),top?mat(F(img,it,fc),{roughness:.85}):plain(fc===f.front?b.primary:b.paper),plain(b.primary),plain('#d9d5ce'),plain('#d9d5ce')],.31+i*.64);c.rotation.y=(Math.sin(i*7.1))*.03;stack.add(c);}
+    stack.position.set(x,0,z);stack.rotation.y=r;G.add(stack);});return{obj:G,foot:200};}
+function sheet(it,img){const g=it.geo,t=g.t||.3,G=new THREE.Group(),side=plain('#d6d2cb');
+  G.add(box(g.w,t,g.h,[side,side,mat(F(img,it,it.faces.front),{roughness:.9}),side,side,side],t/2));return{obj:G,foot:g.w};}
+const OLD={pouch,bag,carton:cartonOld,lidbox:lidboxOld,can,jar},NEW={carton,lidbox,tin,cup,bottle,carrybag,sleeve,card:cards,sheet};
+async function make(it){const img=await loadImg(it.img);const fn=it.faces?NEW[it.geo.type]:OLD[it.geo.type];const p=await fn(it,img);
+  p.obj.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;}});return p;}
+
+let token=0,floaters=[];
+async function show(){
+  const my=++token,S0=STORIES[st.brand],sg=S0.stage;window.__ready=false;
+  document.body.classList.toggle('light',st.mode==='story'&&sg.tone==='light');document.body.classList.toggle('sizes',st.mode==='sizes');
+  const grp=new THREE.Group();floaters=[];
+  if(st.mode==='story'){
+    for(const c of S0.comp){const it=BY[c.k];if(!it)continue;const p=await make(it);
+      p.obj.position.set(c.x,c.y||0,c.z);p.obj.rotation.set(c.rx||0,c.ry||0,c.rz||0);grp.add(p.obj);if(sg.surf===null)floaters.push({o:p.obj,y:c.y||0,ph:Math.random()*6});}
+  }else{
+    const lines=S0.sizes.length?S0.sizes:[];const pre=st.line&&lines.includes(st.line)?st.line:lines[0];st.line=pre;
+    const list=ITEMS.filter(i=>i.brand===st.brand&&pre&&i.key.startsWith(pre)&&!i.faces);
+    const built=[];for(const it of list)built.push(await make(it));
+    const gap=Math.max(...built.map(b=>b.foot))*.35;let x=0;built.forEach((b,i)=>{b.obj.position.x=x+b.foot/2;b.obj.rotation.y=(i-(built.length-1)/2)*-.09;x+=b.foot+gap;grp.add(b.obj);});
+    grp.children.forEach(o=>o.position.x-=(x-gap)/2);
+  }
+  if(my!==token)return;
+  scene.remove(root);root=grp;root.scale.setScalar(S);scene.add(root);
+  // lights per brand
+  key.color.set(sg.kc);key.intensity=st.mode==='story'?sg.ki:1.35;key.position.set(...sg.key);hemi.intensity=sg.amb;
+  rim.color.set(sg.rim||'#ffffff');rim.intensity=sg.rim?1.4:.45;key.shadow.radius=sg.sharp?2:7;
+  ground.material.opacity=st.mode==='story'?sg.shadow:.26;ground.visible=st.mode!=='story'||sg.surf!==null;
+  if(st.mode==='story'){bd.src=S0.bd;await bd.decode().catch(()=>{});bd.classList.add('on');document.body.style.background='#11212D';}
+  else{bd.classList.remove('on');document.body.style.background=S0.paper;}
+  fit();ui();document.getElementById('load').style.opacity=0;setTimeout(()=>document.getElementById('load').style.display='none',650);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{window.__ready=true;}));
+}
+let base={dist:5,target:new THREE.Vector3()};
+function fit(){
+  root.updateMatrixWorld(true);const bx=new THREE.Box3().setFromObject(root),c=bx.getCenter(new THREE.Vector3()),sz=bx.getSize(new THREE.Vector3());
+  const t=Math.tan(cam.fov*Math.PI/360),story=st.mode==='story',mob=innerWidth<820;
+  const elev=story?STORIES[st.brand].stage.elev:.22,pad=story?(mob?1.25:1.18):1.12;
+  const dist=Math.max((sz.y*.5+sz.z*.3)/t,(sz.x*.5+sz.z*.25)/(t*cam.aspect))*pad*(story&&!mob&&!BARE?1.25:1);
+  const dir=new THREE.Vector3(story?0:.16,elev,1).normalize();
+  ctl.target.copy(c);cam.position.copy(c).addScaledVector(dir,dist);cam.near=dist/60;cam.far=dist*30;
+  if(story&&!mob&&!BARE)cam.setViewOffset(innerWidth,innerHeight,-innerWidth*.13,mob?0:innerHeight*.02,innerWidth,innerHeight);else cam.clearViewOffset();
+  cam.updateProjectionMatrix();ctl.minDistance=dist*.6;ctl.maxDistance=dist*1.5;
+  const az=Math.atan2(dir.x,dir.z);ctl.minAzimuthAngle=az-.55;ctl.maxAzimuthAngle=az+.55;const pol=Math.acos(dir.y);ctl.minPolarAngle=Math.max(.2,pol-.25);ctl.maxPolarAngle=Math.min(1.5,pol+.12);
+  ctl.update();base={dist,target:c.clone()};
+}
+function placeBackdrop(){ // keep the photo's tabletop under the packs as the camera moves
+  if(st.mode!=='story'||!bd.naturalWidth)return;const sg=STORIES[st.brand].stage,W=innerWidth,H=innerHeight;
+  const sc=Math.max(W/bd.naturalWidth,H/bd.naturalHeight)*1.16,iw=bd.naturalWidth*sc,ih=bd.naturalHeight*sc;
+  let left=(W-iw)/2,top=(H-ih)/2;
+  if(sg.surf!==null){const p=new THREE.Vector3(base.target.x,0,base.target.z).project(cam);const sy=(1-p.y)/2*H,sx=(p.x+1)/2*W;
+    top=Math.min(0,Math.max(H-ih,sy-sg.surf*ih));left=Math.min(0,Math.max(W-iw,sx-sg.cx*iw));}
+  bd.style.width=iw+'px';bd.style.height=ih+'px';bd.style.transform=`translate(${left}px,${top}px)`;}
+function ui(){
+  const i=ORDER.indexOf(st.brand),S0=STORIES[st.brand],el=document.getElementById('story');el.classList.remove('in');
+  el.innerHTML=`<div class="chap">${String(i+1).padStart(2,'0')} / ${String(ORDER.length).padStart(2,'0')} · ${S0.industry}</div>
+   <h1 class="bn" style="font-family:'${S0.word_font}'${S0.word_font==='Familjen Grotesk'?';font-weight:700;letter-spacing:-.03em':''}">${S0.name}</h1>
+   <p class="vision">${S0.vision}</p>
+   <div class="voice">${S0.voice.map(v=>`<span>${v}</span>`).join('')}</div>
+   <div class="pal">${[S0.primary,S0.secondary,S0.accent,S0.ink,S0.paper].map(h=>`<i style="background:${h}" data-h="${h}"></i>`).join('')}</div>
+   <div class="meta"><b>Type</b><span>${S0.fonts.join(' / ')}</span><b>Device</b><span>${S0.device}</span><b>Range</b><span>${S0.range.join(' · ')}</span></div>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('in')));
+  document.getElementById('nav').innerHTML=ORDER.map(b=>`<button data-b="${b}" class="${b===st.brand?'on':''}">${STORIES[b].name}</button>`).join('');
+  document.getElementById('mStory').classList.toggle('on',st.mode==='story');document.getElementById('mSizes').classList.toggle('on',st.mode==='sizes');document.getElementById('spin').classList.toggle('on',st.spin);
+  document.getElementById('szTitle').textContent=S0.name+' · every size';
+  document.getElementById('szLines').innerHTML=ORDER.filter(b=>STORIES[b].sizes.length).map(b=>STORIES[b].sizes.map(l=>`<button data-b="${b}" data-l="${l}" class="${b===st.brand&&l===st.line?'on':''}">${l==='kokum-'?'Monsoon Kokum':l==='jeera-'?'Monsoon Jeera':STORIES[b].name}</button>`).join('')).join('');
+  ctl.autoRotate=st.spin;history.replaceState(null,'','#brand='+st.brand+'&mode='+st.mode+(st.line?'&line='+st.line:''));
+}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.l){st.brand=b.dataset.b;st.line=b.dataset.l;show();}else if(b.dataset.b){st.brand=b.dataset.b;show();}
+  else if(b.id==='mStory'){st.mode='story';show();}else if(b.id==='mSizes'){st.mode='sizes';if(!STORIES[st.brand].sizes.length)st.brand='chai';show();}
+  else if(b.id==='spin'){st.spin=!st.spin;ui();}else if(b.id==='prev'||b.id==='next'){const pool=st.mode==='sizes'?ORDER.filter(x=>STORIES[x].sizes.length):ORDER;
+    const i=pool.indexOf(st.brand);st.brand=pool[(i+(b.id==='next'?1:-1)+pool.length)%pool.length];st.line=null;show();}
+  else if(b.id==='save'){const c2=document.createElement('canvas');c2.width=canvas.width;c2.height=canvas.height;const g=c2.getContext('2d');
+    if(st.mode==='story'&&bd.naturalWidth){const r=bd.getBoundingClientRect(),k=canvas.width/innerWidth;g.drawImage(bd,r.left*k,r.top*k,r.width*k,r.height*k);}else{g.fillStyle=STORIES[st.brand].paper;g.fillRect(0,0,c2.width,c2.height);}
+    g.drawImage(canvas,0,0);const a=document.createElement('a');a.href=c2.toDataURL('image/png');a.download=`${st.brand}-${st.mode}.png`;a.click();}});
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')document.getElementById('next').click();if(e.key==='ArrowLeft')document.getElementById('prev').click();});
+function size(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();}
+addEventListener('resize',()=>{size();fit();});size();
+const clock=new THREE.Clock();
+(function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime();
+  floaters.forEach(f=>{f.o.position.y=f.y+Math.sin(t*.9+f.ph)*5;f.o.rotation.y+=.0015;});
+  if(!st.spin&&st.mode==='story'&&!ctl.__drag){ctl.target.lerp(base.target,.02);}
+  ctl.update();placeBackdrop();R.render(scene,cam);})();
+show();
+</script></body></html>

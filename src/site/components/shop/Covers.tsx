@@ -235,29 +235,29 @@ function Stack({ p, accent }: { p: PublicProduct; accent: string }) {
   );
 }
 
-function Mockups({ p, accent }: { p: PublicProduct; accent: string }) {
+function Mockups({ p }: { p: PublicProduct; accent: string }) {
   return (
-    <Frame bg={`linear-gradient(160deg, #1B1B1F 0%, ${mix(accent, "#141414", 0.4)} 100%)`} grain={0.18}>
+    <Frame bg="linear-gradient(160deg, #24211d 0%, #141210 100%)" grain={0.2}>
       <div style={{ position: "absolute", left: cq(7), top: cq(7), right: cq(7) }}>
-        <p className={`${mono} text-white/70`} style={{ fontSize: cq(2.6) }}>
-          6 smart-object scenes · 3000×2250
+        <p className={`${mono} text-[#c9a46a]`} style={{ fontSize: cq(2.6) }}>
+          18 PSD scenes · 40 pack designs · 3D
         </p>
-        <Title text={p.title} size={9} className="mt-[2cqw]" />
+        <Title text={p.title} size={8.4} className="mt-[2cqw]" />
       </div>
+      <img src="/shop/covers/mockup2-story.jpg" alt="" className="absolute rounded-[1.6cqw] shadow-[0_3cqw_6cqw_rgba(0,0,0,.55)]" style={{ width: cq(86), left: cq(7), top: cq(36) }} />
       {[
-        { k: "phones", w: 70, l: 4, t: 34, r: -4 },
-        { k: "poster", w: 44, l: 52, t: 64, r: 6 },
-        { k: "cards", w: 44, l: 6, t: 76, r: -3 },
+        { k: "pouch", w: 34, l: 6, t: 70, r: -5 },
+        { k: "cans", w: 34, l: 58, t: 72, r: 5 },
       ].map((m) => (
         <img
           key={m.k}
-          src={`/shop/covers/mockup-${m.k}.jpg`}
+          src={`/shop/covers/mockup2-${m.k}.jpg`}
           alt=""
-          className="absolute rounded-[1.6cqw] border-[0.8cqw] border-white shadow-[0_3cqw_6cqw_rgba(0,0,0,.5)]"
+          className="absolute rounded-[1.4cqw] border-[0.7cqw] border-[#ede6da] shadow-[0_3cqw_6cqw_rgba(0,0,0,.5)]"
           style={{ width: cq(m.w), left: cq(m.l), top: cq(m.t), transform: `rotate(${m.r}deg)` }}
         />
       ))}
-      <AppRow p={p} style={{ right: cq(6), bottom: cq(5) }} />
+      <AppRow p={p} style={{ right: cq(6), bottom: cq(4) }} />
     </Frame>
   );
 }

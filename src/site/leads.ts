@@ -42,6 +42,7 @@ export async function submitLead(lead: LeadInput): Promise<{ ok: true } | { ok: 
 export const SERVICE_IDS: Record<string, string> = {
   Website: "websites",
   "Brand Guidelines": "brand",
+  "Packaging Design": "packaging",
   "Software Solution": "software",
   Automations: "automations",
   "1:1 Personal AI & ML Coaching": "coaching",

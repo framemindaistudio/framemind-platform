@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { INDUSTRIES } from "@/lib/content/industries";
 import { INDUSTRY_ICONS } from "@/site/pages/Industries";
 import { Link } from "@/site/router";
@@ -645,6 +645,12 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
   const [sentNo, setSentNo] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  // /pricing?service=brand (linked from /packaging) opens that service
+  useEffect(() => {
+    const want = new URLSearchParams(window.location.search).get("service");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read once from the address bar after hydration
+    if (want && SERVICES.some((x) => x.id === want)) setActiveId(want as ServiceId);
+  }, [SERVICES]);
   const service = SERVICES.find(s => s.id === activeId)!;
   const selections = allSelections[activeId];
 
@@ -723,6 +729,24 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
               </div>
             </div>
           </div>
+        </section>
+
+        {/* ── Packaging design (highlighted: its own matte world) ── */}
+        <section className="relative overflow-hidden border-b border-[#3a342d] bg-[#1b1916] text-[#ede6da]">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.16] mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")` }} />
+          <Link to="/packaging" className="group relative mx-auto grid max-w-[1320px] items-center gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1fr_1.15fr] md:py-12">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-[#c9a46a]">New service · Packaging design</p>
+              <h2 className="mt-4 text-[clamp(1.9rem,3.6vw,3rem)] font-normal leading-[1.02] tracking-[-0.045em]">Packaging that tells your <span className="text-[#e0c08a]">brand&apos;s story</span>, in 3D before you print.</h2>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#a99f90]">Pouches, cartons, labels, cans and gift boxes on real dielines, built in Adobe to your brand guidelines. From ₹9,500 per SKU.</p>
+              <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#c9a46a] px-5 py-3 text-[14px] font-semibold text-[#1b1916] transition-transform group-active:scale-[0.98]">See packaging and samples →</span>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {["chai", "mithaas", "monsoon"].map((b) => (
+                <img key={b} src={`/packaging/story-${b}.webp`} alt="" loading="lazy" className="aspect-[3/4] w-full rounded-2xl border border-[#3a342d] object-cover transition-transform duration-500 group-hover:-translate-y-1" />
+              ))}
+            </div>
+          </Link>
         </section>
 
         {/* ── Industry apps ── */}

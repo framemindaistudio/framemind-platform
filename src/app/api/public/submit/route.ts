@@ -16,7 +16,7 @@ import { StoreReadOnlyError } from "@/lib/store";
  */
 const KINDS = ["project", "coaching", "vritta", "contact", "careers", "partner"];
 const INDUSTRY_IDS = INDUSTRIES.map((i) => i.id) as string[];
-const SERVICES = ["websites", "brand", "software", "automations", "photography", "videography", "social", "coaching", "vritta", "realestate", "industry", "other"];
+const SERVICES = ["websites", "brand", "software", "automations", "photography", "videography", "social", "coaching", "vritta", "realestate", "industry", "packaging", "other"];
 const TRACKS = ["10-20", "21-35", "36-60"];
 
 function cors(req: Request): Record<string, string> {

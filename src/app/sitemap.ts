@@ -7,6 +7,7 @@ import { publicShop } from "@/site/shop";
 const PAGES: { path: string; priority: number; changeFrequency: "weekly" | "monthly" }[] = [
   { path: "", priority: 1, changeFrequency: "weekly" },
   { path: "/pricing", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/packaging", priority: 0.85, changeFrequency: "monthly" },
   { path: "/connect", priority: 0.9, changeFrequency: "monthly" },
   { path: "/vritta", priority: 0.8, changeFrequency: "monthly" },
   { path: "/personal-coaching", priority: 0.8, changeFrequency: "monthly" },
