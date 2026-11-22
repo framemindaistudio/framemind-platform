@@ -56,14 +56,14 @@ function Hero() {
 
         <MaskLines
           as="h1"
-          className="mt-6 text-[clamp(2.7rem,8.6vw,8.6rem)] font-normal leading-[1.04] tracking-[-0.05em] md:leading-[0.94] md:tracking-[-0.055em]"
+          className="mt-6 text-[clamp(2.7rem,8.6vw,8.6rem)] font-normal leading-[1.1] tracking-[-0.05em] md:leading-[0.94] md:tracking-[-0.055em]"
           lines={[
             <>We build the</>,
             <>
               <span className="text-[#9a9890]">websites, apps</span> &amp; AI
             </>,
             <>
-              your business <span className="fm-mark whitespace-nowrap text-[#171716]">runs on.</span>
+              your business <span className="fm-mark inline-block whitespace-nowrap py-[0.04em] leading-[0.92] text-[#171716]">runs on.</span>
             </>,
           ]}
           delay={0.15}
