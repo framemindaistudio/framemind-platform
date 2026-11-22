@@ -742,9 +742,16 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
               <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#a99f90]">Pouches, cartons, labels, cans and gift boxes on real dielines, built in Adobe to your brand guidelines. From {inr(Math.min(...packagingWith(rates?.packaging).tiers.map((t) => t.from)))} per SKU.</p>
               <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#c9a46a] px-5 py-3 text-[14px] font-semibold text-[#1b1916] transition-transform group-active:scale-[0.98]">See packaging and samples →</span>
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              {["chai", "mithaas", "monsoon"].map((b) => (
-                <img key={b} src={`/packaging/story-${b}.webp`} alt="" loading="lazy" className="aspect-[3/4] w-full rounded-2xl border border-[#3a342d] object-cover transition-transform duration-500 group-hover:-translate-y-1" />
+            <div className="grid grid-cols-3 items-start gap-3 sm:gap-4">
+              {([["chai", "Chai Kutty", "Tea"], ["mithaas", "Mithaas", "Sweets"], ["monsoon", "Monsoon Soda", "Drinks"]] as const).map(([b, name, kind], i) => (
+                <figure key={b} className={`relative overflow-hidden rounded-[18px] ring-1 ring-[#c9a46a]/25 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.9)] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-1.5 ${i === 1 ? "mt-6 sm:mt-10" : ""}`}>
+                  <img src={`/packaging/tall-${b}.webp`} alt={`${name} sample packaging in 3D`} loading="lazy" className="aspect-[3/4] w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.04]" />
+                  <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(20,17,14,0)_55%,rgba(20,17,14,0.85)_100%)]" />
+                  <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
+                    <span className="text-[13px] font-medium tracking-[-0.01em] text-[#ede6da] sm:text-[15px]">{name}</span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#c9a46a]">{kind}</span>
+                  </figcaption>
+                </figure>
               ))}
             </div>
           </Link>
