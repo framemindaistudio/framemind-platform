@@ -733,13 +733,15 @@ export default function Pricing({ rates = null, gstOn = null }: { rates?: Public
         </section>
 
         {/* ── Packaging design (highlighted: its own matte world) ── */}
-        <section className="relative overflow-hidden border-b border-[#3a342d] bg-[#1b1916] text-[#ede6da]">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.16] mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")` }} />
+        <section className="relative overflow-hidden border-y border-[#c9a46a]/25 text-[#ede6da]" style={{ background: "radial-gradient(90% 120% at 78% 30%, #2c5446 0%, #1d3a31 42%, #12261f 100%)" }}>
+          {/* matte bottle green: a soft lamp falloff, a brass hairline above and below, and heavy film grain */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_80%_at_12%_100%,rgba(201,164,106,0.14),transparent_70%)]" />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.34] mix-blend-overlay" style={{ backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")` }} />
           <Link to="/packaging" className="group relative mx-auto grid max-w-[1320px] items-center gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1fr_1.15fr] md:py-12">
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-[#c9a46a]">New service · Packaging design</p>
+              <p className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.26em] text-[#e0c08a]"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#e0c08a]" />New service · Packaging design</p>
               <h2 className="mt-4 text-[clamp(1.9rem,3.6vw,3rem)] font-normal leading-[1.02] tracking-[-0.045em]">Packaging that tells your <span className="text-[#e0c08a]">brand&apos;s story</span>, in 3D before you print.</h2>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#a99f90]">Pouches, cartons, labels, cans and gift boxes on real dielines, built in Adobe to your brand guidelines. From {inr(Math.min(...packagingWith(rates?.packaging).tiers.map((t) => t.from)))} per SKU.</p>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#c6cfc5]">Pouches, cartons, labels, cans and gift boxes on real dielines, built in Adobe to your brand guidelines. From {inr(Math.min(...packagingWith(rates?.packaging).tiers.map((t) => t.from)))} per SKU.</p>
               <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#c9a46a] px-5 py-3 text-[14px] font-semibold text-[#1b1916] transition-transform group-active:scale-[0.98]">See packaging and samples →</span>
             </div>
             <div className="grid grid-cols-3 items-start gap-3 sm:gap-4">
