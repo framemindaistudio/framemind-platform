@@ -1,14 +1,13 @@
 import type { ReactNode } from "react";
 import Navbar from "@/site/components/Navbar";
 import Footer from "@/site/components/Footer";
-import Chatbot from "@/site/components/Chatbot";
 import SmoothScroll from "@/site/components/SmoothScroll";
 import NavSpacer from "@/site/components/NavSpacer";
 
 const WA_NUMBER = "918073087576";
 const WA_MESSAGE = encodeURIComponent("Hi FrameMind! I'd like to discuss a project.");
 
-/** The website's frame from the Figma export: navbar, page, footer, the assistant and the WhatsApp button. */
+/** The website's frame from the Figma export: navbar, page, footer and the WhatsApp button. */
 export default function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="fm-site min-h-screen bg-background text-foreground antialiased">
@@ -20,7 +19,6 @@ export default function SiteShell({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Footer />
-      <Chatbot />
 
       {/* WhatsApp floating button */}
       <a
@@ -28,7 +26,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"
-        className="fixed bottom-20 right-5 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200"
+        className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-200"
         style={{ backgroundColor: "#25D366" }}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
