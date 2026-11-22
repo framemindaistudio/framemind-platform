@@ -78,7 +78,7 @@ body.light .shade{background:linear-gradient(90deg,#f4f1ea55 0%,#f4f1ea00 45%)}
 .strip span{display:block;margin-top:2px;font:500 9.5px "Fragment Mono";color:var(--muted)}
 .rng{margin-top:16px;font:500 12px/1.5 "Hanken Grotesk";color:var(--muted)}
 .rng b{color:var(--ink);font-weight:700}
-@media (max-width:820px){#story{width:auto;padding:18px 18px 16px}.num{font-size:44px}#story .bn{font-size:36px}.quote{font-size:15px}.grid2,.rng{display:none}}
+@media (max-width:820px){#story{width:auto;padding:14px 16px 14px;border-radius:18px}.card-top{display:none}#story .bn{font-size:30px;margin:0 0 8px}.quote{font-size:14px;padding-left:12px}.tone,.grid2,.rng{display:none}}
 </style></head><body class="bars">
 <img id="bd" alt=""><div id="studio"></div><div id="mark3d"></div><canvas id="c"></canvas><div class="shade"></div><div class="grain"></div>
 <div id="load">SETTING THE STAGE</div>
@@ -249,13 +249,13 @@ function fit(){
   root.rotation.set(0,0,0);root.updateMatrixWorld(true);const bx=new THREE.Box3().setFromObject(root),c=bx.getCenter(new THREE.Vector3()),sz=bx.getSize(new THREE.Vector3());
   const t=Math.tan(cam.fov*Math.PI/360),story=st.mode==='story',mob=innerWidth<820;
   // a set turning on its turntable sweeps a circle, so leave room for its widest diagonal
-  const span=story&&!TIGHT?Math.hypot(sz.x,sz.z):sz.x,deep=story&&!TIGHT?0:sz.z;
-  const elev=story?STORIES[st.brand].stage.elev:.22,pad=story?(mob?1.25:(BARE?1.1:1.55)):st.key?(mob?2.1:1.8):(mob?1.08:1.12);
+  const span=story&&!TIGHT&&!mob?Math.hypot(sz.x,sz.z):sz.x,deep=story&&!TIGHT&&!mob?0:sz.z*.6;
+  const elev=story?STORIES[st.brand].stage.elev:.22,pad=story?(mob?1.06:(BARE?1.1:1.55)):st.key?(mob?2.1:1.8):(mob?1.08:1.12);
   const dist=Math.max((sz.y*.5+deep*.3)/t,(span*.5+deep*.25)/(t*cam.aspect))*pad*(story&&!mob&&!BARE?1.3:1);
   const dir=new THREE.Vector3(story?0:.35,elev,1).normalize();
   ctl.target.copy(c);cam.position.copy(c).addScaledVector(dir,dist);cam.near=dist/60;cam.far=dist*30;
   // stories sit the set low in the frame (where the tabletop is) and, on desktop, right of the brand card
-  if(story)cam.setViewOffset(innerWidth,innerHeight,(!mob&&!BARE)?-innerWidth*.13:0,-innerHeight*(STORIES[st.brand].stage.surf===null?0:.11),innerWidth,innerHeight);else if(mob)cam.setViewOffset(innerWidth,innerHeight,0,innerHeight*.13,innerWidth,innerHeight);else cam.clearViewOffset();
+  if(story)cam.setViewOffset(innerWidth,innerHeight,(!mob&&!BARE)?-innerWidth*.13:0,mob&&!BARE?innerHeight*.12:-innerHeight*(STORIES[st.brand].stage.surf===null?0:.11),innerWidth,innerHeight);else if(mob)cam.setViewOffset(innerWidth,innerHeight,0,innerHeight*.13,innerWidth,innerHeight);else cam.clearViewOffset();
   cam.updateProjectionMatrix();
   // stories: the camera stays put (the photo cannot move with it) and you turn the set; single packs and sizes: free 360 orbit
   ctl.enabled=!story;ctl.enableZoom=true;ctl.minDistance=dist*.45;ctl.maxDistance=dist*2.2;
