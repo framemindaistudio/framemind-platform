@@ -247,7 +247,7 @@ function Mockups({ p }: { p: PublicProduct; accent: string }) {
       <img src="/shop/covers/mockup2-story.jpg" alt="" className="absolute rounded-[1.6cqw] shadow-[0_3cqw_6cqw_rgba(0,0,0,.55)]" style={{ width: cq(86), left: cq(7), top: cq(36) }} />
       {[
         { k: "pouch", w: 34, l: 6, t: 70, r: -5 },
-        { k: "cans", w: 34, l: 58, t: 72, r: 5 },
+        { k: "cans-3d", w: 36, l: 57, t: 71, r: 5 },
       ].map((m) => (
         <img
           key={m.k}
