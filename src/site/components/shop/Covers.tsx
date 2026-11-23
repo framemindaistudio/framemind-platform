@@ -244,10 +244,10 @@ function Mockups({ p }: { p: PublicProduct; accent: string }) {
         </p>
         <Title text={p.title} size={8.4} className="mt-[2cqw]" />
       </div>
-      <img src="/shop/covers/mockup2-story.jpg" alt="" className="absolute rounded-[1.6cqw] shadow-[0_3cqw_6cqw_rgba(0,0,0,.55)]" style={{ width: cq(86), left: cq(7), top: cq(36) }} />
+      <img src="/shop/covers/mockup2-kaapi.jpg" alt="" className="absolute rounded-[1.6cqw] shadow-[0_3cqw_6cqw_rgba(0,0,0,.55)]" style={{ width: cq(88), left: cq(6), top: cq(30) }} />
       {[
-        { k: "pouch", w: 34, l: 6, t: 70, r: -5 },
-        { k: "cans-3d", w: 36, l: 57, t: 71, r: 5 },
+        { k: "pouch", w: 30, l: 5, t: 79, r: -5 },
+        { k: "cans-3d", w: 32, l: 62, t: 78, r: 5 },
       ].map((m) => (
         <img
           key={m.k}
