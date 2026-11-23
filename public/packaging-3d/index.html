@@ -117,7 +117,7 @@ const S=0.01;if(THREE.ColorManagement)THREE.ColorManagement.legacyMode=false;
 const qs=new URLSearchParams(location.hash.slice(1));
 let st={brand:qs.get('brand')||'chai',mode:qs.get('mode')==='story'||!qs.get('mode')?'story':'packs',key:qs.get('size')||null,spin:false};
 if(st.key&&!BY[st.key])st.key=null;if(st.key)st.brand=BY[st.key].brand;
-if(qs.get('ui')==='0')document.body.classList.add('clean');const BARE=qs.get('bare')==='1'&&qs.get('shift')!=='1';const TIGHT=qs.get('tight')==='1';if(qs.get('bare')==='1')document.body.classList.add('bare');
+if(qs.get('ui')==='0')document.body.classList.add('clean');const BARE=qs.get('bare')==='1'&&qs.get('shift')!=='1';const ZOOM=parseFloat(qs.get('zoom')||'1')||1;const TIGHT=qs.get('tight')==='1';if(qs.get('bare')==='1')document.body.classList.add('bare');
 const canvas=document.getElementById('c'),bd=document.getElementById('bd');
 const R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
 R.setPixelRatio(Math.min(devicePixelRatio,1.75));R.outputEncoding=THREE.sRGBEncoding;R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -195,7 +195,7 @@ function tin(it,img){const g=it.geo,r=g.dia/2,b=B(it),G=new THREE.Group(),lidc=i
   const lab=new THREE.Mesh(new THREE.CylinderGeometry(r+.1,r+.1,g.wrap,128,1,true,Math.PI,Math.PI*2),mat(F(img,it,it.faces.wrap),{roughness:.45}));lab.position.y=2+g.wrap/2;G.add(lab);return{obj:G,foot:g.dia};}
 function cup(it,img){const g=it.geo,G=new THREE.Group(),rt=g.top/2,rb=g.bot/2;
   const body=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,g.h,128,1,true,Math.PI,Math.PI*2),mat(F(img,it,it.faces.wrap),{roughness:.7,side:THREE.DoubleSide}));body.position.y=g.h/2;G.add(body);
-  G.add(new THREE.Mesh(lathe([[0,g.h+9],[rt*.55,g.h+9],[rt*.62,g.h+7],[rt*.72,g.h+6.5],[rt+1.6,g.h+2],[rt+1.6,g.h-1],[rt+.2,g.h-1.5],[0,g.h-1.5]]),plain('#f4f1ea',{roughness:.45})));
+  G.add(new THREE.Mesh(lathe([[0,g.h+9],[rt*.55,g.h+9],[rt*.62,g.h+7],[rt*.72,g.h+6.5],[rt+1.6,g.h+2],[rt+1.6,g.h-1],[rt+.2,g.h-1.5],[0,g.h-1.5]]),plain('#e6dccb',{roughness:.6})));
   const bt=new THREE.Mesh(new THREE.CircleGeometry(rb,48),plain('#e9e2d6'));bt.rotation.x=-Math.PI/2;bt.position.y=.3;G.add(bt);return{obj:G,foot:g.top};}
 function bottle(it,img){const g=it.geo,r=g.dia/2,G=new THREE.Group(),sh=g.h*.82;
   const glass=new THREE.MeshPhysicalMaterial({color:'#e4ece2',roughness:.42,transmission:.75,thickness:3,ior:1.45,envMapIntensity:.9});
@@ -272,7 +272,8 @@ function fit(){
   // a set turning on its turntable sweeps a circle, so leave room for its widest diagonal
   const span=story&&!TIGHT&&!mob?Math.hypot(sz.x,sz.z):sz.x,deep=story&&!TIGHT&&!mob?0:sz.z*.6;
   const elev=story?STORIES[st.brand].stage.elev:.22,pad=story?(mob?1.06:(BARE?1.1:1.55)):st.key?(mob?2.1:1.8):(mob?1.08:1.12);
-  const dist=Math.max((sz.y*.5+deep*.3)/t,(span*.5+deep*.25)/(t*cam.aspect))*pad*(story&&!mob&&!BARE?1.3:1);
+  const dist0=Math.max((sz.y*.5+deep*.3)/t,(span*.5+deep*.25)/(t*cam.aspect))*pad*(story&&!mob&&!BARE?1.3:1);
+  const dist=dist0*ZOOM;
   const dir=new THREE.Vector3(story?0:.35,elev,1).normalize();
   ctl.target.copy(c);cam.position.copy(c).addScaledVector(dir,dist);cam.near=dist/60;cam.far=dist*30;
   // stories sit the set low in the frame (where the tabletop is) and, on desktop, right of the brand card
